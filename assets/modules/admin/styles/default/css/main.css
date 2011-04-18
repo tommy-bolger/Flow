@@ -1,0 +1,341 @@
+/* General styles */
+
+body {
+	background-color: #2C323B;
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	color: #CCCCCC;
+}
+
+font, th, td, p, div {
+	font-size: 14px;
+}
+
+h1 {
+    font-size: 22px;
+}
+
+a {
+    font-size: 14px;
+	color: #FFFFFF; 
+	text-decoration: none;
+}
+
+a:link, a:active ,a:visited	{ 
+	color: #FFFFFF;
+}
+
+a:hover	{ 
+	text-decoration: underline; 
+	color: #FFFFFF;
+}
+
+img	{
+	border: 0px #000000 solid;
+}
+
+hr {
+	border: solid #545C65 0px; 
+	border-top-width: 0px;
+}
+
+div.clear {
+    clear: both;
+}
+
+/* End general styles */
+
+/*-------------------------------------------------*/
+
+/* General page layout */
+
+#canvas	{
+	width: 1024px;
+	margin-right: auto;
+	margin-left: auto;
+	padding-bottom: 15px;
+}
+
+#header, #content, #footer {
+	border: 1px #98AAB1 solid;
+	background-color: #2C323B;
+	background-image: url(/assets/modules/admin/styles/default/images/content_background.jpg);
+	clear: both;
+}
+
+/* End general page layout */
+
+/*-------------------------------------------------*/
+
+/* Header */
+#header {
+    padding: 5px 5px 0px 5px;
+}
+
+#sub_header_1	{
+	float: left;
+}
+
+#sub_header_2 {
+    float: right;
+    margin-left: 20px;
+}
+
+#menu	{
+	float: left;
+	position: relative;
+	margin-left: 5px;
+}
+
+.menu-item, .menu-item-hover	{
+	border-top: 1px solid #98AAB1;
+	border-right: 1px solid #98AAB1;
+	border-left: 1px solid #98AAB1;
+	padding: 5px 10px 5px 10px;
+	margin-right: 2px;
+	float: left;
+}
+
+.menu-item	{
+    text-align: center;
+	background-color: #545C65;
+}
+
+.menu-item-hover	{
+	background-color: #2C323B;
+	cursor: pointer;
+}
+
+.menu-item-text	{
+	color: #FFFFFF;
+	font: 12px verdana;
+}
+
+a.menu-item-text:hover {
+    text-decoration: none;
+}
+
+/* End header */
+
+/*-------------------------------------------------*/
+
+/* Content */
+
+#content {
+	margin-top: 10px;
+	margin-bottom: 10px;
+	padding: 5px;
+}
+
+#left_content, #right_content {
+    background-color: #545C65;
+    float: left;
+    padding: 5px;
+}
+
+#left_content {
+	width: 20%;	
+	margin-right: 10px;
+}
+
+#left_content ul {
+    list-style-type: disc;
+    list-style-position: inside;
+}
+
+#right_content {
+	width: 77%;
+}
+
+/* End content*/
+
+/*-------------------------------------------------*/
+
+/* Footer */
+
+#footer	{
+    padding: 5px;
+	clear: both;
+	text-align: center;
+}
+
+/* End footer */
+
+/*-------------------------------------------------*/
+
+/* General text */
+
+.normal_size_text	{
+	font-size: 14px;
+}
+
+.medium_size_text	{
+	font-size: 11px;
+}
+
+.small_size_text	{
+	font-size: 10px;
+}
+
+.normal_size_text, .medium_sized_text, .small_sized_text	{
+	color: #CCCCCC;
+}
+
+.italic {
+    font-style: italic;
+}
+
+.category_title	{ 
+	font-weight: bold; 
+	font-size: 12px ; 
+	letter-spacing: 1px; 
+	color: #FFFFFF;
+}
+
+.main_title	{
+	font-weight: bold; 
+	font-size: 22px; 
+	font-family: "Trebuchet MS", Verdana, Arial, Helvetica, sans-serif;
+	text-decoration: none; 
+	line-height: 120%; 
+	color: #CCCCCC;
+}
+
+.footer_text	{ 
+	font-size: 10px; 
+	font-family: Verdana, Arial, Helvetica, sans-serif; 
+	color: #e5e5e5; 
+	letter-spacing: -1px;
+	text-align:center
+}
+
+a.footer_text	{
+	color: #E5E5E5;
+	text-decoration: none;
+}
+
+a.footer_text:hover {
+	color: #CCCCCC; 
+	text-decoration: underline;
+}
+
+/* End general text */
+
+/*-------------------------------------------------*/
+
+/* Form elements */
+
+form {
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+form ul.form_field {
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+
+form ul li {
+    display: inline-block;
+    vertical-align: middle;
+}
+
+form ul li label {
+    display: inline-block;
+    width: 150px;
+    text-align: right;
+}
+
+form ul.textarea_field {
+    display: block;
+}
+
+input, textarea, select {
+	color: #CCCCCC;
+	font: normal 11px Verdana, Arial, Helvetica, sans-serif;
+	border-color: #CCCCCC;
+	background-color: #000000;
+}
+
+li input {
+    width: 200px;
+}
+
+li textarea {
+    width: 300px;
+    height: 150px;
+}
+
+img.single_image {
+    width: 100px;
+    height: 100px;
+}
+
+input.button {
+	background-color: #2C323B;
+	color: #CCCCCC;
+	font-size: 11px; 
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+}
+
+/* The main submit button option */
+input.form_button {
+    width: 50px;
+	background-color: #545C65;
+	font-weight: bold;
+}
+
+li.label {
+    padding-right: 10px;
+}
+
+div.form_errors {
+    margin: 5px 10px 5px 10px;
+    border: 1px solid #CCCCCC;
+    padding: 10px;
+}
+
+/* The inputs for the phone number field */
+
+input.area_code, input.exchange {
+    width: 25px;
+}
+
+input.line_number {
+    width: 30px;
+}
+
+/* The inputs for the split email field */
+
+input.user_name, input.domain_name {
+    width: 100px;
+}
+
+input.domain_extension {
+    width: 35px;
+}
+
+/* The single file field */
+div.single_file_name {
+    font-style: italic;
+    font-size: 12px;
+}
+
+/* End form elements */
+
+/*-------------------------------------------------*/
+
+/* Table formatting */
+
+table {
+    margin-top: 10px;
+    margin-bottom: 10px;
+    border: solid 1px #CCCCCC;
+}
+
+table th, table td {
+    vertical-align: middle;
+    padding: 5px;
+    border: solid 2px #CCCCCC;
+}
+
+/* End table formatting */
