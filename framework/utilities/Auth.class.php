@@ -41,30 +41,6 @@ final class Auth {
     }
     
     /**
-    * Encrypts a password string into a hash.
-    * 
-    * @param string $plaintext_password The plaintext password to encrypt.
-    * @return string The sha1 hash of the input plaintext password.
-    */
-    public static function encryptPassword($plaintext_password) {    
-        if(!isset(self::$password_salt)) {
-            self::$password_salt = config('framework')->getParameter('password_salt');
-        }
-        
-        $salt_split = str_split($plaintext_password, 1);
-        
-        $password_split = str_split($plaintext_password, 1);
-        
-        $password = array_merge($password_split, $salt_split);
-        
-        sort($password);
-        
-        $password = sha1(implode('', $password));
-        
-        return $password;
-    }
-    
-    /**
     * Attempts to authenticate a user.
     * 
     * @param string $user_name The provided username.
@@ -72,7 +48,9 @@ final class Auth {
     * @return boolean The authentication status.
     */
     public static function userLogin($user_name, $password) {
-        $password = self::encryptPassword($password);
+        $second_encryption_key = strlen($user_name) * strlen($password);
+    
+        $encrypted_password = Encryption::hash($password, array($user_name, $second_encryption_key));
     
         $user_information = db()->getRow("
             SELECT
@@ -82,7 +60,7 @@ final class Auth {
             FROM users
             WHERE user_name = ?
               AND password = ?
-        ", array($user_name, $password));
+        ", array($user_name, $encrypted_password));
         
         //If properly authenticated load user information into the session
         if(!empty($user_information)) {
@@ -105,7 +83,9 @@ final class Auth {
     * @return boolean The authentication status.
     */
     public static function adminLogin($user_name, $password) {
-        $password = self::encryptPassword($password);
+        $second_encryption_key = strlen($user_name) * strlen($password);
+    
+        $encrypted_password = Encryption::hash($password, array($user_name, $second_encryption_key));
     
         $admin_information = db()->getRow("
             SELECT
@@ -116,7 +96,7 @@ final class Auth {
             WHERE is_site_admin = true
               AND user_name = ?
               AND password = ?
-        ", array($user_name, $password));
+        ", array($user_name, $encrypted_password));
         
         //If properly authenticated load user information into the session
         if(!empty($admin_information)) {

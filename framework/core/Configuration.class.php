@@ -81,19 +81,9 @@ final class Configuration {
 	 * @param string $config_ini_file The path to a configuration ini file.
 	 * @return boolean Returns true on success and false on error.
 	 */
-	public function load($config_ini_file) {
-        if($this->loaded) {
-            return;
-        }
-        
+	public function load($config_ini_file) {        
         if(Framework::$enable_cache) {
             $this->full_configuration = cache()->get($config_ini_file);
-            
-            if(!empty($this->full_configuration)) {
-                $this->loaded = true;
-
-                return;
-            }
         }
 	
 		//Return false if the configuration file is not available
@@ -175,7 +165,7 @@ final class Configuration {
 	}
 
 	/**
-	 * Retrieves a configuration value by name.
+	 * Retrieves a parameter value by name.
 	 *
 	 * @param string $parameter_name The name parameter to retrieve.
 	 * @return mixed
@@ -190,7 +180,7 @@ final class Configuration {
 	}
 	
 	/**
-	 * Retrieves a configuration value as a boolean by name.
+	 * Retrieves a parameter value as a boolean by name.
 	 *
 	 * @param string $parameter_name The name of the parameter to retrieve.
 	 * @return boolean
@@ -200,7 +190,7 @@ final class Configuration {
 	}
 
 	/**
-	 * Retrieves a configuration value as an array by name.
+	 * Retrieves a parameter value as an array by name.
 	 *
 	 * @param string $parameter_name The name of the parameter to retrieve.
 	 * @return array

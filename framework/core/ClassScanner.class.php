@@ -53,22 +53,18 @@ class ClassScanner {
 	private static function getAvailableClasses() {
 		$available_classes = array();
 
-		$class_search_directories = config('framework')->getArrayParameter("classes_path");
-
-		foreach($class_search_directories as $class_search_directory) {
-			$class_search_directory = realpath($class_search_directory);
-
-			$directory_iterator = new RecursiveDirectoryIterator($class_search_directory);
+		$class_search_directory = dirname(dirname(__DIR__));
 		
-			$filtered_iterator = new ClassDirectoryFilterIterator($directory_iterator);
-		
-			$iterator_iterator = new RecursiveIteratorIterator($filtered_iterator, RecursiveIteratorIterator::SELF_FIRST);
-		
-			$filtered_iterator_iterator = new ClassExtensionFilter($iterator_iterator);
-		
-			foreach($filtered_iterator_iterator as $file) {
-				$available_classes[$file->getBasename(".class.php")] = $file->getPathname();
-			}
+		$directory_iterator = new RecursiveDirectoryIterator($class_search_directory);
+	
+		$filtered_iterator = new ClassDirectoryFilterIterator($directory_iterator);
+	
+		$iterator_iterator = new RecursiveIteratorIterator($filtered_iterator, RecursiveIteratorIterator::SELF_FIRST);
+	
+		$filtered_iterator_iterator = new ClassExtensionFilter($iterator_iterator);
+	
+		foreach($filtered_iterator_iterator as $file) {
+			$available_classes[$file->getBasename(".class.php")] = $file->getPathname();
 		}
 
 		return $available_classes;

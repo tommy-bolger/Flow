@@ -18,7 +18,11 @@
 
 ; General framework configuration
 version = "0.8"
-environment = "development"
+environment = "production"
+
+; Security
+site_key = ""
+password_salt = ""
 
 ; Caching to disk
 cache_base_directory = "./cache"
@@ -44,9 +48,6 @@ session_storage_engine = "file"
 
 ; XML / XSLT
 xslt_directory = "./protected/xslt"
-
-; Security
-password_salt = "1234567890!@#$%^&*()"
 
 ; Assets
 assets_path = "./assets"

@@ -948,8 +948,8 @@ SELECT pg_catalog.setval('user_role_affiliation_user_role_affiliation_id_seq', 1
 
 CREATE TABLE users (
     user_id bigint NOT NULL,
-    user_name character varying(30) NOT NULL,
-    password character varying(40) NOT NULL,
+    user_name character varying(50) NOT NULL,
+    password character varying(255) NOT NULL,
     email_address character varying(255) NOT NULL,
     is_site_admin boolean
 );

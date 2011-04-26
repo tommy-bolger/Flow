@@ -61,9 +61,11 @@ class Database {
                 $host = config('framework')->getParameter("database_host");
                 $database_name = config('framework')->getParameter("database_name");
                 $username = config('framework')->getParameter("database_user");
-                $password = config('framework')->getParameter("database_password");
+                $encrypted_password = config('framework')->getParameter("database_password");
+                
+                $unencrypted_password = Encryption::decrypt($encrypted_password, array($engine, $host, $database_name, $username));
 
-                $new_database_connection->connect($engine, $host, $database_name, $username, $password);
+                $new_database_connection->connect($engine, $host, $database_name, $username, $unencrypted_password);
 			}
 			
 			self::$database_connections[$database_connection] = $new_database_connection;
