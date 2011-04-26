@@ -89,7 +89,9 @@ if(!is_writable($cache_path)) {
 $new_configuration_path = "{$config_directory_path}/configuration.ini";
 
 if(is_file($new_configuration_path)) {
-    unlink($new_configuration_path);
+    print("The user configuration file '{$new_configuration_path}' for the framework already exists. This site has already been installed.\n");
+    
+    exit;
 }
 
 file_put_contents($new_configuration_path, "cache_base_directory = \"{$cache_path}\"");
