@@ -32,25 +32,25 @@ extends Field {
      * @param array $css_classes (optional) A list of css classes for this field.     
      * @return void
      */
-	public function __construct($textbox_name, $textbox_label = "", $textbox_value = NULL, $css_classes = array()) {
-		parent::__construct("text", $textbox_name, $textbox_label, $css_classes);
+    public function __construct($textbox_name, $textbox_label = "", $textbox_value = NULL, $css_classes = array()) {
+        parent::__construct("text", $textbox_name, $textbox_label, $css_classes);
 
-		$this->setDefaultValue($textbox_value);
-	}
-	
-	/**
+        $this->setDefaultValue($textbox_value);
+    }
+    
+    /**
      * Sets the maximum number of characters in a textbox.
      *      
      * @param integer $max_length The maximum length for this field.
      * @return void
      */
-	public function setMaxLength($max_length) {
+    public function setMaxLength($max_length) {
         $this->max_length = $max_length;
-	
+    
         $this->setAttribute('maxlength', $max_length);
-	}
-	
-	/**
+    }
+    
+    /**
      * Validates the field's submitted value.
      *      
      * @return boolean

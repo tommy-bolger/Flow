@@ -24,9 +24,9 @@ class File {
     * @param string $file_directory_path The path of the directory to save the uploaded file to.    
     * @return void
     */
-	public static function moveUpload($upload_file_data, $file_directory_path) {
+    public static function moveUpload($upload_file_data, $file_directory_path) {
         assert('is_array($upload_file_data) && !empty($upload_file_data)');
-	
+    
         if(is_writable($file_directory_path)) {
             $file_name = $upload_file_data['name'];
             
@@ -41,18 +41,18 @@ class File {
         else {
             throw new Exception("Directory '{$file_directory_path}' is not writable.");
         }
-	}
-	
-	/**
+    }
+    
+    /**
     * Archives a file into zip format to a specified destination.
     * 
     * @param string $original_file_path The path to the file that will be zipped.
     * @param string $save_path (optional) The directory path to save the archive file to. Defaults to an empty string which is considered the original file's directory path.
     * @return string The name of the created archive file.
     */
-	public static function zipFile($original_file_path, $save_path = '') {
+    public static function zipFile($original_file_path, $save_path = '') {
         $original_file = pathinfo($original_file_path);
-	
+    
         if(!is_readable($original_file_path)) {
             throw new Exception("File '{$original_file_path}' does not exist or is not readable.");
         }
@@ -88,5 +88,5 @@ class File {
         }
         
         return $archive_file_name;
-	}
+    }
 }

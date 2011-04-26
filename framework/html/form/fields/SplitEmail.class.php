@@ -146,5 +146,5 @@ extends Field {
      */
     public function getFieldHtml() {        
         return "{$this->user_name->getFieldHtml()}&nbsp;@&nbsp;{$this->domain_name->getFieldHtml()}&nbsp;.&nbsp;{$this->domain_extension->getFieldHtml()}";
-	}
+    }
 }

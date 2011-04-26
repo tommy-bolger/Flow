@@ -25,7 +25,7 @@ extends Element {
      * @param string $element_text (optional) The display text inside of the div.
      * @return void
      */
-	public function __construct($element_attributes = array(), $element_text = NULL) {
-		parent::__construct("div", $element_attributes, $element_text);
-	}
+    public function __construct($element_attributes = array(), $element_text = NULL) {
+        parent::__construct("div", $element_attributes, $element_text);
+    }
 }

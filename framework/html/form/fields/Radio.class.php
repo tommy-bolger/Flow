@@ -28,7 +28,7 @@ extends ToggleField {
      * @param array $css_classes (optional) A list of classes for this field.   
      * @return void
      */
-	public function __construct($radio_name, $radio_label, $radio_value, $is_checked = false, $css_classes = array()) {
-		parent::__construct("radio", $radio_name, $radio_label, $css_classes, $radio_value, $is_checked);
-	}
+    public function __construct($radio_name, $radio_label, $radio_value, $is_checked = false, $css_classes = array()) {
+        parent::__construct("radio", $radio_name, $radio_label, $css_classes, $radio_value, $is_checked);
+    }
 }

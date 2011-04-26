@@ -25,29 +25,29 @@ extends Element {
      * @param array $element_attributes (optional) The html attributes of the image element.
      * @return void
      */
-	public function __construct($image_file_path, $element_attributes = array()) {	
-		parent::__construct("img", $element_attributes, NULL);
-		
-		$this->setAttribute('src', $image_file_path);
-	}
-	
-	/**
+    public function __construct($image_file_path, $element_attributes = array()) {    
+        parent::__construct("img", $element_attributes, NULL);
+        
+        $this->setAttribute('src', $image_file_path);
+    }
+    
+    /**
      * Catches calls to functions not in this class and throws an exception to avoid a fatal error.
      *      
      * @param string $function_name The called function name.
      * @param array $arguments The function arguments.
      * @return void
      */
-	public function __call($function_name, $arguments) {
+    public function __call($function_name, $arguments) {
         throw new Exception("Function name '{$function_name}' does not exist in this class.");
-	}
-	
-	/**
-	 * Renders and retrieves the image element's html.
-	 *
-	 * @return string
-	 */
-	public function toHtml() {
-		return "<{$this->tag}{$this->renderAttributes()} />";
-	}
+    }
+    
+    /**
+     * Renders and retrieves the image element's html.
+     *
+     * @return string
+     */
+    public function toHtml() {
+        return "<{$this->tag}{$this->renderAttributes()} />";
+    }
 }

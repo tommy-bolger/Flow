@@ -26,22 +26,22 @@ extends Textbox {
      * @param string $date_value (optional) The date field value.
      * @return void
      */
-	public function __construct($date_name, $date_label = "", $date_value = NULL) {
-		parent::__construct($date_name, $date_label, $date_value, array('date_field'));
-		
-		parent::setMaxLength(10);
-	}
-	
-	/**
+    public function __construct($date_name, $date_label = "", $date_value = NULL) {
+        parent::__construct($date_name, $date_label, $date_value, array('date_field'));
+        
+        parent::setMaxLength(10);
+    }
+    
+    /**
      * Adds the css and javascript for this field.
      *
      * @return void
      */
-	protected function addFieldFiles() {
+    protected function addFieldFiles() {
         page()->addCssFile(page()->getThemeDirectoryPath() . 'css/jquery-ui-1.8.6.custom.css', false);
         page()->addJavascriptFile('./assets/javascript/jquery-1.4.4.min.js', false);
-		page()->addJavascriptFile('./assets/javascript/jquery-ui-1.8.6.custom.min.js', false);
-		page()->addJavascriptFile('./assets/javascript/datepicker.js', false);
+        page()->addJavascriptFile('./assets/javascript/jquery-ui-1.8.6.custom.min.js', false);
+        page()->addJavascriptFile('./assets/javascript/datepicker.js', false);
     }
     
     public function setMaxLength($max_length) {}

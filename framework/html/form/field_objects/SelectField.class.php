@@ -32,11 +32,11 @@ extends Field {
      * @param array $css_classes (optional) An array of css classes. Defaults to empty array   
      * @return void
      */
-	public function __construct($select_name, $select_label, $options = array(), $css_classes = array()) {
-		parent::__construct(NULL, $select_name, $select_label, $css_classes);
-		
-		$this->addOptions($options);
-	}
+    public function __construct($select_name, $select_label, $options = array(), $css_classes = array()) {
+        parent::__construct(NULL, $select_name, $select_label, $css_classes);
+        
+        $this->addOptions($options);
+    }
     
     /**
      * Sets the select box's row size.
@@ -44,44 +44,44 @@ extends Field {
      * @param integer $size The element size.     
      * @return void
      */
-	public function setSize($size) {
-		$this->setAttribute('size', $size);
-	}
-	
-	public function setWidth($width) {
+    public function setSize($size) {
+        $this->setAttribute('size', $size);
+    }
+    
+    public function setWidth($width) {
         $this->__call('setWidth', array());
-	}
-	
-	public function setReadOnly() {
+    }
+    
+    public function setReadOnly() {
         $this->__call('setReadOnly', array());
-	}
-	
-	public function setWriteable() {
+    }
+    
+    public function setWriteable() {
         $this->__call('setWriteable', array());
-	}
-	
-	/**
+    }
+    
+    /**
      * Sets the select as multi select.
      *      
      * @return void
      */
-	public function setMultiSelect() {
+    public function setMultiSelect() {
         $this->is_multi = true;
-	
-		$this->setName("{$this->name}[]");
-	
-		$this->setAttribute('multiple', 'multiple');
-	}
-	
-	/**
+    
+        $this->setName("{$this->name}[]");
+    
+        $this->setAttribute('multiple', 'multiple');
+    }
+    
+    /**
      * Sets the submitted field value.
      *      
      * @param string $field_value The submitted value.
      * @return void
      */
-	public function setValue($field_value) {
+    public function setValue($field_value) {
         $this->value = $field_value;
-	}
+    }
     
     /**
      * Adds an option to the select field.
@@ -92,32 +92,32 @@ extends Field {
      * @param boolean $prepend (optional) A flag to tell this function to prepend this option to the beginning of the options list. Defaults to false.
      * @return void
      */
-	public function addOption($option_value, $option_text = "", $option_group_name = NULL, $prepend = false) {    		
-		if(!$prepend) {      		
-      		$this->child_elements[$option_group_name][$option_value] = $option_text;
-  		}
-  		else {
-  		    if(!isset($this->child_elements[NULL])) {
-  		        $this->child_elements = array(NULL => array()) + $this->child_elements;
-  		    
-  		        $this->child_elements[NULL] = array();
-  		    }
-  		    
-  		    $this->child_elements[NULL] = array($option_value => $option_text) + $this->child_elements[NULL];
-  		}
-	}
-	
-	/**
+    public function addOption($option_value, $option_text = "", $option_group_name = NULL, $prepend = false) {            
+        if(!$prepend) {              
+              $this->child_elements[$option_group_name][$option_value] = $option_text;
+          }
+          else {
+              if(!isset($this->child_elements[NULL])) {
+                  $this->child_elements = array(NULL => array()) + $this->child_elements;
+              
+                  $this->child_elements[NULL] = array();
+              }
+              
+              $this->child_elements[NULL] = array($option_value => $option_text) + $this->child_elements[NULL];
+          }
+    }
+    
+    /**
      * Adds several options to a select field.
      *      
      * @param array $options The options for the select field. Can be in either format: option_value => option_name OR group_name => array(option_value => option_name).
      * @param string $option_group_name (optional) The name of the option group.     
      * @return void
      */
-	public function addOptions($options, $option_group_name = NULL) {
+    public function addOptions($options, $option_group_name = NULL) {
         assert('is_array($options)');
-	
-	    if(!empty($options)) {
+    
+        if(!empty($options)) {
             foreach($options as $option_value => $option_text) {
                 if(!is_array($option_text)) {
                     $this->addOption($option_value, $option_text, $option_group_name);
@@ -131,24 +131,24 @@ extends Field {
                 }
             }
         }
-	}
-	
-	/**
+    }
+    
+    /**
      * Prepends a blank option to the select field.
      *      
      * @param string $blank_option_text (optional) The blank option's display text. Defaults to a blank string.
      * @return void
      */
-	public function addBlankOption($blank_option_text = "") {
-		$this->addOption('none', $blank_option_text, NULL, true);
-	}
-	
-	/**
+    public function addBlankOption($blank_option_text = "") {
+        $this->addOption('none', $blank_option_text, NULL, true);
+    }
+    
+    /**
      * Validates the select's submitted value.
      *      
      * @return boolean
      */
-	protected function validate() {
+    protected function validate() {
         if(!parent::validate()) {
             return false;
         }
@@ -162,14 +162,14 @@ extends Field {
         }
         
         return true;
-	}
-	
-	/**
+    }
+    
+    /**
      * Renders and retrieves the select field's html.
      *      
      * @return string
      */
-	public function getFieldHtml() {
+    public function getFieldHtml() {
         $field_html = "<select{$this->renderAttributes()}>";
 
         if(!empty($this->child_elements)) {
@@ -209,5 +209,5 @@ extends Field {
         $field_html .= "</select>";
         
         return $field_html;
-	}
+    }
 }

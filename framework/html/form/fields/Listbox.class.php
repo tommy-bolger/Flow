@@ -27,9 +27,9 @@ extends SelectField {
      * @param array $css_classes A list of css classes.
      * @return void
      */
-	public function __construct($listbox_name, $listbox_label = "", $options = array(), $css_classes = array()) {
-		parent::__construct($listbox_name, $listbox_label, $options, $css_classes);
-		
-		$this->setMultiSelect();
-	}
+    public function __construct($listbox_name, $listbox_label = "", $options = array(), $css_classes = array()) {
+        parent::__construct($listbox_name, $listbox_label, $options, $css_classes);
+        
+        $this->setMultiSelect();
+    }
 }

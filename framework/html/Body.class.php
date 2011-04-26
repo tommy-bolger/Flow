@@ -21,15 +21,15 @@ extends Element {
     public function __construct() {}
     
     /**
-	 * Renders the body element and all child elements.
-	 *
-	 * @return void
-	 */
-	public function toHtml() {
+     * Renders the body element and all child elements.
+     *
+     * @return void
+     */
+    public function toHtml() {
         $this->tag = "body";
         $this->attributes = array();
         $this->text = NULL;
-	
+    
         return parent::toHtml();
-	}
+    }
 }

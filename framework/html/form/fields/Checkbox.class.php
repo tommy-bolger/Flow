@@ -28,7 +28,7 @@ extends ToggleField {
      * @param array $css_classes (optional) An array of classes.
      * @return void
      */
-	public function __construct($checkbox_name, $checkbox_label = NULL, $is_checked = false, $checkbox_value = 'yes', $css_classes = array()) {
-		parent::__construct("checkbox", $checkbox_name, $checkbox_label, $css_classes, $checkbox_value, $is_checked);
-	}
+    public function __construct($checkbox_name, $checkbox_label = NULL, $is_checked = false, $checkbox_value = 'yes', $css_classes = array()) {
+        parent::__construct("checkbox", $checkbox_name, $checkbox_label, $css_classes, $checkbox_value, $is_checked);
+    }
 }

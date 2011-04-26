@@ -21,32 +21,32 @@ extends Element {
     /**
     * @var string The form name attribute.
     */
-	private $name;
-	
-	/**
+    private $name;
+    
+    /**
     * @var array The submitted form data.
     */
-	private $submitted_data;
-	
-	/**
+    private $submitted_data;
+    
+    /**
     * @var array The values of the form fields.
     */
-	private $field_data;
+    private $field_data;
 
-	/**
+    /**
     * @var array The error messages of the form fields.
     */
-	private $field_errors = array();
-	
-	/**
+    private $field_errors = array();
+    
+    /**
     * @var boolean A flag indicating if the form was submitted.
     */
-	private $submitted = false;
-	
-	/**
+    private $submitted = false;
+    
+    /**
     * @var boolean A flag indicating if the submitted values of the form fields are valid.
     */
-	private $valid = false;
+    private $valid = false;
     
     /**
      * Initializes a new instance of Form.
@@ -56,103 +56,103 @@ extends Element {
      * @param string $form_method The field method. Defaults to 'post'.
      * @return void
      */
-	public function __construct($form_name, $form_action = NULL, $form_method = "post") {	
+    public function __construct($form_name, $form_action = NULL, $form_method = "post") {    
         parent::__construct('form');
-    	
-		$this->setAction($form_action);
-		
-		$this->setName($form_name);
-		
-		$this->setId($form_name);
-		
-		$this->setAttribute('accept-charset', 'utf-8');
-	
-		$this->setFormData($form_method);
-		
-		$this->processFormToken();
-	}
-	
-	/**
+        
+        $this->setAction($form_action);
+        
+        $this->setName($form_name);
+        
+        $this->setId($form_name);
+        
+        $this->setAttribute('accept-charset', 'utf-8');
+    
+        $this->setFormData($form_method);
+        
+        $this->processFormToken();
+    }
+    
+    /**
      * The PHP __call function used to add form fields such as $form->addRadio().
      *      
      * @param string $function_name The name of the function.
      * @param array $arguments The function arguments.
      * @return object The new form field.
      */
-	public function __call($function_name, $arguments) {
+    public function __call($function_name, $arguments) {
         assert('strpos($function_name, "add") !== false');
-		
-		$class_name = ltrim($function_name, "add");
-		
-		$reflection_object = new ReflectionClass($class_name); 
+        
+        $class_name = ltrim($function_name, "add");
+        
+        $reflection_object = new ReflectionClass($class_name); 
 
-		$form_field = $reflection_object->newInstanceArgs($arguments);
-		
-		$this->addField($form_field);
-		
-		return $form_field;
-	}
-	
-	/**
+        $form_field = $reflection_object->newInstanceArgs($arguments);
+        
+        $this->addField($form_field);
+        
+        return $form_field;
+    }
+    
+    /**
      * Sets the form's action.
      *      
      * @param string $action The form action location.
      * @return void
      */
-	public function setAction($action) {	
-		$this->setAttribute('action', $action);
-	}
-	
-	/**
+    public function setAction($action) {    
+        $this->setAttribute('action', $action);
+    }
+    
+    /**
      * Sets the form's name.
      *      
      * @param string $name The form name.
      * @return void
      */
-	public function setName($name) {
-		$this->name = $name;
-		
-		$this->setAttribute('name', $name);
-	}
+    public function setName($name) {
+        $this->name = $name;
+        
+        $this->setAttribute('name', $name);
+    }
 
-	/**
+    /**
      * Retrieves the form's name.
      *      
      * @return string
      */
-	public function getName() {
-		return $this->name;
-	}
-	
-	/**
+    public function getName() {
+        return $this->name;
+    }
+    
+    /**
      * Initializes the form's submitted data.
      *      
      * @return void
      */
-	private function setFormData($method) {
+    private function setFormData($method) {
         assert("\$method == 'post' || \$method == 'get'");
-		
-		//Set the field's method
-		$this->setAttribute('method', $method);
-		
-		$form_submitted_field = "{$this->name}_submitted";
-		
-		if(request()->$method->$form_submitted_field == 1) {
+        
+        //Set the field's method
+        $this->setAttribute('method', $method);
+        
+        $form_submitted_field = "{$this->name}_submitted";
+        
+        if(request()->$method->$form_submitted_field == 1) {
             $this->submitted_data = request()->$method->getAll();
 
-			$this->submitted = true;
+            $this->submitted = true;
         }
-		
+        
         //Add a hidden field of the form's name to allow for multiple forms on a page
         $this->addHidden($form_submitted_field, 1);
-	}
-	
-	/**
+    }
+    
+    /**
      * Adds form token or validates form token to session form token to prevent CSRF attacks.
      *      
      * @return void
      */
-	private function processFormToken() {
+    private function processFormToken() {
         $form_token_name = "{$this->name}_token";
         
         if(!$this->submitted) {
@@ -180,15 +180,15 @@ extends Element {
             //Add the hidden token field
             $this->addHidden($form_token_name, session()->$form_token_name);
         }
-	}
-	
-	/**
+    }
+    
+    /**
      * Adds a field to the form.
      *      
      * @param object $form_field The form field object.
      * @return void
      */
-	public function addField($form_field) {        
+    public function addField($form_field) {        
         assert('is_object($form_field)');
         assert('property_exists($form_field, "IS_FORM_FIELD")');
         
@@ -196,42 +196,42 @@ extends Element {
         
         assert('!isset($this->child_elements[$field_name])');
     
-		if($this->submitted) {
-			$field_submitted_value = NULL;
+        if($this->submitted) {
+            $field_submitted_value = NULL;
             
             if(!empty($this->submitted_data)) {
-				if(isset($this->submitted_data[$field_name])) {
-					$field_submitted_value = $this->submitted_data[$field_name];
-				}
-			}
+                if(isset($this->submitted_data[$field_name])) {
+                    $field_submitted_value = $this->submitted_data[$field_name];
+                }
+            }
 
-			$form_field->setValue($field_submitted_value);
-		}
-		
-		if($form_field->getInputType() == 'file') {                
+            $form_field->setValue($field_submitted_value);
+        }
+        
+        if($form_field->getInputType() == 'file') {                
             $this->setAttribute('enctype', 'multipart/form-data');
-		}
-		
-		$this->child_elements[$field_name] = $form_field;
-	}
-	
-	/**
+        }
+        
+        $this->child_elements[$field_name] = $form_field;
+    }
+    
+    /**
      * Retrieves a form field by name.
      *      
      * @param string $field_name The field's name.
      * @return object
      */
-	public function getField($field_name) {
+    public function getField($field_name) {
         return $this->getChild($field_name); 
-	}
-	
-	/**
+    }
+    
+    /**
      * Sets the default values of all form fields specified by name.
      *      
      * @param array $field_values An array of field values in the following format: array(field_name => field_value).
      * @return void
      */
-	public function setDefaultValues($field_values) {
+    public function setDefaultValues($field_values) {
         assert('is_array($field_values) && !empty($field_values)');
         
         foreach($field_values as $field_name => $field_value) {
@@ -239,110 +239,110 @@ extends Element {
 
             $this->child_elements[$field_name]->setDefaultValue($field_value);
         }
-	}
-	
-	/**
+    }
+    
+    /**
      * Sets specified form fields as required.
      *      
      * @param array $required_fields An array of field names to set as required.
      * @return void
      */
-	public function setRequiredFields($required_fields = array()) {
+    public function setRequiredFields($required_fields = array()) {
         assert('is_array($required_fields) && !empty($required_fields)');
-	
+    
         foreach($required_fields as $required_field) {
             assert('isset($this->child_elements[$required_field])');
         
             $this->child_elements[$required_field]->setRequired();
         }
-	}
-	
-	/**
+    }
+    
+    /**
      * Returns the form submitted flag indicating if it has been submitted.
      *      
      * @return boolean
      */
-	public function wasSubmitted() {
-		return $this->submitted;
-	}
-	
-	/**
+    public function wasSubmitted() {
+        return $this->submitted;
+    }
+    
+    /**
      * Adds an error message to the form.
      *      
      * @param string $error_message The error message.
      * @return void
      */
-	public function addError($error_message) {
+    public function addError($error_message) {
         $this->field_errors[] = $error_message;
-	}
-	
-	/**
+    }
+    
+    /**
      * Checks for if all form fields are valid.
      *
      * @return boolean A flag indicating if the form fields are valid.
      */
-	public function isValid() {
+    public function isValid() {
         if($this->submitted) {
-    	    if($this->valid === false) {
+            if($this->valid === false) {
                 $fields_valid = true;
                 
-    	        foreach($this->child_elements as $form_field) {
+                foreach($this->child_elements as $form_field) {
                     if(!$form_field->isValid()) {
                         $fields_valid = false;
                         
                         $this->field_errors[] = $form_field->getErrorMessage();
                     }
-    	        }
-    	        
-    	        $this->valid = $fields_valid;
-    	    }
-	    }
-	    else {
+                }
+                
+                $this->valid = $fields_valid;
+            }
+        }
+        else {
             $this->valid = false;
-	    }
-	    
-	    return $this->valid;
-	}
-	
-	/**
+        }
+        
+        return $this->valid;
+    }
+    
+    /**
      * Retrieves the form's field values.
      *      
      * @return array
      */
-	public function getData() {
+    public function getData() {
         if(!isset($this->field_data)) {
             foreach($this->child_elements as $field_name => $field) {
                 $this->field_data[$field_name] = $field->getValue();
             }
         }
         
-		return $this->field_data;
-	}
-	
-	/**
+        return $this->field_data;
+    }
+    
+    /**
      * Resets all field values in the form.
      *      
      * @return void
      */
-	public function reset() {
+    public function reset() {
         if(!empty($this->child_elements)) {
             foreach($this->child_elements as $child_element) {
                 $child_element->resetValue();
             }
         }
-	}
-	
-	/**
+    }
+    
+    /**
      * Retrieves the form as an array suitable for a template.
      *      
      * @return array
      */
-	public function toTemplateArray() {
+    public function toTemplateArray() {
         $template_array = array();
         $form_template_name = '{{' . strtoupper($this->name) . '}}';
         
         $template_array[$form_template_name] = $this->generateOpenTag();
-	
+    
         if(!empty($this->child_elements)) {
             foreach($this->child_elements as $field) {
                 if($field->getInputType() != 'hidden') {
@@ -355,14 +355,14 @@ extends Element {
         }
         
         return $template_array;
-	}
-	
-	/**
+    }
+    
+    /**
      * Renders and retrieves the form's html.
      *      
      * @return string
      */
-	public function toHtml() {
+    public function toHtml() {
         $form_html = parent::toHtml();
         
         if(!empty($this->field_errors)) {
@@ -370,5 +370,5 @@ extends Element {
         }
         
         return $form_html;
-	}
+    }
 }

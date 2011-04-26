@@ -19,16 +19,16 @@
 class Hyperlink
 extends Element {
     /**
-	 * Initializes a new instance of Hyperlink.
-	 *
-	 * @param string $hyperlink_url The url of the hyperlink.
-	 * @param string $display_text(optional) The display text of the hyperlink.
-	 * @param array $element_attributes (optional) The attributes of the hyperlink.	 	 
-	 * @return void
-	 */
-	public function __construct($hyperlink_url, $display_text = NULL, $element_attributes = array()) {
-		parent::__construct("a", $element_attributes, $display_text);
-		
-		$this->setAttribute('href', $hyperlink_url);
-	}
+     * Initializes a new instance of Hyperlink.
+     *
+     * @param string $hyperlink_url The url of the hyperlink.
+     * @param string $display_text(optional) The display text of the hyperlink.
+     * @param array $element_attributes (optional) The attributes of the hyperlink.          
+     * @return void
+     */
+    public function __construct($hyperlink_url, $display_text = NULL, $element_attributes = array()) {
+        parent::__construct("a", $element_attributes, $display_text);
+        
+        $this->setAttribute('href', $hyperlink_url);
+    }
 }

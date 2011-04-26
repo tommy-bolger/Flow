@@ -18,10 +18,10 @@
 */
 final class Assert {
     /**
-	 * Enables assertions within the framework.
-	 *
-	 * @return void
-	 */
+     * Enables assertions within the framework.
+     *
+     * @return void
+     */
     public static function enable() {
         assert_options(ASSERT_ACTIVE, true);
         assert_options(ASSERT_WARNING, false);
@@ -29,19 +29,19 @@ final class Assert {
     }
     
     /**
-	 * Disables assertions within the framework.
-	 *
-	 * @return void
-	 */
+     * Disables assertions within the framework.
+     *
+     * @return void
+     */
     public static function disable() {
         assert_options(ASSERT_ACTIVE, false);
     }
     
     /**
-	 * A callback function for failed assertions that throws an exception to product a stack trace.
-	 *
-	 * @return void
-	 */
+     * A callback function for failed assertions that throws an exception to product a stack trace.
+     *
+     * @return void
+     */
     public static function throwException($file, $line, $message) {
         throw new Exception("Assertion '{$message}' has failed.");
     }

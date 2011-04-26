@@ -27,13 +27,13 @@ extends Button {
      * @param array $css_classes (optional) A list of classes.
      * @return void
      */
-	public function __construct($image_button_name, $path_to_image = "", $image_button_alt = "", $css_classes = array()) {
-		parent::__construct('image', $image_button_name, 'button', $css_classes);
-		
-		$this->setImageSource($path_to_image);
-		
-		$this->setImageAlt($image_button_alt);
-	}
+    public function __construct($image_button_name, $path_to_image = "", $image_button_alt = "", $css_classes = array()) {
+        parent::__construct('image', $image_button_name, 'button', $css_classes);
+        
+        $this->setImageSource($path_to_image);
+        
+        $this->setImageAlt($image_button_alt);
+    }
     
     /**
      * Sets the source image of an image button.
@@ -41,25 +41,25 @@ extends Button {
      * @param string $path_to_image The file path to the image relative to the document root.
      * @return void
      */
-	public function setImageSource($path_to_image) {
+    public function setImageSource($path_to_image) {
         $path_to_image = rtrim($path_to_image, '/');
-	
+    
         $path_to_image = page()->getThemeDirectoryPath() . "images/{$path_to_image}";
-    		
-		if(!is_readable($path_to_image)) {
-			throw new Exception("Image '{$path_to_image}' does not exist or is not accessible.");
-		}
-		
-		$this->setAttribute('src', $path_to_image);
-	}
-	
-	/**
+            
+        if(!is_readable($path_to_image)) {
+            throw new Exception("Image '{$path_to_image}' does not exist or is not accessible.");
+        }
+        
+        $this->setAttribute('src', $path_to_image);
+    }
+    
+    /**
      * Sets the alt text of the image.
      *      
      * @param string $alt_text
      * @return void
      */
-	public function setImageAlt($image_alt_text = "") {
+    public function setImageAlt($image_alt_text = "") {
         $alt_text = $image_alt_text;
         
         if(empty($alt_text)) {
@@ -67,5 +67,5 @@ extends Button {
         }
         
         $this->setAttribute('alt', $alt_text);
-	}
+    }
 }

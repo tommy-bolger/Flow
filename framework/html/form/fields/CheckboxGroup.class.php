@@ -27,7 +27,7 @@ extends ToggleGroup {
      * @param array $css_classes (optional) A list of classes.
      * @return void
      */
-	public function __construct($checkbox_group_name, $checkbox_group_label = NULL, array $options = array(), $css_classes = array()) {
-		parent::__construct("checkbox", $checkbox_group_name, $checkbox_group_label, $options, $css_classes);
-	}
+    public function __construct($checkbox_group_name, $checkbox_group_label = NULL, array $options = array(), $css_classes = array()) {
+        parent::__construct("checkbox", $checkbox_group_name, $checkbox_group_label, $options, $css_classes);
+    }
 }

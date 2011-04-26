@@ -94,25 +94,25 @@ extends Module {
     }
     
     private function constructMenu() {
-		$menu = new Div(array('id' => 'menu'));
-		
-		$admin_pages = db()->getAll("
+        $menu = new Div(array('id' => 'menu'));
+        
+        $admin_pages = db()->getAll("
             SELECT admin_page_name, display_name
             FROM modules
             WHERE enabled = true
             ORDER BY sort_order
         ");
         
-		foreach($admin_pages as $page) {		
-			$menu->addDiv(array(
-			 	'class' => "menu-item"
-			), "<a class=\"menu-item-text\" href=\"?page={$page['admin_page_name']}\">{$page['display_name']}</a>");
-		}
-		
-		$this->body->addChild($menu);
-	}
-	
-	protected function constructRightContent() {
+        foreach($admin_pages as $page) {        
+            $menu->addDiv(array(
+                 'class' => "menu-item"
+            ), "<a class=\"menu-item-text\" href=\"?page={$page['admin_page_name']}\">{$page['display_name']}</a>");
+        }
+        
+        $this->body->addChild($menu);
+    }
+    
+    protected function constructRightContent() {
         $this->body->addDiv(array('id' => 'current_menu_content'), '
             <h1>Welcome</h1>
             <br />
@@ -120,5 +120,5 @@ extends Module {
                 Welcome to the Administration Control Panel. Configuration for individual modules can be found via one of the tabs up top. Sub-pages for the current configuration can be found in the sidebar on the left.
             </p>
         ');
-	}
+    }
 }

@@ -33,10 +33,10 @@ class FileCache {
     private $cache_directory_path;
     
     /**
-	 * Retrieves the current instance of this object.
-	 *
-	 * @return object
-	 */
+     * Retrieves the current instance of this object.
+     *
+     * @return object
+     */
     public static function getFileCache() {
         if(!isset(self::$instance)) {
             self::$instance = new FileCache();
@@ -46,11 +46,11 @@ class FileCache {
     }
     
     /**
-	 * Initializes this instance of FileCache.
-	 *
-	 * @param string $cache_directory_path (optional) The path to the file cache directory.
-	 * @return void
-	 */
+     * Initializes this instance of FileCache.
+     *
+     * @param string $cache_directory_path (optional) The path to the file cache directory.
+     * @return void
+     */
     public function __construct($cache_directory_path = '') {
         if(empty($cache_directory_path)) {
             $this->cache_directory_path = rtrim(config('framework')->getParameter("cache_base_directory"), '/') . '/';
@@ -61,33 +61,33 @@ class FileCache {
     }
     
     /**
-	 * Catches all function calls not present in this class and throws an exception to avoid a fatal error.
-	 *
-	 * @param string $function_name The function name.
-	 * @param array $arguments The function arguments.
-	 * @return mixed
-	 */
+     * Catches all function calls not present in this class and throws an exception to avoid a fatal error.
+     *
+     * @param string $function_name The function name.
+     * @param array $arguments The function arguments.
+     * @return mixed
+     */
     public function __call($function_name, $arguments) {
         throw new Exception("Function '{$function_name}' does not exist in this class.");
-	}
-	
-	/**
-	 * Retrieves the file cache directory path.
-	 *
-	 * @return string
-	 */
-	public function getCacheDirectoryPath() {
+    }
+    
+    /**
+     * Retrieves the file cache directory path.
+     *
+     * @return string
+     */
+    public function getCacheDirectoryPath() {
         return $this->cache_directory_path;
     }
-	
-	/**
-	 * Gets the hashed key of the cached file name.
-	 *
-	 * @param string $key The name of the cache file.
-	 * @param string $file_path The directory path of the cached file within the cache directory path.
-	 * @return string
-	 */
-	private function getHashedKey($key, $file_path) {	
+    
+    /**
+     * Gets the hashed key of the cached file name.
+     *
+     * @param string $key The name of the cache file.
+     * @param string $file_path The directory path of the cached file within the cache directory path.
+     * @return string
+     */
+    private function getHashedKey($key, $file_path) {    
         $full_key = $key . $file_path . Framework::getVersion();
         
         $hashed_key = '';
@@ -102,29 +102,29 @@ class FileCache {
         }
         
         return $hashed_key;
-	}
-	
-	/**
-	 * Retrieves the full path of the cache file.
-	 *
-	 * @param string $file_path The directory path of the cache file within the cache directory path.
-	 * @return string
-	 */
-	private function getFullDirectoryPath($file_path) {
+    }
+    
+    /**
+     * Retrieves the full path of the cache file.
+     *
+     * @param string $file_path The directory path of the cache file within the cache directory path.
+     * @return string
+     */
+    private function getFullDirectoryPath($file_path) {
         $file_path = trim($file_path, '/') . '/';
         
         return "{$this->cache_directory_path}{$file_path}";
-	}
-	
-	/**
-	 * Checks for if a cache file exists in the file system.
-	 *
-	 * @param string $key The name of the cache file.	 
-	 * @param string $file_path The directory path of the cache file within the cache directory path.
-	 * @param string $extension (optional) The file extension of the cache file. Defaults to 'txt'.
-	 * @return string|boolean The hashed key if exists or false if it doesn't exist.
-	 */
-	public function exists($key, $file_path, $extension = 'txt') {
+    }
+    
+    /**
+     * Checks for if a cache file exists in the file system.
+     *
+     * @param string $key The name of the cache file.     
+     * @param string $file_path The directory path of the cache file within the cache directory path.
+     * @param string $extension (optional) The file extension of the cache file. Defaults to 'txt'.
+     * @return string|boolean The hashed key if exists or false if it doesn't exist.
+     */
+    public function exists($key, $file_path, $extension = 'txt') {
         $hashed_key = $this->getHashedKey($key, $file_path);
         
         $full_directory_path = $this->getFullDirectoryPath($file_path);
@@ -134,18 +134,18 @@ class FileCache {
         }
         
         return false;
-	}
-	
-	/**
-	 * Adds a value to a file cache.
-	 *
-	 * @param string $key The name of the cache file.	 
-	 * @param string $value The contents of the cache file.	 
-	 * @param string $file_path The directory path of the cache file within the cache directory path.
-	 * @param string $extension (optional) The file extension of the cache file. Defaults to 'txt'.
-	 * @return string The hashed key of the stored file.
-	 */
-	public function set($key, $value, $file_path, $extension = 'txt') {	
+    }
+    
+    /**
+     * Adds a value to a file cache.
+     *
+     * @param string $key The name of the cache file.     
+     * @param string $value The contents of the cache file.     
+     * @param string $file_path The directory path of the cache file within the cache directory path.
+     * @param string $extension (optional) The file extension of the cache file. Defaults to 'txt'.
+     * @return string The hashed key of the stored file.
+     */
+    public function set($key, $value, $file_path, $extension = 'txt') {    
         $hashed_key = $this->getHashedKey($key, $file_path);
         
         $full_directory_path = $this->getFullDirectoryPath($file_path);
@@ -162,17 +162,17 @@ class FileCache {
         }
         
         return $hashed_key;
-	}
-	
-	/**
-	 * Retrieves the contents of a cached file.
-	 *
-	 * @param string $key The name of the cache file.	 
-	 * @param string $file_path The directory path of the cache file within the cache directory path.
-	 * @param string $extension (optional) The file extension of the cache file. Defaults to 'txt'.
-	 * @return string Returns empty string of the cached file doesn't exist.
-	 */
-	public function get($key, $file_path, $extension = 'txt') {
+    }
+    
+    /**
+     * Retrieves the contents of a cached file.
+     *
+     * @param string $key The name of the cache file.     
+     * @param string $file_path The directory path of the cache file within the cache directory path.
+     * @param string $extension (optional) The file extension of the cache file. Defaults to 'txt'.
+     * @return string Returns empty string of the cached file doesn't exist.
+     */
+    public function get($key, $file_path, $extension = 'txt') {
         $hashed_key = $this->getHashedKey($key, $file_path);
         
         $full_directory_path = $this->getFullDirectoryPath($file_path);
@@ -189,5 +189,5 @@ class FileCache {
         }
         
         return "";
-	}
+    }
 }

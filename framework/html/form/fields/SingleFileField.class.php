@@ -28,16 +28,16 @@ extends FileField {
      * @param array $css_classes (optional) A list of classes for this field.
      * @return void
      */
-	public function __construct($file_name, $file_label, $accepted_files = array(), $file_size_limit = 0, $css_classes = array()) {
-		parent::__construct($file_name, $file_label, $accepted_files, $file_size_limit, $css_classes);
-	}
-	
-	/**
+    public function __construct($file_name, $file_label, $accepted_files = array(), $file_size_limit = 0, $css_classes = array()) {
+        parent::__construct($file_name, $file_label, $accepted_files, $file_size_limit, $css_classes);
+    }
+    
+    /**
      * Sets the field's submitted value.
      *      
      * @return void
      */
-	public function setValue($field_value) {
+    public function setValue($field_value) {
         if(empty($field_value)) {
             if(isset($_FILES[$this->name])) {
                 parent::setValue($field_value);
@@ -46,7 +46,7 @@ extends FileField {
         else {
             $this->value = $field_value;
         }
-	}
+    }
     
     /**
      * Renaders and retrieves the field's html.
@@ -75,5 +75,5 @@ extends FileField {
             <div class=\"single_file_name\">{$uploaded_file}</div>
             <input{$this->renderAttributes()} />
         ";
-	}
+    }
 }

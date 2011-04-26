@@ -33,25 +33,25 @@ extends FileField {
      * @param array $css_classes A list of classes for this field.
      * @return void
      */
-	public function __construct($file_name, $file_label, $image_directory_path, $file_size_limit = 0, $css_classes = array()) {
-		parent::__construct($file_name, $file_label, array('jpg', 'jpeg', 'gif', 'png'), $file_size_limit, $css_classes);
-		
-		$this->image_directory_path = rtrim($image_directory_path, '/') . '/';
-	}
-	
-	/**
+    public function __construct($file_name, $file_label, $image_directory_path, $file_size_limit = 0, $css_classes = array()) {
+        parent::__construct($file_name, $file_label, array('jpg', 'jpeg', 'gif', 'png'), $file_size_limit, $css_classes);
+        
+        $this->image_directory_path = rtrim($image_directory_path, '/') . '/';
+    }
+    
+    /**
      * Sets the submitted field value.
      *      
      * @return void
      */
-	public function setValue($field_value) {
+    public function setValue($field_value) {
         if(isset($_FILES[$this->name])) {
             parent::setValue($field_value);
         }
         else {
             $this->value = $field_value;
         }
-	}
+    }
     
     /**
      * Renders and retrieves the field's html.
@@ -83,5 +83,5 @@ extends FileField {
             <div class=\"single_file_name\">{$uploaded_file_name}</div>
             <input{$this->renderAttributes()} />
         ";
-	}
+    }
 }

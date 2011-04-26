@@ -37,21 +37,21 @@ extends Field {
      * @param array $css_classes (optional) An array of css classes.   
      * @return void
      */
-	public function __construct($group_type, $group_name, $group_label, $options = array(), $css_classes = array()) {
-		parent::__construct(null, $group_name, $group_label, $css_classes);
-		
-		$this->setGroupType($group_type);
-		
-		$this->addOptions($options);
-	}
-	
-	/**
+    public function __construct($group_type, $group_name, $group_label, $options = array(), $css_classes = array()) {
+        parent::__construct(null, $group_name, $group_label, $css_classes);
+        
+        $this->setGroupType($group_type);
+        
+        $this->addOptions($options);
+    }
+    
+    /**
      * Sets the type of toggle fields that will appear in this group.
      *      
      * @param string $group_type The group type. Can either be 'checkbox' or 'radio'.
      * @return void
      */
-	private function setGroupType($group_type) {
+    private function setGroupType($group_type) {
         switch($group_type) {
             case 'radio':
                 $this->group_type = $group_type;
@@ -65,73 +65,73 @@ extends Field {
                 throw new Exception("Invalid toggle field group type '{$group_type}'");
                 break;
         }
-	}
-	
-	/**
+    }
+    
+    /**
      * Enables the field.
      *      
      * @return void
      */
-	public function enable() {
+    public function enable() {
         if(!empty($this->child_elements)) {
             foreach($this->child_elements as $option) {
                 $option->enable();
             }
         }
-	}
-	
-	/**
+    }
+    
+    /**
      * Disables the field.
      *      
      * @return void
      */
-	public function disable() {
+    public function disable() {
         if(!empty($this->child_elements)) {
             foreach($this->child_elements as $option) {
                 $option->disable();
             }
         }
-	}
-	
-	/**
+    }
+    
+    /**
      * Adds an option to the group.
      *      
      * @param mixed $option_value The option's value.
      * @param string $option_label The option's label.
      * @return void
      */
-	public function addOption($option_value, $option_label) {
+    public function addOption($option_value, $option_label) {
         $new_option = new ToggleField($this->group_type, "", $option_label, array(), $option_value);
         $new_option->setName($this->option_name);
         
         $this->child_elements[$option_value] = $new_option;
-	}
-	
-	/**
+    }
+    
+    /**
      * Adds several options to the group.
      *      
      * @param array $group_type The options to add
      * @return void
      */
-	public function addOptions($options) {
+    public function addOptions($options) {
         assert('is_array($options)');
-	
+    
         if(!empty($options)) {
             foreach($options as $option_value => $option_label) {
                 $this->addOption($option_value, $option_label);
             }
         }
-	}
-	
-	/**
+    }
+    
+    /**
      * Determines if an option was selected and calls that object's setChecked().
      *      
      * @param object $option The option object.
      * @return void
      */
-	private function setOptionSelected($option) {
+    private function setOptionSelected($option) {
         assert('is_object($option) && get_class($option) == "ToggleField"');
-	
+    
         if(!empty($this->value)) {
             if(!is_array($this->value)) {
                 if($option->getDefaultValue() == $this->value) {
@@ -144,14 +144,14 @@ extends Field {
                 }
             }
         }
-	}
-	
-	/**
+    }
+    
+    /**
      * Renders and retrieves the toggle group html.
      *      
      * @return string
      */
-	public function getFieldHtml() {
+    public function getFieldHtml() {
         $field_html = "";
         
         if(!empty($this->child_elements)) {
@@ -167,5 +167,5 @@ extends Field {
         }
         
         return $field_html;
-	}
+    }
 }

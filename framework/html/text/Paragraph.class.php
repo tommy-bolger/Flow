@@ -19,13 +19,13 @@
 class Paragraph
 extends Element {
     /**
-	 * Initializes a new instance of Paragraph.
-	 *
-	 * @param string $element_value (optional) The text of the paragraph.
-	 * @param array $element_attributes (optional) The attributes of the paragraph.	 	 
-	 * @return void
-	 */
-	public function __construct($element_value = NULL, $element_attributes = array()) {
-		parent::__construct("p", $element_attributes, $element_value);
-	}
+     * Initializes a new instance of Paragraph.
+     *
+     * @param string $element_value (optional) The text of the paragraph.
+     * @param array $element_attributes (optional) The attributes of the paragraph.          
+     * @return void
+     */
+    public function __construct($element_value = NULL, $element_attributes = array()) {
+        parent::__construct("p", $element_attributes, $element_value);
+    }
 }

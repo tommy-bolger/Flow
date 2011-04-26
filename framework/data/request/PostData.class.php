@@ -19,10 +19,10 @@
 final class PostData
 extends RequestData {
     /**
-	 * Initializes a new instance of PostData.
-	 * 
-	 * @return void
-	 */
+     * Initializes a new instance of PostData.
+     * 
+     * @return void
+     */
     public function __construct() {
         parent::__construct($_POST);
     }

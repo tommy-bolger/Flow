@@ -103,5 +103,5 @@ extends OnlineResumeAdmin {
         $content->addChild($portfolio_images_table);
         
         $this->body->addChild($content);
-	}
+    }
 }

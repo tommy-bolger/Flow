@@ -21,7 +21,7 @@ extends Field {
     /**
     * @var boolean A flag indicating if the button was clicked.
     */
-	private $clicked = false;
+    private $clicked = false;
 
     /**
      * Instantiates a new instance of a Button.
@@ -32,61 +32,61 @@ extends Field {
      * @param array $css_classes (optional) A list of classes for this button.
      * @return void
      */
-	public function __construct($input_type = 'button', $field_name, $button_label, $css_classes = array()) {
+    public function __construct($input_type = 'button', $field_name, $button_label, $css_classes = array()) {
         $css_classes['class'] = 'form_button';
-	
-		parent::__construct($input_type, $field_name, NULL, $css_classes);
-		
-		$this->setDefaultValue($button_label);
-	}
+    
+        parent::__construct($input_type, $field_name, NULL, $css_classes);
+        
+        $this->setDefaultValue($button_label);
+    }
 
-	public function setWidth($width) {
+    public function setWidth($width) {
         $this->__call('setWidth', array());
-	}
+    }
 
-	public function setReadOnly() {
+    public function setReadOnly() {
         $this->__call('setReadOnly', array());
-	}
+    }
 
-	public function setWriteable() {
+    public function setWriteable() {
         $this->__call('setWriteable', array());
-	}
+    }
 
-	public function setRequired() {
+    public function setRequired() {
         $this->__call('setRequired', array());
-	}
-	
-	/**
+    }
+    
+    /**
      * Sets the button to having been clicked.
      * 
      * @param string $field_value The button submitted value - not used.
      * @return void
      */
-	public function setValue($field_value = NULL) {
+    public function setValue($field_value = NULL) {
         if(!empty($field_value)) {
             parent::setValue($field_value);
                 
             $this->clicked = true;
         }
-	}
-	
-	/**
+    }
+    
+    /**
      * Retrieves the button's clicked status.
      *      
      * @return boolean
      */
-	public function wasClicked() {
+    public function wasClicked() {
         return $this->clicked;
-	}
-	
-	/**
+    }
+    
+    /**
      * Retrieves the button field's output as an array suitable for a template.
      *      
      * @return array
      */
-	public function toTemplate() {        
+    public function toTemplate() {        
         $index_base_name = strtoupper($this->getName());
         
         return array("{{{$index_base_name}}}" => $this->getFieldHtml());
-	}
+    }
 }

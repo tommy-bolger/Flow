@@ -36,20 +36,20 @@ extends Textbox {
      * @param string $float_value (optional) The float field value.
      * @return void
      */
-	public function __construct($float_name, $float_label = "", $float_value = NULL) {
-		parent::__construct($float_name, $float_label, $float_value, array('float_field'));
-	}
-	
+    public function __construct($float_name, $float_label = "", $float_value = NULL) {
+        parent::__construct($float_name, $float_label, $float_value, array('float_field'));
+    }
+    
     public function setMaxLength($max_length) {}
-	
-	/**
+    
+    /**
      * Sets the precision of the float field.
      *      
      * @param integer $left_precision The number of digits allowed to the left of the decimal place.
      * @param integer $right_precision The number of digits allowed to the right of the decimal place.
      * @return void
      */
-	public function setPrecision($left_precision, $right_precision) {
+    public function setPrecision($left_precision, $right_precision) {
         if(filter_var($left_precision, FILTER_VALIDATE_INT) === false) {
             throw new Exception('Left precision can only be an integer value.');
         }
@@ -57,13 +57,13 @@ extends Textbox {
         if(filter_var($right_precision, FILTER_VALIDATE_INT) === false) {
             throw new Exception('right precision can only be an integer value.');
         }
-	
+    
         $this->left_precision = $left_precision;
         
         $this->right_precision = $right_precision;
         
         parent::setMaxLength($left_precision + $right_precision + 1);
-	}
+    }
     
     /**
      * Validates the float field's submitted value.

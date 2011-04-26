@@ -128,5 +128,5 @@ extends OnlineResumeAdmin {
         $content->addChild($code_examples_table);
         
         $this->body->addChild($content);
-	}
+    }
 }

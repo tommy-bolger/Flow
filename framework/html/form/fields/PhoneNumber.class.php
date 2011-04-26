@@ -162,5 +162,5 @@ extends Field {
      */
     public function getFieldHtml() {        
         return "{$this->area_code->getFieldHtml()}&nbsp;-&nbsp;{$this->exchange->getFieldHtml()}&nbsp;-&nbsp;{$this->line_number->getFieldHtml()}";
-	}
+    }
 }

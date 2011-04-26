@@ -54,83 +54,83 @@ class Page {
     * @var string The file path to the page style including templates, images, and css.
     */
     private $theme_directory_path;
-	
-	/**
+    
+    /**
     * @var string The file path to the page javascript.
     */
-	private $javascript_base_path;
-	
-	/**
+    private $javascript_base_path;
+    
+    /**
     * @var array A list of all inline css to be output on the page.
     */
-	private $inline_css = array();
-	
-	/**
+    private $inline_css = array();
+    
+    /**
     * @var array A list of the css files included by the page.
     */
-	private $css_files = array();
-	
-	/**
+    private $css_files = array();
+    
+    /**
     * @var array A list of all inline javascript to be output on the page.
     */
-	private $inline_javascript = array();
-	
-	/**
+    private $inline_javascript = array();
+    
+    /**
     * @var array A list of the javascript files included by the page.
     */
-	private $javascript_files = array();
-	
-	/**
+    private $javascript_files = array();
+    
+    /**
     * @var string The file path to the assets utilized by the page.
     */
-	protected $assets_path;
-	
-	/**
+    protected $assets_path;
+    
+    /**
     * @var boolean A flag that sets the page to be cached in memory and on the file system.
     */
-	protected $cache_page = false;
-	
-	/**
+    protected $cache_page = false;
+    
+    /**
     * @var boolean A flag that tells the page to automatically include analytics javascript.
     */
-	protected $load_analytics = false;
-	
-	/**
+    protected $load_analytics = false;
+    
+    /**
     * @var string The name of the page. Should always be set to __CLASS__ for child objects.
     */
-	protected $name;
-	
-	/**
+    protected $name;
+    
+    /**
     * @var string The title of the page.
     */
-	protected $title;
-	
-	/**
+    protected $title;
+    
+    /**
     * @var object The page body and its child elements.
     */
-	private $body;
-	
-	/**
-	 * Retrieves the current instance of Page.
-	 *
-	 * @return object
-	 */
-	public static function getPage() {
+    private $body;
+    
+    /**
+     * Retrieves the current instance of Page.
+     *
+     * @return object
+     */
+    public static function getPage() {
         if(!isset(self::$page)) {
             throw new Exception("The current page as not been instantiated and cannot be retrieved.");
         }
-	
+    
         return self::$page;
-	}
+    }
 
     /**
-	 * Initializes a new instance of Page.
-	 *	 	 
-	 * @return void
-	 */
-	public function __construct() {
-		//Add this header to help prevent clickjacking attacks in modern browsers
-		header('X-Frame-Options: DENY');
+     * Initializes a new instance of Page.
+     *          
+     * @return void
+     */
+    public function __construct() {
+        //Add this header to help prevent clickjacking attacks in modern browsers
+        header('X-Frame-Options: DENY');
 
         if(Framework::$enable_cache && $this->cache_page) {
             header('Content-Encoding: gzip');
@@ -142,8 +142,8 @@ class Page {
             ini_set('zlib.output_compression', 1);
 
             ini_set('zlib.output_compression_level', 9);
-    		
-    		ob_start();
+            
+            ob_start();
         }
         
         if(!isset(self::$page)) {
@@ -155,26 +155,26 @@ class Page {
         
         //Set the assets location
         $this->assets_path = rtrim(config('framework')->getParameter('assets_path'), '/');
-	}
-	
-	/**
-	 * Catches calls to functions not in this class and throws an exception to prevent a fatal error.
-	 *
-	 * @param $function_name The name of the called function.
-	 * @param $arguments The arguments of the called function.     	 
-	 * @return void
-	 */
-	public function __call($function_name, $arguments) {
+    }
+    
+    /**
+     * Catches calls to functions not in this class and throws an exception to prevent a fatal error.
+     *
+     * @param $function_name The name of the called function.
+     * @param $arguments The arguments of the called function.          
+     * @return void
+     */
+    public function __call($function_name, $arguments) {
         throw new Exception("Function '{$function_name}' does not exist in this class.");
-	}
-	
-	/**
-	 * Retrieves the body element of the page.
-	 *
-	 * @param $variable_name The name of the variable to retrieve. Should always be 'body'.  	 
-	 * @return object
-	 */
-	public function __get($variable_name) {
+    }
+    
+    /**
+     * Retrieves the body element of the page.
+     *
+     * @param $variable_name The name of the variable to retrieve. Should always be 'body'.       
+     * @return object
+     */
+    public function __get($variable_name) {
         assert('$variable_name == "body"');
 
         if(!isset($this->body)) {
@@ -182,25 +182,25 @@ class Page {
         }
     
         return $this->body;
-	}
+    }
 
     /**
-	 * Retrieves the name of the page.
-	 *	 
-	 * @return string
-	 */
-	public function getPageName() {
+     * Retrieves the name of the page.
+     *     
+     * @return string
+     */
+    public function getPageName() {
         return $this->name;
-	}
-	
-	/**
-	 * Sets the page doctype.
-	 *
-	 * @param string $html_type The version of html to use for the page. Can either be 'xhtml_1.0', 'html_4.01', or 'xhtml_1.1'.
-	 * @param string $mode (optional) The version mode. Can either be 'transitional', 'frameset', or 'strict'.	 
-	 * @return void
-	 */
-	public function setDoctype($html_type, $mode = NULL) {        
+    }
+    
+    /**
+     * Sets the page doctype.
+     *
+     * @param string $html_type The version of html to use for the page. Can either be 'xhtml_1.0', 'html_4.01', or 'xhtml_1.1'.
+     * @param string $mode (optional) The version mode. Can either be 'transitional', 'frameset', or 'strict'.     
+     * @return void
+     */
+    public function setDoctype($html_type, $mode = NULL) {        
         switch($html_type) {
             case 'xhtml_1.0':
                 $this->doctype = 'xhtml_1';
@@ -227,98 +227,98 @@ class Page {
                 throw new Exception("The specified html doctype mode '{$mode}' is not valid.");
                 break;
         }
-	}
-	
-	/**
-	 * Adds a meta tag to the page.
-	 *
-	 * @param string $index_name The array key used to make this tag unique when stored in the $meta_tag class property.
-	 * @param string $first_tag_name The name of the first attribute of the meta tag.
-	 * @param string $first_tag_value The value of the first attribute of the meta tag.
-	 * @param string $content The value of the content attribute of the meta tag.
-	 * @return void
-	 */
-	protected function addMetaTag($index_name, $first_tag_name, $first_tag_value, $content) {
+    }
+    
+    /**
+     * Adds a meta tag to the page.
+     *
+     * @param string $index_name The array key used to make this tag unique when stored in the $meta_tag class property.
+     * @param string $first_tag_name The name of the first attribute of the meta tag.
+     * @param string $first_tag_value The value of the first attribute of the meta tag.
+     * @param string $content The value of the content attribute of the meta tag.
+     * @return void
+     */
+    protected function addMetaTag($index_name, $first_tag_name, $first_tag_value, $content) {
         $meta_tag = array(
             $first_tag_name => $first_tag_value,
             'content' => $content
         );
-	
+    
         $this->meta_tags[$index_name] = $meta_tag;
-	}
-	
-	/**
-	 * Validates a directory path and returns the valid directory path.
-	 *
-	 * @param string $directory_path The directory path.
-	 * @return string
-	 */
-	private function setDirectory($directory_path) {
+    }
+    
+    /**
+     * Validates a directory path and returns the valid directory path.
+     *
+     * @param string $directory_path The directory path.
+     * @return string
+     */
+    private function setDirectory($directory_path) {
         assert('is_readable($directory_path)');
 
         //Make the directory path have a trailing slash        
         return rtrim($directory_path, '/') . '/';
-	}
+    }
 
     /**
-	 * Sets the default theme directory of the page.
-	 *
-	 * @param string $theme_directory_path The theme directory path.
-	 * @return void
-	 */
-	public function setThemeDirectory($theme_directory_path) {
+     * Sets the default theme directory of the page.
+     *
+     * @param string $theme_directory_path The theme directory path.
+     * @return void
+     */
+    public function setThemeDirectory($theme_directory_path) {
         $this->theme_directory_path = $this->setDirectory($theme_directory_path);
-	}
-	
-	/**
-	 * Retrieves the path to the default theme directory of the page.
-	 *
-	 * @return string
-	 */
-	public function getThemeDirectoryPath() {
+    }
+    
+    /**
+     * Retrieves the path to the default theme directory of the page.
+     *
+     * @return string
+     */
+    public function getThemeDirectoryPath() {
         return $this->theme_directory_path;
-	}
-	
-	/**
-	 * Sets the template file of the page.
-	 *
-	 * @param string $template_file_path The file path to the template file.
-	 * @return void
-	 */
-	public function setTemplate($template_file_path) {	
+    }
+    
+    /**
+     * Sets the template file of the page.
+     *
+     * @param string $template_file_path The file path to the template file.
+     * @return void
+     */
+    public function setTemplate($template_file_path) {    
         $this->template = new Template($template_file_path);
-	}
-	
-	/**
-	 * Sets the default javascript directory.
-	 *
-	 * @param string $javascript_directory_path The javascript directory path.
-	 * @return void
-	 */
-	public function setJavascriptDirectory($javascript_directory_path) {
+    }
+    
+    /**
+     * Sets the default javascript directory.
+     *
+     * @param string $javascript_directory_path The javascript directory path.
+     * @return void
+     */
+    public function setJavascriptDirectory($javascript_directory_path) {
         $this->javascript_base_path = $this->setDirectory($javascript_directory_path);
-	}
-	
-	/**
-	 * Adds inline css to be output on the page.
-	 *
-	 * @param string $inline_css The inline css.
-	 * @return void
-	 */
-	public function addInlineCss($inline_css) {
+    }
+    
+    /**
+     * Adds inline css to be output on the page.
+     *
+     * @param string $inline_css The inline css.
+     * @return void
+     */
+    public function addInlineCss($inline_css) {
         $this->inline_css[] = $inline_css;
-	}
-	
-	/**
-	 * Adds a css file to be included on the page.
-	 *
-	 * @param string $css_file_path The file path to the css file.
-	 * @param boolean (optional) $relative A flag indicating if the css file path is relative to the current page theme directory path. Defaults to true.
-	 * @return void
-	 */
-	public function addCssFile($css_file_path, $relative = true) {
+    }
+    
+    /**
+     * Adds a css file to be included on the page.
+     *
+     * @param string $css_file_path The file path to the css file.
+     * @param boolean (optional) $relative A flag indicating if the css file path is relative to the current page theme directory path. Defaults to true.
+     * @return void
+     */
+    public function addCssFile($css_file_path, $relative = true) {
         $css_file_full_path = '';
-	
+    
         if($relative) {
             assert('isset($this->theme_directory_path)');
         
@@ -333,45 +333,45 @@ class Page {
         $css_file_index = md5($css_file_full_path);
         
         $this->css_files[$css_file_index] = $css_file_full_path;
-	}
-	
-	/**
-	 * Adds several css files to the page.
-	 *
-	 * @param array $css_files The file paths of the css files to add to the page.
-	 * @param boolean (optional) $relative A flag indicating if the css file paths are relative to the current page theme directory path. Defaults to true.
-	 * @return void
-	 */
-	public function addCssFiles($css_files, $relative = true) {
+    }
+    
+    /**
+     * Adds several css files to the page.
+     *
+     * @param array $css_files The file paths of the css files to add to the page.
+     * @param boolean (optional) $relative A flag indicating if the css file paths are relative to the current page theme directory path. Defaults to true.
+     * @return void
+     */
+    public function addCssFiles($css_files, $relative = true) {
         assert('is_array($css_files)');
-	
+    
         if(!empty($css_files)) {
             foreach($css_files as $css_file) {
                 $this->addCssFile($css_file, $relative);
             }
         }
-	}
-	
-	/**
-	 * Adds inline javascript to be output on the page.
-	 *
-	 * @param string $inline_javascript The inline javascript.
-	 * @return void
-	 */
-	public function addInlineJavascript($inline_javascript) {
+    }
+    
+    /**
+     * Adds inline javascript to be output on the page.
+     *
+     * @param string $inline_javascript The inline javascript.
+     * @return void
+     */
+    public function addInlineJavascript($inline_javascript) {
         $this->inline_javascript[] = $inline_javascript;
-	}
-	
-	/**
-	 * Adds a javascript file to be included on the page.
-	 *
-	 * @param string $javascript_file_path The file path to the javascript file.
-	 * @param boolean (optional) $relative A flag indicating if the javascript file path is relative to the page javascript directory path. Defaults to true.
-	 * @return void
-	 */
-	public function addJavascriptFile($javascript_file_path, $relative = true) {
+    }
+    
+    /**
+     * Adds a javascript file to be included on the page.
+     *
+     * @param string $javascript_file_path The file path to the javascript file.
+     * @param boolean (optional) $relative A flag indicating if the javascript file path is relative to the page javascript directory path. Defaults to true.
+     * @return void
+     */
+    public function addJavascriptFile($javascript_file_path, $relative = true) {
         $javascript_file_full_path = '';
-	
+    
         if($relative) {
             $javascript_file_path = ltrim($javascript_file_path, '/');
         
@@ -384,31 +384,31 @@ class Page {
         $javascript_file_index = md5($javascript_file_full_path);
         
         $this->javascript_files[$javascript_file_index] = $javascript_file_full_path;
-	}
-	
-	/**
-	 * Adds several javascript files to the page.
-	 *
-	 * @param array $javascript_files The file paths of the javascript files to add to the page.
-	 * @param boolean (optional) $relative A flag indicating if the javascript file paths are relative to the page javascript directory path. Defaults to true.
-	 * @return void
-	 */
-	public function addJavascriptFiles($javascript_files, $relative = true) {
+    }
+    
+    /**
+     * Adds several javascript files to the page.
+     *
+     * @param array $javascript_files The file paths of the javascript files to add to the page.
+     * @param boolean (optional) $relative A flag indicating if the javascript file paths are relative to the page javascript directory path. Defaults to true.
+     * @return void
+     */
+    public function addJavascriptFiles($javascript_files, $relative = true) {
         assert('is_array($javascript_files)');
-	
+    
         if(!empty($javascript_files)) {
             foreach($javascript_files as $javascript_file) {
                 $this->addJavascriptFile($javascript_file, $relative);
             }
         }
-	}
-	
-	/**
-	 * Renders the page meta tags.
-	 *
-	 * @return string The rendered page meta tags.
-	 */
-	private function renderMetaTags() {
+    }
+    
+    /**
+     * Renders the page meta tags.
+     *
+     * @return string The rendered page meta tags.
+     */
+    private function renderMetaTags() {
         $meta_tag_html = '';
         
         if(Framework::$enable_cache) {
@@ -436,14 +436,14 @@ class Page {
         }
         
         return $meta_tag_html;
-	}
-	
-	/**
-	 * Renders the inline css and css file include tags of the page.
-	 *
-	 * @return string The rendered css.
-	 */
-	private function renderCss() {
+    }
+    
+    /**
+     * Renders the inline css and css file include tags of the page.
+     *
+     * @return string The rendered css.
+     */
+    private function renderCss() {
         $css_html = "";
         
         $page_css = "{$this->theme_directory_path}css/{$this->name}.css";
@@ -451,7 +451,7 @@ class Page {
         if(is_file($page_css)) {
             $this->addCssFile($page_css, false);
         }
-	
+    
         if(!empty($this->css_files)) {
             if(Framework::getEnvironment() == 'production') {
                 $css_file_cache_name = $this->name . implode('-', $this->css_files);
@@ -477,14 +477,14 @@ class Page {
         }
         
         return $css_html;
-	}
-	
-	/**
-	 * Renders the inline javascript and javascript file include tags of the page.
-	 *
-	 * @return string The rendered javascript.
-	 */
-	private function renderJavascript() {
+    }
+    
+    /**
+     * Renders the inline javascript and javascript file include tags of the page.
+     *
+     * @return string The rendered javascript.
+     */
+    private function renderJavascript() {
         $javascript_html = "";
         
         if(!empty($this->name)) {
@@ -529,14 +529,14 @@ class Page {
         }
         
         return $javascript_html;
-	}
-	
-	/**
-	 * Renders the page head html tag.
-	 *
-	 * @return string The rendered head tag.
-	 */
-	private function renderHeader() {
+    }
+    
+    /**
+     * Renders the page head html tag.
+     *
+     * @return string The rendered head tag.
+     */
+    private function renderHeader() {
         $header_html = '<head>';
 
         //Render the title
@@ -549,14 +549,14 @@ class Page {
         $header_html .= '</head>';
         
         return $header_html;
-	}
-	
-	/**
-	 * Attempts to display the cached html of this page from either the framework cache object or from the file cache.
-	 *
-	 * @return void
-	 */
-	public function displayCache() {
+    }
+    
+    /**
+     * Attempts to display the cached html of this page from either the framework cache object or from the file cache.
+     *
+     * @return void
+     */
+    public function displayCache() {
         //If the current page html is already cached then output it and exit
         $page_cache = cache()->get($this->name, 'html');
     
@@ -577,14 +577,14 @@ class Page {
                 exit;
             }
         }
-	}
-	
-	/**
-	 * Renders the page into html and outputs it to a user.
-	 *
-	 * @return void
-	 */
-	public function display() {
+    }
+    
+    /**
+     * Renders the page into html and outputs it to a user.
+     *
+     * @return void
+     */
+    public function display() {
         $page_html = "";
         
         if(isset($this->template)) {
@@ -629,5 +629,5 @@ class Page {
         }
         
         echo $page_html;
-	}
+    }
 }

@@ -49,10 +49,10 @@ class LiteralElement {
     }
     
     /**
-	 * Retrieves the html of the element and its contents as an array indexed by its id for use with parsing the element's template.
-	 *
-	 * @return array
-	 */
+     * Retrieves the html of the element and its contents as an array indexed by its id for use with parsing the element's template.
+     *
+     * @return array
+     */
     public function getTemplateArray() {
         return array('{{' . strtoupper($this->id) . '}}' => $this->html);
     }

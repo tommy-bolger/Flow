@@ -27,9 +27,9 @@ extends Field {
      * @param array $css_classes (optional) A list of css classes.
      * @return void
      */
-	public function __construct($password_name, $password_label = "", $password_value = NULL, $css_classes = array()) {
-		parent::__construct("password", $password_name, $password_label, $css_classes);
-		
-		$this->setDefaultValue($password_value);
-	}
+    public function __construct($password_name, $password_label = "", $password_value = NULL, $css_classes = array()) {
+        parent::__construct("password", $password_name, $password_label, $css_classes);
+        
+        $this->setDefaultValue($password_value);
+    }
 }

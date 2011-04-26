@@ -25,7 +25,7 @@ extends Element {
      * @param array $element_attributes (optional) The html attributes of the span.
      * @return void
      */
-	public function __construct($element_text = NULL, $element_attributes = array()) {
-		parent::__construct("span", $element_attributes, $element_text);
-	}
+    public function __construct($element_text = NULL, $element_attributes = array()) {
+        parent::__construct("span", $element_attributes, $element_text);
+    }
 }

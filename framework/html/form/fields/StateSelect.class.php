@@ -26,13 +26,13 @@ extends SelectField {
      * @param array $css_classes (optional) A list of css classes for this field.   
      * @return void
      */
-	public function __construct($select_name, $select_label = "", $css_classes = array()) {
+    public function __construct($select_name, $select_label = "", $css_classes = array()) {
         $options = db()->getMappedColumn("
             SELECT state_id, abbreviation || ' - ' || \"name\" AS state_name
             FROM us_states
             ORDER BY abbreviation
         ");
-	
-		parent::__construct($select_name, $select_label, $options, $css_classes);
-	}
+    
+        parent::__construct($select_name, $select_label, $options, $css_classes);
+    }
 }

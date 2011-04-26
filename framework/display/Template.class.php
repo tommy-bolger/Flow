@@ -20,37 +20,37 @@ class Template {
     /**
     * @var string The path to the template file.
     */
-	private $template_file_path;
-	
-	/**
+    private $template_file_path;
+    
+    /**
     * @var string Loaded template.
     */
-	private $template;
-	
-	/**
+    private $template;
+    
+    /**
     * @var string The template with its placeholders replaced.
     */
-	private $parsed_template;
-	
-	/**
+    private $parsed_template;
+    
+    /**
     * Instantiates a new instance of Template.
     * 
     * @param string $template_file_path The path to the template file.
     * @param boolean $relative A flag determining of the template is in a directory within the current theme. 
     * @return void.
     */
-	public function __construct($template_file_path, $relative = true) {
+    public function __construct($template_file_path, $relative = true) {
         $this->setTemplateFilePath($template_file_path, $relative);
-	}
-	
-	/**
+    }
+    
+    /**
     * Sets the path to the template file.
     * 
     * @param string $template_file_path The path to the template file.
     * @param boolean $relative A flag determining of the template is in a directory within the current theme. 
     * @return void.
     */
-	public function setTemplateFilePath($template_file_path, $relative = true) {
+    public function setTemplateFilePath($template_file_path, $relative = true) {
         if($relative) {
             $template_file_path = ltrim($template_file_path, '/');
         
@@ -58,27 +58,27 @@ class Template {
         }
         
         $this->template_file_path = $template_file_path;
-	}
-	
-	/**
+    }
+    
+    /**
     * Gets the full path of the template file.
     * 
     * @return string The file path of the template file.
     */
-	public function getTemplateFilePath() {
-		return $this->template_file_path;
-	}
+    public function getTemplateFilePath() {
+        return $this->template_file_path;
+    }
 
     /**
     * Gets the template string.
     * 
     * @return string The template string.
     */
-	public function getTemplate() {
-		return $this->template;
-	}
-	
-	/**
+    public function getTemplate() {
+        return $this->template;
+    }
+    
+    /**
     * Loads the contents of a template into memory.
     * 
     * @return void.
@@ -104,19 +104,19 @@ class Template {
                 throw new SquException("Template file '{$this->template_file_path}' not found or cannot be read.");
             }
         }
-	}
-	
-	/**
+    }
+    
+    /**
     * Returns the template with its placeholders replaced with specified values.
     * 
     * @param array $template_placeholder_content The placeholders and their values.
     * @return string The parsed template.
     */
-	public function parseTemplate($template_placeholder_content = array()) {
+    public function parseTemplate($template_placeholder_content = array()) {
         assert('is_array($template_placeholder_content)');
-	
+    
         $this->getTemplateFileContents();
-	
+    
         if(!empty($template_placeholder_content)) {
             if(!isset($this->parsed_template)) {
                 $this->parsed_template = str_replace(
@@ -131,5 +131,5 @@ class Template {
         else {
             return $this->template;
         }
-	}
+    }
 }

@@ -26,7 +26,7 @@ extends Button {
      * @param array $css_classes (optional) A list of classes for this field.     
      * @return void
      */
-	public function __construct($submit_name, $submit_label, $css_classes = array()) {
-		parent::__construct('submit', $submit_name, $submit_label, $css_classes);
-	}
+    public function __construct($submit_name, $submit_label, $css_classes = array()) {
+        parent::__construct('submit', $submit_name, $submit_label, $css_classes);
+    }
 }

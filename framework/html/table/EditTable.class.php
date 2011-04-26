@@ -235,7 +235,7 @@ extends Table {
                 }
             }
         }
-	}
+    }
     
     /**
      * Executes and processes the edit table record action such as add, edit, delete, etc.
@@ -412,7 +412,7 @@ extends Table {
      */
     public function addRow($row, $group_name = '') {
         assert('is_array($row)');
-    	
+        
         if(empty($this->edit_page)) {
             throw new Exception('The edit page has not been specified.');
         }
@@ -457,16 +457,16 @@ extends Table {
         $row[] = $current_row;
         
         parent::addRow($row, $group_name);
-	}
-	
-	/**
+    }
+    
+    /**
      * Uses a specified SQL query to populate the records for this edit table.
      *      
      * @param string $query The SQL query to retrieve the records from.
      * @param array $query_placeholders The placeholder values for the specified query.     
      * @return void
      */
-	public function useQuery($query, $query_placeholders = array()) {	
+    public function useQuery($query, $query_placeholders = array()) {    
         if(!empty($this->record_filter)) {
             $this->record_filter_sql = db()->generateWhereClause($this->record_filter);
         
@@ -483,22 +483,22 @@ extends Table {
             
             $query_placeholders = $this->record_filter;
         }
-	
+    
         if(stripos($query, 'ORDER BY') === false) {
             $query .= "\nORDER BY {$this->table_sort_field} ASC";
         }
         
         parent::useQuery($query, $query_placeholders);
-	}
-	
-	/**
+    }
+    
+    /**
      * Renders and retrieves the edit table's html.
      *      
      * @return string
      */
-	public function toHtml() {
+    public function toHtml() {
         $edit_page_url = Http::getPageBaseUrl() . $this->edit_page;
-	
+    
         $edit_table_html = "";
         
         if(!isset($this->record_filter_form) || (isset($this->record_filter_form) && isset($this->selected_filter))) {
@@ -531,5 +531,5 @@ extends Table {
         }
         
         return $edit_table_html;
-	}
+    }
 }

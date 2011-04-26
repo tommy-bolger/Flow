@@ -28,11 +28,11 @@ class RequestData {
     protected $request_values;
     
     /**
-	 * Initializes a new instance of RequestData.
-	 *
-	 * @param string $request_values (optional) The values to load into this request.
-	 * @return void
-	 */
+     * Initializes a new instance of RequestData.
+     *
+     * @param string $request_values (optional) The values to load into this request.
+     * @return void
+     */
     public function __construct($request_values = array()) {
         //If the request values are not empty loop through each and sanitize them
         if(!empty($request_values)) {
@@ -43,17 +43,17 @@ class RequestData {
     }
     
     /**
-	 * Catches invalid function calls and throws an exception to prevent a fatal error.
-	 *
-	 * @param string $function_name The name of the function being called.
-	 * @param mixed $function_arguments The arguments for the called function.	 	 
-	 * @return void
-	 */
-	public function __call($function_name, $function_arguments) {
-		throw new Exception("Function name '{$function_name}' is not a valid function in this class.");
-	}
-	
-	/**
+     * Catches invalid function calls and throws an exception to prevent a fatal error.
+     *
+     * @param string $function_name The name of the function being called.
+     * @param mixed $function_arguments The arguments for the called function.          
+     * @return void
+     */
+    public function __call($function_name, $function_arguments) {
+        throw new Exception("Function name '{$function_name}' is not a valid function in this class.");
+    }
+    
+    /**
      * Encode values of an Array, Object, or String
      *      
      * @param mixed $values The value(s) to encode.
@@ -71,34 +71,34 @@ class RequestData {
         
         return $values;
     }
-	
-	/**
-	 * Sets which request values are required.
-	 *
-	 * @param array $required_values The request values to make required.
-	 * @return void
-	 */
-	public function setRequired($required_values) {
-        assert('is_array($required_values)');
-	
-        $this->required_values = array_combine($required_values, $required_values);
-	}
-	
-	/**
-	 * Returns all request variables for this request type.
-	 *	 	 
-	 * @return array
-	 */
-	public function getAll() {
-	   return $this->request_values;
-	}
     
     /**
-	 * Checks for if a variable exists in the request.
-	 *
-	 * @param string $variable_name The name of the variable. 	 
-	 * @return mixed
-	 */
+     * Sets which request values are required.
+     *
+     * @param array $required_values The request values to make required.
+     * @return void
+     */
+    public function setRequired($required_values) {
+        assert('is_array($required_values)');
+    
+        $this->required_values = array_combine($required_values, $required_values);
+    }
+    
+    /**
+     * Returns all request variables for this request type.
+     *          
+     * @return array
+     */
+    public function getAll() {
+       return $this->request_values;
+    }
+    
+    /**
+     * Checks for if a variable exists in the request.
+     *
+     * @param string $variable_name The name of the variable.      
+     * @return mixed
+     */
     private function variableExists($variable_name) {
         //If the variable exists in the request then return true
         if(isset($this->request_values[$variable_name])) {
@@ -114,11 +114,11 @@ class RequestData {
     }
     
     /**
-	 * Retrieves the request variable value as a class property.
-	 *
-	 * @param string $variable_name The name of the request variable to retrieve.
-	 * @return mixed
-	 */
+     * Retrieves the request variable value as a class property.
+     *
+     * @param string $variable_name The name of the request variable to retrieve.
+     * @return mixed
+     */
     public function __get($variable_name) {
         if($this->variableExists($variable_name)) {
             return $this->request_values[$variable_name];
@@ -128,11 +128,11 @@ class RequestData {
     }
     
     /**
-	 * Checks if a variable exists in the request.
-	 *
-	 * @param string $variable_name The name of the request variable.
-	 * @return boolean
-	 */
+     * Checks if a variable exists in the request.
+     *
+     * @param string $variable_name The name of the request variable.
+     * @return boolean
+     */
     public function __isset($variable_name) {
         return $this->variableExists($variable_name);
     }

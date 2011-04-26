@@ -24,19 +24,19 @@
 * @return mixed
 */
 function environment($environment_variable) {
-	if(isset($_SERVER[$environment_variable])) {
-		return $_SERVER[$environment_variable];
-	}
+    if(isset($_SERVER[$environment_variable])) {
+        return $_SERVER[$environment_variable];
+    }
 
-	if(isset($_ENV[$environment_variable])) {
-		return $_ENV[$environment_variable];
-	}
+    if(isset($_ENV[$environment_variable])) {
+        return $_ENV[$environment_variable];
+    }
 
-	if(function_exists("getenv")) {
-		return getenv($environment_variable);
-	}
+    if(function_exists("getenv")) {
+        return getenv($environment_variable);
+    }
 
-	return false;
+    return false;
 }
 
 /**
@@ -56,7 +56,7 @@ function throwError($error_message) {
 * @return object
 */
 function config($config_name = NULL) {
-	return Configuration::getConfiguration($config_name);
+    return Configuration::getConfiguration($config_name);
 }
 
 /**
@@ -66,7 +66,7 @@ function config($config_name = NULL) {
 * @return object
 */
 function db($database_connection_name = NULL) {
-	return Database::getDatabase($database_connection_name);
+    return Database::getDatabase($database_connection_name);
 }
 
 /**
@@ -122,6 +122,6 @@ function page() {
 */
 function dump($data) {
     if(Framework::getEnvironment() != 'production') {
-	   Debug::dump($data);
-	}
+       Debug::dump($data);
+    }
 }

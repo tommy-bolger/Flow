@@ -78,5 +78,5 @@ extends OnlineResumeAdmin {
         $content->addChild($work_history_tasks_table);
         
         $this->body->addChild($content);
-	}
+    }
 }

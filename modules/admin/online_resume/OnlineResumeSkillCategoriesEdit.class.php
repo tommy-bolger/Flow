@@ -60,5 +60,5 @@ extends OnlineResumeAdmin {
         $content->addChild($skill_category_edit_table);
         
         $this->body->addChild($content);
-	}
+    }
 }

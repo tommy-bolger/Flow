@@ -33,10 +33,10 @@ class MemcachedModule {
     private $memcached_object;
     
     /**
-	 * Initializes this instance of MemcachedModule.
-	 *
-	 * @return void
-	 */
+     * Initializes this instance of MemcachedModule.
+     *
+     * @return void
+     */
     public function __construct() {
         $this->memcached_object = new Memcached();
         
@@ -51,13 +51,13 @@ class MemcachedModule {
     }
     
     /**
-	 * Catches all function calls not present in this class and passes them to the memcached library object.
-	 *
-	 * @param string The function name.
-	 * @param array the function arguments.
-	 * @return mixed
-	 */
-	public function __call($function_name, $arguments) {
+     * Catches all function calls not present in this class and passes them to the memcached library object.
+     *
+     * @param string The function name.
+     * @param array the function arguments.
+     * @return mixed
+     */
+    public function __call($function_name, $arguments) {
         return call_user_func_array(array($this->memcached_object, $function_name), $arguments);
-	}
+    }
 }

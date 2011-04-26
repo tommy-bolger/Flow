@@ -26,7 +26,7 @@ extends Button {
      * @param array $css_classes A list of classes for this field.
      * @return void
      */
-	public function __construct($reset_name, $reset_label, $css_classes = array()) {
-		parent::__construct('reset', $reset_name, $reset_label, $css_classes);
-	}
+    public function __construct($reset_name, $reset_label, $css_classes = array()) {
+        parent::__construct('reset', $reset_name, $reset_label, $css_classes);
+    }
 }

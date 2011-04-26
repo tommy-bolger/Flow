@@ -27,9 +27,9 @@ extends Textbox {
      * @param array $css_classes (optional) A list of css classes.
      * @return void
      */
-	public function __construct($email_name, $email_label = "", $email_value = NULL) {
-		parent::__construct($email_name, $email_label, $email_value, array('email_field'));
-	}
+    public function __construct($email_name, $email_label = "", $email_value = NULL) {
+        parent::__construct($email_name, $email_label, $email_value, array('email_field'));
+    }
 
     /**
      * Validates the email field's submitted value.

@@ -34,112 +34,112 @@ extends Field {
      * @param boolean $is_checked (optional) Field checked flag, defaults to false.
      * @return void
      */
-	public function __construct($input_type, $field_name, $field_label = NULL, $css_classes = array(), $field_value = '1', $is_checked = false) {
-		parent::__construct($input_type, $field_name, $field_label, $css_classes);
+    public function __construct($input_type, $field_name, $field_label = NULL, $css_classes = array(), $field_value = '1', $is_checked = false) {
+        parent::__construct($input_type, $field_name, $field_label, $css_classes);
 
-		$this->setDefaultValue($field_value);
+        $this->setDefaultValue($field_value);
 
-		if($is_checked) {
+        if($is_checked) {
             $this->setChecked();
-		}
-		else {
+        }
+        else {
             $this->setUnchecked();
-		}
-	}
+        }
+    }
 
-	public function setWidth($width) {
+    public function setWidth($width) {
         $this->__call('setWidth', array());
-	}
-	
-	public function setReadOnly() {
+    }
+    
+    public function setReadOnly() {
         $this->__call('setReadOnly', array());
-	}
-	
-	public function setWriteable() {
+    }
+    
+    public function setWriteable() {
         $this->__call('setWriteable', array());
-	}
-	
-	/**
+    }
+    
+    /**
      * Sets the field as checked.
      *      
      * @return void
      */
-	public function setChecked() {
+    public function setChecked() {
         $this->checked = true;
-		
-		switch($this->input_type) {
+        
+        switch($this->input_type) {
             case 'checkbox':
                  $this->setAttribute('checked', 'checked');
                 break;
             case 'radio':
                  $this->setAttribute('checked', true);
                 break;
-		}
-	}
-	
-	/**
+        }
+    }
+    
+    /**
      * Sets the field as unchecked.
      *      
      * @return void
      */
-	public function setUnchecked() {
+    public function setUnchecked() {
         $this->checked = false;
         
         $this->removeAttribute('checked', false);
-	}
-	
-	/**
+    }
+    
+    /**
      * Validates the field's value.
      *      
      * @return boolean
      */
-	protected function validate() {
+    protected function validate() {
         if(!parent::validate()) {
             return false;
         }
         
         if($this->required) {
-    		if(!$this->checked) {
+            if(!$this->checked) {
                 $this->setRequiredError();
                 
                 return false;
-    		}
-		}
-		
-		return true;
-	}
-	
-	/**
+            }
+        }
+        
+        return true;
+    }
+    
+    /**
      * Sets the field to being either checked or not checked based on if its submitted data is empty or not.
      *      
      * @param string $submitted_value (optional) The field's submitted value.
      * @return void
      */
-	public function setValue($submitted_value = "") {
-		if(empty($submitted_value)) {
-			$this->setUnchecked();
-		}
-		else {
-			$this->setChecked();
-			
+    public function setValue($submitted_value = "") {
+        if(empty($submitted_value)) {
+            $this->setUnchecked();
+        }
+        else {
+            $this->setChecked();
+            
             parent::setValue($submitted_value);
-		}
-	}
-	
-	/**
+        }
+    }
+    
+    /**
      * Gets the field's submitted value.
      *      
      * @return string
      */
-	public function getValue() {
+    public function getValue() {
         if($this->checked) {
             return $this->value;
         }
         
         return "";
-	}
-	
-	/**
+    }
+    
+    /**
      * Renders and retrieves the toggle field's html.
      *      
      * @return string
@@ -160,5 +160,5 @@ extends Field {
         $field_html .= "</li></ul>";
         
         return $field_html;
-	}
+    }
 }

@@ -84,5 +84,5 @@ extends OnlineResumeAdmin {
         $content->addChild($work_history_durations_table);
         
         $this->body->addChild($content);
-	}
+    }
 }

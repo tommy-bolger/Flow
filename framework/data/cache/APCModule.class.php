@@ -18,35 +18,35 @@
 */
 class APCModule {    
     /**
-	 * Catches all function calls not present in this class and throws an exception to avoid a fatal error.
-	 *
-	 * @param string $function_name The function name.
-	 * @param array $arguments The function arguments.
-	 * @return mixed
-	 */
-	public function __call($function_name, $arguments) {
+     * Catches all function calls not present in this class and throws an exception to avoid a fatal error.
+     *
+     * @param string $function_name The function name.
+     * @param array $arguments The function arguments.
+     * @return mixed
+     */
+    public function __call($function_name, $arguments) {
         trigger_error("Function '{$function_name}' does not exist in this class.");
-	}
-	
-	/**
-	 * Sets a variable value in APC.
-	 *
-	 * @param string $key The name of the variable to cache.
-	 * @param mixed $value The value of the variable to cache.
-	 * @param integer $expire_time The lifetime of the cached variable.	 
-	 * @return mixed
-	 */
-	public function set($key, $value, $expire_time) {
+    }
+    
+    /**
+     * Sets a variable value in APC.
+     *
+     * @param string $key The name of the variable to cache.
+     * @param mixed $value The value of the variable to cache.
+     * @param integer $expire_time The lifetime of the cached variable.     
+     * @return mixed
+     */
+    public function set($key, $value, $expire_time) {
         return apc_store($key, $value, $expire_time);
-	}
-	
-	/**
-	 * Retrieves a cached variable value from APC.
-	 *
-	 * @param string $key The name of the variable in the cache.
-	 * @return mixed
-	 */
-	public function get($key) {
+    }
+    
+    /**
+     * Retrieves a cached variable value from APC.
+     *
+     * @param string $key The name of the variable in the cache.
+     * @return mixed
+     */
+    public function get($key) {
         return apc_fetch($key);
-	}
+    }
 }

@@ -101,5 +101,5 @@ extends OnlineResumeAdmin {
         $content->addChild($education_history_edit_table);
         
         $this->body->addChild($content);
-	}
+    }
 }

@@ -66,5 +66,5 @@ extends AdminHome {
                 This is the home page for the Online Resume module control panel.
             </p>
         ');
-	}
+    }
 }

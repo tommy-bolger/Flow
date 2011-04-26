@@ -27,7 +27,7 @@ extends SelectField {
      * @param array $css_classes (optional) A list of css classes.
      * @return void
      */
-	public function __construct($dropdown_name, $dropdown_label = "", $options = array(), $css_classes = array()) {
-		parent::__construct($dropdown_name, $dropdown_label, $options, $css_classes);
-	}
+    public function __construct($dropdown_name, $dropdown_label = "", $options = array(), $css_classes = array()) {
+        parent::__construct($dropdown_name, $dropdown_label, $options, $css_classes);
+    }
 }

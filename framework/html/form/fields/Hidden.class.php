@@ -25,20 +25,20 @@ extends Field {
      * @param mixed $hidden_value (optional) The hidden field's default value.   
      * @return void
      */
-	public function __construct($hidden_name, $hidden_value = NULL) {
-		parent::__construct("hidden", $hidden_name);
-		
-		$this->setDefaultValue($hidden_value);
-	}
+    public function __construct($hidden_name, $hidden_value = NULL) {
+        parent::__construct("hidden", $hidden_name);
+        
+        $this->setDefaultValue($hidden_value);
+    }
 
-	public function toTemplate() {}
-	
-	/**
+    public function toTemplate() {}
+    
+    /**
      * Renders and retrieves the hidden field's html.
      *      
      * @return string
      */
-	public function toHtml() {
+    public function toHtml() {
         return $this->getFieldHtml();
-	}
+    }
 }

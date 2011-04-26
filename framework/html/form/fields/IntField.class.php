@@ -31,27 +31,27 @@ extends Textbox {
      * @param string $int_value (optional) The int field value.    
      * @return void
      */
-	public function __construct($int_name, $int_label = "", $int_value = NULL) {
-		parent::__construct($int_name, $int_label, $int_value, array('int_field'));
-	}
-	
-	public function setMaxLength($max_length) {}
-	
-	/**
+    public function __construct($int_name, $int_label = "", $int_value = NULL) {
+        parent::__construct($int_name, $int_label, $int_value, array('int_field'));
+    }
+    
+    public function setMaxLength($max_length) {}
+    
+    /**
      * Sets the maximum number of digits allowable in this field.
      *      
      * @param integer $$max_digits The maximum allowable digits.
      * @return void
      */
-	public function setMaxDigits($max_digits) {
+    public function setMaxDigits($max_digits) {
         if(filter_var($max_digits, FILTER_VALIDATE_INT) === false) {
             throw new Exception('Max digits can only be an integer value.');
         }
-	
+    
         $this->max_digits = $max_digits;
         
         parent::setMaxLength($max_digits);
-	}
+    }
     
     /**
      * Validates the integer field's submitted value.

@@ -52,116 +52,116 @@ extends Element {
      * @param array $footer (optional) The footer row(s) to display on this table.
      * @return void
      */
-	public function __construct($table_name, $rows = array(), $header = array(), $footer = array()) {
-		parent::__construct("table", array('id' => $table_name));
-		
-		$this->name = $table_name;
-		
-		$this->addHeaderRows($header);
-		
-		$this->addFooterRows($footer);
-		
-		$this->addRows($rows);
-	}
-	
-	/**
+    public function __construct($table_name, $rows = array(), $header = array(), $footer = array()) {
+        parent::__construct("table", array('id' => $table_name));
+        
+        $this->name = $table_name;
+        
+        $this->addHeaderRows($header);
+        
+        $this->addFooterRows($footer);
+        
+        $this->addRows($rows);
+    }
+    
+    /**
      * Catches calls to functions not in this class and throws an exception to prevent a fatal error.
      *      
      * @param string $function_name The called function name.
      * @param array $arguments The called function arguments.
      * @return void
      */
-	public function __call($function_name, $arguments) {
+    public function __call($function_name, $arguments) {
         throw new Exception("Function '{$function_name}' does not exist in this class.");
-	}
-	
-	/**
+    }
+    
+    /**
      * Sets the max number of display columns.
      *      
      * @param integer $number_of_columns The max number of display columns.
      * @return void
      */
-	public function setNumberOfColumns($number_of_columns) {
+    public function setNumberOfColumns($number_of_columns) {
         $this->number_of_columns = $number_of_columns;
-	}
-	
-	/**
+    }
+    
+    /**
      * Sets the the table to pad rows.
      * 
      * @return void
      */
-	public function padRows() {
+    public function padRows() {
         $this->pad_rows = true; 
-	}
-	
-	/**
+    }
+    
+    /**
      * Adds a table header row.
      *      
      * @param array $header The columns for this header.
      * @return void
      */
-	public function addHeader($header) {
+    public function addHeader($header) {
         assert('is_array($header)');
-	
+    
         if(!empty($header)) {
             $this->header[] = $header;
         }
-	}
-	
-	/**
+    }
+    
+    /**
      * Adds several table header rows.
      *      
      * @param array $header_rows The header rows to add. Each row is an array of header columns.
      * @return void
      */
-	public function addHeaderRows($header_rows) {
+    public function addHeaderRows($header_rows) {
         assert('is_array($header_rows)');
-	
+    
         if(!empty($header_rows)) {
             foreach($header_rows as $header_row) {
                 $this->addHeader($header_row);
             }
         }
-	}
-	
-	/**
+    }
+    
+    /**
      * Adds a table footer row.
      *      
      * @param array $footer The columns for this footer.
      * @return void
      */
-	public function addFooter($footer) {
+    public function addFooter($footer) {
         if(!empty($footer)) {
             $this->footer[] = $footer;
         }
-	}
-	
-	/**
+    }
+    
+    /**
      * Adds several table footer rows.
      *      
      * @param array $footer_rows The footer rows to add. Each row is an array of footer columns.
      * @return void
      */
-	public function addFooterRows($footer_rows) {
+    public function addFooterRows($footer_rows) {
         assert('is_array($footer_rows)');
-	
+    
         if(!empty($footer_rows)) {
             foreach($footer_rows as $footer_row) {
                 $this->addFooter($footer_row);
             }
         }
-	}
-	
-	/**
+    }
+    
+    /**
      * Adds a table body row.
      *      
      * @param array $row The record to add.
      * @param string $group_name (optional) The name of the table body this record belongs to.     
      * @return void
      */
-	public function addRow($row, $group_name = '') {
+    public function addRow($row, $group_name = '') {
         assert('is_array($row)');
-    	
+        
         if(!empty($row)) {        
             if(empty($group_name)) {
                 $group_name = 'default_body';
@@ -169,46 +169,46 @@ extends Element {
             
             $this->child_elements[$group_name][] = $row;
         }
-	}
-	
-	/**
+    }
+    
+    /**
      * Adds several table body rows.
      *      
      * @param array $rows The records to add.
      * @param string $group_name (optional) The name of the table body the specified records belong to.     
      * @return void
      */
-	public function addRows($rows, $group_name = '') {
+    public function addRows($rows, $group_name = '') {
         assert('is_array($rows)');
-	
+    
         if(!empty($rows)) {
             foreach($rows as $row) {
                 $this->addRow($row, $group_name);
             }
         }
-	}
-	
-	/**
+    }
+    
+    /**
      * Uses a specified SQL query to populate the records for this table.
      *      
      * @param string $query The SQL query to retrieve the records from.
      * @param array $query_placeholders The placeholder values for the specified query.     
      * @return void
      */
-	public function useQuery($query, $query_placeholders = array()) {
+    public function useQuery($query, $query_placeholders = array()) {
         assert('is_array($query_placeholders)');
-	
+    
         $query_rows = db()->getAll($query, $query_placeholders);
         
         $this->addRows($query_rows);
-	}
-	
-	/**
+    }
+    
+    /**
      * Renders and retrieves the table's html.
      *      
      * @return string
      */
-	public function toHtml() {	
+    public function toHtml() {    
         $table_html = "<table{$this->renderAttributes()}>";
         
         //Render the header if specified
@@ -283,5 +283,5 @@ extends Element {
         $table_html .= '</table>';
         
         return $table_html;
-	}
+    }
 }

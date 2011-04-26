@@ -19,10 +19,10 @@
 final class GetData
 extends RequestData {
     /**
-	 * Initializes a new instance of GetData.
-	 * 
-	 * @return void
-	 */
+     * Initializes a new instance of GetData.
+     * 
+     * @return void
+     */
     public function __construct() {
         parent::__construct($_GET);
     }

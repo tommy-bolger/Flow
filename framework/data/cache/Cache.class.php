@@ -49,10 +49,10 @@ class Cache {
     private $default_cache_time;
 
     /**
-	 * Retrieves the current instance of this object.
-	 *
-	 * @return object
-	 */
+     * Retrieves the current instance of this object.
+     *
+     * @return object
+     */
     public static function getCache() {
         if(!isset(self::$instance)) {
             self::$instance = new Cache();
@@ -62,10 +62,10 @@ class Cache {
     }
     
     /**
-	 * Initializes this instance of the Cache object. 
-	 *
-	 * @return void
-	 */
+     * Initializes this instance of the Cache object. 
+     *
+     * @return void
+     */
     public function __construct() {
         $cache_object_name = self::$configuration['cache_object_names'][self::$cache_object_name];
         
@@ -77,26 +77,26 @@ class Cache {
     }
     
     /**
-	 * Catches all function calls not present in this class and passes them to the loaded cache module.
-	 *
-	 * @param string $function_name The function name.
-	 * @param array $arguments The function arguments.
-	 * @return mixed
-	 */
-	public function __call($function_name, $arguments) {
+     * Catches all function calls not present in this class and passes them to the loaded cache module.
+     *
+     * @param string $function_name The function name.
+     * @param array $arguments The function arguments.
+     * @return mixed
+     */
+    public function __call($function_name, $arguments) {
         return call_user_func_array(array($this->cache_object, $function_name), $arguments);
-	}
-	
-	/**
-	 * Sets a variable value in the cache.
-	 *
-	 * @param string $value_key The name of the variable to cache.
-	 * @param mixed $value The value of the variable to cache.
-	 * @param string $value_category (optional) The category group name this variable belongs to.
-	 * @param integer $cache_time (optional) The lifetime of the cached variable.	 
-	 * @return void
-	 */
-	public function set($value_key, $value, $value_category = '', $cache_time = NULL) {	        
+    }
+    
+    /**
+     * Sets a variable value in the cache.
+     *
+     * @param string $value_key The name of the variable to cache.
+     * @param mixed $value The value of the variable to cache.
+     * @param string $value_category (optional) The category group name this variable belongs to.
+     * @param integer $cache_time (optional) The lifetime of the cached variable.     
+     * @return void
+     */
+    public function set($value_key, $value, $value_category = '', $cache_time = NULL) {            
         if(empty($cache_time) && !empty($value_category)) {
             $category_cache_time_name = "{$value_category}_cache_time";
         
@@ -114,32 +114,32 @@ class Cache {
         if($set_success === false) {
             trigger_error("Could not set variable '{$value_key}' in the cache.");
         }
-	}
-	
-	/**
-	 * Sets multiple variable values in the cache.
-	 *
-	 * @param array $values The values to cache. Format is value_name => value.
-	 * @param string $value_category (optional) The category group name the variables belong to.
-	 * @param integer $cache_time (optional) The lifetime of the cached variables.	 
-	 * @return void
-	 */
-	public function setMultiple($values, $value_category = '', $cache_time = NULL) {	
+    }
+    
+    /**
+     * Sets multiple variable values in the cache.
+     *
+     * @param array $values The values to cache. Format is value_name => value.
+     * @param string $value_category (optional) The category group name the variables belong to.
+     * @param integer $cache_time (optional) The lifetime of the cached variables.     
+     * @return void
+     */
+    public function setMultiple($values, $value_category = '', $cache_time = NULL) {    
         if(!empty($values)) {
             foreach($values as $value_key => $value) {
                 $this->set($value_key, $value, $value_category, $cache_time);
             }
         }
-	}
-	
-	/**
-	 * Retrieves a cached variable value from the cache.
-	 *
-	 * @param string $key The name of the variable in the cache.
-	 * @param string $value_category (optional) The category group name this variable belongs to.
-	 * @return mixed
-	 */
-	public function get($value_key, $value_category = '') {
+    }
+    
+    /**
+     * Retrieves a cached variable value from the cache.
+     *
+     * @param string $key The name of the variable in the cache.
+     * @param string $value_category (optional) The category group name this variable belongs to.
+     * @return mixed
+     */
+    public function get($value_key, $value_category = '') {
         return $this->cache_object->get("{$value_category}_{$value_key}");
-	}
+    }
 }

@@ -52,24 +52,24 @@ extends EditTable {
     }
     
     /**
-	 * Catches all function calls not present in this class and passes them to the edit form object.
-	 *
-	 * @param string $function_name The function name.
-	 * @param array $arguments The function arguments.
-	 * @return mixed
-	 */
-	public function __call($function_name, $arguments) {
+     * Catches all function calls not present in this class and passes them to the edit form object.
+     *
+     * @param string $function_name The function name.
+     * @param array $arguments The function arguments.
+     * @return mixed
+     */
+    public function __call($function_name, $arguments) {
         assert('isset($this->edit_form); //If this fails the form for this table is not visible so form operations are not allowed. Do a getFormVisibility() check before doing any form operations.');
-	
+    
         return call_user_func_array(array($this->edit_form, $function_name), $arguments);
-	}
-	
-	/**
-	 * Determines if the edit form is visible based on the edit table action.
-	 *
-	 * @return mixed
-	 */
-	private function setFormVisibility() {
+    }
+    
+    /**
+     * Determines if the edit form is visible based on the edit table action.
+     *
+     * @return mixed
+     */
+    private function setFormVisibility() {
         if($this->request_table_name == $this->name) {
             switch($this->action) {
                 case 'add':
@@ -80,32 +80,32 @@ extends EditTable {
                     break;
             }
         }
-	}
-	
-	/**
-	 * Retrieves the form's visibility status.
-	 *
-	 * @return boolean
-	 */
-	public function getFormVisibility() {
+    }
+    
+    /**
+     * Retrieves the form's visibility status.
+     *
+     * @return boolean
+     */
+    public function getFormVisibility() {
         return $this->form_visible;
-	}
-	
-	/**
-	 * Disables automatic processing of the submitted record form.
-	 *
-	 * @return void
-	 */
-	public function disableProcessSubmittedForm() {
+    }
+    
+    /**
+     * Disables automatic processing of the submitted record form.
+     *
+     * @return void
+     */
+    public function disableProcessSubmittedForm() {
         $this->process_submitted_form = false;
-	}
-	
-	/**
-	 * Setups up a form for editing a record and processes its submission.
-	 *
-	 * @return void
-	 */
-	public function processForm() {
+    }
+    
+    /**
+     * Setups up a form for editing a record and processes its submission.
+     *
+     * @return void
+     */
+    public function processForm() {
         if($this->form_visible) {
             if(empty($this->header)) {
                 throw new Exception('The table header must be set prior to form processing.');
@@ -191,14 +191,14 @@ extends EditTable {
                 }
             }
         }
-	}
-	
-	/**
+    }
+    
+    /**
      * Renders and retrieves the edit table's html.
      *      
      * @return string
      */
-	public function toHtml() {
+    public function toHtml() {
         $table_html = parent::toHtml();
         
         if($this->form_visible) {
@@ -206,5 +206,5 @@ extends EditTable {
         }
         
         return $table_html;
-	}
+    }
 }

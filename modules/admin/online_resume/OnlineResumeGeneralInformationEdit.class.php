@@ -101,5 +101,5 @@ extends OnlineResumeAdmin {
         $content->addChild($general_information_form);
         
         $this->body->addChild($content);
-	}
+    }
 }

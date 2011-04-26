@@ -43,33 +43,33 @@ extends Field {
      * @param array (optional) $css_classes A list of classes.
      * @return void
      */
-	public function __construct($file_name, $file_label, $accepted_files = array(), $file_size_limit = 0, $css_classes = array()) {
-		parent::__construct("file", $file_name, $file_label, $css_classes);
-		
-		$this->addAcceptedFiles($accepted_files);
-		
-		$this->setFileSizeLimit($file_size_limit);
-	}
-	
-	/**
+    public function __construct($file_name, $file_label, $accepted_files = array(), $file_size_limit = 0, $css_classes = array()) {
+        parent::__construct("file", $file_name, $file_label, $css_classes);
+        
+        $this->addAcceptedFiles($accepted_files);
+        
+        $this->setFileSizeLimit($file_size_limit);
+    }
+    
+    /**
      * Adds an accepted file type.
      *      
      * @param string $file_extension The file extension without the preceding dot.
      * @return void
      */
-	public function addAcceptedFile($file_extension) {
+    public function addAcceptedFile($file_extension) {
         $this->accepted_file_extensions[$file_extension] = $file_extension;
-	}
-	
-	/**
+    }
+    
+    /**
      * Adds several accepted file types.
      *      
      * @param array $accepted_files The list of accepted file extensions without the preceding dot.
      * @return void
      */
-	public function addAcceptedFiles($accepted_files) {
+    public function addAcceptedFiles($accepted_files) {
         assert('is_array($accepted_files)');
-	
+    
         if(!empty($accepted_files)) {
             foreach($accepted_files as $file_extension) {
                 $this->addAcceptedFile($file_extension);
@@ -94,21 +94,21 @@ extends Field {
      *      
      * @return void
      */
-	public function setValue($field_value) {
+    public function setValue($field_value) {
         if(isset($_FILES[$this->name]) && $_FILES[$this->name]['error'] == 0) {
             $this->value = $_FILES[$this->name];
         }
         else {
             $this->value = array();
         }
-	}
+    }
     
     /**
      * Validates the file input's submitted value.
      *      
      * @return boolean
      */
-	protected function validate() {
+    protected function validate() {
         if(!parent::validate()) {
             return false;
         }
@@ -134,16 +134,16 @@ extends Field {
         }
         
         return true;
-	}
-	
-	/**
+    }
+    
+    /**
      * Retrieves the field's validity status.
      *      
      * @return boolean
      */
-	public function isValid() {
+    public function isValid() {
         $this->valid = $this->validate();
-	
+    
         return $this->valid;
-	}
+    }
 }

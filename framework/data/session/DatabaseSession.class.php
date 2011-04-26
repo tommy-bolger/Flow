@@ -23,31 +23,31 @@ class DatabaseSession {
     private static $database_record_exists = false;
 
     /**
-	 * The open callback function for session_set_save_handler(). Should never be called otherwise.
-	 *
-	 * @param string $session_path (optional) The path to the session file.
-	 * @param string $session_name (optional) The name of the session.
-	 * @return boolean
-	 */
+     * The open callback function for session_set_save_handler(). Should never be called otherwise.
+     *
+     * @param string $session_path (optional) The path to the session file.
+     * @param string $session_name (optional) The name of the session.
+     * @return boolean
+     */
     public static function open($session_path = null, $session_name = null) {
         return true;
     }
     
     /**
-	 * The close callback function for session_set_save_handler(). Should never be called otherwise.
-	 *
-	 * @return boolean
-	 */
+     * The close callback function for session_set_save_handler(). Should never be called otherwise.
+     *
+     * @return boolean
+     */
     public static function close() {
         return true;
     }
     
     /**
-	 * The road callback function for session_set_save_handler(). Should never be called otherwise.
-	 *
-	 * @param string $session_id (optional) The session_id.
-	 * @return mixed Returns either the decoded session data as a string or an empty string.
-	 */
+     * The road callback function for session_set_save_handler(). Should never be called otherwise.
+     *
+     * @param string $session_id (optional) The session_id.
+     * @return mixed Returns either the decoded session data as a string or an empty string.
+     */
     public static function load($session_id = null) {
         $session_data = null;
     
@@ -74,12 +74,12 @@ class DatabaseSession {
     }
 
     /**
-	 * The write callback function for session_set_save_handler(). Should never be called otherwise.
-	 *
-	 * @param string $session_id (optional) The session_id.
-	 * @param string $session_data (optional) The session data.
-	 * @return boolean
-	 */
+     * The write callback function for session_set_save_handler(). Should never be called otherwise.
+     *
+     * @param string $session_id (optional) The session_id.
+     * @param string $session_data (optional) The session data.
+     * @return boolean
+     */
     public static function save($session_id = null, $session_data = null) {
         $expire_time = time() + get_cfg_var('session.gc_maxlifetime') - 1;
 
@@ -121,11 +121,11 @@ class DatabaseSession {
     }
 
     /**
-	 * The destroy callback function for session_set_save_handler(). Should never be called otherwise.
-	 *
-	 * @param string $session_id (optional) The session_id.
-	 * @return boolean
-	 */
+     * The destroy callback function for session_set_save_handler(). Should never be called otherwise.
+     *
+     * @param string $session_id (optional) The session_id.
+     * @return boolean
+     */
     public static function destroy($session_id = null) {
         session_unset();
         
@@ -137,11 +137,11 @@ class DatabaseSession {
     }
 
     /**
-	 * The gc callback function for session_set_save_handler(). Should never be called otherwise.
-	 *
-	 * @param integer $max_lifetime (optional) The max session lifetime.
-	 * @return boolean
-	 */
+     * The gc callback function for session_set_save_handler(). Should never be called otherwise.
+     *
+     * @param integer $max_lifetime (optional) The max session lifetime.
+     * @return boolean
+     */
     public static function garbageCollection($max_lifetime = null) {
         db()->useErrorHandler();
         db()->delete("sessions", "expire_time < ?", array(time()));

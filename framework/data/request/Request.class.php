@@ -24,10 +24,10 @@ final class Request {
     public $post;
     
     /**
-	 * Returns the current instance of the object or instantiates it if it is not set.
-	 *
-	 * @return object
-	 */
+     * Returns the current instance of the object or instantiates it if it is not set.
+     *
+     * @return object
+     */
     public static function getRequest() {
         if(!isset(self::$_request)) {
             self::$_request = new Request();
@@ -37,10 +37,10 @@ final class Request {
     }
     
     /**
-	 * Instantiates a new instance of Request.
-	 *
-	 * @return void
-	 */
+     * Instantiates a new instance of Request.
+     *
+     * @return void
+     */
     public function __construct() {
         $this->get = new GetData();
         
@@ -48,11 +48,11 @@ final class Request {
     }
     
     /**
-	 * Retrieves a request variable value in either get or post.
-	 *
-	 * @param string $variable_name The name of the request variable to retrieve.
-	 * @return mixed
-	 */
+     * Retrieves a request variable value in either get or post.
+     *
+     * @param string $variable_name The name of the request variable to retrieve.
+     * @return mixed
+     */
     public function __get($variable_name) {
         $variable_value = null;
     

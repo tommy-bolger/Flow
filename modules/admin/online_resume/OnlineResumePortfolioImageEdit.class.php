@@ -114,5 +114,5 @@ extends OnlineResumeAdmin {
         }
         
         $this->body->addChild($content);
-	}
+    }
 }

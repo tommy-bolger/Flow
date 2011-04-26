@@ -27,7 +27,7 @@ extends ToggleGroup {
      * @param array $css_classes A list of classes for this field.
      * @return void
      */
-	public function __construct($radio_group_name, $radio_group_label = NULL, $options = array(), $css_classes = array()) {
-		parent::__construct("radio", $radio_group_name, $radio_group_label, $options, $css_classes);
-	}
+    public function __construct($radio_group_name, $radio_group_label = NULL, $options = array(), $css_classes = array()) {
+        parent::__construct("radio", $radio_group_name, $radio_group_label, $options, $css_classes);
+    }
 }
