@@ -86,33 +86,38 @@ final class Configuration {
             $this->full_configuration = cache()->get($config_ini_file);
         }
     
-        //Return false if the configuration file is not available
-        if(!is_readable($config_ini_file)) {
-            throw new Exception("Configuration file '{$config_ini_file}' is missing or not readable.");
-        }
-
-        //Load the configuration into memory
-        $this->current_configuration = parse_ini_file($config_ini_file);
-        
-        //Open the dist configuration file
-        $dist_configuration_file = "{$config_ini_file}-DIST";
-        
-        if($this->loadDist($dist_configuration_file)) {
-            $this->full_configuration = array_merge($this->dist_configuration, $this->current_configuration);
-        }
-        else {
-            $this->full_configuration = &$this->current_configuration;
-        }
-        
-        if(!empty($this->full_configuration)) {
-            $this->loaded = true;
+        if(empty($this->full_configuration)) {
+            //Return false if the configuration file is not available
+            if(!is_readable($config_ini_file)) {
+                throw new Exception("Configuration file '{$config_ini_file}' is missing or not readable.");
+            }
+    
+            //Load the configuration into memory
+            $this->current_configuration = parse_ini_file($config_ini_file);
             
-            if(Framework::$enable_cache) {
-                cache()->set($config_ini_file, $this->full_configuration);
+            //Open the dist configuration file
+            $dist_configuration_file = "{$config_ini_file}-DIST";
+            
+            if($this->loadDist($dist_configuration_file)) {
+                $this->full_configuration = array_merge($this->dist_configuration, $this->current_configuration);
+            }
+            else {
+                $this->full_configuration = &$this->current_configuration;
+            }
+            
+            if(!empty($this->full_configuration)) {
+                $this->loaded = true;
+                
+                if(Framework::$enable_cache) {
+                    cache()->set($config_ini_file, $this->full_configuration);
+                }
+            }
+            else {
+                throw new Exception("The configuration could not be loaded or is empty.");
             }
         }
         else {
-            throw new Exception("The configuration could not be loaded or is empty.");
+            $this->loaded = true;
         }
     }
     
