@@ -56,8 +56,10 @@ class Error {
         }
         
         error_log($error_output);
+        
+        $environment = Framework::getEnvironment();
     
-        if(Framework::getEnvironment() != 'production') {
+        if(!empty($environment) && $environment != 'production') {
             print($error_output);
         }
         
