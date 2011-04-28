@@ -1155,6 +1155,10 @@ ALTER TABLE users ALTER COLUMN user_id SET DEFAULT nextval('users_user_id_seq'::
 
 SET search_path = online_resume, pg_catalog;
 
+INSERT INTO proficiency_levels (proficiency_level_id, proficiency_level_name) VALUES (1, 'Beginner');
+INSERT INTO proficiency_levels (proficiency_level_id, proficiency_level_name) VALUES (2, 'Intermediate');
+INSERT INTO proficiency_levels (proficiency_level_id, proficiency_level_name) VALUES (3, 'Advanced');
+
 --
 -- TOC entry 1989 (class 0 OID 18105)
 -- Dependencies: 1589
