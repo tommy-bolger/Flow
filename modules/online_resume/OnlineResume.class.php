@@ -370,7 +370,7 @@ extends Module {
                             $project_images_html->addHyperLink(
                                 "{$portfolio_screenshots_path}/{$current_project_image['image_name']}",
                                 "<img src=\"{$portfolio_screenshots_path}/{$current_project_image['thumbnail_name']}\" class=\"portfolio_project_image\" />", 
-                                array('rel' => $portfolio_project_id, 'target' => '_blank')
+                                array('title' => $current_project_image['title'], 'rel' => $portfolio_project_id, 'target' => '_blank')
                             );
                         }
 
