@@ -71,7 +71,7 @@ Installation
 1. Download a copy of Flow from here: https://github.com/tommy-bolger/Flow
 2. Extract the contents of the package to a preferred folder accessible by your web server.
     * The folder must be the root of your website.
-3. If Flow is not in a directory where the web user has write access the following directory paths relative to the site root need to be writable recursively:
+3. The following directory paths relative to the site root need to be writable recursively for the web user and your user:
     * cache/
     * assets/
     * framework/core/ (can be reset to default permissions when the installation is finished)

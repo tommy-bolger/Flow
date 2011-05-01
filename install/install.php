@@ -19,7 +19,7 @@
 
 print(
     "\nWelcome to the installation for Flow! Before you proceed please go over this checklist:\n\n" . 
-    "1. If Flow is not in a directory where the web user has write access the following directory paths relative to the root need to be writable recursively:\n\t" . 
+    "1. The following directory paths relative to the site root need to be writable recursively for the web user and your user:\n\t" . 
     "- cache/\n\t" .
     "- assets/\n\t" . 
     "- framework/core/ (can be reset to default permissions when this script finishes)\n" . 
