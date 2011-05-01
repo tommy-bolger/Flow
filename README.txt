@@ -8,7 +8,7 @@ The goal of this framework and CMS is the following:
     * Create an ecosystem that makes building a web application significantly easier via helper objects.
     * Give the developer as much flexibility as possible as to how to build a web application and not completely confine him or her to a rigid model.
     * Provide a high-performance application through the use of caching, optimized PHP code, and optimized SQL.
-    * Most importantly prevent havign to reinvent the wheel on every page.    
+    * Most importantly prevent having to reinvent the wheel on every page.    
 
 Please keep in mind that Flow is still in development. Some parts aren't fully finished, styles might be off on some pages, and some code hasn't been developed fully yet.
 
@@ -71,7 +71,7 @@ Installation
 1. Download a copy of Flow from here: https://github.com/tommy-bolger/Flow
 2. Extract the contents of the package to a preferred folder accessible by your web server.
     * The folder must be the root of your website.
-3. The following directory paths relative to the site root need to be writable recursively for the web user and your user:
+3. The following directories relative to the site root need to be writable recursively for the web user and your user:
     * cache/
     * assets/
     * framework/core/ (can be reset to default permissions when the installation is finished)
