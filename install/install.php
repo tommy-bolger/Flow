@@ -16,6 +16,20 @@
 * You should have received a copy of the GNU General Public License
 * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+
+print(
+    "\nWelcome to the installation for Flow! Before you proceed please go over this checklist:\n\n" . 
+    "1. If Flow is not in a directory where the web user has write access the following directory paths relative to the root need to be writable recursively:\n\t" . 
+    "- cache/\n\t" .
+    "- assets/\n\t" . 
+    "- framework/core/ (can be reset to default permissions when this script finishes)\n" . 
+    "2. The database you'll be installing to is empty.\n" . 
+    "3. Read the README file to go over the packages required by this framework.\n\n" . 
+    "Press enter to continue when this checklist has been finished."
+);
+
+$continue = trim(fgets(STDIN));
+
 /*
 * ----- Config directory path -----
 */
@@ -106,7 +120,7 @@ if(!is_writable($cache_path)) {
 $new_configuration_path = "{$config_directory_path}/configuration.ini";
 
 if(is_file($new_configuration_path)) {
-    print("The user configuration file '{$new_configuration_path}' for the framework already exists. This site has already been installed.\n");
+    print("The user configuration file '{$new_configuration_path}' for the framework already exists. This site has already been installed. If installation needs to be run again then remove the old configuration.ini, clear the database if it is not empty, and execute this script again.\n");
     
     exit;
 }
