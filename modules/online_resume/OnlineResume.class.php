@@ -161,13 +161,13 @@ extends Module {
         
         if(!empty($education_items)) {
             foreach($education_items as $education_item) {            
-                $education_institution = new Div(array('class' => 'education_institution'), "
-                    <span class=\"bold\">{$education_item['degree_level_name']} in {$education_item['degree_name']}</span>
-                    <p>{$education_item['institution_name']}</p>
-                    <p>{$education_item['institution_city']}, {$education_item['state']}</p>
-                    <p><span class=\"italic\">Graduation Date: </span> {$education_item['date_graduated']}</p>
-                    <p><span class=\"italic\">Cumulative GPA: </span> {$education_item['cumulative_gpa']}</p>
-                ");
+                $education_institution = new Div(array('class' => 'education_institution'),
+                    "<span class=\"bold\">{$education_item['degree_level_name']} in {$education_item['degree_name']}</span>" . 
+                    "<p>{$education_item['institution_name']}</p>" . 
+                    "<p>{$education_item['institution_city']}, {$education_item['state']}</p>" . 
+                    "<p><span class=\"italic\">Graduation Date: </span> {$education_item['date_graduated']}</p>" . 
+                    "<p><span class=\"italic\">Cumulative GPA: </span> {$education_item['cumulative_gpa']}</p>"
+                );
                 
                 $education_institutions->addChild($education_institution);
             }
@@ -269,10 +269,10 @@ extends Module {
                 $position_duration_html = new Div(array('class' => 'work_history_organization'));
             
                 //Add the job title and organization name div
-                $position_duration_html->addDiv(array('class' => 'organization_position'), "
-                    <p><span class=\"bold\">{$work_history_organization['job_title']}</span></p>
-                    <p>{$work_history_organization['organization_name']}</p>
-                ");
+                $position_duration_html->addDiv(array('class' => 'organization_position'), 
+                    "<p><span class=\"bold\">{$work_history_organization['job_title']}</span></p>" . 
+                    "<p>{$work_history_organization['organization_name']}</p>"
+                );
                 
                 //Compile the durations html
                 $durations_html = '';
@@ -283,7 +283,7 @@ extends Module {
                     if(!empty($organization_durations)) {
                         foreach($organization_durations as $organization_duration) {
                             if(!empty($durations_html)) {
-                                $durations_html .= "<br />\n";
+                                $durations_html .= "<br />";
                             }
                             
                             $durations_html .= "{$organization_duration['start_date']} - {$organization_duration['end_date']}";
@@ -353,9 +353,7 @@ extends Module {
             
                 $portfolio_project_id = $portfolio_project['portfolio_project_id'];
                 
-                $portfolio_project_html->addLiteralElement(NULL, "
-                    <h4>{$portfolio_project['project_name']}</h4>
-                ");
+                $portfolio_project_html->addLiteralElement(NULL, "<h4>{$portfolio_project['project_name']}</h4>");
 
                 if(isset($portfolio_project_images[$portfolio_project_id])) {
                     $current_project_images = $portfolio_project_images[$portfolio_project_id];
@@ -379,15 +377,15 @@ extends Module {
                 }
                 
                 if(!empty($portfolio_project['organization_name'])) {
-                    $portfolio_project_html->addParagraph("
-                        <span class=\"bold\">Organization:&nbsp;</span>{$portfolio_project['organization_name']}
-                    ");
+                    $portfolio_project_html->addParagraph("<span class=\"bold\">Organization:&nbsp;</span>{$portfolio_project['organization_name']}");
                 }
                 
                 if(!empty($portfolio_project['site_url'])) {
-                    $portfolio_project_html->addHyperlink($portfolio_project['site_url'], "
-                        <span class=\"bold\">URL</span>:&nbsp;{$portfolio_project['site_url']}
-                    ", array('target' => '_blank'));
+                    $portfolio_project_html->addHyperlink(
+                        $portfolio_project['site_url'], 
+                        "<span class=\"bold\">URL</span>:&nbsp;{$portfolio_project['site_url']}", 
+                        array('target' => '_blank')
+                    );
                 }
                 
                 if(isset($portfolio_project_skills[$portfolio_project_id])) {
@@ -444,9 +442,7 @@ extends Module {
             
                 $code_example_id = $code_example['code_example_id'];
                 
-                $code_example_html ->addLiteralElement(NULL, "
-                    <h4>{$code_example['code_example_name']}</h4>
-                ");
+                $code_example_html ->addLiteralElement(NULL, "<h4>{$code_example['code_example_name']}</h4>");
                 
                 $code_example_source = new Div(array('class' => 'code_example_source'));
                 
@@ -459,15 +455,11 @@ extends Module {
                 $code_example_html->addChild($code_example_source);
                 
                 if(!empty($code_example['organization_name'])) {
-                    $code_example_html->addParagraph("
-                        <span class=\"bold\">Organization:&nbsp;</span>{$code_example['organization_name']}
-                    ");
+                    $code_example_html->addParagraph("<span class=\"bold\">Organization:&nbsp;</span>{$code_example['organization_name']}");
                 }
                 
                 if(!empty($code_example['project_name'])) {
-                    $code_example_html->addParagraph("
-                        <span class=\"bold\">Portfolio Project:&nbsp;</span>{$code_example['project_name']}
-                    ");
+                    $code_example_html->addParagraph("<span class=\"bold\">Portfolio Project:&nbsp;</span>{$code_example['project_name']}");
                 }
                 
                 if(isset($code_example_skills[$code_example_id])) {
