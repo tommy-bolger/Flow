@@ -396,7 +396,9 @@ extends Module {
                 
                 $portfolio_project_html->addParagraph($portfolio_project['description'], array('class' => 'portfolio_description'));
                 
-                $portfolio_project_html->addParagraph($portfolio_project['involvement_description'], array('class' => 'portfolio_description'));
+                if(!empty($portfolio_project['involvement_description'])) {
+                    $portfolio_project_html->addParagraph($portfolio_project['involvement_description'], array('class' => 'portfolio_description'));
+                }
                 
                 $portfolio_project_html->addDiv(array('class' => 'clear'));
                 
