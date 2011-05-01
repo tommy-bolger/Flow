@@ -47,7 +47,7 @@ extends OnlineResumeAdmin {
             
             $image_path = "{$this->images_path}/portfolio_images";
             
-            $image_form->addSingleImageField('image_name', 'Image', $image_path, 150);
+            $image_form->addSingleImageField('image_name', 'Image', $image_path, 200);
             $image_form->addSubmit('save', 'Save');
     
             $image_form->setDefaultValues(array('image_name' => $image_data['image_name']));
