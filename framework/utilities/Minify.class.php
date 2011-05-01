@@ -61,6 +61,8 @@ class Minify {
         $special_characters = array(
             'END_TAG_PLACEHOLDER' => '?' . '>', 
             'POUND_SIGN' => '#', 
+            'DOUBLE_QUOTE_DOUBLE_SLASH' => '"//',
+            'SINGLE_QUOTE_DOUBLE_SLASH' => "'//",
             'SINGLE_QUOTE' => "'",
             'DOUBLE_QUOTE' => '"',
             'NEW_LINE' => "\n",
