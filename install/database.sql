@@ -313,7 +313,7 @@ CREATE TABLE portfolio_projects (
     portfolio_project_id integer NOT NULL,
     project_name character varying(255) NOT NULL,
     description text NOT NULL,
-    involvement_description text NOT NULL,
+    involvement_description text,
     sort_order smallint NOT NULL,
     site_url text,
     work_history_id integer

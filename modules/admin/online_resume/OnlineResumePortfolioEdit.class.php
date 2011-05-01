@@ -64,6 +64,8 @@ extends OnlineResumeAdmin {
             $portfolio_table->addTextArea('involvement_description', 'Involvement');
             $portfolio_table->addSubmit('save', 'Save');
             
+            $portfolio_table->setRequiredFields(array('project_name', 'description'));
+            
             $portfolio_table->processForm();
         }
         
