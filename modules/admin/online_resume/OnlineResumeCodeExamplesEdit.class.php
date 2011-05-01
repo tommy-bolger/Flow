@@ -74,6 +74,8 @@ extends OnlineResumeAdmin {
             $code_examples_table->addTextArea('description', 'Description');
             $code_examples_table->addSubmit('save', 'Save');
             
+            $code_examples_table->setRequiredFields(array('code_example_name', 'purpose'));
+            
             $code_examples_table->processForm();
         }
         
