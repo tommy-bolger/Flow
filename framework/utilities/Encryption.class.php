@@ -81,7 +81,7 @@ class Encryption {
     * @return string
     */
     public static function generateEncryptionKey($plain_keys) {
-        assert('is_array($keys) && !empty($keys)');
+        assert('is_array($plain_keys) && !empty($plain_keys)');
         
         if(!isset(self::$site_key)) {
             self::$site_key = config('framework')->getParameter('site_key');
