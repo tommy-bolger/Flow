@@ -85,10 +85,10 @@ extends Page {
                 if(Framework::$enable_cache) {
                     cache()->set($module_name, $module_configuration, 'module_configuration');
                 }
-                
-                config($module_name)->set($module_configuration);
             }
         }
+        
+        config($module_name)->set($module_configuration);
     }
     
     private function isEnabled() {
