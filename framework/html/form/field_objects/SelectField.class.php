@@ -80,6 +80,10 @@ extends Field {
      * @return void
      */
     public function setValue($field_value) {
+        if(!$this->is_multi && empty($field_value)) {
+            $field_value = NULL;
+        }
+    
         $this->value = $field_value;
     }
     
@@ -140,28 +144,7 @@ extends Field {
      * @return void
      */
     public function addBlankOption($blank_option_text = "") {
-        $this->addOption('none', $blank_option_text, NULL, true);
-    }
-    
-    /**
-     * Validates the select's submitted value.
-     *      
-     * @return boolean
-     */
-    protected function validate() {
-        if(!parent::validate()) {
-            return false;
-        }
-        
-        if($this->required) {
-            if((!$this->is_multi && $this->value == 'none') || ($this->is_multi && empty($this->value))) {
-                $this->setRequiredError();
-                
-                return false;
-            }
-        }
-        
-        return true;
+        $this->addOption('', $blank_option_text, NULL, true);
     }
     
     /**
