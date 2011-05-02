@@ -32,7 +32,7 @@ classes_path = "./"
 classes_exclude = ".svn"
 
 ; Page retrieval
-default_page = "AppPage"
+default_page = "OnlineResume"
 not_found_page = "Whoops"
 
 ; Default Database connection parameters
