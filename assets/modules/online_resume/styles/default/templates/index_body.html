@@ -1,0 +1,64 @@
+<div id="canvas">
+    <div id="top_content">
+    	<div id="header">
+            <div id="top_header">
+                <div id="photo_outer_container">
+                    <div id="photo_inner_container">
+                        {{PHOTO}}
+                    </div>
+                </div>
+                <div id="personal_information">
+                    <h1>{{NAME}}</h1>
+                    <h3>{{SPECIALTY}}</h3>
+                    <h4>{{ADDRESS}}</h4>
+                    {{PHONE_NUMBER}}
+                    <h4><a href="mailto:{{EMAIL_ADDRESS}}">{{EMAIL_ADDRESS}}</a></h4>
+                </div>
+                <div id="toolbar">
+                    {{PRINT_PDF_LINK}} | {{PRINT_WORD_LINK}} | <a href="mailto:{{EMAIL_ADDRESS}}">Email</a>
+                </div>
+                <div class="clear"></div>
+            </div>
+            {{DESCRIPTION}}
+            <hr />
+    	</div>
+    	<div id="tab_bar">
+            <a class="tab" href="#education">Education</a>
+            <a class="tab" href="#skills">Skills</a>
+            <a class="tab" href="#experience">Experience</a>
+            <a class="tab" href="#portfolio">Portfolio</a>
+            <a class="tab" href="#example_code">Code Examples</a>
+            <a class="tab" href="#view_all">View All</a>
+        </div>
+    	<div id="content">
+            <div id="inner_content">
+                <a id="view_all"></a>
+        		<div id="education">
+                    <h2>Education</h2>
+                    {{EDUCATION_INSTITUTIONS}}
+                    <hr />
+        		</div>
+        		<div id="skills">
+                    <h2>Skills</h2>
+                    {{SKILLS_LIST}}
+                    <hr />
+        		</div>
+        		<div id="experience">
+                    <h2>Experience</h2>
+                    {{WORK_HISTORY}}
+                    <hr />
+        		</div>
+        		<div id="portfolio">
+                    <h2>Portfolio</h2>
+                    {{PORTFOLIO_PROJECTS}}
+                    <hr />
+        		</div>
+        		<div id="example_code">
+                    <h2>Code Examples</h2>
+                    {{CODE_EXAMPLES}}
+                    <hr />
+        		</div>
+        	</div>
+    	</div>
+	</div>
+</div>

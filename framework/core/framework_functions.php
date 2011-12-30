@@ -1,34 +1,20 @@
 <?php
 /**
 * A collection of low-level shortcut functions utilized by the framework.
-* Copyright (c) 2011, Tommy Bolger
-* All rights reserved.
-* 
-* Redistribution and use in source and binary forms, with or without 
-* modification, are permitted provided that the following conditions 
-* are met:
-* 
-* Redistributions of source code must retain the above copyright 
-* notice, this list of conditions and the following disclaimer.
-* Redistributions in binary form must reproduce the above copyright 
-* notice, this list of conditions and the following disclaimer in the 
-* documentation and/or other materials provided with the distribution.
-* Neither the name of the author nor the names of its contributors may 
-* be used to endorse or promote products derived from this software 
-* without specific prior written permission.
-* 
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS 
-* "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT 
-* LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS 
-* FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE 
-* COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
-* INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-* BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; 
-* LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER 
-* CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT 
-* LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN 
-* ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE 
-* POSSIBILITY OF SUCH DAMAGE.
+* Copyright (C) 2011  Tommy Bolger
+*
+* This program is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 /**
@@ -54,13 +40,13 @@ function environment($environment_variable) {
 }
 
 /**
-* A shortcut function to the Framework::getFramework function.
+* A shortcut function to generate a PHP user error.
 *
-* @param string $config_name (optional) The name of the configuration instance to retrieve.
-* @return object
+* @param string $error_message
+* @return void
 */
-function framework() {
-    return \Framework\Core\Framework::getFramework();
+function throwError($error_message) {
+    trigger_error($error_message, E_USER_ERROR);   
 }
 
 /**
@@ -70,7 +56,7 @@ function framework() {
 * @return object
 */
 function config($config_name = NULL) {
-    return \Framework\Core\Configuration::getConfiguration($config_name);
+    return Configuration::getConfiguration($config_name);
 }
 
 /**
@@ -80,7 +66,7 @@ function config($config_name = NULL) {
 * @return object
 */
 function db($database_connection_name = NULL) {
-    return \Framework\Data\Database::getDatabase($database_connection_name);
+    return Database::getDatabase($database_connection_name);
 }
 
 /**
@@ -89,7 +75,7 @@ function db($database_connection_name = NULL) {
 * @return object
 */
 function request() {
-    return \Framework\Request\Request::getRequest();
+    return Request::getRequest();
 }
 
 /**
@@ -98,7 +84,7 @@ function request() {
 * @return object
 */
 function session() {
-    return \Framework\Session\Session::getSession();
+    return Session::getSession();
 }
 
 /**
@@ -107,7 +93,7 @@ function session() {
 * @return object
 */
 function cache() {
-    return \Framework\Caching\Cache::getCache();
+    return Cache::getCache();
 }
 
 /**
@@ -116,7 +102,7 @@ function cache() {
 * @return object
 */
 function file_cache() {
-    return \Framework\Caching\File::getFileCache();
+    return FileCache::getFileCache();
 }
 
 /**
@@ -125,7 +111,7 @@ function file_cache() {
 * @return object
 */
 function page() {
-    return \Framework\Html\Page::getPage();
+    return Page::getPage();
 }
 
 /**
@@ -135,7 +121,7 @@ function page() {
 * @return void
 */
 function dump($data) {
-    if(framework()->getEnvironment() != 'production') {
-        \framework\debug\debug::dump($data);
+    if(Framework::getEnvironment() != 'production') {
+       Debug::dump($data);
     }
 }
