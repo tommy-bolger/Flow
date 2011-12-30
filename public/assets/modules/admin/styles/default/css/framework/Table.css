@@ -1,0 +1,12 @@
+table {
+    margin-top: 10px;
+    margin-bottom: 10px;
+    border: solid 1px #CCCCCC;
+    width: 100%;
+}
+
+table th, table td {
+    vertical-align: middle;
+    padding: 5px;
+    border: solid 2px #CCCCCC;
+}

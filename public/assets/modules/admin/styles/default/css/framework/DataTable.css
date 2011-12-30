@@ -1,0 +1,34 @@
+.data_table div.top_menu {
+    clear: both;
+}
+
+.data_table div.table_menu {
+    text-align: right;
+}
+
+.data_table input.rows_submit {
+    width: 10px;
+}
+
+.data_table ul.page_numbers {
+    display: inline;
+}
+
+.data_table div.pagination {
+    /*float: right;*/
+    display: inline;
+}
+
+.data_table li.page_number, .data_table li.current_page_number {
+    display: inline;
+}
+
+.data_table li.current_page_number {
+    background-color: #CCCCCC;
+    font-weight: bold;
+    color: #FFFFFF;
+}
+
+.data_table .table_header {
+    vertical-align: middle;
+}

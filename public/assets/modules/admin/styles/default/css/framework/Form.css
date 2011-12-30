@@ -1,0 +1,45 @@
+form {
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+form ul.form_field {
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+
+form ul li {
+    display: inline-block;
+    vertical-align: middle;
+}
+
+form ul li label {
+    display: inline-block;
+    width: 150px;
+    text-align: right;
+}
+
+form ul.textarea_field {
+    display: block;
+}
+
+input, textarea, select {
+	color: #CCCCCC;
+	font: normal 11px Verdana, Arial, Helvetica, sans-serif;
+	border-color: #CCCCCC;
+	background-color: #000000;
+}
+
+li input {
+    width: 200px;
+}
+
+li.label {
+    padding-right: 10px;
+}
+
+div.form_errors {
+    margin: 5px 10px 5px 10px;
+    border: 1px solid #CCCCCC;
+    padding: 10px;
+}

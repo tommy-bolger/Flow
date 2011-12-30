@@ -1,0 +1,319 @@
+/* General styles */
+
+body {
+	background-color: #356AA0;
+	font: 16px/24px Arial, Helvetica, sans-serif;
+	text-align: center;
+	color: #333333;
+}
+
+h1 {
+    font-size: 52px;
+    padding-bottom: 15px;
+    line-height: 52px;
+}
+
+h2 {
+    font-size: 27px;
+    padding-bottom: 10px;
+}
+
+h3 {
+    color: #173D5F;
+    font-size: 22px;
+    font-style: italic;
+    padding-bottom: 10px;
+}
+
+h4 {
+    font-size: 18px;
+    font-style: normal;
+    padding-bottom: 5px;
+}
+
+a, a:visited {
+	color: #333333; 
+	text-decoration: none;
+}
+
+a:link, a:active ,a:visited	{ 
+	color: #333333;
+	text-decoration: none;
+}
+
+a:hover	{ 
+	text-decoration: underline; 
+	color: #333333;
+	text-decoration: none;
+}
+
+h4 a {
+    font-size: 18px;
+}
+
+img	{
+	border: 0px #000000 solid;
+}
+
+hr {
+	height: 2px;
+	margin: 20px 0px 30px 0px;
+}
+
+.bold {
+    font-weight: bold;
+}
+
+.italic {
+    font-style: italic;
+}
+
+div.clear {
+    clear: both;
+}
+
+/* End general styles */
+
+/*-------------------------------------------------*/
+
+/* General page layout */
+
+#canvas	{
+	width: 1024px;
+	margin-right: auto;
+	margin-left: auto;
+	padding-bottom: 15px;
+	padding-top: 15px;
+	text-align: left;
+	position: relative;
+}
+
+#top_content, #footer {
+    behavior: url(./assets/htc/pie.php);
+    padding: 40px;
+    background-color: #F9F7ED;
+    border: 1px #000000 solid;
+    border-radius: 2em;
+    -moz-border-radius: 2em;
+	-webkit-border-radius: 2em;
+    box-shadow: 0px 0px 30px #000000;
+	-o-box-shadow: 0px 0px 30px #000000;
+	-moz-box-shadow: 0px 0px 30px #000000; 
+    -webkit-box-shadow: 0px 0px 30px #000000;
+}
+
+#header, #content, #footer {
+	clear: both;
+}
+
+#header, #content {
+    border: 0px #F9F7ED solid;
+}
+
+#footer {
+    margin-top: 20px;
+}
+
+/* End general page layout */
+
+/*-------------------------------------------------*/
+
+/* Header */
+
+div#top_header {
+    clear: both;
+}
+
+div#photo_outer_container {
+    float: left;
+    margin: 8px 35px 12px 0;
+}
+
+div#photo_inner_container {
+    background: none repeat scroll 0 0 #EEEEEE;
+    border: 1px solid #D5D5D5;
+    border-radius: 1em;
+    -moz-border-radius: 1em;
+	-webkit-border-radius: 1em;
+    margin-bottom: 18px;
+    padding: 10px 10px 4px;
+    width: 200px;
+}
+
+div#personal_information {
+    float: left;
+}
+
+div#toolbar {
+    float: right;
+}
+
+/* End header */
+
+/*-------------------------------------------------*/
+
+/* Content */
+
+div#content {
+    behavior: url(./assets/htc/pie.php);
+    background-color: #EEEEEE;
+    padding: 40px 40px 10px 40px;
+    position: relative;
+    border-radius: 1em;
+    -moz-border-radius: 1em;
+	-webkit-border-radius: 1em;
+	box-shadow: 0px 0px 10px #000000;
+	-o-box-shadow: 0px 0px 10px #000000;
+	-moz-box-shadow: 0px 0px 10px #000000; 
+    -webkit-box-shadow: 0px 0px 10px #000000;
+    z-index: 101;
+}
+
+div#tab_bar {
+    padding-top: 10px;
+    padding-left: 15px;
+    font-size: 20px;
+    font-weight: bold;
+    overflow: hidden;
+}
+
+a.tab {
+    behavior: url(./assets/htc/pie.php);
+    margin-right: 10px;
+    background-color: #EEEEEE;
+    border: 0px solid #000000;
+    border-bottom: 0px solid #000000;
+    border-bottom-width: 0px;
+    padding: 2px 1em 2px 1em;
+    position: relative;
+    text-decoration: none;
+    top: -1px;
+    box-shadow: 0px 0px 5px #000000;
+    -o-box-shadow: 0px 0px 5px #000000;
+	-moz-box-shadow: 0px 0px 5px #000000; 
+    -webkit-box-shadow: 0px 0px 5px #000000;
+    border-top-right-radius: 0.5em;
+    border-top-left-radius: 0.5em;
+    -moz-border-radius-topright: 0.5em;
+    -moz-border-radius-topleft: 0.5em;
+	-webkit-border-top-right-radius: 0.5em;
+	-webkit-border-top-left-radius: 0.5em;
+}
+
+a.tab:hover, a.tab.active_tab, a.tab.active_tab:hover, a.tab.active_tab:visited {
+    behavior: url(./assets/htc/pie.php);
+    box-shadow: 0px 0px 10px #000000;
+    -o-box-shadow: 0px 0px 10px #000000;
+	-moz-box-shadow: 0px 0px 10px #000000; 
+    -webkit-box-shadow: 0px 0px 10px #000000;
+    z-index: 102;
+}
+
+/* Education */
+
+div.education_institution {
+    text-align: center;
+}
+
+/* Skills */
+
+table#skills_list {
+    border-collapse: separate;
+}
+
+table#skills_list tbody td {
+    padding: 5px;
+    padding-left: 10px;
+}
+
+table#skills_list tbody td:first-child {
+    white-space: nowrap;
+    font-weight: bold;
+}
+
+span.skill_category {
+    white-space: nowrap;
+}
+
+/* Work History */
+
+div.work_history_organization {
+    margin-top: 10px;
+    border-top: 1px solid #000000;
+    border-bottom: 1px solid #000000;
+    clear: both;
+}
+
+div.organization_position {
+    float: left;
+}
+
+div.organization_duration {
+    float: right;
+}
+
+ul.organization_tasks {
+    padding: 10px 40px 10px 40px;
+    list-style-position: outside;
+    list-style-type: disc;
+}
+
+ul.organization_tasks li {
+    margin-bottom: 5px;
+}
+
+/* Portfolio Projects */
+
+div.portfolio_project {
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+
+div.portfolio_project h4 {
+    padding-bottom: 10px;
+}
+
+div.portfolio_project_images {
+    padding-top: 5px;
+}
+
+img.portfolio_project_image {
+    margin-right: 10px;
+    margin-bottom: 10px;
+}
+
+img.portfolio_project_image:hover {
+    border: 2px solid #000000;
+    border-radius: 0.5em;
+    -moz-border-radius: 0.5em;
+	-webkit-border-radius: 0.5em;
+}
+
+p.portfolio_description {
+    padding-top: 10px;
+}
+
+/* Code examples */
+
+div.code_example {
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+
+div.code_example h4 {
+    padding-bottom: 10px;
+}
+
+div.code_example_source {
+    padding-bottom: 10px;
+}
+
+div.code_example_source a {
+    text-decoration: underline;
+}
+
+p.code_example_description {
+    padding-top: 10px;
+}
+
+/* End content */
