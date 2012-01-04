@@ -326,7 +326,7 @@ print("done.\n");
 */
 print("Encrypting the new configuration and writing it to disk...");
 
-$unencrypted_configuration = 
+$new_configuration = 
     "site_key = \"{$site_key}\"\n" . 
     "password_salt = \"{$password_salt}\"\n" . 
     "database_dsn = \"{$database_dsn}\"\n" . 
@@ -334,13 +334,7 @@ $unencrypted_configuration =
     "database_password = \"{$encrypted_database_password}\""
 ;
 
-$encrypted_configuration = Encryption::encrypt($unencrypted_configuration, array(
-    strlen($new_configuration_path), 
-    $new_configuration_path, 
-    md5($new_configuration_path)
-), '', '');
-
-file_put_contents($new_configuration_path, $encrypted_configuration);
+file_put_contents($new_configuration_path, $new_configuration);
 
 config('framework')->load();
 
