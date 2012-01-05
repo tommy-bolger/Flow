@@ -132,16 +132,7 @@ final class Configuration {
             throw new \Exception("Configuration file '{$config_full_path}' is missing or not readable.");
         }
         
-        //Load the configuration into memory
-        $encrypted_configuration = file_get_contents($config_full_path);
-
-        $unencrypted_configuration = \Framework\Utilities\Encryption::decrypt($encrypted_configuration, array(
-            strlen($config_full_path), 
-            $config_full_path, 
-            md5($config_full_path)
-        ), '', '');
-        
-        $base_configuration = parse_ini_string($unencrypted_configuration);
+        $base_configuration = parse_ini_file($config_full_path);
         
         if(empty($base_configuration)) {
             throw new \Exception("The base configuration file could not be loaded or is empty.");
