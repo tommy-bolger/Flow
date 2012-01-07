@@ -83,8 +83,13 @@ class Database {
                 
                 $unencrypted_password = '';
                 
-                if(!empty($encrypted_password)) {
-                    $unencrypted_password = Encryption::decrypt($encrypted_password, array($dsn, $username));
+                if(config('framework')->environment == 'production') {
+                    if(!empty($encrypted_password)) {
+                        $unencrypted_password = Encryption::decrypt($encrypted_password, array($dsn, $username));
+                    }
+                }
+                else {
+                    $unencrypted_password = $encrypted_password;
                 }
 
                 $new_database_connection->connect($dsn, $username, $unencrypted_password);
