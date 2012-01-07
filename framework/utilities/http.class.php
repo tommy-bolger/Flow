@@ -111,17 +111,23 @@ final class Http {
     * @return string The page base url.
     */
     public static function getPageBaseUrl($module_name = NULL, $subdirectories = array()) {
-        if(empty($module_name)) {
-            $module_name = framework()->getModuleName();
+        $query_string_parameters = array();
+    
+        if(!empty($module_name)) {
+            $query_string_parameters['module'] = $module_name;
         }
-        
-        $subdirectory_path = '';
         
         if(!empty($subdirectories)) {
-            $subdirectory_path = '&' . http_build_query($subdirectories);
+            $query_string_parameters = array_merge($query_string_parameters, $subdirectories);
         }
         
-        return self::getBaseUrl() . "?module={$module_name}{$subdirectory_path}&page=";
+        $query_string = http_build_query($query_string_parameters);
+        
+        if(!empty($query_string)) {
+            $query_string .= '&';
+        }
+        
+        return self::getBaseUrl() . "?{$query_string}page=";
     }
     
     /**
@@ -175,6 +181,32 @@ final class Http {
     * @return string The full url.
     */
     public static function generateUrl($base_url, $query_string_parameters, $cache_name = '') {
+        assert('!empty($query_string_parameters) && is_array($query_string_parameters)');
+        
+        $generated_url = $base_url;
+        
+        if(!empty($query_string_parameters)) {        
+            if(strpos($generated_url, '?') !== false) {
+                $generated_url .= '&';
+            }
+            else {
+                $generated_url .= '?';
+            }
+            
+            $generated_url .= http_build_query($query_string_parameters);
+        }
+        
+        return $generated_url;
+    }
+    
+    /**
+    * Generates and returns an internal url.
+    * 
+    * @param string $base_url The base url.
+    * @param array $query_string_parameters The query string parameters to add to the base url. Format is parameter_name => parameter_value.
+    * @return string The full url.
+    */
+    public static function generateInternalUrl($module_name = '', $subdirectory_path = array(), $page = '', $query_parameters = array()) {
         assert('!empty($query_string_parameters) && is_array($query_string_parameters)');
         
         $generated_url = $base_url;
