@@ -83,13 +83,14 @@ class Database {
                 
                 $unencrypted_password = '';
                 
-                if(config('framework')->environment == 'production') {
-                    if(!empty($encrypted_password)) {
+                if(!empty($encrypted_password)) {
+                    //Autodetect a password stored in base64 to attempt to decrypt its contents for a plaintext password.
+                    if(strpos($encrypted_password, '==') !== false) {
                         $unencrypted_password = Encryption::decrypt($encrypted_password, array($dsn, $username));
                     }
-                }
-                else {
-                    $unencrypted_password = $encrypted_password;
+                    else {
+                        $unencrypted_password = $encrypted_password;
+                    }
                 }
 
                 $new_database_connection->connect($dsn, $username, $unencrypted_password);
