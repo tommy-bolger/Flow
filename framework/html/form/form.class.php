@@ -462,16 +462,18 @@ extends Element {
     public function toHtml() {
         $form_html = '';
         
-        if(!empty($this->field_errors)) {
-            $form_html .= "<div class=\"form_errors\">{$this->getMessagesHtml('field_errors')}</div>";
-        }
-        
-        if(!empty($this->warnings)) {
-            $form_html .= "<div class=\"form_warnings\">{$this->getMessagesHtml('warnings')}</div>";
-        }
-        
-        if(!empty($this->confirmations)) {
-            $form_html .= "<div class=\"form_confirmations\">{$this->getMessagesHtml('confirmations')}</div>";
+        if(empty($this->template)) {
+            if(!empty($this->field_errors)) {
+                $form_html .= "<div class=\"form_errors\">{$this->getMessagesHtml('field_errors')}</div>";
+            }
+            
+            if(!empty($this->warnings)) {
+                $form_html .= "<div class=\"form_warnings\">{$this->getMessagesHtml('warnings')}</div>";
+            }
+            
+            if(!empty($this->confirmations)) {
+                $form_html .= "<div class=\"form_confirmations\">{$this->getMessagesHtml('confirmations')}</div>";
+            }
         }
         
         $form_html .= parent::toHtml();
