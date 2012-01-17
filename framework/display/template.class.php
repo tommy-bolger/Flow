@@ -44,11 +44,6 @@ class Template {
     private $template_file_path;
     
     /**
-    * @var string Loaded template.
-    */
-    private $template;
-    
-    /**
     * @var array The values of the template placeholders.
     */
     private $placeholder_values;
@@ -172,19 +167,14 @@ class Template {
     * @return string The parsed template.
     */
     public function parseTemplate() {    
-        if(!empty($this->placeholder_values)) {
-            if(!isset($this->parsed_template)) {
-                ob_start();
-                
-                include($this->template_file_path);
-                
-                $this->parsed_template = ob_get_clean();
-            }
+        if(!isset($this->parsed_template)) {
+            ob_start();
             
-            return $this->parsed_template;
+            include($this->template_file_path);
+            
+            $this->parsed_template = ob_get_clean();
         }
-        else {
-            return $this->template;
-        }
+        
+        return $this->parsed_template;
     }
 }
