@@ -206,22 +206,47 @@ final class Http {
     * @param array $query_string_parameters The query string parameters to add to the base url. Format is parameter_name => parameter_value.
     * @return string The full url.
     */
-    public static function generateInternalUrl($module_name = '', $subdirectory_path = array(), $page = '', $query_parameters = array()) {
-        assert('!empty($query_string_parameters) && is_array($query_string_parameters)');
+    public static function generateInternalUrl($module_name = '', $subdirectory_path = array(), $page = '', $query_string_parameters = array()) {
+        assert('is_array($subdirectory_path) && is_array($query_string_parameters)');
         
-        $generated_url = $base_url;
+        $url = self::getBaseUrl();
         
-        if(!empty($query_string_parameters)) {        
-            if(strpos($generated_url, '?') !== false) {
-                $generated_url .= '&';
-            }
-            else {
-                $generated_url .= '?';
-            }
-            
-            $generated_url .= http_build_query($query_string_parameters);
+        $page_path = array();
+        
+        if(!empty($module_name)) {
+            $page_path['module'] = $module_name;
         }
         
-        return $generated_url;
+        if(!empty($subdirectory_path)) {            
+            foreach($subdirectory_path as $index => $subdirectory) {
+                $page_path['subd_' . ($index + 1)] = $subdirectory;
+            }
+        }
+        
+        if(!empty($page)) {
+            $page_path['page'] = $page; 
+        }
+        
+        if(!empty($page_path)) {
+            if(config('framework')->environment == 'development') {
+                $url .= '?' . http_build_query($page_path);
+            }
+            else {
+                $url .= implode('/', $page_path) . '/';
+            }
+        }
+        
+        if(!empty($query_string_parameters)) {
+            if(strpos($url, '?') !== false) {
+                $url .= '&';
+            }
+            else {
+                $url .= '?';
+            }
+        
+            $url .= http_build_query($query_string_parameters);
+        }
+        
+        return $url;
     }
 }
