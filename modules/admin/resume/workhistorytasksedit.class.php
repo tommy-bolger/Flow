@@ -48,7 +48,7 @@ extends WorkHistoryEdit {
     protected function setPageLinks() {
         parent::setPageLinks();
         
-        $this->page_links['Work History Tasks Edit'] = Http::getCurrentBaseUrl() . 'work-history-tasks-edit';
+        $this->page_links['Work History Tasks Edit'] = Http::getCurrentLevelPageUrl('work-history-tasks-edit');
     }
     
     protected function constructRightContent() {
@@ -93,7 +93,7 @@ extends WorkHistoryEdit {
         ", array($work_history_id));
         
         //Set the header of the right content for this page with the organization name
-        $work_history_page_url = Http::getCurrentBaseUrl() . "work-history-edit";
+        $work_history_page_url = Http::getCurrentLevelPageUrl("work-history-edit");
         
         $content = new Div(array('id' => 'current_menu_content'), "
             <h2>Editing Work History Tasks for {$organization_name}</h2><br />

@@ -55,7 +55,7 @@ extends ModulePage {
         parent::__construct('admin');
 
         if(!Auth::userLoggedIn()) {
-            Http::redirect(Http::getPageBaseUrl() . 'login');
+            Http::redirect(Http::getTopLevelPageUrl('login'));
         }
         
         $this->constructHeader();
@@ -87,7 +87,7 @@ extends ModulePage {
     }
     
     protected function constructContentHeader() {
-        $this->body->addChild(Http::getPageBaseUrl() . 'home', 'home_link');
+        $this->body->addChild(Http::getTopLevelPageUrl(), 'home_link');
     }
     
     private function constructLeftContent() {
@@ -106,10 +106,8 @@ extends ModulePage {
         $user_name = session()->user_name;
         
         $this->body->addChild($user_name, 'user_name');
-
-        $base_url = Http::getPageBaseUrl();
             
-        $this->body->addChild("{$base_url}login&logout=1", 'logout_link');
+        $this->body->addChild(Http::getTopLevelPageUrl("login", array('logout' => 1)), 'logout_link');
     }
     
     protected function constructModuleMenu() {    
@@ -135,7 +133,7 @@ extends ModulePage {
             }
             
             foreach($admin_pages as $page_name => $module_name) {
-                $admin_pages[$page_name] = Http::getPageBaseUrl(NULL, array('subd_1' => $module_name)) . 'home';
+                $admin_pages[$page_name] = Http::getInternalUrl('', array('subd_1' => $module_name));
             }
         }
         
@@ -144,12 +142,10 @@ extends ModulePage {
         $this->body->addChild($modules_list);
     }
     
-    protected function getSettingsMenuLinks() {
-        $base_url = Http::getPageBaseUrl();
-    
+    protected function getSettingsMenuLinks() {    
         return array(
-            'Module Management' => "{$base_url}toggle-modules",
-            'Errors' => "{$base_url}site-errors"
+            'Module Management' => Http::getCurrentLevelPageUrl("toggle-modules"),
+            'Errors' => Http::getCurrentLevelPageUrl("site-errors")
         );
     }
     
@@ -157,10 +153,10 @@ extends ModulePage {
         $settings_links = array();
         
         if(isset($this->managed_module)) {
-            $settings_links['Configuration'] = Http::getPageBaseUrl() . "configuration-edit&module_id={$this->managed_module->getId()}";
+            $settings_links['Configuration'] = Http::getTopLevelPageUrl("configuration-edit", array('module_id' => $this->managed_module->getId()));
         }
         else {
-            $settings_links['Configuration'] = Http::getPageBaseUrl() . 'configuration-edit';
+            $settings_links['Configuration'] = Http::getTopLevelPageUrl('configuration-edit');
         }
         
         $settings_links = array_merge($settings_links, $this->getSettingsMenuLinks());
@@ -170,10 +166,8 @@ extends ModulePage {
         $this->body->addChild($settings_list);
     }
     
-    protected function setPageLinks() {
-        $page_url = Http::getPageBaseUrl() . 'home';
-        
-        $this->page_links['Home'] = $page_url;
+    protected function setPageLinks() {        
+        $this->page_links['Home'] = Http::getTopLevelPageUrl();
     
         session()->module_path = $this->page_links;
     }
@@ -193,6 +187,8 @@ extends ModulePage {
             <br />
             <p>
                 Welcome to the Administration Control Panel. Configuration for individual modules can be found via one of the tabs up top. Sub-pages for the current configuration can be found in the sidebar on the left.
+                <br />
+                <br />
             </p>
         ');
     

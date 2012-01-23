@@ -48,19 +48,17 @@ extends Admin\Home {
         parent::__construct();
     }
     
-    protected function constructModuleMenu() {
-        $base_url = Http::getCurrentBaseUrl();
-    
+    protected function constructModuleMenu() {    
         $module_menu = new LinkList(array(
-            'General Information' => "{$base_url}general-information-edit",
-            'Photo' => "{$base_url}photo-edit",
-            'Print Files' => "{$base_url}print-file-edit",
-            'Education' => "{$base_url}education-edit",
-            'Skills' => "{$base_url}skills-edit",
-            'Skill Categories' => "{$base_url}skill-categories-edit",
-            'Work History' => "{$base_url}work-history-edit",
-            'Portfolio' => "{$base_url}portfolio-edit",
-            'Code Examples' => "{$base_url}code-examples-edit"
+            'General Information' => Http::getCurrentLevelPageUrl("general-information-edit"),
+            'Photo' => Http::getCurrentLevelPageUrl("photo-edit"),
+            'Print Files' => Http::getCurrentLevelPageUrl("print-file-edit"),
+            'Education' => Http::getCurrentLevelPageUrl("education-edit"),
+            'Skills' => Http::getCurrentLevelPageUrl("skills-edit"),
+            'Skill Categories' => Http::getCurrentLevelPageUrl("skill-categories-edit"),
+            'Work History' => Http::getCurrentLevelPageUrl("work-history-edit"),
+            'Portfolio' => Http::getCurrentLevelPageUrl("portfolio-edit"),
+            'Code Examples' => Http::getCurrentLevelPageUrl("code-examples-edit")
         ), array('id' => 'modules_list'));
         
         $this->body->addChild($module_menu);
@@ -73,7 +71,7 @@ extends Admin\Home {
     protected function setPageLinks() {
         parent::setPageLinks();
         
-        $page_url = Http::getCurrentBaseUrl() . 'home';
+        $page_url = Http::getCurrentLevelPageUrl();
         
         $this->page_links['Resume Admin Home'] = $page_url;
         

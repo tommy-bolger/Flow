@@ -419,7 +419,7 @@ extends Table {
             case 'add':
                 assert('!empty($this->edit_page)');
             
-                $page_table_parameters = Http::getCurrentBaseUrl() . $this->edit_page;
+                $page_table_parameters = Http::getCurrentLevelPageUrl($this->edit_page);
                 break;
             default:
                 $page_table_parameters = Http::getPageUrl();
@@ -551,7 +551,7 @@ extends Table {
      * @return string
      */
     public function toHtml() {
-        $edit_page_url = Http::getCurrentBaseUrl() . $this->edit_page;
+        $edit_page_url = Http::getCurrentLevelPageUrl($this->edit_page);
     
         $edit_table_html = "";
         

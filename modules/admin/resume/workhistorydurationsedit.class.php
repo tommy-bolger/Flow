@@ -48,7 +48,7 @@ extends WorkHistoryEdit {
     protected function setPageLinks() {
         parent::setPageLinks();
         
-        $this->page_links['Work History Durations Edit'] = Http::getCurrentBaseUrl() . 'work-history-durations-edit';
+        $this->page_links['Work History Durations Edit'] = Http::getCurrentLevelPageUrl('work-history-durations-edit');
     }
     
     protected function constructRightContent() {
@@ -115,7 +115,7 @@ extends WorkHistoryEdit {
         ", array($work_history_id));
         
         //Set the header of the right content for this page with the organization name
-        $work_history_page_url = Http::getCurrentBaseUrl() . "work-history-edit";
+        $work_history_page_url = Http::getCurrentLevelPageUrl("work-history-edit");
         
         $content = new Div(array('id' => 'current_menu_content'), "
             <h2>Editing Work History Durations for {$organization_name}</h2><br />

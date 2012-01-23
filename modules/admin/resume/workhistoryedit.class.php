@@ -48,7 +48,7 @@ extends Home {
     protected function setPageLinks() {
         parent::setPageLinks();
         
-        $this->page_links['Work History Edit'] = Http::getCurrentBaseUrl() . 'work-history-edit';
+        $this->page_links['Work History Edit'] = Http::getCurrentLevelPageUrl('work-history-edit');
     }
     
     protected function constructRightContent() {    
@@ -97,8 +97,8 @@ extends Home {
         ");
         
         if(!empty($work_history_data)) {
-            $durations_page_url = Http::getCurrentBaseUrl() . 'work-history-durations-edit';
-            $tasks_page_url = Http::getCurrentBaseUrl() . 'work-history-tasks-edit';
+            $durations_page_url = Http::getCurrentLevelPageUrl('work-history-durations-edit');
+            $tasks_page_url = Http::getCurrentLevelPageUrl('work-history-tasks-edit');
         
             foreach($work_history_data as $work_history_row) {
                 $work_history_id = $work_history_row['work_history_id'];

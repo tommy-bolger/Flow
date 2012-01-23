@@ -50,7 +50,7 @@ extends Home {
     protected function setPageLinks() {
         parent::setPageLinks();
         
-        $this->page_links['General Information'] = Http::getCurrentBaseUrl() . 'general-information-edit';
+        $this->page_links['General Information'] = Http::getCurrentLevelPageUrl('general-information-edit');
     }
     
     protected function constructRightContent() {

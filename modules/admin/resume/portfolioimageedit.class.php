@@ -50,7 +50,7 @@ extends PortfolioImagesEdit {
     protected function setPageLinks() {
         parent::setPageLinks();
         
-        $this->page_links['Portfolio Project Image Edit'] = Http::getCurrentBaseUrl() . 'portfolio-image-edit';
+        $this->page_links['Portfolio Project Image Edit'] = Http::getCurrentLevelPageUrl('portfolio-image-edit');
     }
     
     protected function constructRightContent() {
@@ -123,7 +123,7 @@ extends PortfolioImagesEdit {
                 WHERE portfolio_project_image_id = ?
             ", array($portfolio_project_image_id));
             
-            $portfolio_edit_page_url = Http::getCurrentBaseUrl() . "portfolio-images-edit&portfolio_project_id={$project_image_data['portfolio_project_id']}";
+            $portfolio_edit_page_url = Http::getCurrentLevelPageUrl("portfolio-images-edit", array('portfolio_project_id' => $project_image_data['portfolio_project_id']));
             
             $content->setText("
                 <h2>Changing Image File for Portfolio Project Image {$project_image_data['title']}</h2><br />
@@ -133,7 +133,7 @@ extends PortfolioImagesEdit {
             $content->addChild($image_form);
         }
         else {
-            $portfolio_edit_url = Http::getCurrentBaseUrl() . 'portfolio-edit';
+            $portfolio_edit_url = Http::getCurrentLevelPageUrl('portfolio-edit');
         
             $content->addChild("
                 <p>

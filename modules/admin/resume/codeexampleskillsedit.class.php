@@ -48,7 +48,7 @@ extends CodeExamplesEdit {
     protected function setPageLinks() {
         parent::setPageLinks();
         
-        $this->page_links['Code Example Skills Edit'] = Http::getCurrentBaseUrl() . 'code-example-skills-edit';
+        $this->page_links['Code Example Skills Edit'] = Http::getCurrentLevelPageUrl('code-example-skills-edit');
     }
     
     protected function constructRightContent() {
@@ -110,7 +110,7 @@ extends CodeExamplesEdit {
                 WHERE code_example_id = ?
             ", array($code_example_id));
             
-            $code_example_edit_page_url = Http::getCurrentBaseUrl() . "code-examples-edit";
+            $code_example_edit_page_url = Http::getCurrentLevelPageUrl("code-examples-edit");
             
             $content = new Div(array('id' => 'current_menu_content'), "
                 <h2>Editing Skills for Code Example {$code_example_name}</h2><br />
@@ -120,7 +120,7 @@ extends CodeExamplesEdit {
             $content->addChild($code_example_skills_table);
         }
         else {
-            $skills_edit_page_url = Http::getCurrentBaseUrl() . 'skills-edit';
+            $skills_edit_page_url = Http::getCurrentLevelPageUrl('skills-edit');
         
             $content->addChild("
                 <p>

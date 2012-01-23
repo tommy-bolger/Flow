@@ -49,11 +49,11 @@ extends ModulePage {
         if(request()->get->logout == 1) {
             session()->end();
             
-            Http::redirect(Http::getPageBaseUrl() . 'login');
+            Http::redirect(Http::getTopLevelPageUrl('login'));
         }
         
         if(Auth::userLoggedIn()) {
-            Http::redirect(Http::getPageBaseUrl() . 'home');
+            Http::redirect(Http::getTopLevelPageUrl());
         }
         
         $this->setTemplate('login.php');
@@ -87,7 +87,7 @@ extends ModulePage {
             $login_credentials = $login_form->getData();
             
             if(Auth::userLogin($login_credentials['user_name'], $login_credentials['password'], true)) {
-                Http::redirect(Http::getPageBaseUrl() . 'home');
+                Http::redirect(Http::getTopLevelPageUrl());
             }
             else {
                 $login_form->addError('The specified username and password are invalid.');

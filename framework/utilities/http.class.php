@@ -37,16 +37,6 @@ final class Http {
     * @var string The base url of the current site. Acts as a cache so it is not generated more than once.
     */  
     private static $base_url;
-    
-    /**
-    * @var string The base url of the site with the '?page=' parameter appended. Acts as a cache so it is not generated more than once.
-    */  
-    private static $current_base_url;
-    
-    /**
-    * @var string The url of the current page. Acts as a cache so it is not generated more than once.
-    */  
-    private static $page_url;
 
     /**
     * Redirects a user to the specified page class name on the current site.
@@ -106,62 +96,13 @@ final class Http {
     }
     
     /**
-    * Returns the base url of the current site with '?page=' appended.
-    * 
-    * @return string The page base url.
-    */
-    public static function getPageBaseUrl($module_name = NULL, $subdirectories = array()) {
-        $query_string_parameters = array();
-    
-        if(!empty($module_name)) {
-            $query_string_parameters['module'] = $module_name;
-        }
-        
-        if(!empty($subdirectories)) {
-            $query_string_parameters = array_merge($query_string_parameters, $subdirectories);
-        }
-        
-        $query_string = http_build_query($query_string_parameters);
-        
-        if(!empty($query_string)) {
-            $query_string .= '&';
-        }
-        
-        return self::getBaseUrl() . "?{$query_string}page=";
-    }
-    
-    /**
-    * Returns the base url of the current page with '?page=' appended.
-    * 
-    * @return string The page base url.
-    */
-    public static function getCurrentBaseUrl() {
-        if(!isset(self::$current_base_url)) {
-            $framework = framework();
-            
-            $module_name = $framework->getModuleName();
-            
-            $subdirectories = $framework->getSubdirectories();
-            
-            self::$current_base_url = self::getPageBaseUrl($module_name, $subdirectories);
-        }
-    
-        return self::$current_base_url;
-    }
-    
-    /**
     * Returns the url of the current page.
     * 
+    * @param array $query_string_parameters (optional) The rest of the query string in ('name' => 'value') format.      
     * @return string The page url.
     */
-    public static function getPageUrl($page_name = NULL, $module_name = NULL) {
-        if(!isset(self::$page_url)) {
-            $framework = framework();
-        
-            self::$page_url = self::getCurrentBaseUrl() . $framework->getPageClassName();
-        }
-        
-        return self::$page_url;
+    public static function getPageUrl($query_string_parameters = array()) {
+        return Http::getCurrentLevelPageUrl(framework()->getPageClassName(), $query_string_parameters);
     }
     
     /**
@@ -202,18 +143,20 @@ final class Http {
     /**
     * Generates and returns an internal url.
     * 
-    * @param string $base_url The base url.
-    * @param array $query_string_parameters The query string parameters to add to the base url. Format is parameter_name => parameter_value.
-    * @return string The full url.
+    * @param string $module_name (optional)
+    * @param array $subdirectory_path (optional)
+    * @param string $page (optional)        
+    * @param array $query_string_parameters (optional) The query string parameters to add to url. Format is parameter_name => parameter_value.
+    * @return string
     */
-    public static function generateInternalUrl($module_name = '', $subdirectory_path = array(), $page = '', $query_string_parameters = array()) {
+    public static function getInternalUrl($module_name = '', $subdirectory_path = array(), $page = '', $query_string_parameters = array()) {
         assert('is_array($subdirectory_path) && is_array($query_string_parameters)');
         
         $url = self::getBaseUrl();
         
         $page_path = array();
         
-        if(!empty($module_name)) {
+        if(!empty($module_name) && $module_name != config('framework')->default_module) {
             $page_path['module'] = $module_name;
         }
         
@@ -235,7 +178,7 @@ final class Http {
                 $url .= implode('/', $page_path) . '/';
             }
         }
-        
+
         if(!empty($query_string_parameters)) {
             if(strpos($url, '?') !== false) {
                 $url .= '&';
@@ -246,7 +189,29 @@ final class Http {
         
             $url .= http_build_query($query_string_parameters);
         }
-        
+
         return $url;
+    }
+    
+    /**
+    * Generates and retrieves a url of a page that resides in the top level of a module.
+    * 
+    * @param string $page_name (optional) The name of the page.
+    * @param array $query_string_parameters (optional) The rest of the query string in ('name' => 'value') format.    
+    * @return string
+    */
+    public static function getTopLevelPageUrl($page_name = '', $query_string_parameters = array()) {
+        return self::getInternalUrl('', array(), $page_name, $query_string_parameters);
+    }
+    
+    /**
+    * Generates and retrieves a url of a page that includes the current module and subdirectory level.
+    * 
+    * @param string $page_name (optional) The name of the page.
+    * @param array $query_string_parameters (optional) The rest of the query string in ('name' => 'value') format.    
+    * @return string
+    */
+    public static function getCurrentLevelPageUrl($page_name = '', $query_string_parameters = array()) {
+        return self::getInternalUrl('', framework()->getSubdirectories(), $page_name, $query_string_parameters);
     }
 }

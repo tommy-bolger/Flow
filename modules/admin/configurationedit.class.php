@@ -53,7 +53,7 @@ extends Home {
     protected function setPageLinks() {        
         $this->page_links = session()->module_path;
         
-        $this->page_links[$this->title] = Http::getCurrentBaseUrl() . 'configuration-edit';
+        $this->page_links[$this->title] = Http::getCurrentLevelPageUrl('configuration-edit');
     }
     
     protected function constructRightContent() {

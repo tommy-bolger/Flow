@@ -48,7 +48,7 @@ extends SiteErrors {
     protected function setPageLinks() {
         parent::setPageLinks();
 
-        $this->page_links[$this->title] = Http::getCurrentBaseUrl() . 'site-error';
+        $this->page_links[$this->title] = Http::getCurrentLevelPageUrl('site-error');
     }
 
     protected function constructRightContent() {
@@ -75,7 +75,7 @@ extends SiteErrors {
             $error_data['error_trace']
         );
         
-        $previous_page_url = Http::getPageBaseUrl() . "site-errors";
+        $previous_page_url = Http::getCurrentLevelPageUrl("site-errors");
         
         $current_menu_content = new Div(array('id' => 'current_menu_content'), "
             <a href=\"{$previous_page_url}\"><- Back to Errors</a><br /><br />

@@ -48,7 +48,7 @@ extends Home {
     protected function setPageLinks() {
         parent::setPageLinks();
         
-        $this->page_links['Portfolio Edit'] = Http::getCurrentBaseUrl() . 'portfolio-edit';
+        $this->page_links['Portfolio Edit'] = Http::getCurrentLevelPageUrl('portfolio-edit');
     }
     
     protected function constructRightContent() {    
@@ -119,8 +119,8 @@ extends Home {
         ");
         
         if(!empty($portfolio_projects)) {
-            $screenshot_edit_url = Http::getCurrentBaseUrl() . 'portfolio-images-edit';
-            $skills_used_edit_url = Http::getCurrentBaseUrl() . 'portfolio-skills-edit';
+            $screenshot_edit_url = Http::getCurrentLevelPageUrl('portfolio-images-edit');
+            $skills_used_edit_url = Http::getCurrentLevelPageUrl('portfolio-skills-edit');
         
             foreach($portfolio_projects as $portfolio_project) {
                 $portfolio_project_id = $portfolio_project['portfolio_project_id'];

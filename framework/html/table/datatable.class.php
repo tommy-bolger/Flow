@@ -138,7 +138,7 @@ extends Table {
         
         $this->rows_per_page_options = array(10, 25, 50, 100);
         
-        $this->current_page_url = Http::getPageUrl() . "&table={$table_name}";
+        $this->current_page_url = Http::getPageUrl(array("table" => $table_name));
     }
     
     /**

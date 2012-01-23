@@ -49,7 +49,7 @@ extends Home {
     protected function setPageLinks() {
         parent::setPageLinks();
         
-        $this->page_links['Photo'] = Http::getCurrentBaseUrl() . 'photo-edit';
+        $this->page_links['Photo'] = Http::getCurrentLevelPageUrl('photo-edit');
     }
     
     protected function constructRightContent() {
@@ -100,7 +100,7 @@ extends Home {
             $content->addChild($photo_form);
         }
         else {
-            $general_information_edit_url = Http::getCurrentBaseUrl() . 'general-information-edit';
+            $general_information_edit_url = Http::getCurrentLevelPageUrl('general-information-edit');
         
             $content->addChild("
                 <p>

@@ -51,7 +51,7 @@ extends Framework {
     /**
     * @var array The subdirectory path to the page class.
     */
-    protected $subdirectory_path;
+    protected $subdirectory_path = array();
 
     /**
     * @var string The name of the current page class.
@@ -92,25 +92,24 @@ extends Framework {
     private function getPageClass() {
         $page_class_name = request()->page;
         
-        $sub_path = '';
-        
         if(empty($page_class_name)) {
             $page_class_name = "Home";
         }
-        else {        
-            if(isset(request()->get->subd_1)) {
-                $request_namespaces = request()->get->getByNameContaining('subd_');
-                
-                $this->subdirectory_path = $request_namespaces;
-
-                $sub_path = implode('\\ ', $request_namespaces) . '\\ ';
-            }
-        }
         
+        $sub_path = '';
+        
+        if(isset(request()->get->subd_1)) {
+            $request_namespaces = request()->get->getByNameContaining('subd_');
+            
+            $this->subdirectory_path = $request_namespaces;
+
+            $sub_path = implode('\\ ', $request_namespaces) . '\\ ';
+        }
+
         $this->page_class_name = $page_class_name;
 
         $page_class_path = "\\Modules\\ {$this->module_name}\\ {$sub_path}{$page_class_name}";
-        
+
         //Transform the fully qualified namespace into the camel case naming convention
         $page_class_path = str_replace(array('_', '-'), ' ', $page_class_path);
         $page_class_path = ucwords($page_class_path);

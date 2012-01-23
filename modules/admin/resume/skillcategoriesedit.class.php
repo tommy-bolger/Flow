@@ -48,7 +48,7 @@ extends Home {
     protected function setPageLinks() {
         parent::setPageLinks();
         
-        $this->page_links['Skill Categories Edit'] = Http::getCurrentBaseUrl() . 'skill-categories-edit';
+        $this->page_links['Skill Categories Edit'] = Http::getCurrentLevelPageUrl('skill-categories-edit');
     }
     
     protected function constructRightContent() {    

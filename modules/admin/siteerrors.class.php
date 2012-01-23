@@ -47,7 +47,7 @@ extends Home {
     protected function setPageLinks() {
         parent::setPageLinks();
 
-        $this->page_links['Site Errors'] = Http::getCurrentBaseUrl() . 'site-errors';
+        $this->page_links['Site Errors'] = Http::getCurrentLevelPageUrl('site-errors');
     }
 
     protected function constructRightContent() {        
@@ -67,7 +67,7 @@ extends Home {
             'module' => 'module_name' 
         ));
         
-        $site_errors_table->setColumnsAsLink(array(2), Http::getPageBaseUrl() . 'site-error', array(
+        $site_errors_table->setColumnsAsLink(array(2), Http::getCurrentLevelPageUrl('site-error'), array(
             'error_id' => 'error_id'
         ));
         

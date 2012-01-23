@@ -50,7 +50,7 @@ extends CodeExamplesEdit {
     protected function setPageLinks() {
         parent::setPageLinks();
         
-        $this->page_links['Code Example File Edit'] = Http::getCurrentBaseUrl() . 'code-example-file-edit';
+        $this->page_links['Code Example File Edit'] = Http::getCurrentLevelPageUrl('code-example-file-edit');
     }
     
     protected function constructRightContent() {
@@ -60,7 +60,7 @@ extends CodeExamplesEdit {
         
         $code_example_id = request()->get->code_example_id;
         
-        $code_examples_edit_page_url = Http::getCurrentBaseUrl() . "code-examples-edit";
+        $code_examples_edit_page_url = Http::getCurrentLevelPageUrl("code-examples-edit");
         
         $source_file_data = db()->getRow("
             SELECT 

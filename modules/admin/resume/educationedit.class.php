@@ -48,7 +48,7 @@ extends Home {
     protected function setPageLinks() {
         parent::setPageLinks();
         
-        $this->page_links['Education Edit'] = Http::getCurrentBaseUrl() . 'education-edit';
+        $this->page_links['Education Edit'] = Http::getCurrentLevelPageUrl('education-edit');
     }
     
     protected function constructRightContent() {    

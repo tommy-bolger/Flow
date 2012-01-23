@@ -48,7 +48,7 @@ extends PortfolioEdit {
     protected function setPageLinks() {
         parent::setPageLinks();
         
-        $this->page_links['Portfolio Project Images Edit'] = Http::getCurrentBaseUrl() . 'portfolio-images-edit';
+        $this->page_links['Portfolio Project Images Edit'] = Http::getCurrentLevelPageUrl('portfolio-images-edit');
     }
     
     protected function constructRightContent() {
@@ -94,7 +94,7 @@ extends PortfolioEdit {
             ORDER BY sort_order ASC
         ", array($portfolio_project_id));
         
-        $portfolio_image_edit_base_url = Http::getCurrentBaseUrl() . "portfolio-image-edit";
+        $portfolio_image_edit_base_url = Http::getCurrentLevelPageUrl("portfolio-image-edit");
         
         foreach($portfolio_images as &$portfolio_image) {
             $portfolio_image_edit_url = "{$portfolio_image_edit_base_url}&portfolio_project_image_id={$portfolio_image['portfolio_project_image_id']}";
@@ -118,7 +118,7 @@ extends PortfolioEdit {
             WHERE portfolio_project_id = ?
         ", array($portfolio_project_id));
         
-        $portfolio_edit_page_url = Http::getCurrentBaseUrl() . "portfolio-edit";
+        $portfolio_edit_page_url = Http::getCurrentLevelPageUrl("portfolio-edit");
         
         $content = new Div(array('id' => 'current_menu_content'), "
             <h2>Editing Images for Portfolio Project {$project_name}</h2><br />

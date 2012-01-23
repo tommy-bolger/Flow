@@ -48,7 +48,7 @@ extends PortfolioEdit {
     protected function setPageLinks() {
         parent::setPageLinks();
         
-        $this->page_links['Portfolio Project Skills Edit'] = Http::getCurrentBaseUrl() . 'portfolio-skills-edit';
+        $this->page_links['Portfolio Project Skills Edit'] = Http::getCurrentLevelPageUrl('portfolio-skills-edit');
     }
     
     protected function constructRightContent() {
@@ -110,7 +110,7 @@ extends PortfolioEdit {
                 WHERE portfolio_project_id = ?
             ", array($portfolio_project_id));
             
-            $portfolio_edit_page_url = Http::getCurrentBaseUrl() . "portfolio-edit";
+            $portfolio_edit_page_url = Http::getCurrentLevelPageUrl("portfolio-edit");
             
             $content = new Div(array('id' => 'current_menu_content'), "
                 <h2>Editing Skills for Portfolio Project {$project_name}</h2><br />
@@ -120,7 +120,7 @@ extends PortfolioEdit {
             $content->addChild($portfolio_skills_table);
         }
         else {
-            $skills_edit_page_url = Http::getCurrentBaseUrl() . 'skills-edit';
+            $skills_edit_page_url = Http::getCurrentLevelPageUrl('skills-edit');
         
             $content->addChild("
                 <p>

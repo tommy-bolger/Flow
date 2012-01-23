@@ -47,7 +47,7 @@ extends Home {
     protected function setPageLinks() {
         parent::setPageLinks();
         
-        $this->page_links['Skills Edit'] = Http::getCurrentBaseUrl() . 'print-file-edit';
+        $this->page_links['Skills Edit'] = Http::getCurrentLevelPageUrl('print-file-edit');
     }
     
     protected function constructRightContent() {    
@@ -127,7 +127,7 @@ extends Home {
             $content->addChild($skills_edit_table);
         }
         else {
-            $skill_category_edit_url = Http::getCurrentBaseUrl() . 'skill-categories-edit';
+            $skill_category_edit_url = Http::getCurrentLevelPageUrl('skill-categories-edit');
         
             $content->addChild("
                 <p>

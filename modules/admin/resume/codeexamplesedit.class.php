@@ -48,7 +48,7 @@ extends Home {
     protected function setPageLinks() {
         parent::setPageLinks();
         
-        $this->page_links['Code Samples Edit'] = Http::getCurrentBaseUrl() . 'code-examples-edit';
+        $this->page_links['Code Samples Edit'] = Http::getCurrentLevelPageUrl('code-examples-edit');
     }
     
     protected function constructRightContent() {    
@@ -130,8 +130,8 @@ extends Home {
         ");
         
         if(!empty($code_examples)) {
-            $source_file_edit_url = Http::getCurrentBaseUrl() . 'code-example-file-edit';
-            $skills_used_edit_url = Http::getCurrentBaseUrl() . 'code-example-skills-edit';
+            $source_file_edit_url = Http::getCurrentLevelPageUrl('code-example-file-edit');
+            $skills_used_edit_url = Http::getCurrentLevelPageUrl('code-example-skills-edit');
         
             foreach($code_examples as $code_example) {
                 $code_example_id = $code_example['code_example_id'];
