@@ -95,11 +95,11 @@ extends Framework {
         if(empty($page_class_name)) {
             $page_class_name = "Home";
         }
-        
+
         $sub_path = '';
         
-        if(isset(request()->get->subd_1)) {
-            $request_namespaces = request()->get->getByNameContaining('subd_');
+        if(isset(request()->get->d_1)) {
+            $request_namespaces = request()->get->getByNameContaining('d_');
             
             $this->subdirectory_path = $request_namespaces;
 
@@ -145,15 +145,6 @@ extends Framework {
         if(empty($this->module_name)) {
             throw new \Exception("Unable to retrieve the module to load.");
         }
-    }
-    
-    /**
-     * Retrieves the current module name.
-     *
-     * @return string
-     */
-    public function getModuleName() {
-        return $this->module_name;
     }
     
     /**

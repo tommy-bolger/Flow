@@ -162,7 +162,7 @@ final class Http {
         
         if(!empty($subdirectory_path)) {            
             foreach($subdirectory_path as $index => $subdirectory) {
-                $page_path['subd_' . ($index + 1)] = $subdirectory;
+                $page_path['d_' . ($index + 1)] = $subdirectory;
             }
         }
         
@@ -175,7 +175,11 @@ final class Http {
                 $url .= '?' . http_build_query($page_path);
             }
             else {
-                $url .= implode('/', $page_path) . '/';
+                $url .= implode('/', $page_path);
+                
+                if(!isset($page_path['page'])) {
+                    $url .= '/';
+                }
             }
         }
 
