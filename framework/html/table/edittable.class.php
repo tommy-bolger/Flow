@@ -412,47 +412,39 @@ extends Table {
      * @return void
      */
     private function generateTableLink($action = '', $id = '') {
-        $page_table_parameters = '';
+        $page_table_parameters = array('table' => $this->name);
+        
+        if(!empty($action)) {
+            $page_table_parameters['action'] = $action;
+        }
+        
+        if(!empty($id)) {
+            $page_table_parameters[$this->table_id_field] = $id;
+        }
+        
+        if(isset($this->selected_filter)) {
+            $page_table_parameters['filter'] = $this->selected_filter;
+        }
+        
+        if(isset($this->page_filter)) {
+            $page_table_parameters = array_merge($page_table_parameters, $this->page_filter);
+        }
+        
+        $table_link_url = '';
         
         switch($action) {
             case 'edit':
             case 'add':
                 assert('!empty($this->edit_page)');
             
-                $page_table_parameters = Http::getCurrentLevelPageUrl($this->edit_page);
+                $table_link_url = Http::getCurrentLevelPageUrl($this->edit_page, $page_table_parameters);
                 break;
             default:
-                $page_table_parameters = Http::getPageUrl();
+                $table_link_url = Http::getPageUrl($page_table_parameters);
                 break;
         }
         
-        $page_table_parameters .= "&table={$this->name}";
-        
-        $action_parameter = '';
-        
-        if(!empty($action)) {
-            $action_parameter = "&action={$action}";
-        }
-        
-        $table_id_parameter = '';
-        
-        if(!empty($id)) {
-            $table_id_parameter = "&{$this->table_id_field}={$id}";
-        }
-        
-        $filter_parameter = '';
-        
-        if(isset($this->selected_filter)) {
-            $filter_parameter = "&filter={$this->selected_filter}";
-        }
-        
-        $page_filter_parameters = '';
-        
-        if(isset($this->page_filter)) {
-            $page_filter_parameters = http_build_query($this->page_filter);
-        }
-        
-        return $page_table_parameters . $action_parameter . $table_id_parameter . $filter_parameter . "&{$page_filter_parameters}";
+        return $table_link_url;
     }
     
     /**
@@ -481,30 +473,19 @@ extends Table {
         }
         
         $current_row = "
-            <div style=\"width: 100px;\">
-                <div style=\"float: left;\">
-                    <a href=\"{$this->generateTableLink('edit', $edit_id_value)}\">Edit</a>
-                    <br />
-                    <br />
-                    <a href=\"{$this->generateTableLink('delete', $edit_id_value)}\">Delete</a>
-                </div>
+            <a href=\"{$this->generateTableLink('edit', $edit_id_value)}\">Edit</a>
+            |
+            <a href=\"{$this->generateTableLink('delete', $edit_id_value)}\">Delete</a>
         ";
         
         if(!isset($this->record_filter_form) || (isset($this->record_filter_form) && isset($this->selected_filter))) {
             $current_row .= "
-                <div style=\"float: left; margin-left: 10px;\">
-                    <a href=\"{$this->generateTableLink('move_up', $edit_id_value)}\">Up</a>
-                    <br />
-                    <br />
-                    <a href=\"{$this->generateTableLink('move_down', $edit_id_value)}\">Down</a>
-                </div>
+                |
+                <a href=\"{$this->generateTableLink('move_up', $edit_id_value)}\">Up</a>
+                |
+                <a href=\"{$this->generateTableLink('move_down', $edit_id_value)}\">Down</a>
             ";
         }
-        
-        $current_row .= "
-                    <div class=\"clear\"></div>
-                </div>
-        ";
         
         if(!empty($this->number_of_columns)) {
             $row = array_slice($row, 0, ($this->number_of_columns - 1));

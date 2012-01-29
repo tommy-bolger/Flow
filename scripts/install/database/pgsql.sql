@@ -516,6 +516,7 @@ INSERT INTO cms_configuration_parameters (configuration_parameter_id, module_id,
 INSERT INTO cms_configuration_parameters (configuration_parameter_id, module_id, parameter_name, value, default_value, sort_order, parameter_data_type_id, description, display_name, has_value_list) VALUES (21, NULL, 'javascript_minifier', NULL, 'simple', 10, 1, NULL, 'Javascript Minifier', 1);
 INSERT INTO cms_configuration_parameters (configuration_parameter_id, module_id, parameter_name, value, default_value, sort_order, parameter_data_type_id, description, display_name, has_value_list) VALUES (5, NULL, 'environment', NULL, 'production', 2, 1, NULL, 'Environment', 1);
 INSERT INTO cms_configuration_parameters (configuration_parameter_id, module_id, parameter_name, value, default_value, sort_order, parameter_data_type_id, description, display_name, has_value_list) VALUES (4, NULL, 'version', NULL, '1.0', 1, 1, NULL, 'Framework Version', 0);
+INSERT INTO cms_configuration_parameters (configuration_parameter_id, module_id, parameter_name, value, default_value, sort_order, parameter_data_type_id, description, display_name, has_value_list) VALUES (25, 1, 'encrypt_urls', NULL, 'true', 2, 4, NULL, 'Encrypt URLs', 0);
 
 INSERT INTO cms_modules (module_id, module_name, display_name, sort_order, enabled) VALUES (1, 'admin', 'Admin', 1, 1);
 INSERT INTO cms_modules (module_id, module_name, display_name, sort_order, enabled) VALUES (2, 'resume', 'Resume', 3, 1);

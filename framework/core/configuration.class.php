@@ -282,13 +282,15 @@ final class Configuration {
      * @return array
      */
     public function getParameters($parameter_names) {
-        if(!is_array($parameter_names)) {
-            throw new \Exception('$parameter_names is not an array.');
+        assert('is_array($parameter_names) && !empty($parameter_names)');
+        
+        $parameter_values = array();
+        
+        foreach($parameter_names as $parameter_name) {
+            if(isset($this->full_configuration[$parameter_name])) {
+                $parameter_values[$parameter_name] = $this->full_configuration[$parameter_name];
+            }
         }
-        
-        $parameter_names_as_keys = array_flip($parameter_names);
-        
-        $parameter_values = array_intersect_key($this->full_configuration, $parameter_names_as_keys);
         
         if(count($parameter_values) < count($parameter_names)) {
             $missing_parameters = array_diff_key($parameter_names_as_keys, $parameter_values);

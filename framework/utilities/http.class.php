@@ -118,11 +118,11 @@ final class Http {
     * Generates and returns a url.
     * 
     * @param string $base_url The base url.
-    * @param array $query_string_parameters The query string parameters to add to the base url. Format is parameter_name => parameter_value.
+    * @param array|string $query_string_parameters The query string parameters to add to the base url. Array format is parameter_name => parameter_value.
     * @return string The full url.
     */
     public static function generateUrl($base_url, $query_string_parameters, $cache_name = '') {
-        assert('!empty($query_string_parameters) && is_array($query_string_parameters)');
+        assert('!empty($query_string_parameters)');
         
         $generated_url = $base_url;
         
@@ -134,10 +134,31 @@ final class Http {
                 $generated_url .= '?';
             }
             
-            $generated_url .= http_build_query($query_string_parameters);
+            if(is_array($query_string_parameters)) {
+                $generated_url .= http_build_query($query_string_parameters);
+            }
+            else {
+                $generated_url .= $query_string_parameters;
+            }
         }
         
         return $generated_url;
+    }
+    
+    /**
+    * Generates and a query string from an array of values.
+    * 
+    * @param array $query_string_parameters The query string parameters to add to url. Format is parameter_name => parameter_value.
+    * @return string
+    */
+    public static function generateQueryString($query_string_parameters) {
+        $query_string = http_build_query($query_string_parameters);
+            
+        if(isset(config()->encrypt_urls) && config()->encrypt_urls) {
+            $query_string = 'e=' . rtrim(strtr(Encryption::encrypt($query_string, array('encrypted_url')), '+/', '-_'), '=');
+        }
+    
+        return $query_string;
     }
     
     /**
@@ -190,8 +211,8 @@ final class Http {
             else {
                 $url .= '?';
             }
-        
-            $url .= http_build_query($query_string_parameters);
+            
+            $url .= self::generateQueryString($query_string_parameters);
         }
 
         return $url;

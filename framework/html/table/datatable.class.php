@@ -42,10 +42,10 @@ use \Framework\Html\Form\Fields\Submit;
 class DataTable
 extends Table {
     /**
-    * @var string The url of the current page.
+    * @var array The table's name in array format for use in generating a query string.
     */
-    private $current_page_url;
-    
+    protected $url_query_parameter;
+
     /**
     * @var object The form of the table that handles various display options.
     */
@@ -138,7 +138,7 @@ extends Table {
         
         $this->rows_per_page_options = array(10, 25, 50, 100);
         
-        $this->current_page_url = Http::getPageUrl(array("table" => $table_name));
+        $this->url_query_parameter = array("table" => $table_name);
     }
     
     /**
@@ -439,6 +439,18 @@ extends Table {
     }
     
     /**
+     * Generates and returns a url specific to the data table.
+     * 
+     * @param array $query_string_parameters The query string in the following format: array('name' => 'value').    
+     * @return string
+     */
+    protected function generateUrl($query_string_parameters) {
+        $query_string_parameters = array_merge($this->url_query_parameter, $query_string_parameters);
+    
+        return Http::getPageUrl($query_string_parameters);
+    } 
+    
+    /**
      * Retrieves alt text of a number link in the pagination navigation.
      * 
      * @param integer $page_number
@@ -543,14 +555,17 @@ extends Table {
         //Generate the previous page and first page links if not on the first page
         if($this->current_page > 1) {
             $first_page_title = $this->generatePageLinkTitle(1, 'First page');
+            $first_page_url = $this->generateUrl(array('table_page' => 1));
+            
             $previous_page_title = $this->generatePageLinkTitle($previous_page_number, 'Previous page');
+            $previous_page_url = $this->generateUrl(array('table_page' => $previous_page_number));
         
             $pagination_html .= "
                 <li class=\"page_number\">
-                    <a href=\"{$this->current_page_url}&table_page=1\" title=\"{$first_page_title}\">&laquo;First</a>
+                    <a href=\"{$first_page_url}\" title=\"{$first_page_title}\">&laquo;First</a>
                 </li>
                 <li class=\"page_number\">
-                    <a href=\"{$this->current_page_url}&table_page={$previous_page_number}\" title=\"{$previous_page_title}\">&lt;</a>
+                    <a href=\"{$previous_page_url}\" title=\"{$previous_page_title}\">&lt;</a>
                 </li>
             ";
         }
@@ -559,13 +574,14 @@ extends Table {
         foreach($page_range as $page_number) {
             //Generate the title of the link
             $page_number_title = $this->generatePageLinkTitle($page_number);
+            $page_number_url = $this->generateUrl(array('table_page' => $page_number));
         
             $current_page_class = "";
             
             $page_number_link = '';
             
             if($page_number != $this->current_page) {
-                $page_number_link = "<a href=\"{$this->current_page_url}&table_page={$page_number}\" title=\"{$page_number_title}\">{$page_number}</a>";
+                $page_number_link = "<a href=\"{$page_number_url}\" title=\"{$page_number_title}\">{$page_number}</a>";
             }
             else {
                 $current_page_class = " current_page_number";
@@ -583,14 +599,17 @@ extends Table {
         //Generate the next page and last page links if not on the last page
         if($this->current_page < $total_pages) {
             $next_page_title = $this->generatePageLinkTitle($next_page_number, 'Next page');
+            $next_page_url = $this->generateUrl(array('table_page' => $next_page_number));
+            
             $last_page_title = $this->generatePageLinkTitle($total_pages, 'Last page');
+            $last_page_url = $this->generateUrl(array('table_page' => $total_pages));
         
             $pagination_html .= "
                 <li class=\"page_number\">
-                    <a href=\"{$this->current_page_url}&table_page={$next_page_number}\" title=\"{$next_page_title}\">&gt;</a>
+                    <a href=\"{$next_page_url}\" title=\"{$next_page_title}\">&gt;</a>
                 </li>
                 <li class=\"page_number\">
-                    <a href=\"{$this->current_page_url}&table_page={$total_pages}\" title=\"{$last_page_title}\">Last&raquo;</a>
+                    <a href=\"{$last_page_url}\" title=\"{$last_page_title}\">Last&raquo;</a>
                 </li>
             ";
         }
@@ -619,8 +638,6 @@ extends Table {
                     <thead>
                         <tr>
                 ';
-                
-                $sort_base_url = "{$this->current_page_url}&sort=";
             
                 foreach($table_header as $column_name => $column_display_name) {
                     $sort_direction_indicator = '';
@@ -650,10 +667,15 @@ extends Table {
                             $sort_link_title .= 'descending';
                             break;
                     }
+                    
+                    $sort_link_url = $this->generateUrl(array(
+                        'sort' => $column_name,
+                        'direction' => $link_sort_direction
+                    ));
 
                     $header_html .= "
                         <th class=\"table_header\">
-                            <a href=\"{$sort_base_url}{$column_name}&direction={$link_sort_direction}\" title=\"{$sort_link_title}\">{$column_display_name}</a>
+                            <a href=\"{$sort_link_url}\" title=\"{$sort_link_title}\">{$column_display_name}</a>
                             {$sort_direction_indicator}
                         </th>
                     "; 
@@ -728,7 +750,7 @@ extends Table {
                                 if(!empty($column_link_parameters)) {
                                     $column_values = ArrayFunctions::extractKeys($row, $column_link_parameters);
                                     
-                                    $url_parameters = array_combine(array_keys($column_link_parameters), $column_values);
+                                    $url_parameters = Http::generateQueryString(array_combine(array_keys($column_link_parameters), $column_values));
                                     
                                     $column_link_url = Http::generateUrl($column_link_url, $url_parameters);
                                 }

@@ -38,6 +38,7 @@ INSERT INTO cms_configuration_parameters VALUES (19, NULL, 'default_module', NUL
 INSERT INTO cms_configuration_parameters VALUES (21, NULL, 'javascript_minifier', NULL, 'simple', 10, 1, NULL, 'Javascript Minifier', 1);
 INSERT INTO cms_configuration_parameters VALUES (22, NULL, 'closure_compiler_path', NULL, NULL, 11, 1, NULL, 'Closure Compiler Path', 0);
 INSERT INTO cms_configuration_parameters VALUES (24, NULL, 'enable_javascript', NULL, 'true', 12, 4, NULL, 'Enable Javascript', 0);
+INSERT INTO cms_configuration_parameters VALUES (25, 1, 'encrypt_urls', NULL, 'true', 2, 4, NULL, 'Encrypt URLs', 0);
 
 -- ----------------------------
 -- Table structure for cms_errors
