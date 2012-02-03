@@ -333,8 +333,8 @@ class page {
      * @param string $template_file_path The file path to the template file.
      * @return void
      */
-    public function setTemplate($template_file_path) {    
-        $this->template = new Template($template_file_path);
+    public function setTemplate($template_file_path, $relative = true) {    
+        $this->template = new Template($template_file_path, $relative);
     }
     
     /**

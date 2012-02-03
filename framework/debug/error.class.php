@@ -237,7 +237,7 @@ class Error {
      * @param string $error_log_message The error message to log.                          
      * @return void
      */
-    protected function logMessage($error_log_message) {}
+    public function logMessage($error_log_message) {}
     
     /**
      * Displays a formatted error for when running without an GUI.

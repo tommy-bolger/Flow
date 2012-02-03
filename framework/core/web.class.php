@@ -114,15 +114,26 @@ extends Framework {
         $page_class_path = str_replace(array('_', '-'), ' ', $page_class_path);
         $page_class_path = ucwords($page_class_path);
         $page_class_path = str_replace(' ', '', $page_class_path);
-
+        
+        /*
+         * Need to call class_exists() in a try/catch block because of PHP bug #52339 found at: 
+         * https://bugs.php.net/bug.php?id=52339&edit=1
+         */
+        $class_exists = false; 
+        
+        try {
+            $class_exists = class_exists($page_class_path);
+        }
+        catch(\Exception $e) {
+            $class_exists = false;
+        }
+        
         //Check to see if the page class exists
-        if(!class_exists($page_class_path)) {
+        if(empty($class_exists)) {
             //If the current page class doesn't exist get the not found page and check its availability        
-            $page_class_path = 'NotFound';
+            $page_class_path = '\\Framework\\Debug\\NotFound';
             
-            if(!class_exists($page_class_path)) {
-                throw new \Exception("Page class {$page_class_path} does not exist.");
-            }
+            $this->page_class_name = $page_class_path;
         }
         
         $this->qualified_page_path = $page_class_path;
