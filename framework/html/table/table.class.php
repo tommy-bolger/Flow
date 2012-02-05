@@ -309,7 +309,7 @@ extends \Framework\Html\Element {
      *      
      * @return string
      */
-    public function toHtml() {    
+    public function getTableHtml() {
         $table_html = "<table{$this->renderAttributes()}>";
         
         $table_html .= $this->getHeaderHtml();
@@ -340,6 +340,35 @@ extends \Framework\Html\Element {
                 
         $table_html .= '</table>';
         
+        return $table_html;
+    }
+    
+    /**
+     * Retrieves the table as an array suitable for a template.
+     *      
+     * @return array
+     */
+    public function toTemplateArray() {
+        return array("table" => $this->getTableHtml());
+    }
+    
+    /**
+     * Renders and retrieves the table's html.
+     *      
+     * @return string
+     */
+    public function toHtml() {
+        $table_html = '';
+        
+        if(isset($this->template) && $this->template->exists()) {
+            $this->template->setPlaceholderValues($this->toTemplateArray());
+        
+            $table_html .= $this->template->parseTemplate();
+        }
+        else {
+            $table_html = $this->getTableHtml();
+        }
+            
         return $table_html;
     }
 }

@@ -34,6 +34,7 @@ namespace Framework\Html\Form;
 
 use \Framework\Html\Element;
 use \Framework\Utilities\Http;
+use \Framework\Utilities\Encryption;
 
 class Form 
 extends Element {
@@ -207,7 +208,7 @@ extends Element {
                 $form_token = session()->$form_token_name;
             }
             else {
-                $form_token = md5(uniqid(mt_rand(), true));
+                $form_token = Encryption::generateShortHash();
 
                 //Add the token to the session
                 session()->$form_token_name = $form_token;

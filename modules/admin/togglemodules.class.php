@@ -55,6 +55,10 @@ extends Home {
             'sort_order'
         );
         
+        $configurations_table->disableAddRecord();
+        $configurations_table->disableDeleteRecord();
+        $configurations_table->disableMoveRecord();
+        
         $configurations_table->setNumberOfColumns(4);
     
         $configurations_table->addHeader(array(

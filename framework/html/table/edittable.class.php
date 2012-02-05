@@ -36,6 +36,7 @@ namespace Framework\Html\Table;
 use \Framework\Html\Form\Form;
 use \Framework\Html\Form\Fields\Dropdown;
 use \Framework\Utilities\Http;
+use \Framework\Utilities\Encryption;
 
 class EditTable
 extends Table {
@@ -43,6 +44,31 @@ extends Table {
     * @var string The class name of the page to add/edit records for the table.
     */
     private $edit_page;
+    
+    /**
+    * @var string The token used to validate requests and prevent csrf attacks.
+    */
+    private $request_token;
+    
+    /**
+    * @var boolean A flag to allow records to be added via the table.
+    */
+    protected $allow_add_record = true;
+    
+    /**
+    * @var boolean A flag to allow records to be edited via the table.
+    */
+    protected $allow_edit_record = true;
+    
+    /**
+    * @var boolean A flag to allow records to be deleted via the table.
+    */
+    protected $allow_delete_record = true;
+    
+    /**
+    * @var boolean A flag to allow records to have their sort position changed via the table.
+    */
+    protected $allow_move_record = true;
 
     /**
     * @var string The name of the table in the database that the edit table will attach to.
@@ -131,6 +157,8 @@ extends Table {
         if(!empty($filter_options)) {
             $this->addFilterOptions(key($filter_options), current($filter_options));
         }
+        
+        $this->processToken();
         
         $this->processAction();
     }
@@ -280,6 +308,74 @@ extends Table {
     }
     
     /**
+     * Disables the ability to add records via the table.
+     * 
+     * @return void
+     */
+    public function disableAddRecord() {
+        $this->allow_add_record = false;
+    }
+    
+    /**
+     * Disables the ability to edit records via the table.
+     * 
+     * @return void
+     */
+    public function disableEditRecord() {
+        $this->allow_edit_record = false;
+    }
+    
+    /**
+     * Disables the ability to delete records via the table.
+     * 
+     * @return void
+     */
+    public function disableDeleteRecord() {
+        $this->allow_delete_record = false;
+    }
+    
+    /**
+     * Disables the ability to change a record's sort order via the table.
+     * 
+     * @return void
+     */
+    public function disableMoveRecord() {
+        $this->allow_move_record = false;
+    }
+    
+    /**
+     * Adds a token or validates the token to a session token to prevent CSRF attacks.
+     *      
+     * @return void
+     */
+    private function processToken() {
+        $token_name = "{$this->name}_token";
+
+        if($this->request_table_name != $this->name) {
+            if(isset(session()->$token_name)) {
+                $this->request_token = session()->$token_name;
+            }
+            else {
+                $this->request_token = substr(Encryption::generateShortHash(), 0, 10);
+
+                //Add the token to the session
+                session()->$token_name = $this->request_token;
+            }
+        }
+        else {
+            $this->request_token = request()->get->token;
+        
+            if(!isset(session()->$token_name)) {
+                throw new \Exception("Token '{$token_name}' for table '{$this->name}' does not exist in the session.");
+            }
+
+            if(session()->$token_name != $this->request_token) {
+                throw new \Exception("Token '{$token_name}' for table '{$this->name}' does not match up with session token. A possible CSRF attack was attempted.");
+            }
+        }
+    }
+    
+    /**
      * Executes and processes the edit table record action such as add, edit, delete, etc.
      *   
      * @return void
@@ -307,42 +403,46 @@ extends Table {
             
             switch($this->action) {
                 case 'move_up':
-                case 'move_down':                
-                    $this->moveRecord($this->record_id, $this->action);
+                case 'move_down':
+                    if($this->allow_move_record) {
+                        $this->moveRecord($this->record_id, $this->action);
+                    }
                     break;
                 case 'delete':
-                    $delete_sort_order = db()->getOne("
-                        SELECT {$this->table_sort_field}
-                        FROM {$this->edit_table_name}
-                        WHERE {$this->table_id_field} = ?
-                    ", array($this->record_id));
-                    
-                    if(!empty($delete_sort_order)) {
-                        db()->delete($this->edit_table_name, array($this->table_id_field => $this->record_id));
+                    if($this->allow_delete_record) {
+                        $delete_sort_order = db()->getOne("
+                            SELECT {$this->table_sort_field}
+                            FROM {$this->edit_table_name}
+                            WHERE {$this->table_id_field} = ?
+                        ", array($this->record_id));
                         
-                        $sort_order_where_clause = '';
-                        
-                        if(!empty($this->record_filter)) {
-                            $sort_order_where_clause = db()->generateWhereClause($this->record_filter) . " AND";
+                        if(!empty($delete_sort_order)) {
+                            db()->delete($this->edit_table_name, array($this->table_id_field => $this->record_id));
+                            
+                            $sort_order_where_clause = '';
+                            
+                            if(!empty($this->record_filter)) {
+                                $sort_order_where_clause = db()->generateWhereClause($this->record_filter) . " AND";
+                            }
+                            else {
+                                $sort_order_where_clause = 'WHERE ';
+                            }
+                            
+                            $sort_order_where_clause .= " {$this->table_sort_field} > ?";
+                            
+                            $update_sort_filter = $this->filter_placeholder_values;
+                            $update_sort_filter[] = $delete_sort_order;
+                            
+                            //Subtract the sort order of all records that come after the deleted record
+                            db()->query("
+                                UPDATE {$this->edit_table_name}
+                                SET {$this->table_sort_field} = {$this->table_sort_field} - 1
+                                {$sort_order_where_clause}
+                            ", $update_sort_filter);
                         }
                         else {
-                            $sort_order_where_clause = 'WHERE ';
+                            throw new \Exception("Record id '{$this->table_id_field}' in table '{$this->edit_table_name}' has already been deleted.");
                         }
-                        
-                        $sort_order_where_clause .= " {$this->table_sort_field} > ?";
-                        
-                        $update_sort_filter = $this->filter_placeholder_values;
-                        $update_sort_filter[] = $delete_sort_order;
-                        
-                        //Subtract the sort order of all records that come after the deleted record
-                        db()->query("
-                            UPDATE {$this->edit_table_name}
-                            SET {$this->table_sort_field} = {$this->table_sort_field} - 1
-                            {$sort_order_where_clause}
-                        ", $update_sort_filter);
-                    }
-                    else {
-                        throw new \Exception("Record id '{$this->table_id_field}' in table '{$this->edit_table_name}' has already been deleted.");
                     }
                     break;
             }
@@ -412,7 +512,10 @@ extends Table {
      * @return void
      */
     private function generateTableLink($action = '', $id = '') {
-        $page_table_parameters = array('table' => $this->name);
+        $page_table_parameters = array(
+            'table' => $this->name,
+            'token' => $this->request_token
+        );
         
         if(!empty($action)) {
             $page_table_parameters['action'] = $action;
@@ -472,26 +575,28 @@ extends Table {
             throw new \Exception('The edit id field does not exist in the table body result set.');
         }
         
-        $current_row = "
-            <a href=\"{$this->generateTableLink('edit', $edit_id_value)}\">Edit</a>
-            |
-            <a href=\"{$this->generateTableLink('delete', $edit_id_value)}\">Delete</a>
-        ";
+        $record_links = array();
         
-        if(!isset($this->record_filter_form) || (isset($this->record_filter_form) && isset($this->selected_filter))) {
-            $current_row .= "
-                |
-                <a href=\"{$this->generateTableLink('move_up', $edit_id_value)}\">Up</a>
-                |
-                <a href=\"{$this->generateTableLink('move_down', $edit_id_value)}\">Down</a>
-            ";
+        if($this->allow_edit_record) {
+            $record_links[] = "<a href=\"{$this->generateTableLink('edit', $edit_id_value)}\">Edit</a>";
         }
         
-        if(!empty($this->number_of_columns)) {
-            $row = array_slice($row, 0, ($this->number_of_columns - 1));
+        if($this->allow_delete_record) {
+            $record_links[] = "<a href=\"{$this->generateTableLink('delete', $edit_id_value)}\">Delete</a>";
         }
         
-        $row[] = $current_row;
+        if($this->allow_move_record && !isset($this->record_filter_form) || (isset($this->record_filter_form) && isset($this->selected_filter))) {
+            $record_links[] = "<a href=\"{$this->generateTableLink('move_up', $edit_id_value)}\">Up</a>";
+            $record_links[] = "<a href=\"{$this->generateTableLink('move_down', $edit_id_value)}\">Down</a>";
+        }
+        
+        if(!empty($record_links)) {
+            if(!empty($this->number_of_columns)) {
+                $row = array_slice($row, 0, ($this->number_of_columns - 1));
+            }
+            
+            $row[] = implode(' | ', $record_links);
+        }
         
         parent::addRow($row, $group_name);
     }
@@ -527,27 +632,36 @@ extends Table {
     }
     
     /**
-     * Renders and retrieves the edit table's html.
+     * Renders and retrieves the edit table's new record link html.
      *      
      * @return string
      */
-    public function toHtml() {
-        $edit_page_url = Http::getCurrentLevelPageUrl($this->edit_page);
-    
-        $edit_table_html = "";
+    public function getAddLinkHtml() {
+        $link_html = '';
         
-        if(!isset($this->record_filter_form) || (isset($this->record_filter_form) && isset($this->selected_filter))) {
-            $edit_table_html .= "
+        if($this->allow_add_record && !isset($this->record_filter_form) || (isset($this->record_filter_form) && isset($this->selected_filter))) {
+            $link_html .= "
                 <span style=\"float: left;\">
                     <a href=\"{$this->generateTableLink('add')}\">+ Add a New Record</a>
                 </span>
             ";
         }
         
+        return $link_html;
+    }
+    
+    /**
+     * Renders and retrieves the edit table's filter dropdown form html.
+     *      
+     * @return string
+     */
+    public function getFilterFormHtml() {
+        $form_html = '';
+        
         if(isset($this->record_filter_form)) {
             $form_template = $this->record_filter_form->toTemplateArray();
 
-            $edit_table_html .= "
+            $form_html .= "
                 <span style=\"float: right;\">
                     {$form_template["{$this->name}_filter_form_open"]}
                         {$form_template["{$this->name}_filter_dropdown_label"]} {$form_template["{$this->name}_filter_dropdown"]}
@@ -557,12 +671,42 @@ extends Table {
             ";
         }
         
-        $edit_table_html .= "<div class=\"clear\"></div>";
+        return $form_html;    
+    }
+    
+    /**
+     * Renders and retrieves the table's html.
+     *      
+     * @return string
+     */
+    public function getTableHtml() {
+        $edit_table_html = $this->getAddLinkHtml();
+        
+        $edit_table_html .= $this->getFilterFormHtml();
         
         if(!empty($this->child_elements)) {
-            $edit_table_html .= parent::toHtml();
+            $edit_table_html .= parent::getTableHtml();
         }
         
         return $edit_table_html;
+    }
+    
+    /**
+     * Retrieves the table as an array suitable for a template.
+     *      
+     * @return array
+     */
+    public function toTemplateArray() {
+        $template_array = parent::getTemplateArray();
+        
+        if(!isset($this->record_filter_form) || (isset($this->record_filter_form) && isset($this->selected_filter))) {
+            $template_array["add_link_open"] = "<a href=\"{$this->generateTableLink('add')}\">";
+        }
+        
+        if(isset($this->record_filter_form)) {
+            $template_array = array_merge($template_array, $this->record_filter_form->toTemplateArray());
+        }
+        
+        return $template_array;
     }
 }

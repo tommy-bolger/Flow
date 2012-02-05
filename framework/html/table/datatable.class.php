@@ -806,8 +806,8 @@ extends Table {
      *      
      * @return string
      */
-    public function toHtml() {    
-        $table_html = parent::toHtml();
+    public function getTableHtml() {    
+        $table_html = parent::getTableHtml();
         
         $table_menu_html = $this->getMenuHtml();
 
@@ -820,5 +820,20 @@ extends Table {
         ";
         
         return $data_table_html;
+    }
+    
+    /**
+     * Retrieves the table as an array suitable for a template.
+     *      
+     * @return array
+     */
+    public function toTemplateArray() {
+        $template_array = parent::toTemplateArray();
+        
+        $template_array["{$this->name}_pagination"] = $this->getPaginationHtml();
+        
+        $template_array = array_merge($template_array, $this->table_form->toTemplateArray());
+        
+        return $template_array;
     }
 }

@@ -32,6 +32,8 @@
 */
 namespace Framework\Core;
 
+use \Framework\Core\Framework;
+
 final class Configuration {
     /**
     * @var string The default configuration name when calling config() with a blank parameter.
@@ -194,7 +196,7 @@ final class Configuration {
      * @return void
      */
     public function load() {    
-        if(\Framework\Core\Framework::$enable_cache) {
+        if(Framework::$enable_cache) {
             $this->full_configuration = cache()->get($this->name, 'configurations');
         }
         
@@ -232,7 +234,7 @@ final class Configuration {
                 //Merge the two configurations into one
                 $this->full_configuration = array_merge($this->full_configuration, $database_configuration);
             
-                if(\Framework\Core\Framework::$enable_cache) {
+                if(Framework::$enable_cache) {
                     cache()->set($this->name, $this->full_configuration, 'configurations');
                 }
                 

@@ -94,9 +94,13 @@ extends EditTable {
             switch($this->action) {
                 case 'add':
                 case 'edit':
-                    $this->edit_form = new Form("{$this->name}_form");
-                
-                    $this->form_visible = true;
+                    $allow_flag_name = "allow_{$this->action}_record";
+                    
+                    if($this->$allow_flag_name) {
+                        $this->edit_form = new Form("{$this->name}_form");
+                    
+                        $this->form_visible = true;
+                    }
                     break;
             }
         }
@@ -217,17 +221,42 @@ extends EditTable {
     }
     
     /**
-     * Renders and retrieves the edit table's html.
+     * Sets the edit form's template.
+     * 
+     * @param string $template_path The path to the template relative to the current theme.     
+     * @return void
+     */
+    public function setFormTemplate($template_path) {
+        $this->edit_form->setTemplate($template_path);
+    }
+    
+    /**
+     * Renders and retrieves the table's html.
      *      
      * @return string
      */
-    public function toHtml() {
-        $table_html = parent::toHtml();
+    public function getTableHtml() {
+        $edit_table_html = parent::getTableHtml();
         
         if($this->form_visible) {
-            $table_html .= $this->edit_form->toHtml();
+            $edit_table_html .= $this->edit_form->toHtml();
         }
         
-        return $table_html;
+        return $edit_table_html;
+    }
+    
+    /**
+     * Retrieves the table as an array suitable for a template.
+     *      
+     * @return array
+     */
+    public function toTemplateArray() {
+        $template_array = parent::getTemplateArray();
+        
+        if($this->form_visible) {
+            $template_array["$this->name}_form"] = $this->edit_form->toHtml();
+        }
+        
+        return $template_array;
     }
 }
