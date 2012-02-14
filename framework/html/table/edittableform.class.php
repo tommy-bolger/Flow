@@ -173,26 +173,28 @@ extends EditTable {
                         $record_filter = array_values($this->record_filter);
                     }
                     
-                    $latest_sort_order = db()->getOne("
-                        SELECT {$this->table_sort_field}
-                        FROM {$this->edit_table_name}
-                        {$filter_where_clause}
-                        ORDER BY {$this->table_sort_field} DESC
-                        LIMIT 1
-                    ", $record_filter);
-                    
-                    if(!empty($latest_sort_order)) {
-                        $latest_sort_order += 1;
+                    if(!empty($this->table_sort_field)) {
+                        $latest_sort_order = db()->getOne("
+                            SELECT {$this->table_sort_field}
+                            FROM {$this->edit_table_name}
+                            {$filter_where_clause}
+                            ORDER BY {$this->table_sort_field} DESC
+                            LIMIT 1
+                        ", $record_filter);
+                        
+                        if(!empty($latest_sort_order)) {
+                            $latest_sort_order += 1;
+                        }
+                        else {
+                            $latest_sort_order = 1;
+                        }
+                        
+                        $table_data[$this->table_sort_field] = $latest_sort_order;
                     }
-                    else {
-                        $latest_sort_order = 1;
-                    }
-                    
-                    $table_data[$this->table_sort_field] = $latest_sort_order;
                 
                     db()->insert($this->edit_table_name, $table_data);
                     
-                    $this->edit_form->addError('Your information has been added.');
+                    $this->edit_form->addConfirmation('Your information has been added.');
                     
                     $this->edit_form->reset();
                 }

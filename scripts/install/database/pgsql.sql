@@ -125,7 +125,8 @@ CREATE TABLE cms_permissions (
     permission_name character varying(100) NOT NULL,
     display_name character varying(100) NOT NULL,
     description character varying(255),
-    module_id integer NOT NULL
+    module_id integer NOT NULL,
+    sort_order smallint NOT NULL
 );
 
 CREATE SEQUENCE cp_permission_id_seq
@@ -157,9 +158,9 @@ ALTER SEQUENCE crpa_role_permission_affiliation_id_ OWNED BY cms_role_permission
 
 CREATE TABLE cms_roles (
     role_id integer NOT NULL,
-    role_name character varying(100) NOT NULL,
     display_name character varying(100) NOT NULL,
-    module_id integer NOT NULL
+    module_id integer NOT NULL,
+    sort_order smallint NOT NULL,
 );
 
 CREATE SEQUENCE cr_role_id_seq

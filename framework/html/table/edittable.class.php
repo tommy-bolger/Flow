@@ -142,7 +142,7 @@ extends Table {
      * @param $filter_options (optional) The available record filters selectable in a dropdown. The format is array(dropdown_name => array(filter_display_name => array(filter_column_name => filter_column_value)))
      * @return void
      */
-    public function __construct($table_name, $edit_table_name, $edit_page, $table_id_field, $table_sort_field, $page_filter_columns = array(), $filter_options = array()) {
+    public function __construct($table_name, $edit_table_name, $edit_page, $table_id_field, $table_sort_field = '', $page_filter_columns = array(), $filter_options = array()) {
         parent::__construct($table_name);
         
         //Retrieve the table included in the _GET request if one exists
@@ -210,7 +210,12 @@ extends Table {
      * @return void
      */
     private function setTableSortField($table_sort_field) {
-        $this->table_sort_field = trim($table_sort_field);
+        if(!empty($table_sort_field)) {
+            $this->table_sort_field = trim($table_sort_field);
+        }
+        else {
+            $this->disableMoveRecord();
+        }
     }
     
     /**
@@ -410,35 +415,55 @@ extends Table {
                     break;
                 case 'delete':
                     if($this->allow_delete_record) {
-                        $delete_sort_order = db()->getOne("
-                            SELECT {$this->table_sort_field}
-                            FROM {$this->edit_table_name}
-                            WHERE {$this->table_id_field} = ?
-                        ", array($this->record_id));
+                        $record_exists = true;
                         
-                        if(!empty($delete_sort_order)) {
-                            db()->delete($this->edit_table_name, array($this->table_id_field => $this->record_id));
+                        if(!empty($this->table_sort_field)) {
+                            $delete_sort_order = db()->getOne("
+                                SELECT {$this->table_sort_field}
+                                FROM {$this->edit_table_name}
+                                WHERE {$this->table_id_field} = ?
+                            ", array($this->record_id));
                             
-                            $sort_order_where_clause = '';
-                            
-                            if(!empty($this->record_filter)) {
-                                $sort_order_where_clause = db()->generateWhereClause($this->record_filter) . " AND";
+                            if(!empty($delete_sort_order)) {                            
+                                $sort_order_where_clause = '';
+                                
+                                if(!empty($this->record_filter)) {
+                                    $sort_order_where_clause = db()->generateWhereClause($this->record_filter) . " AND";
+                                }
+                                else {
+                                    $sort_order_where_clause = 'WHERE ';
+                                }
+                                
+                                $sort_order_where_clause .= " {$this->table_sort_field} > ?";
+                                
+                                $update_sort_filter = $this->filter_placeholder_values;
+                                $update_sort_filter[] = $delete_sort_order;
+                                
+                                //Subtract the sort order of all records that come after the deleted record
+                                db()->query("
+                                    UPDATE {$this->edit_table_name}
+                                    SET {$this->table_sort_field} = {$this->table_sort_field} - 1
+                                    {$sort_order_where_clause}
+                                ", $update_sort_filter);
                             }
                             else {
-                                $sort_order_where_clause = 'WHERE ';
+                                $record_exists = false;
                             }
+                        }
+                        else {
+                            $record_count = db()->getOne("
+                                SELECT COUNT(*)
+                                FROM {$this->edit_table_name}
+                                WHERE {$this->table_id_field} = ?
+                            ", array($this->record_id));
                             
-                            $sort_order_where_clause .= " {$this->table_sort_field} > ?";
-                            
-                            $update_sort_filter = $this->filter_placeholder_values;
-                            $update_sort_filter[] = $delete_sort_order;
-                            
-                            //Subtract the sort order of all records that come after the deleted record
-                            db()->query("
-                                UPDATE {$this->edit_table_name}
-                                SET {$this->table_sort_field} = {$this->table_sort_field} - 1
-                                {$sort_order_where_clause}
-                            ", $update_sort_filter);
+                            if(empty($record_count)) {
+                                $record_exists = false;
+                            }
+                        }
+                        
+                        if($record_exists) {
+                            db()->delete($this->edit_table_name, array($this->table_id_field => $this->record_id));
                         }
                         else {
                             throw new \Exception("Record id '{$this->table_id_field}' in table '{$this->edit_table_name}' has already been deleted.");
@@ -592,7 +617,7 @@ extends Table {
         
         if(!empty($record_links)) {
             if(!empty($this->number_of_columns)) {
-                $row = array_slice($row, 0, ($this->number_of_columns - 1));
+                $this->number_of_columns += 1;
             }
             
             $row[] = implode(' | ', $record_links);
@@ -622,12 +647,16 @@ extends Table {
             else {
                 $query .= $this->record_filter_sql;
             }
+            
+            $this->filter_placeholder_values = array_merge($query_placeholders, $this->filter_placeholder_values);
         }
     
-        if(stripos($query, 'ORDER BY') === false) {
-            $query .= "\nORDER BY {$this->table_sort_field} ASC";
+        if(!empty($this->table_sort_field)) {
+            if(stripos($query, 'ORDER BY') === false) {
+                $query .= "\nORDER BY {$this->table_sort_field} ASC";
+            }
         }
-        
+
         parent::useQuery($query, $this->filter_placeholder_values, $processor_function);
     }
     
@@ -641,9 +670,9 @@ extends Table {
         
         if($this->allow_add_record && !isset($this->record_filter_form) || (isset($this->record_filter_form) && isset($this->selected_filter))) {
             $link_html .= "
-                <span style=\"float: left;\">
+                <div style=\"float: left;\">
                     <a href=\"{$this->generateTableLink('add')}\">+ Add a New Record</a>
-                </span>
+                </div>
             ";
         }
         
@@ -662,12 +691,12 @@ extends Table {
             $form_template = $this->record_filter_form->toTemplateArray();
 
             $form_html .= "
-                <span style=\"float: right;\">
+                <div style=\"float: right;\">
                     {$form_template["{$this->name}_filter_form_open"]}
                         {$form_template["{$this->name}_filter_dropdown_label"]} {$form_template["{$this->name}_filter_dropdown"]}
                         {$form_template["{$this->name}_filter_submit"]}
                     </form>
-                </span>
+                </div>
             ";
         }
         
@@ -680,9 +709,13 @@ extends Table {
      * @return string
      */
     public function getTableHtml() {
-        $edit_table_html = $this->getAddLinkHtml();
-        
-        $edit_table_html .= $this->getFilterFormHtml();
+        $edit_table_html = "
+            <div>
+                {$this->getAddLinkHtml()}
+                {$this->getFilterFormHtml()}
+                <div class=\"clear\"></div>
+            </div>
+        ";
         
         if(!empty($this->child_elements)) {
             $edit_table_html .= parent::getTableHtml();

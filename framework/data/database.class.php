@@ -246,6 +246,26 @@ class Database {
     }
     
     /**
+     * Gets all columns of all rows in a query result set with each row grouped by its first column.
+     *
+     * @param string $sql_statement The sql query.
+     * @param array $placeholder_values (optional) The values of the query placeholders in the order they appear in the query.
+     * @param string $query_name (optional) The cache name of the query. This enables caching of the prepared statement.
+     * @return array The result set of the query.
+     */
+    public function getGroupedRows($sql_statement, $placeholder_values = array(), $query_name = '') {
+        $get_grouped_rows_object = $this->prepareExecuteQuery($sql_statement, $placeholder_values, $query_name);
+        
+        $grouped_rows = array();
+        
+        while($grouped_row = $get_grouped_rows_object->fetch(PDO::FETCH_ASSOC)) {
+            $grouped_rows[array_shift($grouped_row)] = $grouped_row;
+        }
+
+        return $grouped_rows;
+    }
+    
+    /**
      * Gets all columns of one row in a query result set.
      *
      * @param string $sql_statement The sql query.

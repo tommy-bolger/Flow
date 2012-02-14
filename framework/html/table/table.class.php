@@ -223,7 +223,7 @@ extends \Framework\Html\Element {
      */
     public function useQuery($query, $query_placeholders = array(), $processor_function = NULL) {
         assert('is_array($query_placeholders)');
-    
+
         $query_rows = db()->getAll($query, $query_placeholders);
         
         if(is_callable($processor_function)) {

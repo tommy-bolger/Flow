@@ -99,6 +99,8 @@ extends ModulePage {
     protected function constructSideMenu() {
         $this->constructModuleMenu();
         
+        $this->constructUserManagementMenu();
+        
         $this->constructSettingsMenu();
     }
     
@@ -144,8 +146,8 @@ extends ModulePage {
     
     protected function getSettingsMenuLinks() {    
         return array(
-            'Module Management' => Http::getCurrentLevelPageUrl("toggle-modules"),
-            'Errors' => Http::getCurrentLevelPageUrl("site-errors")
+            'Module Management' => Http::getTopLevelPageUrl("toggle-modules"),
+            'Errors' => Http::getTopLevelPageUrl("site-errors")
         );
     }
     
@@ -164,6 +166,23 @@ extends ModulePage {
         $settings_list = new LinkList($settings_links, array('id' => 'settings_list'));
         
         $this->body->addChild($settings_list);
+    }
+    
+    protected function constructUserManagementMenu() {        
+        $link_query_string = array();
+        
+        if(isset($this->managed_module)) {
+            $link_query_string = array('module_id' => $this->managed_module->getId());
+        }
+        
+        $subdirectory_path = array('d_1' => 'user-management');
+        
+        $user_management_list = new LinkList(array(
+            'Module Roles' => Http::getInternalUrl('', $subdirectory_path, 'module-roles', $link_query_string),
+            'Module Permissions' => Http::getInternalUrl('', $subdirectory_path, 'module-permissions', $link_query_string)
+        ), array('id' => 'user_management_list'));
+        
+        $this->body->addChild($user_management_list);
     }
     
     protected function setPageLinks() {        

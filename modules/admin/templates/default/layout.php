@@ -26,6 +26,11 @@
                         <?php echo $this->modules_list; ?>
                     </div>
                     <br />
+                    <div id="user_menu">
+                        <h2>User Management</h2>
+                        <?php echo $this->user_management_list; ?>
+                    </div>
+                    <br />
         			<div id="settings_menu">
                         <h2>Settings</h2>
                         <?php echo $this->settings_list; ?>
@@ -39,7 +44,7 @@
         		<div class="clear"></div>
         	</div>
         	<div id="footer" class="footer_text">
-        		Framework and pages created by Tommy Bolger &copy; 2011. All rights reserved.
+        		Framework and pages created by Tommy Bolger &copy; <?php echo date('Y'); ?>. All rights reserved.
         	</div>
         </div>
     </body>

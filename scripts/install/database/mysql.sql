@@ -146,6 +146,7 @@ CREATE TABLE `cms_permissions` (
   `display_name` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
   `description` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   `module_id` int(1) NOT NULL,
+  `sort_order` smallint(1) NOT NULL
   PRIMARY KEY (`permission_id`),
   KEY `cp_module_id_fk` (`module_id`),
   CONSTRAINT `cp_module_id_fk` FOREIGN KEY (`module_id`) REFERENCES `cms_modules` (`module_id`) ON DELETE CASCADE ON UPDATE CASCADE
@@ -173,9 +174,9 @@ CREATE TABLE `cms_role_permission_affiliation` (
 DROP TABLE IF EXISTS `cms_roles`;
 CREATE TABLE `cms_roles` (
   `role_id` int(1) NOT NULL AUTO_INCREMENT,
-  `role_name` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
   `display_name` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
   `module_id` int(1) NOT NULL,
+  `sort_order` smallint(1) NOT NULL
   PRIMARY KEY (`role_id`),
   KEY `cr_module_id_fk` (`module_id`),
   CONSTRAINT `cr_module_id_fk` FOREIGN KEY (`module_id`) REFERENCES `cms_modules` (`module_id`) ON DELETE CASCADE ON UPDATE CASCADE

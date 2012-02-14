@@ -135,6 +135,7 @@ CREATE TABLE cms_permissions (
   display_name varchar(100) NOT NULL,
   description varchar(255),
   module_id integer NOT NULL,
+  sort_order smallint NOT NULL
   FOREIGN KEY (module_id) REFERENCES cms_modules (module_id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
@@ -160,9 +161,9 @@ CREATE INDEX crpa_role_id_fk ON cms_role_permission_affiliation (role_id);
 -- ----------------------------
 CREATE TABLE cms_roles (
   role_id integer PRIMARY KEY,
-  role_name varchar(100) NOT NULL,
   display_name varchar(100) NOT NULL,
   module_id integer NOT NULL,
+  sort_order smallint NOT NULL
   FOREIGN KEY (module_id) REFERENCES cms_modules (module_id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 

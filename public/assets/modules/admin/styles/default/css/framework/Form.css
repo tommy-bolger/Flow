@@ -38,7 +38,7 @@ li.label {
     padding-right: 10px;
 }
 
-div.form_errors {
+div.form_errors, div.form_confirmations {
     margin: 5px 10px 5px 10px;
     border: 1px solid #CCCCCC;
     padding: 10px;
