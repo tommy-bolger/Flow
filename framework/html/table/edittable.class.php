@@ -48,7 +48,7 @@ extends Table {
     /**
     * @var string The token used to validate requests and prevent csrf attacks.
     */
-    private $request_token;
+    protected $request_token;
     
     /**
     * @var boolean A flag to allow records to be added via the table.
@@ -129,6 +129,11 @@ extends Table {
     * @var mixed The id of the record having an action performed on it.
     */
     protected $record_id;
+    
+    /**
+    * @var string The word to display to indicate the subject of the action.
+    */
+    protected $subject_title = 'Record';
 
     /**
      * Initializes a new instance of EditTable.
@@ -161,6 +166,17 @@ extends Table {
         $this->processToken();
         
         $this->processAction();
+    }
+    
+    /**
+     * Adds the element's javascript and css to the page.
+     *      
+     * @return void
+     */
+    protected function addElementFiles() {
+        parent::addElementFiles();
+    
+        page()->addCssFile('framework/EditTable.css');
     }
     
     /**
@@ -224,16 +240,16 @@ extends Table {
      * @param array $filter_columns The page filter criteria.
      * @return void
      */
-    private function setPageFilter($filter_columns) {
+    protected function setPageFilter($filter_columns) {
         assert('is_array($filter_columns)');
         
         if(!empty($filter_columns)) {
-            request()->get->setRequired($filter_columns);
+            request()->setRequired($filter_columns);
             
             $page_filter = array();
             
             foreach($filter_columns as $filter_column) {
-                $page_filter[$filter_column] = request()->get->$filter_column; 
+                $page_filter[$filter_column] = request()->$filter_column; 
             }
             
             $this->page_filter = $page_filter;
@@ -349,6 +365,30 @@ extends Table {
     }
     
     /**
+     * Sets the title used in place of 'Record' on the table's display.
+     * 
+     * @param string $subject_title
+     * @return void
+     */
+    public function setSubjectTitle($subject_title) {
+        $this->subject_title = $subject_title;
+    }
+    
+    /**
+     * Adds a table header row.
+     *      
+     * @param array|string $header The columns for this header. Can either be an array for each column of the table or a string as a cell that spans all columns of the table.
+     * @return void
+     */
+    public function addHeader($header) {
+        if(empty($this->header)) {
+            $header[] = 'Action';
+        }
+        
+        parent::addHeader($header);
+    }
+    
+    /**
      * Adds a token or validates the token to a session token to prevent CSRF attacks.
      *      
      * @return void
@@ -390,7 +430,7 @@ extends Table {
             $required_parameters = array('action');
             
             //Do a first switch to determine when to set the table id field as required
-            switch($this->request_table_name) {
+            switch($this->action) {
                 case 'move_up':
                 case 'move_down':
                 case 'delete':
@@ -616,10 +656,11 @@ extends Table {
         }
         
         if(!empty($record_links)) {
-            if(!empty($this->number_of_columns)) {
+            if(!empty($this->number_of_columns) && $this->number_of_columns == count($row)) {
                 $this->number_of_columns += 1;
             }
-            
+
+            $row = array_slice($row, 0, ($this->number_of_columns - 1));
             $row[] = implode(' | ', $record_links);
         }
         
@@ -633,7 +674,7 @@ extends Table {
      * @param array $query_placeholders The placeholder values for the specified query.     
      * @return void
      */
-    public function useQuery($query, $query_placeholders = array(), $processor_function = NULL) {    
+    public function useQuery($query, $query_placeholders = array(), $processor_function = NULL) {
         if(!empty($this->record_filter)) {
             $this->record_filter_sql = db()->generateWhereClause($this->record_filter);
 
@@ -649,6 +690,8 @@ extends Table {
             }
             
             $this->filter_placeholder_values = array_merge($query_placeholders, $this->filter_placeholder_values);
+            
+            $query_placeholders = $this->filter_placeholder_values;
         }
     
         if(!empty($this->table_sort_field)) {
@@ -657,7 +700,7 @@ extends Table {
             }
         }
 
-        parent::useQuery($query, $this->filter_placeholder_values, $processor_function);
+        parent::useQuery($query, $query_placeholders, $processor_function);
     }
     
     /**
@@ -670,8 +713,8 @@ extends Table {
         
         if($this->allow_add_record && !isset($this->record_filter_form) || (isset($this->record_filter_form) && isset($this->selected_filter))) {
             $link_html .= "
-                <div style=\"float: left;\">
-                    <a href=\"{$this->generateTableLink('add')}\">+ Add a New Record</a>
+                <div class=\"add_link\">
+                    <a href=\"{$this->generateTableLink('add')}\">+ Add a New {$this->subject_title}</a>
                 </div>
             ";
         }
@@ -691,7 +734,7 @@ extends Table {
             $form_template = $this->record_filter_form->toTemplateArray();
 
             $form_html .= "
-                <div style=\"float: right;\">
+                <div class=\"table_form\">
                     {$form_template["{$this->name}_filter_form_open"]}
                         {$form_template["{$this->name}_filter_dropdown_label"]} {$form_template["{$this->name}_filter_dropdown"]}
                         {$form_template["{$this->name}_filter_submit"]}
@@ -710,7 +753,7 @@ extends Table {
      */
     public function getTableHtml() {
         $edit_table_html = "
-            <div>
+            <div class=\"edit_table_bar\">
                 {$this->getAddLinkHtml()}
                 {$this->getFilterFormHtml()}
                 <div class=\"clear\"></div>

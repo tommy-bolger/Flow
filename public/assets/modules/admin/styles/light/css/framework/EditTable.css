@@ -1,0 +1,12 @@
+.edit_table_bar {
+    clear: both;
+    padding-bottom: 10px;
+}
+
+.edit_table_bar .add_link {
+    float: left;
+}
+
+.edit_table_bar .table_form {
+    float: right;
+}

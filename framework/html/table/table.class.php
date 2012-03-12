@@ -33,8 +33,10 @@
 
 namespace Framework\Html\Table;
 
+use \Framework\Html\Element;
+
 class Table
-extends \Framework\Html\Element {
+extends Element {
     /**
     * @var string The name of the table.
     */
@@ -123,12 +125,10 @@ extends \Framework\Html\Element {
     /**
      * Adds a table header row.
      *      
-     * @param array $header The columns for this header.
+     * @param array|string $header The columns for this header. Can either be an array for each column of the table or a string as a cell that spans all columns of the table.
      * @return void
      */
     public function addHeader($header) {
-        assert('is_array($header)');
-    
         if(!empty($header)) {
             $this->header[] = $header;
         }
@@ -204,10 +204,10 @@ extends \Framework\Html\Element {
      * @param string $group_name (optional) The name of the table body the specified records belong to.     
      * @return void
      */
-    public function addRows($rows, $group_name = '') {
-        assert('is_array($rows)');
-    
+    public function addRows($rows, $group_name = '') {    
         if(!empty($rows)) {
+            assert('is_array($rows)');
+        
             foreach($rows as $row) {
                 $this->addRow($row, $group_name);
             }
@@ -234,6 +234,59 @@ extends \Framework\Html\Element {
     }
     
     /**
+     * Renders and retrieves the html of the columns of a table row.
+     * 
+     * @param array $row The columns of the row to render.
+     * @param boolean $is_header_row Tells the function to render <th> tags if true or <td> tags if false.      
+     * @return string
+     */
+    protected function getColumnsHtml($row, $is_header_row = false) {
+        $opening_tag = '';
+        $closing_tag = '';
+        
+        if(!$is_header_row) {
+            $opening_tag = '<td class="table_body"';
+            $closing_tag = '</td>';
+        }
+        else {
+            $opening_tag = '<th class="table_header"';
+            $closing_tag = '</th>';
+        }
+        
+        $columns_html = '';
+    
+        if(!empty($row)) {
+            foreach($row as $column) {
+                $span_attributes = '';
+                $column_contents = '';
+            
+                if(!is_array($column)) {
+                    $column_contents = $column;
+                }
+                else {
+                    if(!empty($column['colspan'])) {
+                        $span_attributes .= " colspan=\"{$column['colspan']}\"";
+                    }
+                    
+                    if(!empty($column['rowspan'])) {
+                        $span_attributes .= " rowspan=\"{$column['rowspan']}\"";
+                    }
+                    
+                    $column_contents = $column['contents'];
+                }
+                
+                $columns_html .= "
+                    {$opening_tag}{$span_attributes}>
+                        {$column_contents}
+                    {$closing_tag}
+                ";
+            }
+        }
+        
+        return $columns_html;
+    }
+    
+    /**
      * Renders and retrieves the table's header html.
      *      
      * @return string
@@ -248,10 +301,10 @@ extends \Framework\Html\Element {
                 $header_html .= '<tr>';
             
                 if(is_array($header_row)) {
-                    $header_html .= '<th class="table_header">' . implode('</th><th class="table_header">', $header_row) . '</th>';
+                    $header_html .= $this->getColumnsHtml($header_row, true);
                 }
                 else {
-                    assert('isset($this->number_of_columns) //Number of columns for this table has not been set.');
+                    assert('isset($this->number_of_columns)');
                 
                     $header_html .= "<th class=\"table_header\" colspan=\"{$this->number_of_columns}\">{$header_row}</th>"; 
                 }
@@ -263,6 +316,39 @@ extends \Framework\Html\Element {
         }
         
         return $header_html;
+    }
+    
+    /**
+     * Renders and retrieves the table's footer html.
+     *      
+     * @return string
+     */
+    protected function getFooterHtml() {
+        $footer_html = '';
+    
+        //Render the footer if specified
+        if(!empty($this->footer)) {
+            $footer_html .= '<tfoot>';
+            
+            foreach($this->footer as $footer_row) {
+                $footer_html .= '<tr>';
+                
+                if(is_array($footer_row)) {
+                    $footer_html .= '<th class="table_footer">' . implode('</th><th class="table_footer">', $footer_row) . '</th>';
+                }
+                else {
+                    assert('isset($this->number_of_columns) //Number of columns for this table has not been set.');
+                
+                    $footer_html .= "<th class=\"table_footer\" colspan=\"{$this->number_of_columns}\">{$footer_row}</th>";
+                }
+                
+                $footer_html .= '</tr>';
+            }
+            
+            $footer_html .= '</tfoot>';
+        }
+        
+        return $footer_html;
     }
     
     /**
@@ -289,11 +375,7 @@ extends \Framework\Html\Element {
                             $row = array_slice($row, 0, $this->number_of_columns);
                         }
 
-                        $body_html .= '
-                            <tr>
-                                <td class="table_body">' . implode('</td><td class="table_body">', $row) . '</td>
-                            </tr>
-                        ';
+                        $body_html .= "<tr>{$this->getColumnsHtml($row)}</tr>";
                     }
                     
                     $body_html .= '</tbody>';
@@ -314,27 +396,7 @@ extends \Framework\Html\Element {
         
         $table_html .= $this->getHeaderHtml();
         
-        //Render the footer if specified
-        if(!empty($this->footer)) {
-            $table_html .= '<tfoot>';
-            
-            foreach($this->footer as $footer_row) {
-                $table_html .= '<tr>';
-                
-                if(is_array($footer_row)) {
-                    $table_html .= '<th class="table_footer">' . implode('</th><th class="table_footer">', $footer_row) . '</th>';
-                }
-                else {
-                    assert('isset($this->number_of_columns) //Number of columns for this table has not been set.');
-                
-                    $table_html .= "<th class=\"table_footer\" colspan=\"{$this->number_of_columns}\">{$footer_row}</th>";
-                }
-                
-                $table_html .= '</tr>';
-            }
-            
-            $table_html .= '</tfoot>';
-        }
+        $table_html .= $this->getFooterHtml();
         
         $table_html .= $this->getBodyHtml();
                 
@@ -349,7 +411,12 @@ extends \Framework\Html\Element {
      * @return array
      */
     public function toTemplateArray() {
-        return array("table" => $this->getTableHtml());
+        return array(
+            "{$this->name}_open" => "<table{$this->renderAttributes()}>",
+            "{$this->name}_header" => $this->getHeaderHtml(),
+            "{$this->name}_body" => $this->getBodyHtml(),
+            "{$this->name}_footer" => $tihs->getFooterHtml()
+        );
     }
     
     /**

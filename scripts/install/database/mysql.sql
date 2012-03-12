@@ -26,7 +26,7 @@ CREATE TABLE `cms_configuration_parameters` (
 -- ----------------------------
 INSERT INTO `cms_configuration_parameters` VALUES ('1', '2', 'theme', null, 'default', '1', '1', null, 'Theme', '0');
 INSERT INTO `cms_configuration_parameters` VALUES ('2', '2', 'code_example_file_extensions', null, 'php,html,aspx,asp,js,css,htc,inc', '2', '5', null, 'Code Example File Extensions', '0');
-INSERT INTO `cms_configuration_parameters` VALUES ('3', '1', 'theme', null, 'default', '1', '1', null, 'Theme', '0');
+INSERT INTO `cms_configuration_parameters` VALUES ('3', '1', 'theme', null, 'light', '1', '1', null, 'Theme', '0');
 INSERT INTO `cms_configuration_parameters` VALUES ('4', null, 'version', null, '1.0', '1', '1', null, 'Framework Version', '0');
 INSERT INTO `cms_configuration_parameters` VALUES ('5', null, 'environment', null, 'production', '2', '1', null, 'Environment', '1');
 INSERT INTO `cms_configuration_parameters` VALUES ('11', null, 'session_name', null, 'default', '4', '1', null, 'Client Session Name', '0');

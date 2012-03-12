@@ -174,14 +174,16 @@ final class Http {
         assert('is_array($subdirectory_path) && is_array($query_string_parameters)');
         
         $url = self::getBaseUrl();
-        
+
         $page_path = array();
         
         if(!empty($module_name) && $module_name != config('framework')->default_module) {
             $page_path['module'] = $module_name;
         }
         
-        if(!empty($subdirectory_path)) {            
+        if(!empty($subdirectory_path)) {
+            $subdirectory_path = array_values($subdirectory_path);
+        
             foreach($subdirectory_path as $index => $subdirectory) {
                 $page_path['d_' . ($index + 1)] = $subdirectory;
             }
@@ -230,6 +232,21 @@ final class Http {
     }
     
     /**
+    * Generates and retrieves a url of a page that includes the current module and a subdirectory level one level higher than the current.
+    * 
+    * @param array $subdirectories The subdirectories under the current level.    
+    * @param string $page_name (optional) The name of the page.
+    * @param array $query_string_parameters (optional) The rest of the query string in ('name' => 'value') format.    
+    * @return string
+    */
+    public static function getHigherLevelPageUrl($page_name = '', $query_string_parameters = array()) {    
+        $subdirectory_path = framework()->getSubdirectories();
+        array_pop($subdirectory_path);
+
+        return self::getInternalUrl('', $subdirectory_path, $page_name, $query_string_parameters);
+    }
+    
+    /**
     * Generates and retrieves a url of a page that includes the current module and subdirectory level.
     * 
     * @param string $page_name (optional) The name of the page.
@@ -238,5 +255,21 @@ final class Http {
     */
     public static function getCurrentLevelPageUrl($page_name = '', $query_string_parameters = array()) {
         return self::getInternalUrl('', framework()->getSubdirectories(), $page_name, $query_string_parameters);
+    }
+    
+    /**
+    * Generates and retrieves a url of a page that includes the current module and a subdirectory level lower than the current.
+    * 
+    * @param array $subdirectories The subdirectories under the current level.    
+    * @param string $page_name (optional) The name of the page.
+    * @param array $query_string_parameters (optional) The rest of the query string in ('name' => 'value') format.    
+    * @return string
+    */
+    public static function getLowerLevelPageUrl($subdirectories, $page_name = '', $query_string_parameters = array()) {
+        assert('is_array($subdirectories)');
+    
+        $subdirectory_path = array_merge(framework()->getSubdirectories(), $subdirectories);
+
+        return self::getInternalUrl('', $subdirectory_path, $page_name, $query_string_parameters);
     }
 }

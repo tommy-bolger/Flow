@@ -73,7 +73,7 @@ extends ModulePage {
     }
     
     private function constructContent() {
-        $login_form = new Form('admin_login_form');
+        $login_form = new Form('admin_login_form', NULL, 'post', false);
         
         $login_form->addTextbox('user_name', 'Username');
         

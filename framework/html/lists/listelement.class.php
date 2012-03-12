@@ -87,6 +87,15 @@ extends \Framework\Html\Element {
     }
     
     /**
+     * Renders and retrieves an individual item's html.
+     *      
+     * @return string
+     */
+    protected function getItemHtml($item, $item_name) {
+        return "<li>{$item}</li>";
+    }
+    
+    /**
      * Renders and retrieves the list item's html.
      *      
      * @return string
@@ -95,8 +104,8 @@ extends \Framework\Html\Element {
         $list_html = "<{$this->tag}{$this->renderAttributes()}>";
     
         if(!empty($this->child_elements)) {
-            foreach($this->child_elements as $list_item) {
-                $list_html .= "<li>{$list_item}</li>";
+            foreach($this->child_elements as $item_name => $item) {
+                $list_html .= $this->getItemHtml($item, $item_name);
             }
         }
         

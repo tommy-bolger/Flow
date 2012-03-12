@@ -111,9 +111,19 @@ extends Table {
     protected $current_rows_per_page;
     
     /**
+    * @var integer The index of the selected option in the filter dropdown.
+    */
+    protected $current_selected_filter;
+    
+    /**
     * @var integer The total number of records in the resultset.
     */
     protected $total_number_of_records;
+    
+    /**
+    * @var array A list of all criteria for the selected filter dropdown option.
+    */
+    protected $selected_filter_criteria = array();
 
     /**
      * Initializes a new instance of DataTable.
@@ -193,6 +203,7 @@ extends Table {
         $sort_column_session_name = "{$this->name}_sort_column";
         $sort_order_session_name = "{$this->name}_sort_direction";
         $rows_per_page_session_name = "{$this->name}_rows_per_page";
+        $selected_filter_session_name = "{$this->name}_selected_filter";
         
         //Load the table's state from the session
         if(isset(session()->$page_session_name)) {
@@ -209,6 +220,10 @@ extends Table {
         
         if(isset(session()->$rows_per_page_session_name)) {
             $this->current_rows_per_page = session()->$rows_per_page_session_name;
+        }
+        
+        if(isset(session()->$selected_filter_session_name)) {
+            $this->current_selected_filter = session()->$selected_filter_session_name;
         }
         
         //Retrieve any changes to the table's state from either a get request or a post request
@@ -255,6 +270,15 @@ extends Table {
                 }
                 
                 session()->$rows_per_page_session_name = $this->current_rows_per_page;
+            }
+            
+            //The selected filter option
+            $current_selected_filter = request()->post->getVariable("{$this->name}_filter", 'integer');
+            
+            if(filter_var($current_selected_filter, FILTER_VALIDATE_INT) !== false) {
+                $this->current_selected_filter = $current_selected_filter;
+                
+                session()->$selected_filter_session_name = $this->current_selected_filter;
             }
         }
 
@@ -359,6 +383,33 @@ extends Table {
     }
     
     /**
+     * Adds record filter options as a dropdown.
+     *
+     * @param string $filter_field_name The label of the record filter dropdown.
+     * @param array $filter_options The options for the record filter dropdown.     
+     * @return void
+     */
+    public function addFilterOptions($filter_field_name, $filter_options) {
+        assert('is_array($filter_options)');
+
+        if(!empty($filter_options)) {            
+            $filter_options_name = "{$this->name}_filter";
+            
+            $filter_dropdown = new Dropdown($filter_options_name, $filter_field_name, array_keys($filter_options));
+            $filter_dropdown->setDefaultValue($this->current_selected_filter);
+            $filter_dropdown->addBlankOption();
+            
+            $this->table_form->addField($filter_dropdown);
+                          
+            $filter_option_values = array_values($filter_options);
+            
+            if(!is_null($this->current_selected_filter) && isset($filter_option_values[$this->current_selected_filter])) {
+                $this->selected_filter_criteria = $filter_option_values[$this->current_selected_filter];
+            }
+        }
+    }
+    
+    /**
      * Sets the query that will be used to populate the table.
      * 
      * @param string $query the base query of the resultset.
@@ -367,6 +418,26 @@ extends Table {
      * @return void
      */
     public function useQuery($query, $query_placeholders = array(), $processor_function = NULL) {
+        $where_criteria = '';
+        
+        if(isset($this->current_selected_filter)) {
+            if(stripos($query, 'WHERE ') !== false) {
+                $where_criteria = 'AND ';
+            }
+            else {
+                $where_criteria = 'WHERE ';
+            }
+
+            $where_criteria .= implode(' AND ', $this->selected_filter_criteria);
+            
+            if(strpos($query, '{{WHERE_CRITERIA}}') !== false) {
+                $query = str_replace('{{WHERE_CRITERIA}}', $where_criteria, $query);
+            }
+            else {
+                $query .= "\n{$where_criteria}";
+            }
+        }
+    
         $this->total_number_of_records = db()->getOne("
             SELECT COUNT(*)
             FROM (
@@ -779,14 +850,22 @@ extends Table {
      *      
      * @return string
      */
-    protected function getMenuHtml() {
+    protected function getMenuHtml() {    
         $this->setRowsPerPageHtml();
         
         $pagination_html = $this->getPaginationHtml();
         
         $form_template = $this->table_form->toTemplateArray();
         
-        $table_menu_items = array("{$form_template["{$this->name}_rows"]} per page {$form_template["{$this->name}_page_rows_submit"]}");
+        $table_menu_items = array();
+        
+        if(isset($form_template["{$this->name}_filter_label"])) {
+            $table_menu_items = array(
+                "{$form_template["{$this->name}_filter_label"]} {$form_template["{$this->name}_filter"]} {$form_template["{$this->name}_page_rows_submit"]}"
+            );
+        }
+        
+        $table_menu_items[] = "{$form_template["{$this->name}_rows"]} per page {$form_template["{$this->name}_page_rows_submit"]}";
         
         if(!empty($pagination_html)) {
             $table_menu_items[] = $pagination_html;

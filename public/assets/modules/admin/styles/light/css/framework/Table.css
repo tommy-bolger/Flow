@@ -1,0 +1,27 @@
+table {
+    border: solid 1px #DADFE0;
+    width: 100%;
+}
+
+table a, table a:hover, table a:link, table a:active, table a:visited {
+    font-size: 12px;
+}
+
+table th, table td {
+    text-align: left;
+    font-size: 12px;
+    vertical-align: middle;
+    padding: 5px;
+}
+
+table th {
+    background: url("/assets/modules/admin/styles/light/images/table_header_background.gif") repeat-x scroll 0 50% transparent;
+    border-style: solid;
+    border-width: 1px;
+    border-color: #DADFE0 #D1CFCF #DADFE0 #DADFE0;
+    color: #2D444F;
+}
+
+table td {
+    border: solid 1px #DADFE0;
+}

@@ -41,42 +41,47 @@ extends Element {
     /**
     * @var string The form name attribute.
     */
-    private $name;
+    protected $name;
+    
+    /**
+    * @var array The list of all interactive fields of the form.
+    */
+    protected $interactive_fields = array();
     
     /**
     * @var array The submitted form data.
     */
-    private $submitted_data;
+    protected $submitted_data;
     
     /**
     * @var array The values of the form fields.
     */
-    private $field_data;
+    protected $field_data;
 
     /**
     * @var array The error messages of the form fields.
     */
-    private $field_errors = array();
+    protected $field_errors = array();
     
     /**
     * @var array The warning messages of the form.
     */
-    private $warnings = array();
+    protected $warnings = array();
     
     /**
     * @var array The confirmations messages of the form.
     */
-    private $confirmations = array();
+    protected $confirmations = array();
     
     /**
     * @var boolean A flag indicating if the form was submitted.
     */
-    private $submitted = false;
+    protected $submitted = false;
     
     /**
     * @var boolean A flag indicating if the submitted values of the form fields are valid.
     */
-    private $valid = false;
+    protected $valid;
     
     /**
      * Initializes a new instance of Form.
@@ -175,7 +180,7 @@ extends Element {
      *      
      * @return void
      */
-    private function setFormData($method) {
+    protected function setFormData($method) {
         assert("\$method == 'post' || \$method == 'get'");
         
         //Set the field's method
@@ -198,7 +203,7 @@ extends Element {
      *      
      * @return void
      */
-    private function processFormToken() {
+    protected function processFormToken() {
         $form_token_name = "{$this->name}_token";
         
         if(!$this->submitted) {
@@ -235,6 +240,7 @@ extends Element {
      * Adds a field to the form.
      *      
      * @param object $form_field The form field object.
+     * @param boolean $add_to_children A flag indicating whether to add the field to the form's child elements for rendering.     
      * @return void
      */
     public function addField($form_field) {        
@@ -264,6 +270,10 @@ extends Element {
         }
         
         $this->child_elements[$field_name] = $form_field;
+        
+        if($form_field->isInteractive()) {
+            $this->interactive_fields[$field_name] = $form_field;
+        }
     }
     
     /**
@@ -277,6 +287,15 @@ extends Element {
     }
     
     /**
+     * Retrieves the form's interactive fields.
+     *      
+     * @return array
+     */
+    public function getInteractiveFields() {
+        return $this->interactive_fields;
+    }
+    
+    /**
      * Sets the default values of all form fields specified by name.
      *      
      * @param array $field_values An array of field values in the following format: array(field_name => field_value).
@@ -286,9 +305,9 @@ extends Element {
         assert('is_array($field_values) && !empty($field_values)');
         
         foreach($field_values as $field_name => $field_value) {
-            assert('isset($this->child_elements[$field_name])');
-
-            $this->child_elements[$field_name]->setDefaultValue($field_value);
+            if(isset($this->child_elements[$field_name])) {
+                $this->child_elements[$field_name]->setDefaultValue($field_value);
+            }
         }
     }
     
@@ -302,9 +321,9 @@ extends Element {
         assert('is_array($required_fields) && !empty($required_fields)');
     
         foreach($required_fields as $required_field) {
-            assert('isset($this->child_elements[$required_field])');
-        
-            $this->child_elements[$required_field]->setRequired();
+            if(isset($this->child_elements[$required_field])) {
+                $this->child_elements[$required_field]->setRequired();
+            }
         }
     }
     
@@ -354,7 +373,7 @@ extends Element {
      */
     public function isValid() {
         if($this->submitted) {
-            if($this->valid === false) {
+            if(is_null($this->valid)) {
                 $fields_valid = true;
                 
                 foreach($this->child_elements as $form_field) {
@@ -377,17 +396,31 @@ extends Element {
     
     /**
      * Retrieves the form's field values.
-     *      
+     *
+     * $param boolean $interactive_fields_only When set to true the values of all fields excluding hidden and button fields are returned.
      * @return array
      */
-    public function getData() {
-        if(!isset($this->field_data)) {
-            foreach($this->child_elements as $field_name => $field) {
-                $this->field_data[$field_name] = $field->getValue();
+    public function getData($interactive_fields_only = false) {
+        if(!$interactive_fields_only) {
+            if(!isset($this->field_data['all_fields'])) {
+                foreach($this->child_elements as $field_name => $field) {
+                    $this->field_data['all_fields'][$field_name] = $field->getValue();
+                }
             }
+            
+            return $this->field_data['all_fields'];
         }
-        
-        return $this->field_data;
+        else {
+            if(!isset($this->field_data['interactive_fields'])) {
+                foreach($this->child_elements as $field_name => $field) {
+                    if($field->isInteractive()) {
+                        $this->field_data['interactive_fields'][$field_name] = $field->getValue();
+                    }
+                }
+            }
+            
+            return $this->field_data['interactive_fields'];
+        }
     }
     
     /**
@@ -409,7 +442,7 @@ extends Element {
      * @param string $message_type The type of message to render. Valid values are field_errors, warnings, and confirmations.     
      * @return string
      */
-    private function getMessagesHtml($message_type) {
+    protected function getMessagesHtml($message_type) {
         assert("\$message_type == 'field_errors' || \$message_type == 'warnings' || \$message_type == 'confirmations'");
     
         return '<p>' . implode('</p><p>', $this->$message_type) . '</p>';

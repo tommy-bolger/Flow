@@ -34,6 +34,8 @@ namespace Framework\Html\Lists;
 
 class LinkList
 extends UnorderedList {
+    protected $active_item_name;
+
     /**
      * Initializes a new instance of LinkList.
      *      
@@ -55,6 +57,31 @@ extends UnorderedList {
     public function addListItem($item_value, $item_name) {
         $link_item = "<a href=\"{$item_value}\">{$item_name}</a>";
         
-        $this->child_elements[] = $link_item;
+        $this->child_elements[$item_name] = $link_item;
+    }
+    
+    /**
+     * Sets the link that will be marked with the active class.
+     *      
+     * @param string $active_item_name The name of the item that will be marked as active.
+     * @return void
+     */
+    public function setActiveItem($active_item_name) {
+        $this->active_item_name = $active_item_name;
+    }
+    
+    /**
+     * Renders and retrieves an individual item's html.
+     *      
+     * @return string
+     */
+    protected function getItemHtml($item, $item_name) {
+        $active_class = '';
+                
+        if($item_name == $this->active_item_name) {
+            $active_class = ' class="active"';
+        }
+    
+        return "<li{$active_class}>{$item}</li>";
     }
 }

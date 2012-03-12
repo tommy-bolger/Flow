@@ -41,6 +41,11 @@ extends \Framework\Html\Element {
     public $IS_FORM_FIELD = true;
     
     /**
+    * @var boolean Flag indicating that the field's value gets included when retrieving the data of only interactive fields in the form objects.
+    */
+    protected $is_interactive = true;
+    
+    /**
     * @var string The input type attribute of the field.
     */
     protected $input_type;
@@ -54,6 +59,11 @@ extends \Framework\Html\Element {
     * @var string The field label.
     */
     protected $label;
+    
+    /**
+    * @var string The field's description.
+    */
+    protected $description;
     
     /**
     * @var boolean Flag indicating whether the form field has been submitted.
@@ -124,6 +134,15 @@ extends \Framework\Html\Element {
     }
     
     /**
+     * Returns the field's interactive state.
+     *      
+     * @return boolean
+     */
+    public function isInteractive() {
+        return $this->is_interactive;
+    }
+    
+    /**
      * Sets the html input type.
      *      
      * @param string $input_type The input type.
@@ -175,6 +194,16 @@ extends \Framework\Html\Element {
      */
     public function setLabel($field_label) {
         $this->label = $field_label;
+    }
+    
+    /**
+     * Sets the field's description.
+     *      
+     * @param string $field_description The field's description.
+     * @return void
+     */
+    public function setDescription($field_description) {
+        $this->description = $field_description;
     }
     
     /**
@@ -383,11 +412,20 @@ extends \Framework\Html\Element {
     }
     
     /**
+     * Retrieves the field's description.
+     *      
+     * @return string
+     */
+    public function getDescription() {   
+        return $this->description;
+    }
+    
+    /**
      * Retrieves the field's label html.
      *      
      * @return string
      */
-    protected function getLabelHtml() {        
+    public function getLabelHtml() {        
         if(!empty($this->label)) {
             $label = $this->label;
         
@@ -395,7 +433,7 @@ extends \Framework\Html\Element {
                 $label = "<span class=\"required\">*{$label}</span>";
             }
         
-            return "<label for=\"{$this->name}\">{$label}:</label>";
+            return "<label for=\"{$this->name}\">{$label}</label>";
         }
         
         return "";
@@ -435,6 +473,11 @@ extends \Framework\Html\Element {
         
         //Add the field label html
         $template_array["{$index_base_name}_label"] = $this->getLabelHtml();
+        
+        //Add the field's description if one was specified.
+        if(!empty($this->description)) {
+            $template_array["{$index_base_name}_description"] = $this->description;
+        }
        
         //Add the field html        
         $template_array[$index_base_name] = $this->getFieldHtml();
@@ -458,6 +501,11 @@ extends \Framework\Html\Element {
         }
         
         $field_html .= "<li class=\"field\">{$this->getFieldHtml()}</li></ul>";
+        
+        
+        if(!empty($this->description)) {
+            $field_html .= "<li class=\"description\">{$this->getDescriptionHtml()}</li>";
+        }
         
         return $field_html;
     }

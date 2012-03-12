@@ -46,6 +46,8 @@ extends \Framework\Html\Form\FieldObjects\Field {
     public function __construct($password_name, $password_label = "", $password_value = NULL, $css_classes = array()) {
         parent::__construct("password", $password_name, $password_label, $css_classes);
         
+        $this->addClass('password');
+        
         $this->setDefaultValue($password_value);
     }
 }

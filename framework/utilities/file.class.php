@@ -32,6 +32,8 @@
 */
 namespace Framework\Utilities;
 
+use \ZipArchive;
+
 class File {
     /**
     * Moves an uploaded file to a specified directory path.
@@ -95,7 +97,7 @@ class File {
         //Zip the file
         $archive_file = new ZipArchive();
         
-        if($archive_file->open($archive_file_path, ZIPARCHIVE::CREATE) === true) {
+        if($archive_file->open($archive_file_path, ZipArchive::CREATE) === true) {
             $archive_file->addFile($original_file_path, $original_file['basename']);
             $archive_file->close();
         }

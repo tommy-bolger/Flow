@@ -38,7 +38,7 @@ use \Framework\Modules\WebModule;
 use \Framework\Utilities\Auth;
 use \Framework\Utilities\Http;
 use \Framework\Html\Lists\LinkList;
-use \Framework\Html\Misc\Div;
+use \Framework\Html\Misc\TemplateElement;
 use \Framework\Html\Custom\PagePath;
 
 class Home
@@ -50,6 +50,12 @@ extends ModulePage {
     protected $managed_module;
     
     protected $page_links = array();
+    
+    protected $active_top_link = 'Home';
+    
+    protected $active_sub_nav_section;
+    
+    protected $active_sub_nav_link;
 
     public function __construct() {
         parent::__construct('admin');
@@ -64,9 +70,9 @@ extends ModulePage {
         
         $this->constructLeftContent();
         
-        $this->constructPagePath();
-        
         $this->constructRightContent();
+        
+        $this->constructFooter();
     }
     
     protected function loadManagedModule($module_name) {
@@ -88,20 +94,12 @@ extends ModulePage {
     
     protected function constructContentHeader() {
         $this->body->addChild(Http::getTopLevelPageUrl(), 'home_link');
-    }
-    
-    private function constructLeftContent() {
+        
         $this->constructLoginInfo();
         
-        $this->constructSideMenu();
-    }
-    
-    protected function constructSideMenu() {
-        $this->constructModuleMenu();
+        $this->constructTopNav();
         
-        $this->constructUserManagementMenu();
-        
-        $this->constructSettingsMenu();
+        $this->constructPagePath();
     }
     
     private function constructLoginInfo() {
@@ -112,8 +110,22 @@ extends ModulePage {
         $this->body->addChild(Http::getTopLevelPageUrl("login", array('logout' => 1)), 'logout_link');
     }
     
-    protected function constructModuleMenu() {    
-        $admin_pages = array();
+    protected function constructTopNav() {
+        $admin_page_links = array(
+            'Home' => Http::getTopLevelPageUrl()
+        );
+        
+        $admin_page_links = array_merge($admin_page_links, $this->getModuleMenuLinks());
+        
+        $modules_list = new LinkList($admin_page_links, array('id' => 'modules_list'));
+        
+        $modules_list->setActiveItem($this->active_top_link);
+        
+        $this->body->addChild($modules_list);
+    }
+    
+    protected function getModuleMenuLinks() {
+        $admin_page_links = array();
         
         if(Framework::$enable_cache) {
             $admin_pages = cache()->get('header_nav', 'admin');
@@ -135,54 +147,41 @@ extends ModulePage {
             }
             
             foreach($admin_pages as $page_name => $module_name) {
-                $admin_pages[$page_name] = Http::getInternalUrl('', array('subd_1' => $module_name));
+                $admin_page_links[$page_name] = Http::getInternalUrl('', array('subd_1' => $module_name));
             }
         }
         
-        $modules_list = new LinkList($admin_pages, array('id' => 'modules_list'));
-        
-        $this->body->addChild($modules_list);
+        return $admin_page_links;
     }
     
-    protected function getSettingsMenuLinks() {    
-        return array(
-            'Module Management' => Http::getTopLevelPageUrl("toggle-modules"),
-            'Errors' => Http::getTopLevelPageUrl("site-errors")
-        );
+    private function constructLeftContent() {        
+        $this->constructSubNav();
     }
     
-    protected function constructSettingsMenu() {            
-        $settings_links = array();
+    private function constructSubNav() {
+        $sub_nav_links = $this->getSubNavLinks();
         
-        if(isset($this->managed_module)) {
-            $settings_links['Configuration'] = Http::getTopLevelPageUrl("configuration-edit", array('module_id' => $this->managed_module->getId()));
+        if(!empty($sub_nav_links)) {
+            foreach($sub_nav_links as $section_title => $section_links) {
+                $section_template = new TemplateElement('subnav_section.php');
+                
+                $section_template->addChild($section_title, 'section_title');
+            
+                $section_list = new LinkList($section_links, array('class' => 'sub_nav'));
+                
+                if($section_title == $this->active_sub_nav_section) {
+                    $section_list->setActiveItem($this->active_sub_nav_link);
+                };
+                
+                $section_template->addChild($section_list, 'section_list');
+                
+                $this->body->addChild($section_template, 'sub_nav', true);
+            }
         }
-        else {
-            $settings_links['Configuration'] = Http::getTopLevelPageUrl('configuration-edit');
-        }
-        
-        $settings_links = array_merge($settings_links, $this->getSettingsMenuLinks());
-        
-        $settings_list = new LinkList($settings_links, array('id' => 'settings_list'));
-        
-        $this->body->addChild($settings_list);
     }
     
-    protected function constructUserManagementMenu() {        
-        $link_query_string = array();
-        
-        if(isset($this->managed_module)) {
-            $link_query_string = array('module_id' => $this->managed_module->getId());
-        }
-        
-        $subdirectory_path = array('d_1' => 'user-management');
-        
-        $user_management_list = new LinkList(array(
-            'Module Roles' => Http::getInternalUrl('', $subdirectory_path, 'module-roles', $link_query_string),
-            'Module Permissions' => Http::getInternalUrl('', $subdirectory_path, 'module-permissions', $link_query_string)
-        ), array('id' => 'user_management_list'));
-        
-        $this->body->addChild($user_management_list);
+    protected function getSubNavLinks() {    
+        return array();
     }
     
     protected function setPageLinks() {        
@@ -200,17 +199,13 @@ extends ModulePage {
         $this->body->addChild($page_path);
     }
     
-    protected function constructRightContent() {
-        $right_content = new Div(array('id' => 'current_menu_content'), '
-            <h1>Welcome</h1>
-            <br />
-            <p>
-                Welcome to the Administration Control Panel. Configuration for individual modules can be found via one of the tabs up top. Sub-pages for the current configuration can be found in the sidebar on the left.
-                <br />
-                <br />
-            </p>
-        ');
+    protected function constructRightContent() {    
+        $right_content = new TemplateElement('home.php');
     
-        $this->body->addChild($right_content);
+        $this->body->addChild($right_content, 'current_menu_content');
+    }
+    
+    protected function constructFooter() {
+        $this->body->addChild(config('framework')->version, 'version');
     }
 }

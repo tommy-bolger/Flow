@@ -52,6 +52,8 @@ extends \Framework\Html\Form\FieldObjects\Field {
     public function __construct($textbox_name, $textbox_label = "", $textbox_value = NULL, $css_classes = array()) {
         parent::__construct("text", $textbox_name, $textbox_label, $css_classes);
 
+        $this->addClass('textbox');
+
         $this->setDefaultValue($textbox_value);
     }
     

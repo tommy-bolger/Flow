@@ -34,6 +34,8 @@ namespace Framework\Request;
 
 final class Request {
     private static $_request;
+    
+    private $required_variables;
 
     public $get;
     
@@ -64,6 +66,18 @@ final class Request {
     }
     
     /**
+     * Sets the specified request variables as required in either $_GET or $_POST.
+     *
+     * @param array $required_variables A list of request variable names.
+     * @return void
+     */
+    public function setRequired($required_variables) {
+        assert('is_array($required_variables) && !empty($required_variables)');
+        
+        $this->required_variables = array_flip($required_variables);
+    }
+    
+    /**
      * Retrieves a request variable value in either get or post.
      *
      * @param string $variable_name The name of the request variable to retrieve.
@@ -72,11 +86,15 @@ final class Request {
     public function __get($variable_name) {
         $variable_value = NULL;
     
-        if(!empty($this->get->$variable_name)) {
+        if(!empty($this->post->$variable_name)) {
+            $variable_value = $this->post->$variable_name;
+        }
+        elseif(!empty($this->get->$variable_name)) {
             $variable_value = $this->get->$variable_name;
         }
-        elseif(!empty($this->post->$variable_name)) {
-            $variable_value = $this->post->$variable_name;
+
+        if(isset($this->required_variables[$variable_name]) && empty($variable_value)) {
+            throw new \Exception("Variable '{$variable_name}' could not be found in \$_GET or \$_POST.");
         }
         
         return $variable_value;

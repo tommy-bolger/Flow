@@ -37,10 +37,13 @@ use \Modules\Admin as Admin;
 use \Framework\Html\Misc\Div;
 use \Framework\Html\Lists\LinkList;
 use \Framework\Utilities\Http;
+use \Framework\Html\Misc\TemplateElement;
 
 class Home
 extends Admin\Home {
     protected $title = "Resume Admin Home";
+    
+    protected $active_top_link = 'Resume';
 
     public function __construct() {
         $this->loadManagedModule('resume');
@@ -48,30 +51,40 @@ extends Admin\Home {
         parent::__construct();
     }
     
-    protected function constructModuleMenu() {    
-        $module_menu = new LinkList(array(
-            'General Information' => Http::getCurrentLevelPageUrl("general-information-edit"),
-            'Photo' => Http::getCurrentLevelPageUrl("photo-edit"),
-            'Print Files' => Http::getCurrentLevelPageUrl("print-file-edit"),
-            'Education' => Http::getCurrentLevelPageUrl("education-edit"),
-            'Skills' => Http::getCurrentLevelPageUrl("skills-edit"),
-            'Skill Categories' => Http::getCurrentLevelPageUrl("skill-categories-edit"),
-            'Work History' => Http::getCurrentLevelPageUrl("work-history-edit"),
-            'Portfolio' => Http::getCurrentLevelPageUrl("portfolio-edit"),
-            'Code Examples' => Http::getCurrentLevelPageUrl("code-examples-edit")
-        ), array('id' => 'modules_list'));
-        
-        $this->body->addChild($module_menu);
-    }
-    
-    protected function getSettingsMenuLinks() {
-        return array();
+    protected function getModuleMenuLinks() {    
+        return array(
+            'Resume' => Http::getInternalUrl('', array('resume')),
+            'General Information' => Http::getInternalUrl('', array(
+                'resume',
+                'general-information'
+            ), 'edit'),
+            'Education' => Http::getInternalUrl('', array(
+                'resume',
+                'education'
+            ), 'manage'),
+            'Skills' => Http::getInternalUrl('', array(
+                'resume',
+                'skills'
+            ), 'manage'),
+            'Work History' => Http::getInternalUrl('', array(
+                'resume',
+                'work-history'
+            ), 'manage'),
+            'Portfolio' => Http::getInternalUrl('', array(
+                'resume',
+                'portfolio'
+            ), 'manage'),
+            'Code Examples' => Http::getInternalUrl('', array(
+                'resume',
+                'code-examples'
+            ), 'manage')
+        );
     }
     
     protected function setPageLinks() {
         parent::setPageLinks();
         
-        $page_url = Http::getCurrentLevelPageUrl();
+        $page_url = Http::getInternalUrl('', array('resume'));
         
         $this->page_links['Resume Admin Home'] = $page_url;
         
@@ -79,14 +92,8 @@ extends Admin\Home {
     }
     
     protected function constructRightContent() {
-        $current_menu_content = new Div(array('id' => 'current_menu_content'), '
-            <h1>Resume Module Administration</h1>
-            <br />
-            <p>
-                This is the home page for the Online Resume module control panel.
-            </p>
-        ');
+        $current_menu_content = new TemplateElement('resume/home.php');
     
-        $this->body->addChild($current_menu_content);
+        $this->body->addChild($current_menu_content, 'current_menu_content');
     }
 }

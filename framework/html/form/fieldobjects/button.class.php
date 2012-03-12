@@ -36,6 +36,11 @@ namespace Framework\Html\Form\FieldObjects;
 class Button
 extends Field {
     /**
+    * @var boolean Flag indicating that the field's value gets included when retrieving the data of only interactive fields in the form objects.
+    */
+    protected $is_interactive = false;
+
+    /**
     * @var boolean A flag indicating if the button was clicked.
     */
     private $clicked = false;

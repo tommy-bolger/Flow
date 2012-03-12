@@ -35,7 +35,7 @@ namespace Modules\Admin;
 
 use \Framework\Utilities\Http;
 use \Framework\Html\Misc\Div;
-use \Framework\Html\Form\Form;
+use \Framework\Html\Form\TableForm;
 use \Framework\Html\Form\Fields\BooleanCheckbox;
 use \Framework\Html\Form\Fields\IntField;
 use \Framework\Html\Form\Fields\FloatField;
@@ -73,7 +73,7 @@ extends Home {
         
         $module_where_clause = db()->generateWhereClause(array('module_id' => $module_id));
         
-        $parameters = db()->getAll("
+        $parameters = db()->getGroupedRows("
             SELECT 
                 cp.configuration_parameter_id,
                 cp.parameter_name,
@@ -88,10 +88,12 @@ extends Home {
         ", $module_placeholder_values);
 
         if(!empty($parameters)) {
-            $configuration_form = new Form('configuration_form');
+            $configuration_form = new TableForm('configuration_form');
             
-            foreach($parameters as $parameter) {
-                $parameter_id = $parameter['configuration_parameter_id'];
+            $configuration_form->setTitle("Edit Configuration Settings");
+            $configuration_form->setFieldsOutsideTable(array('save'));
+            
+            foreach($parameters as $parameter_id => $parameter) {
                 $parameter_name = $parameter['parameter_name'];
                 $display_name = $parameter['display_name'];
                 
@@ -139,7 +141,17 @@ extends Home {
             if($configuration_form->wasSubmitted() && $configuration_form->isValid()) {
                 $form_data = $configuration_form->getData();
                 
-                dump($form_data);
+                $parameter_ids = array_keys($parameters);
+                
+                foreach($parameter_ids as $parameter_id) {
+                    db()->update(
+                        'cms_configuration_parameters', 
+                        array('value' => $form_data[$parameter_id]), 
+                        array('configuration_parameter_id' => $parameter_id)
+                    );
+                }
+                
+                $configuration_form->addConfirmation('Configuration has been successfully updated.');
             }
             
             $content->addChild($configuration_form);

@@ -26,7 +26,7 @@ CREATE INDEX ccp_module_id_fk ON cms_configuration_parameters (module_id);
 -- ----------------------------
 INSERT INTO cms_configuration_parameters VALUES (1, 2, 'theme', NULL, 'default', 1, 1, NULL, 'Theme', 0);
 INSERT INTO cms_configuration_parameters VALUES (2, 2, 'code_example_file_extensions', NULL, 'php,html,aspx,asp,js,css,htc,inc', 2, 5, NULL, 'Code Example File Extensions', 0);
-INSERT INTO cms_configuration_parameters VALUES (3, 1, 'theme', NULL, 'default', 1, 1, NULL, 'Theme', 0);
+INSERT INTO cms_configuration_parameters VALUES (3, 1, 'theme', NULL, 'light', 1, 1, NULL, 'Theme', 0);
 INSERT INTO cms_configuration_parameters VALUES (4, NULL, 'version', NULL, 1.0, 1, 1, NULL, 'Framework Version', 0);
 INSERT INTO cms_configuration_parameters VALUES (5, NULL, 'environment', NULL, 'production', 2, 1, NULL, 'Environment', 1);
 INSERT INTO cms_configuration_parameters VALUES (11, NULL, 'session_name', NULL, 'default', 4, 1, NULL, 'Client Session Name', 0);

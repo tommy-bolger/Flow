@@ -417,7 +417,7 @@ class Element {
                     $element_contents_html .= $child_element->toHtml();
                 }
                 else {
-                    $element_contents_html = $child_element;
+                    $element_contents_html .= $child_element;
                 }
             }
         }

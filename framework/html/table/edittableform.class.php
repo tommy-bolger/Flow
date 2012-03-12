@@ -33,7 +33,7 @@
 
 namespace Framework\Html\Table;
 
-use \Framework\Html\Form\Form;
+use \Framework\Html\Form\TableForm;
 use \Framework\Utilities\Http;
 
 class EditTableForm
@@ -97,7 +97,7 @@ extends EditTable {
                     $allow_flag_name = "allow_{$this->action}_record";
                     
                     if($this->$allow_flag_name) {
-                        $this->edit_form = new Form("{$this->name}_form");
+                        $this->edit_form = new TableForm("{$this->name}_form");
                     
                         $this->form_visible = true;
                     }
@@ -131,6 +131,20 @@ extends EditTable {
      */
     public function processForm() {
         if($this->form_visible) {
+            //Determine the title of the table form.
+            $form_title = '';
+            
+            switch($this->action) {
+                case 'add':
+                    $form_title = "Add a New {$this->subject_title}";
+                    break;
+                case 'edit':
+                    $form_title = "Edit This {$this->subject_title}";
+                    break;
+            }
+            
+            $this->edit_form->setTitle($form_title);
+        
             if(empty($this->header)) {
                 throw new \Exception('The table header must be set prior to form processing.');
             }

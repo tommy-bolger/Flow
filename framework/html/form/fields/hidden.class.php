@@ -35,6 +35,11 @@ namespace Framework\Html\Form\Fields;
 class Hidden
 extends \Framework\Html\Form\FieldObjects\Field {
     /**
+    * @var boolean Flag indicating that the field's value gets included when retrieving the data of only interactive fields in the form objects.
+    */
+    protected $is_interactive = false;
+
+    /**
      * Initializes a new instance of Hidden.
      *      
      * @param string $hidden_name The name of the hidden field.
