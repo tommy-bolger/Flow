@@ -51,33 +51,178 @@ extends Admin\Home {
         parent::__construct();
     }
     
-    protected function getModuleMenuLinks() {    
-        return array(
-            'Resume' => Http::getInternalUrl('', array('resume')),
-            'General Information' => Http::getInternalUrl('', array(
-                'resume',
-                'general-information'
-            ), 'edit'),
-            'Education' => Http::getInternalUrl('', array(
-                'resume',
-                'education'
-            ), 'manage'),
-            'Skills' => Http::getInternalUrl('', array(
-                'resume',
-                'skills'
-            ), 'manage'),
-            'Work History' => Http::getInternalUrl('', array(
-                'resume',
-                'work-history'
-            ), 'manage'),
-            'Portfolio' => Http::getInternalUrl('', array(
-                'resume',
-                'portfolio'
-            ), 'manage'),
-            'Code Examples' => Http::getInternalUrl('', array(
-                'resume',
-                'code-examples'
-            ), 'manage')
+    protected function initializeModuleLinks() {
+        //General Information
+        $general_information_path = array(
+            'resume',
+            'general-information'
+        );
+        
+        //Education
+        $education_path = array(
+            'resume',
+            'education'
+        );
+        
+        //Skills
+        $skills_path = array(
+            'resume',
+            'skills'
+        );
+        
+        $skill_categories_path = $skills_path;
+        $skill_categories_path[] = 'categories';
+        
+        //Work History
+        $work_history_path = array(
+            'resume',
+            'work-history'
+        );
+        
+        $work_history_durations_path = $work_history_path;
+        $work_history_durations_path[] = 'durations';
+        
+        $work_history_tasks_path = $work_history_path;
+        $work_history_tasks_path[] = 'tasks';
+        
+        //Portfolio
+        $portfolio_path = array(
+            'resume',
+            'portfolio'
+        );
+        
+        $portfolio_skills_path = $portfolio_path;
+        $portfolio_skills_path[] = 'skills';
+        
+        $portfolio_images_path = $portfolio_path;
+        $portfolio_images_path[] = 'images';
+        
+        //Code Examples
+        $code_examples_path = array(
+            'resume',
+            'code-examples'
+        );
+        
+        $code_examples_skills_path = $code_examples_path;
+        $code_examples_skills_path[] = 'skills';
+        
+        $this->module_links = array(
+            'resume' => array(
+                'top_nav' => array(
+                    'Resume' => Http::getInternalUrl('', array('resume'))
+                )
+            ),
+            'general_information' => array(
+                'top_nav' => array(
+                    'General Information' => Http::getInternalUrl('', array(
+                        'resume',
+                        'general-information'
+                    ), 'edit')
+                ),
+                'sub_nav' => array(
+                    'General Information' => array(
+                        'Edit' => Http::getInternalUrl('', $general_information_path, 'edit'),
+                        'Change Photo' => Http::getInternalUrl('', $general_information_path, 'change-photo'),
+                        'Change Print Files' => Http::getInternalUrl('', $general_information_path, 'change-print-files')
+                    )
+                )
+            ),
+            'education' => array(
+                'top_nav' => array(
+                    'Education' => Http::getInternalUrl('', array(
+                        'resume',
+                        'education'
+                    ), 'manage')
+                ),
+                'sub_nav' => array(
+                    'Education' => array(
+                        'Manage' => Http::getInternalUrl('', $education_path, 'manage'),
+                        'Add/Edit' => Http::getInternalUrl('', $education_path, 'add')
+                    )
+                )
+            ),
+            'skills' => array(
+                'top_nav' => array(
+                    'Skills' => Http::getInternalUrl('', array(
+                        'resume',
+                        'skills'
+                    ), 'manage')
+                ),
+                'sub_nav' => array(
+                    'Skills' => array(
+                        'Manage' => Http::getInternalUrl('', $skills_path, 'manage'),
+                        'Add/Edit' => Http::getInternalUrl('', $skills_path, 'add'),
+                    ),
+                    'Skill Categories' => array(
+                        'Manage' => Http::getInternalUrl('', $skill_categories_path, 'manage'),
+                        'Add/Edit' => Http::getInternalUrl('', $skill_categories_path, 'add')
+                    )
+                )
+            ),
+            'work_history' => array(
+                'top_nav' => array(
+                    'Work History' => Http::getInternalUrl('', array(
+                        'resume',
+                        'work-history'
+                    ), 'manage')
+                ),
+                'sub_nav' => array(
+                    'Work History' => array(
+                        'Manage' => Http::getInternalUrl('', $work_history_path, 'manage'),
+                        'Add/Edit' => Http::getInternalUrl('', $work_history_path, 'add'),
+                    ),
+                    'Durations' => array(
+                        'Manage' => Http::getInternalUrl('', $work_history_durations_path, 'manage'),
+                        'Add/Edit' => Http::getInternalUrl('', $work_history_durations_path, 'add'),
+                    ),
+                    'Tasks' => array(
+                        'Manage' => Http::getInternalUrl('', $work_history_tasks_path, 'manage'),
+                        'Add/Edit' => Http::getInternalUrl('', $work_history_tasks_path, 'add')
+                    )
+                )
+            ),
+            'portfolio' => array(
+                'top_nav' => array(
+                    'Portfolio' => Http::getInternalUrl('', array(
+                        'resume',
+                        'portfolio'
+                    ), 'manage')
+                ),
+                'sub_nav' => array(
+                    'Projects' => array(
+                        'Manage' => Http::getInternalUrl('', $portfolio_path, 'manage'),
+                        'Add/Edit' => Http::getInternalUrl('', $portfolio_path, 'add')
+                    ),
+                    'Project Skills' => array(
+                        'Manage' => Http::getInternalUrl('', $portfolio_skills_path, 'manage'),
+                        'Add/Edit' => Http::getInternalUrl('', $portfolio_skills_path, 'add')
+                    ),
+                    'Project Images' => array(
+                        'Manage' => Http::getInternalUrl('', $portfolio_images_path, 'manage'),
+                        'Add/Edit' => Http::getInternalUrl('', $portfolio_images_path, 'add'),
+                        'Change Image File' => Http::getInternalUrl('', $portfolio_images_path, 'change-image-file')
+                    )
+                )
+            ),
+            'code_examples' => array(
+                'top_nav' => array(
+                    'Code Examples' => Http::getInternalUrl('', array(
+                        'resume',
+                        'code-examples'
+                    ), 'manage')
+                ),
+                'sub_nav' => array(
+                    'Code Examples' => array(
+                        'Manage' => Http::getInternalUrl('', $code_examples_path, 'manage'),
+                        'Add/Edit' => Http::getInternalUrl('', $code_examples_path, 'add'),
+                        'Change Source Code' => Http::getInternalUrl('', $code_examples_path, 'change-source-code')
+                    ),
+                    'Code Example Skills' => array(
+                        'Manage' => Http::getInternalUrl('', $code_examples_skills_path, 'manage'),
+                        'Add/Edit' => Http::getInternalUrl('', $code_examples_skills_path, 'add')
+                    )
+                )
+            )
         );
     }
     

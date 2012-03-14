@@ -40,7 +40,7 @@ class Home
 extends ResumeHome {
     protected $title = "Code Examples";
     
-    protected $active_top_link = 'Code Examples';
+    protected $active_nav = 'code_examples';
     
     protected $active_sub_nav_section = 'Code Examples';
 
@@ -56,28 +56,4 @@ extends ResumeHome {
             'code-examples'
         ), 'manage');
     }
-    
-    protected function getSubNavLinks() {
-        $base_subdirectory_path = array(
-            'resume',
-            'code-examples'
-        );
-        
-        $skills_subdirectory_path = $base_subdirectory_path;
-        $skills_subdirectory_path[] = 'skills';
-    
-        return array(
-            'Code Examples' => array(
-                'Manage' => Http::getInternalUrl('', $base_subdirectory_path, 'manage'),
-                'Add/Edit' => Http::getInternalUrl('', $base_subdirectory_path, 'add'),
-                'Change Source Code' => Http::getInternalUrl('', $base_subdirectory_path, 'change-source-code')
-            ),
-            'Code Example Skills' => array(
-                'Manage' => Http::getInternalUrl('', $skills_subdirectory_path, 'manage'),
-                'Add/Edit' => Http::getInternalUrl('', $skills_subdirectory_path, 'add')
-            )
-        );
-    }
-    
-    protected function constructRightContent() {}
 }

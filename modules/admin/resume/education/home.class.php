@@ -40,7 +40,7 @@ class Home
 extends ResumeHome {
     protected $title = "Education";
     
-    protected $active_top_link = 'Education';
+    protected $active_nav = 'education';
     
     protected $active_sub_nav_section = 'Education';
 
@@ -56,20 +56,4 @@ extends ResumeHome {
             'education'
         ), 'manage');
     }
-    
-    protected function getSubNavLinks() {
-        $subdirectory_path = array(
-            'resume',
-            'education'
-        );
-    
-        return array(
-            'Education' => array(
-                'Manage' => Http::getInternalUrl('', $subdirectory_path, 'manage'),
-                'Add/Edit' => Http::getInternalUrl('', $subdirectory_path, 'add')
-            )
-        );
-    }
-    
-    protected function constructRightContent() {}
 }

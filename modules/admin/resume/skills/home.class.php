@@ -39,7 +39,7 @@ class Home
 extends ResumeHome {
     protected $title = "Skills";
     
-    protected $active_top_link = 'Skills';
+    protected $active_nav = 'skills';
     
     protected $active_sub_nav_section = 'Skills';
 
@@ -55,27 +55,4 @@ extends ResumeHome {
             'skills'
         ), 'manage');
     }
-    
-    protected function getSubNavLinks() {
-        $subdirectory_path = array(
-            'resume',
-            'skills'
-        );
-        
-        $categories_path = $subdirectory_path;
-        $categories_path[] = 'categories';
-    
-        return array(
-            'Skills' => array(
-                'Manage' => Http::getInternalUrl('', $subdirectory_path, 'manage'),
-                'Add/Edit' => Http::getInternalUrl('', $subdirectory_path, 'add'),
-            ),
-            'Skill Categories' => array(
-                'Manage' => Http::getInternalUrl('', $categories_path, 'manage'),
-                'Add/Edit' => Http::getInternalUrl('', $categories_path, 'add')
-            )
-        );
-    }
-    
-    protected function constructRightContent() {  }
 }

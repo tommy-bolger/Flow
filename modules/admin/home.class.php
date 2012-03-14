@@ -49,9 +49,11 @@ extends ModulePage {
     
     protected $managed_module;
     
+    protected $module_links = array();
+    
     protected $page_links = array();
     
-    protected $active_top_link = 'Home';
+    protected $active_nav;
     
     protected $active_sub_nav_section;
     
@@ -64,6 +66,8 @@ extends ModulePage {
             Http::redirect(Http::getTopLevelPageUrl('login'));
         }
         
+        $this->initializeModuleLinks();
+        
         $this->constructHeader();
         
         $this->constructContentHeader();
@@ -73,6 +77,30 @@ extends ModulePage {
         $this->constructRightContent();
         
         $this->constructFooter();
+    }
+    
+    protected function initializeModuleLinks() {
+        $modules = cache()->get('modules', 'module_links');
+    
+        if(empty($modules)) {
+            $modules = db()->getAll("
+                SELECT 
+                    display_name,
+                    module_name
+                FROM cms_modules
+                WHERE enabled = 1
+                    AND module_name != 'admin'
+                ORDER BY sort_order
+            ");
+            
+            cache()->set('modules', $modules, 'module_links');
+        }
+        
+        foreach($modules as $module) {
+            $this->module_links[$module['module_name']]['top_nav'] = array(
+                $module['display_name'] => Http::getInternalUrl('', array('subd_1' => $module['module_name']))
+            );
+        }
     }
     
     protected function loadManagedModule($module_name) {
@@ -90,6 +118,20 @@ extends ModulePage {
         
         //Setup the javascript        
         $this->addJavascriptFile("jquery.min.js");
+        
+        if(!empty($this->module_links)) {
+            $module_sub_nav_links = array();
+        
+            foreach($this->module_links as $link_name => $module_link) {
+                if(isset($module_link['sub_nav'])) {
+                    $module_sub_nav_links[$link_name] = $module_link['sub_nav'];
+                }
+            }
+            
+            if(!empty($module_sub_nav_links)) {
+                $this->addInlineJavascript("var sub_nav_links = '" . json_encode($module_sub_nav_links) . "';");
+            }
+        }
     }
     
     protected function constructContentHeader() {
@@ -115,43 +157,37 @@ extends ModulePage {
             'Home' => Http::getTopLevelPageUrl()
         );
         
-        $admin_page_links = array_merge($admin_page_links, $this->getModuleMenuLinks());
+        $active_nav = '';
+    
+        //Use either the active nav property when in a module
+        if(!empty($this->active_nav)) {
+            $active_nav = $this->active_nav;
+        }
+        //Use the module name when on the admin home page
+        elseif(!empty($this->managed_module)) {
+            $active_nav = $this->managed_module->getName();
+        }
+        
+        $active_link_name = 'Home';
+        
+        if(!empty($this->module_links)) {
+            foreach($this->module_links as $link_name => $module_link) {
+                $top_nav = $module_link['top_nav'];
+                $link_display_name = key($top_nav);
+            
+                $admin_page_links[$link_display_name] = current($top_nav);
+                
+                if($link_name == $active_nav) {
+                    $active_link_name = $link_display_name;
+                }
+            }
+        }
         
         $modules_list = new LinkList($admin_page_links, array('id' => 'modules_list'));
         
-        $modules_list->setActiveItem($this->active_top_link);
+        $modules_list->setActiveItem($active_link_name);
         
         $this->body->addChild($modules_list);
-    }
-    
-    protected function getModuleMenuLinks() {
-        $admin_page_links = array();
-        
-        if(Framework::$enable_cache) {
-            $admin_pages = cache()->get('header_nav', 'admin');
-        }
-        
-        if(empty($admin_pages)) {
-            $admin_pages = db()->getMappedColumn("
-                SELECT 
-                    display_name,
-                    module_name
-                FROM cms_modules
-                WHERE enabled = 1
-                    AND module_name != 'admin'
-                ORDER BY sort_order
-            ");
-            
-            if(Framework::$enable_cache) {
-                cache()->set('header_nav', $admin_pages, 'admin');
-            }
-            
-            foreach($admin_pages as $page_name => $module_name) {
-                $admin_page_links[$page_name] = Http::getInternalUrl('', array('subd_1' => $module_name));
-            }
-        }
-        
-        return $admin_page_links;
     }
     
     private function constructLeftContent() {        
@@ -159,9 +195,20 @@ extends ModulePage {
     }
     
     private function constructSubNav() {
-        $sub_nav_links = $this->getSubNavLinks();
-        
-        if(!empty($sub_nav_links)) {
+        $active_nav = '';
+    
+        //Use either the active nav property when in a module
+        if(!empty($this->active_nav)) {
+            $active_nav = $this->active_nav;
+        }
+        //Use the module name when on the admin home page
+        elseif(!empty($this->managed_module)) {
+            $active_nav = $this->managed_module->getName();
+        }
+    
+        if(isset($this->managed_module) && isset($this->module_links[$active_nav]['sub_nav'])) {
+            $sub_nav_links = $this->module_links[$active_nav]['sub_nav'];
+            
             foreach($sub_nav_links as $section_title => $section_links) {
                 $section_template = new TemplateElement('subnav_section.php');
                 
@@ -178,10 +225,6 @@ extends ModulePage {
                 $this->body->addChild($section_template, 'sub_nav', true);
             }
         }
-    }
-    
-    protected function getSubNavLinks() {    
-        return array();
     }
     
     protected function setPageLinks() {        

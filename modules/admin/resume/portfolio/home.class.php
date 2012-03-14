@@ -40,7 +40,7 @@ class Home
 extends ResumeHome {
     protected $title = "Portfolio";
     
-    protected $active_top_link = 'Portfolio';
+    protected $active_nav = 'portfolio';
     
     protected $active_sub_nav_section = 'Projects';
 
@@ -56,35 +56,4 @@ extends ResumeHome {
             'portfolio'
         ), 'manage');
     }
-    
-    protected function getSubNavLinks() {
-        $subdirectory_path = array(
-            'resume',
-            'portfolio'
-        );
-        
-        $skills_path = $subdirectory_path;
-        $skills_path[] = 'skills';
-        
-        $images_path = $subdirectory_path;
-        $images_path[] = 'images';
-    
-        return array(
-            'Projects' => array(
-                'Manage' => Http::getInternalUrl('', $subdirectory_path, 'manage'),
-                'Add/Edit' => Http::getInternalUrl('', $subdirectory_path, 'add')
-            ),
-            'Project Skills' => array(
-                'Manage' => Http::getInternalUrl('', $skills_path, 'manage'),
-                'Add/Edit' => Http::getInternalUrl('', $skills_path, 'add')
-            ),
-            'Project Images' => array(
-                'Manage' => Http::getInternalUrl('', $images_path, 'manage'),
-                'Add/Edit' => Http::getInternalUrl('', $images_path, 'add'),
-                'Change Image File' => Http::getInternalUrl('', $images_path, 'change-image-file')
-            )
-        );
-    }
-    
-    protected function constructRightContent() {}
 }

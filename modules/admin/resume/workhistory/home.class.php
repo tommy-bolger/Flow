@@ -40,7 +40,7 @@ class Home
 extends ResumeHome {
     protected $title = "Work History";
     
-    protected $active_top_link = 'Work History';
+    protected $active_nav = 'work_history';
     
     protected $active_sub_nav_section = 'Work History';
 
@@ -56,34 +56,4 @@ extends ResumeHome {
             'work-history'
         ), 'manage');
     }
-    
-    protected function getSubNavLinks() {
-        $subdirectory_path = array(
-            'resume',
-            'work-history'
-        );
-        
-        $durations_path = $subdirectory_path;
-        $durations_path[] = 'durations';
-        
-        $tasks_path = $subdirectory_path;
-        $tasks_path[] = 'tasks';
-    
-        return array(
-            'Work History' => array(
-                'Manage' => Http::getInternalUrl('', $subdirectory_path, 'manage'),
-                'Add/Edit' => Http::getInternalUrl('', $subdirectory_path, 'add'),
-            ),
-            'Durations' => array(
-                'Manage' => Http::getInternalUrl('', $durations_path, 'manage'),
-                'Add/Edit' => Http::getInternalUrl('', $durations_path, 'add'),
-            ),
-            'Tasks' => array(
-                'Manage' => Http::getInternalUrl('', $tasks_path, 'manage'),
-                'Add/Edit' => Http::getInternalUrl('', $tasks_path, 'add')
-            )
-        );
-    }
-    
-    protected function constructRightContent() {}
 }

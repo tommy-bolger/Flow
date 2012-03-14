@@ -40,7 +40,7 @@ class Home
 extends ResumeHome {
     protected $title = "General Information";
     
-    protected $active_top_link = 'General Information';
+    protected $active_nav = 'general_information';
     
     protected $active_sub_nav_section = 'General Information';
 
@@ -56,21 +56,4 @@ extends ResumeHome {
             'general-information'
         ), 'edit');
     }
-    
-    protected function getSubNavLinks() {
-        $subdirectory_path = array(
-            'resume',
-            'general-information'
-        );
-    
-        return array(
-            'General Information' => array(
-                'Edit' => Http::getInternalUrl('', $subdirectory_path, 'edit'),
-                'Change Photo' => Http::getInternalUrl('', $subdirectory_path, 'change-photo'),
-                'Change Print Files' => Http::getInternalUrl('', $subdirectory_path, 'change-print-files')
-            )
-        );
-    }
-    
-    protected function constructRightContent() {}
 }
