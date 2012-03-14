@@ -52,12 +52,18 @@ extends UnorderedList {
      *      
      * @param string $item_value The name of the page.
      * @param string $item_name The display text of this link.
+     * @param array $attributes (optional) The attributes of this list item. Format is attribute_name => attribute_value.
      * @return void
      */
-    public function addListItem($item_value, $item_name) {
+    public function addListItem($item_value, $item_name, $attributes = array()) {
+        assert('is_array($attributes)');
+    
         $link_item = "<a href=\"{$item_value}\">{$item_name}</a>";
         
-        $this->child_elements[$item_name] = $link_item;
+        $this->child_elements[$item_name] = array(
+            'value' => $link_item,
+            'attributes' => $attributes
+        );
     }
     
     /**
@@ -76,12 +82,26 @@ extends UnorderedList {
      * @return string
      */
     protected function getItemHtml($item, $item_name) {
-        $active_class = '';
+        assert('is_array($item)');
                 
-        if($item_name == $this->active_item_name) {
-            $active_class = ' class="active"';
+        if($item_name == $this->active_item_name) {            
+            $item['attributes']['class'][] = 'active';
+        }
+        
+        $attributes_formatted = '';
+        
+        if(!empty($item['attributes'])) {
+            $attributes = $item['attributes'];
+            
+            foreach($attributes as $attribute_name => $attribute_value) {            
+                if(is_array($attribute_value)) {
+                    $attribute_value = implode(' ', $attribute_value);
+                }
+            
+                $attributes_formatted .= " {$attribute_name}=\"{$attribute_value}\"";
+            }
         }
     
-        return "<li{$active_class}>{$item}</li>";
+        return "<li{$attributes_formatted}>{$item['value']}</li>";
     }
 }

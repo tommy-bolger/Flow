@@ -152,11 +152,7 @@ extends ModulePage {
         $this->body->addChild(Http::getTopLevelPageUrl("login", array('logout' => 1)), 'logout_link');
     }
     
-    protected function constructTopNav() {
-        $admin_page_links = array(
-            'Home' => Http::getTopLevelPageUrl()
-        );
-        
+    protected function constructTopNav() {        
         $active_nav = '';
     
         //Use either the active nav property when in a module
@@ -168,22 +164,25 @@ extends ModulePage {
             $active_nav = $this->managed_module->getName();
         }
         
+        $modules_list = new LinkList(array('Home' => Http::getTopLevelPageUrl()), array('id' => 'modules_list'));
+        
         $active_link_name = 'Home';
         
         if(!empty($this->module_links)) {
             foreach($this->module_links as $link_name => $module_link) {
                 $top_nav = $module_link['top_nav'];
                 $link_display_name = key($top_nav);
-            
-                $admin_page_links[$link_display_name] = current($top_nav);
+                
+                $modules_list->addListItem(current($top_nav), $link_display_name, array(
+                    'id' => $link_name,
+                    'class' => 'top_nav_hover'
+                ));
                 
                 if($link_name == $active_nav) {
                     $active_link_name = $link_display_name;
                 }
             }
         }
-        
-        $modules_list = new LinkList($admin_page_links, array('id' => 'modules_list'));
         
         $modules_list->setActiveItem($active_link_name);
         
