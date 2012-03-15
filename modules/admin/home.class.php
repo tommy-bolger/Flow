@@ -175,7 +175,7 @@ extends ModulePage {
                 
                 $modules_list->addListItem(current($top_nav), $link_display_name, array(
                     'id' => $link_name,
-                    'class' => 'top_nav_hover'
+                    'class' => array('top_nav_hover')
                 ));
                 
                 if($link_name == $active_nav) {
