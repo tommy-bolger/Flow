@@ -1,9 +1,9 @@
 #modules_list li .hover_menu {
     display: none;
     position: absolute;
-    border: 1px solid #2F2F2F;
-    border-top: 0px solid #000000;
+    border: 1px solid #4D5255;
     background: none repeat scroll 0 0 #E7EFEF;
+    margin-top: 1px;
     width: 189px;
     z-index: 9999;
 }
@@ -15,14 +15,16 @@
     border-right: 0px solid #000000;
 }
 
+#modules_list li .hover_menu .hover_menu_header, #modules_list li .hover_menu .hover_menu_header:hover {
+    background-color: #666E73;
+    color: #FFFFFF;
+}
+
 #modules_list li .hover_menu .hover_menu_header {
-    padding-left: 10px;
-    border-top: 1px solid #2F2F2F;
     padding-left: 10px;
 }
 
 #modules_list li .hover_menu .hover_menu_header:hover {
-    background-color: transparent;
     cursor: default;
 }
 

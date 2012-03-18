@@ -39,7 +39,9 @@
         		<div class="clear"></div>
         	</div>
         	<div id="footer" class="footer_text">
-                <div>
+                <div id="footer_transition_1"></div>
+                <div id="footer_transition_2"></div>
+                <div id="footer_text">
                     <div id="author_site">
                         <a href="https://github.com/tommy-bolger/Flow" target="_blank">Powered by Flow v<?php echo $this->version; ?></a>
                     </div>

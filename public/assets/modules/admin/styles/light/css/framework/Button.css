@@ -4,9 +4,16 @@ input.form_button {
 
 input.form_button, input.button {
     color: #FFFFFF;
-	background: url("/assets/modules/admin/styles/light/images/button_background.gif") repeat-x scroll 0 100% #FFAC47;
 	border-color: #ED6502 #A04300 #A04300 #ED6502;
 	font-weight: bold;
+	background: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#FFAC47), to(#F56C06)); 
+    background: -webkit-linear-gradient(top, #FFAC47, #F56C06);
+    background: -ms-linear-gradient(top, #FFAC47, #F56C06);
+    background: -o-linear-gradient(top, #FFAC47, #F56C06); 
+    background: -moz-linear-gradient(top, #FFAC47, #F56C06);
+    background: linear-gradient(FFAC47, #F56C06);
+    -pie-background: linear-gradient(#FFAC47, #F56C06);
+    behavior: url(/assets/htc/pie.php);
 }
 
 input.button {
