@@ -44,6 +44,10 @@ div.form_errors, div.form_warnings, div.form_confirmations {
     font-weight: bold;
 }
 
+div.form_errors, div.form_confirmations, div.form_warnings {
+    margin-bottom: 10px;
+}
+
 div.form_errors {
     border: 1px solid #F16048;
     background: url("/assets/modules/admin/styles/light/images/error_message_icon.gif") no-repeat scroll 10px 10px #FAEBE7;

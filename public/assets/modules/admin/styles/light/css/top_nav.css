@@ -1,0 +1,43 @@
+#modules_list li .hover_menu {
+    display: none;
+    position: absolute;
+    border: 1px solid #2F2F2F;
+    border-top: 0px solid #000000;
+    background: none repeat scroll 0 0 #E7EFEF;
+    width: 189px;
+    z-index: 9999;
+}
+
+#modules_list li .hover_menu li {
+    float: none;
+    text-align: left;
+    padding: 5px 10px 5px 0px;
+    border-right: 0px solid #000000;
+}
+
+#modules_list li .hover_menu .hover_menu_header {
+    padding-left: 10px;
+    border-top: 1px solid #2F2F2F;
+    padding-left: 10px;
+}
+
+#modules_list li .hover_menu .hover_menu_header:hover {
+    background-color: transparent;
+    cursor: default;
+}
+
+#modules_list li .hover_menu .hover_menu_item {
+    list-style: disc inside none;
+    border-top: 1px dashed #BEBEBE;
+    padding-left: 20px;
+}
+
+#modules_list li .hover_menu li a, #modules_list li .hover_menu li a:hover {
+    display: inline;
+    padding: 0;
+    color: #2F2F2F;
+}
+
+#modules_list li .hover_menu li:hover {
+    background-color: #D8E6E6;
+}

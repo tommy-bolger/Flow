@@ -64,10 +64,16 @@ extends \Framework\Html\Element {
      *      
      * @param string $item_value A unique value for this list item.
      * @param string $item_name The display text of this list item.
+     * @param array $attributes (optional) The attributes of this list item. Format is attribute_name => attribute_value.     
      * @return void
      */
-    public function addListItem($item_value, $item_name) {
-        $this->child_elements[$item_name] = $item_value;
+    public function addListItem($item_value, $item_name, $attributes = array()) {
+        assert('is_array($attributes)');
+    
+        $this->child_elements[$item_name] = array(
+            'value' => $item_value,
+            'attributes' => $attributes
+        );
     }
     
     /**
@@ -88,11 +94,29 @@ extends \Framework\Html\Element {
     
     /**
      * Renders and retrieves an individual item's html.
-     *      
+     * 
+     * @param array $item The content and attributes of the item.
+     * @param string $item_name The name of the item.     
      * @return string
      */
     protected function getItemHtml($item, $item_name) {
-        return "<li>{$item}</li>";
+        assert('is_array($item)');
+        
+        $attributes_formatted = '';
+        
+        if(!empty($item['attributes'])) {
+            $attributes = $item['attributes'];
+            
+            foreach($attributes as $attribute_name => $attribute_value) {            
+                if(is_array($attribute_value)) {
+                    $attribute_value = implode(' ', $attribute_value);
+                }
+            
+                $attributes_formatted .= " {$attribute_name}=\"{$attribute_value}\"";
+            }
+        }
+    
+        return "<li{$attributes_formatted}>{$item['value']}</li>";
     }
     
     /**

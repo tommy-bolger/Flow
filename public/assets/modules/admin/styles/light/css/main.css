@@ -60,7 +60,7 @@ div.clear {
 /* Header */
 #header {
     background-color: #2C323B;
-    border-bottom: 2px #98AAB1 solid;
+    border-bottom: 1px #2F2F2F solid;
 }
 
 #header a {
@@ -111,13 +111,11 @@ div.clear {
 
 #modules_list li, #modules_list li:hover {
 	border-right: 1px solid #98AAB1;
-	padding: 5px 10px 5px 10px;
 	float: left;
 }
 
 #modules_list li {
     text-align: center;
-	color: #FFFFFF;
 	font: 12px verdana;
 }
 
@@ -134,12 +132,13 @@ div.clear {
     color: #FFFFFF;
     font-size: 12px;
     text-decoration: none;
+    display: block;
+    padding: 5px 10px;
 }
 
 #modules_list li a:hover {
     color: #D6E2E5;
 }
-
 /* End header */
 
 /*-------------------------------------------------*/
