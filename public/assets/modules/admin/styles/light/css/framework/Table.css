@@ -15,11 +15,18 @@ table th, table td {
 }
 
 table th {
-    background: url("/assets/modules/admin/styles/light/images/table_header_background.gif") repeat-x scroll 0 50% transparent;
     border-style: solid;
     border-width: 1px;
     border-color: #DADFE0 #D1CFCF #DADFE0 #DADFE0;
     color: #2D444F;
+    background: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#FBFBFB), to(#D5D5D5)); 
+    background: -webkit-linear-gradient(top, #FBFBFB, #D5D5D5);
+    background: -ms-linear-gradient(top, #FBFBFB, #D5D5D5);
+    background: -o-linear-gradient(top, #FBFBFB, #D5D5D5); 
+    background: -moz-linear-gradient(top, #FBFBFB, #D5D5D5);
+    background: linear-gradient(#FBFBFB, #D5D5D5);
+    -pie-background: linear-gradient(#FBFBFB, #D5D5D5);
+    behavior: url(/assets/htc/pie.php);
 }
 
 table td {
