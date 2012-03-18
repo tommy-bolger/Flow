@@ -189,7 +189,7 @@ extends Admin\Home {
                     ), 'manage')
                 ),
                 'sub_nav' => array(
-                    'Projects' => array(
+                    'Portfolio' => array(
                         'Manage' => Http::getInternalUrl('', $portfolio_path, 'manage'),
                         'Add/Edit' => Http::getInternalUrl('', $portfolio_path, 'add')
                     ),

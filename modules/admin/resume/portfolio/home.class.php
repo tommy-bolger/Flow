@@ -42,7 +42,7 @@ extends ResumeHome {
     
     protected $active_nav = 'portfolio';
     
-    protected $active_sub_nav_section = 'Projects';
+    protected $active_sub_nav_section = 'Portfolio';
 
     public function __construct() {
         parent::__construct();

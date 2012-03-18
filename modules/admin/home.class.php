@@ -116,8 +116,15 @@ extends ModulePage {
             'main.css'
         ));
         
+        if(config('framework')->enable_javascript) {
+            $this->addCssFile('top_nav.css');
+        }
+        
         //Setup the javascript        
-        $this->addJavascriptFile("jquery.min.js");
+        $this->addJavascriptFiles(array(
+            "jquery.min.js",
+            'nav.js'
+        ));
         
         if(!empty($this->module_links)) {
             $module_sub_nav_links = array();
@@ -127,9 +134,9 @@ extends ModulePage {
                     $module_sub_nav_links[$link_name] = $module_link['sub_nav'];
                 }
             }
-            
+
             if(!empty($module_sub_nav_links)) {
-                $this->addInlineJavascript("var sub_nav_links = '" . json_encode($module_sub_nav_links) . "';");
+                $this->addInlineJavascript("top_nav_links = " . json_encode($module_sub_nav_links) . ";");
             }
         }
     }
