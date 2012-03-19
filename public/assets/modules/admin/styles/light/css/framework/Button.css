@@ -3,6 +3,8 @@ input.form_button {
 }
 
 input.form_button, input.button {
+    z-index: 9998px;
+    background-color: #F56C06;
     color: #FFFFFF;
 	border-color: #ED6502 #A04300 #A04300 #ED6502;
 	font-weight: bold;

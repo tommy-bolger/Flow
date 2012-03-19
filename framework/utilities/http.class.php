@@ -46,6 +46,8 @@ final class Http {
     */
     public static function redirect($redirect_location) {
         header("Location: {$redirect_location}");
+        
+        exit;
     }
     
     /**

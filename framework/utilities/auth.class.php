@@ -49,7 +49,7 @@ final class Auth {
     * @return boolean The login status of the current user.
     */
     public static function userLoggedIn() {
-        if(isset(session()->user_id) && !empty(session()->user_id)) {
+        if(!empty(session()->user_id)) {
             return true;
         }
         

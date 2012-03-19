@@ -98,7 +98,7 @@ div.clear {
 
 #module_menu {
     border-top: 1px solid #2D444F;
-    background-color: #666E73;
+    background: none repeat scroll 0 0 #666E73;
     padding-left: 30px;
     clear: both;
     box-shadow: inset 0px -2px 3px #4D5255;
@@ -111,6 +111,7 @@ div.clear {
 #modules_list {
 	float: left;
 	position: relative;
+	z-index: 9999;
 }
 
 #modules_list li, #modules_list li:hover {
