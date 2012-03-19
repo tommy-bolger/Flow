@@ -46,18 +46,8 @@ function set_top_nav_hover() {
     });
 }
 
-function set_top_menu_click() {
-    $('.hover_menu_item, .sub_nav li').click(function() {
-        window.location = $(this).children('a:first-child').attr('href');
-        
-        return false;
-    });
-}
-
 $(document).ready(function() {
     generate_hover_menu();
     
     set_top_nav_hover();
-    
-    set_top_menu_click();
 });

@@ -10,35 +10,26 @@
 #modules_list li .hover_menu li {
     float: none;
     text-align: left;
-    padding: 5px 10px 5px 0px;
     border-right: 0px solid #000000;
 }
 
-#modules_list li .hover_menu .hover_menu_header, #modules_list li .hover_menu .hover_menu_header:hover {
+#modules_list li .hover_menu .hover_menu_header {
     background-color: #666E73;
     color: #FFFFFF;
-}
-
-#modules_list li .hover_menu .hover_menu_header {
-    padding-left: 10px;
-}
-
-#modules_list li .hover_menu .hover_menu_header:hover {
+    padding: 5px 10px 5px 10px;
     cursor: default;
 }
 
 #modules_list li .hover_menu .hover_menu_item {
-    list-style: disc inside none;
     border-top: 1px dashed #BEBEBE;
-    padding-left: 20px;
 }
 
 #modules_list li .hover_menu li a, #modules_list li .hover_menu li a:hover {
-    display: inline;
-    padding: 0;
+    display: block;
     color: #2F2F2F;
+    padding: 5px 10px 5px 20px;
 }
 
-#modules_list li .hover_menu li:hover {
+#modules_list li .hover_menu li a:hover {
     background-color: #D8E6E6;
 }
