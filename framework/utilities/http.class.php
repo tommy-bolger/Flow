@@ -183,12 +183,8 @@ final class Http {
             $page_path['module'] = $module_name;
         }
         
-        if(!empty($subdirectory_path)) {
-            $subdirectory_path = array_values($subdirectory_path);
-        
-            foreach($subdirectory_path as $index => $subdirectory) {
-                $page_path['d_' . ($index + 1)] = $subdirectory;
-            }
+        if(!empty($subdirectory_path)) {            
+            $page_path['subd'] = implode('/', $subdirectory_path);
         }
         
         if(!empty($page)) {

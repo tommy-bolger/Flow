@@ -98,12 +98,12 @@ extends Framework {
 
         $sub_path = '';
         
-        if(isset(request()->get->d_1)) {
-            $request_namespaces = request()->get->getByNameContaining('d_');
+        if(isset(request()->get->subd)) {
+            $request_subdirectories = request()->get->subd;
             
-            $this->subdirectory_path = $request_namespaces;
+            $this->subdirectory_path = explode('/', $request_subdirectories);
 
-            $sub_path = implode('\\ ', $request_namespaces) . '\\ ';
+            $sub_path = implode('\\ ', $this->subdirectory_path) . '\\ ';
         }
 
         $this->page_class_name = $page_class_name;
