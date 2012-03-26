@@ -33,6 +33,7 @@
 
 use \Framework\Core\Framework;
 use \Framework\Utilities\Encryption;
+use \Framework\Data\Database;
 
 print(
     "\nWelcome to the installation for Flow! Before you proceed please go over this checklist:\n\n" . 
@@ -289,6 +290,8 @@ catch(Exception $exception) {
     goto database_host;
 }
 
+Database::setDefault('setup');
+
 print("Database connection was successful.\n- Press enter to continue -");
 
 $continue = trim(fgets(STDIN));
@@ -300,7 +303,7 @@ print("Creating database structure...");
 
 $database_structure_sql = file_get_contents("{$installation_path}/scripts/install/database/{$database_engine}.sql");
 
-db('setup')->exec($database_structure_sql);
+db()->exec($database_structure_sql);
 
 print("done.\n");
 
@@ -411,7 +414,7 @@ $second_key = strlen($administrator_username) * strlen($administrator_password);
 
 $encrypted_admin_password = Encryption::hash($administrator_password, array($administrator_username, $second_key));
 
-db('setup')->insert('cms_users', array(
+db()->insert('cms_users', array(
     'user_name' => $administrator_username,
     'password' => $encrypted_admin_password,
     'email_address' => $administrator_email,
@@ -420,4 +423,82 @@ db('setup')->insert('cms_users', array(
 
 print("done.\n");
 
-print("\nCongratulations! The framework has been setup and the site is ready to be used. Please navigate to the new site's url in your browser and login as the administrator user you just created to begin managing this install.\n\n");
+/*
+* ----- Module installation -----
+*/
+print("Let's setup which modules you want to install.\n- Press enter to continue -");
+
+$continue = trim(fgets(STDIN));
+
+//Retrieve the list of available modules by scanning the <installation>/modules/ directory
+$modules = array();
+
+$modules_directory = opendir("{$installation_path}/modules");
+
+while($module_entry = readdir($modules_directory)) {
+    switch($module_entry) {
+        case '.':
+        case '..':
+        case 'admin':
+            break;
+        default:
+            $modules[] = $module_entry;
+            break;
+    }
+}
+
+closedir($modules_directory);
+
+$modules_list = implode(', ', $modules);
+
+modules:
+print("Please specify a comma-separated list of modules you want to install ({$modules_list}): ");
+
+$specified_modules = trim(fgets(STDIN));
+
+if(empty($specified_modules)) {
+    goto modules;
+}
+
+$modules_to_install = explode(',', $specified_modules);
+
+$invalid_modules = array();
+
+//Validate the specified modules
+foreach($modules_to_install as &$module) {
+    if(!in_array($module, $modules_to_install)) {
+        $invalid_modules[] = $module;
+    }
+    else {
+        $module = trim($module);
+    }
+}
+
+if(!empty($invalid_modules)) {
+    print("Specified modules '" . implode(', ', $invalid_modules) . "' are not valid. Please try again.\n");
+        
+    goto modules;
+}
+
+print("Enabling specified modules...");
+
+//Start the sort order at two since the admin module takes the first by default
+$sort_order = 2;
+
+foreach($modules_to_install as $module) {
+    ob_start();
+            
+    //Parse the module's database install script
+    include("{$installation_path}/modules/{$module}/database/{$database_engine}/install.php");
+    
+    $module_database_script = ob_get_clean();
+
+    //Execute the module's database install script    
+    db()->exec($module_database_script);
+    
+    $sort_order += 1;
+}
+
+print("done.\n");
+
+print("\nCongratulations! The CMS has been setup and the site is ready to be used. Please navigate to the new site's url in your browser and login as the administrator user you just created to begin managing this install.\n\n");

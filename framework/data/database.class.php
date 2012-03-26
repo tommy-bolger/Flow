@@ -103,6 +103,23 @@ class Database {
     }
     
     /**
+     * Sets which database connection will be the default that db() returns.
+     *
+     * @param string $connection_name The name of the connection.
+     * @return void
+     */
+    public static function setDefault($connection_name) {
+        if(isset(self::$database_connections[$connection_name])) {
+            self::$database_connections['default'] = self::$database_connections[$connection_name];
+            
+            unset(self::$database_connections[$connection_name]);
+        }
+        else {
+            throw new \Exception("Connection '{$connection_name}' does not exist.");
+        }
+    }
+    
+    /**
      * Catches all function calls not present in this class and passes them to the database connection object.
      *
      * @param string $function_name The function name.

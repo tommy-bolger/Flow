@@ -24,21 +24,19 @@ CREATE INDEX ccp_module_id_fk ON cms_configuration_parameters (module_id);
 -- ----------------------------
 -- Records of cms_configuration_parameters
 -- ----------------------------
-INSERT INTO cms_configuration_parameters VALUES (1, 2, 'theme', NULL, 'default', 1, 1, NULL, 'Theme', 0);
-INSERT INTO cms_configuration_parameters VALUES (2, 2, 'code_example_file_extensions', NULL, 'php,html,aspx,asp,js,css,htc,inc', 2, 5, NULL, 'Code Example File Extensions', 0);
-INSERT INTO cms_configuration_parameters VALUES (3, 1, 'theme', NULL, 'light', 1, 1, NULL, 'Theme', 0);
-INSERT INTO cms_configuration_parameters VALUES (4, NULL, 'version', NULL, 1.0, 1, 1, NULL, 'Framework Version', 0);
-INSERT INTO cms_configuration_parameters VALUES (5, NULL, 'environment', NULL, 'production', 2, 1, NULL, 'Environment', 1);
-INSERT INTO cms_configuration_parameters VALUES (11, NULL, 'session_name', NULL, 'default', 4, 1, NULL, 'Client Session Name', 0);
-INSERT INTO cms_configuration_parameters VALUES (12, NULL, 'session_storage_engine', NULL, 'file', 5, 1, NULL, 'Session Storage Engine', 1);
-INSERT INTO cms_configuration_parameters VALUES (16, NULL, 'aws_region', NULL, 'com', 6, 1, NULL, 'AWS Region', 0);
-INSERT INTO cms_configuration_parameters VALUES (17, NULL, 'aws_public_key', NULL, NULL, 7, 1, NULL, 'AWS Public Key', 0);
-INSERT INTO cms_configuration_parameters VALUES (18, NULL, 'aws_private_key', NULL, NULL, 8, 1, NULL, 'AWS Private Key', 0);
-INSERT INTO cms_configuration_parameters VALUES (19, NULL, 'default_module', NULL, 'admin', 9, 1, NULL, 'Default Module', 1);
-INSERT INTO cms_configuration_parameters VALUES (21, NULL, 'javascript_minifier', NULL, 'simple', 10, 1, NULL, 'Javascript Minifier', 1);
-INSERT INTO cms_configuration_parameters VALUES (22, NULL, 'closure_compiler_path', NULL, NULL, 11, 1, NULL, 'Closure Compiler Path', 0);
-INSERT INTO cms_configuration_parameters VALUES (24, NULL, 'enable_javascript', NULL, '1', 12, 4, NULL, 'Enable Javascript', 0);
-INSERT INTO cms_configuration_parameters VALUES (25, 1, 'encrypt_urls', NULL, '1', 2, 4, NULL, 'Encrypt URLs', 0);
+INSERT INTO cms_configuration_parameters VALUES (1, 1, 'theme', NULL, 'light', 1, 1, NULL, 'Theme', 0);
+INSERT INTO cms_configuration_parameters VALUES (2, NULL, 'version', NULL, '1.0', 1, 1, NULL, 'Framework Version', 0);
+INSERT INTO cms_configuration_parameters VALUES (3, NULL, 'environment', NULL, 'production', 2, 1, NULL, 'Environment', 1);
+INSERT INTO cms_configuration_parameters VALUES (4, NULL, 'session_name', NULL, 'default', 4, 1, NULL, 'Client Session Name', 0);
+INSERT INTO cms_configuration_parameters VALUES (5, NULL, 'session_storage_engine', NULL, 'file', 5, 1, NULL, 'Session Storage Engine', 1);
+INSERT INTO cms_configuration_parameters VALUES (6, NULL, 'aws_region', NULL, 'com', 6, 1, NULL, 'AWS Region', 0);
+INSERT INTO cms_configuration_parameters VALUES (7, NULL, 'aws_public_key', NULL, NULL, 7, 1, NULL, 'AWS Public Key', 0);
+INSERT INTO cms_configuration_parameters VALUES (8, NULL, 'aws_private_key', NULL, NULL, 8, 1, NULL, 'AWS Private Key', 0);
+INSERT INTO cms_configuration_parameters VALUES (9, NULL, 'default_module', NULL, 'admin', 9, 1, NULL, 'Default Module', 0);
+INSERT INTO cms_configuration_parameters VALUES (10, NULL, 'javascript_minifier', NULL, 'simple', 10, 1, NULL, 'Javascript Minifier', 1);
+INSERT INTO cms_configuration_parameters VALUES (11, NULL, 'closure_compiler_path', NULL, NULL, 11, 1, NULL, 'Closure Compiler Path', 0);
+INSERT INTO cms_configuration_parameters VALUES (12, NULL, 'enable_javascript', NULL, 1, 12, 4, NULL, 'Enable Javascript', 0);
+INSERT INTO cms_configuration_parameters VALUES (13, 1, 'encrypt_urls', NULL, 1, 2, 4, NULL, 'Encrypt URLs', 0);
 
 -- ----------------------------
 -- Table structure for cms_errors
@@ -70,8 +68,6 @@ CREATE TABLE cms_modules (
 -- Records of cms_modules
 -- ----------------------------
 INSERT INTO cms_modules VALUES (1, 'admin', 'Admin', 1, 1);
-INSERT INTO cms_modules VALUES (2, 'resume', 'Resume', 3, 1);
-INSERT INTO cms_modules VALUES (3, 'blog', 'Blog', 2, 1);
 
 -- ----------------------------
 -- Table structure for cms_pages
@@ -115,16 +111,13 @@ CREATE INDEX cpv_configuration_parameter_id_fk ON cms_parameter_values (configur
 -- ----------------------------
 -- Records of cms_parameter_values
 -- ----------------------------
-INSERT INTO cms_parameter_values VALUES (1, 'development', 1, 5);
-INSERT INTO cms_parameter_values VALUES (2, 'production', 2, 5);
-INSERT INTO cms_parameter_values VALUES (3, 'file', 1, 12);
-INSERT INTO cms_parameter_values VALUES (4, 'database', 2, 12);
-INSERT INTO cms_parameter_values VALUES (5, 'admin', 1, 19);
-INSERT INTO cms_parameter_values VALUES (6, 'resume', 2, 19);
-INSERT INTO cms_parameter_values VALUES (7, 'blog', 3, 19);
-INSERT INTO cms_parameter_values VALUES (8, 'simple', 1, 21);
-INSERT INTO cms_parameter_values VALUES (9, 'uglify-js', 2, 21);
-INSERT INTO cms_parameter_values VALUES (10, 'closure', 3, 21);
+INSERT INTO cms_parameter_values VALUES (1, 'development', 1, 3);
+INSERT INTO cms_parameter_values VALUES (2, 'production', 2, 3);
+INSERT INTO cms_parameter_values VALUES (3, 'file', 1, 5);
+INSERT INTO cms_parameter_values VALUES (4, 'database', 2, 5);
+INSERT INTO cms_parameter_values VALUES (5, 'simple', 1, 10);
+INSERT INTO cms_parameter_values VALUES (6, 'uglify-js', 2, 10);
+INSERT INTO cms_parameter_values VALUES (7, 'closure', 3, 10);
 
 -- ----------------------------
 -- Table structure for cms_permissions
@@ -135,7 +128,7 @@ CREATE TABLE cms_permissions (
   display_name varchar(100) NOT NULL,
   description varchar(255),
   module_id integer NOT NULL,
-  sort_order smallint NOT NULL
+  sort_order smallint NOT NULL,
   FOREIGN KEY (module_id) REFERENCES cms_modules (module_id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
@@ -163,7 +156,7 @@ CREATE TABLE cms_roles (
   role_id integer PRIMARY KEY,
   display_name varchar(100) NOT NULL,
   module_id integer NOT NULL,
-  sort_order smallint NOT NULL
+  sort_order smallint NOT NULL,
   FOREIGN KEY (module_id) REFERENCES cms_modules (module_id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
@@ -264,231 +257,3 @@ CREATE TABLE cms_users (
   email_address varchar(255) NOT NULL,
   is_site_admin tinyint NOT NULL DEFAULT 0
 );
-
--- ----------------------------
--- Table structure for resume_code_example_skills
--- ----------------------------
-CREATE TABLE resume_code_example_skills (
-  code_example_skill_id integer PRIMARY KEY,
-  code_example_id integer NOT NULL,
-  skill_id integer NOT NULL,
-  sort_order smallint NOT NULL,
-  FOREIGN KEY (skill_id) REFERENCES resume_skills (skill_id) ON DELETE CASCADE ON UPDATE CASCADE,
-  FOREIGN KEY (code_example_id) REFERENCES resume_code_examples (code_example_id) ON DELETE CASCADE ON UPDATE CASCADE
-);
-
-CREATE INDEX rces_code_example_id_fk ON resume_code_example_skills (code_example_id);
-CREATE INDEX rces_skill_id_fk ON resume_code_example_skills (skill_id);
-
--- ----------------------------
--- Table structure for resume_code_examples
--- ----------------------------
-CREATE TABLE resume_code_examples (
-  code_example_id integer PRIMARY KEY,
-  source_file_name varchar(100),
-  portfolio_project_id integer,
-  description text,
-  sort_order smallint NOT NULL,
-  code_example_name varchar(255) NOT NULL,
-  purpose text NOT NULL,
-  work_history_id integer,
-  FOREIGN KEY (work_history_id) REFERENCES resume_work_history (work_history_id) ON DELETE CASCADE ON UPDATE CASCADE,
-  FOREIGN KEY (portfolio_project_id) REFERENCES resume_portfolio_projects (portfolio_project_id) ON DELETE CASCADE ON UPDATE CASCADE
-);
-
-CREATE INDEX rce_portfolio_project_id_fk ON resume_code_examples (portfolio_project_id);
-CREATE INDEX rce_work_history_id_fk ON resume_code_examples (work_history_id);
-
--- ----------------------------
--- Table structure for resume_degree_levels
--- ----------------------------
-CREATE TABLE resume_degree_levels (
-  degree_level_id integer PRIMARY KEY,
-  abbreviation varchar(10) NOT NULL,
-  degree_level_name varchar(50) NOT NULL
-);
-
--- ----------------------------
--- Records of resume_degree_levels
--- ----------------------------
-INSERT INTO resume_degree_levels VALUES (1, 'A.A.', 'Associate of Arts');
-INSERT INTO resume_degree_levels VALUES (2, 'A.S.', 'Associate of Science');
-INSERT INTO resume_degree_levels VALUES (3, 'AAS', 'Associate of Applied Science');
-INSERT INTO resume_degree_levels VALUES (4, 'B.A.', 'Bachelor of Arts');
-INSERT INTO resume_degree_levels VALUES (5, 'B.S.', 'Bachelor of Science');
-INSERT INTO resume_degree_levels VALUES (6, 'BFA', 'Bachelor of Fine Arts');
-INSERT INTO resume_degree_levels VALUES (7, 'M.A.', 'Master of Arts');
-INSERT INTO resume_degree_levels VALUES (8, 'M.S.', 'Master of Science');
-INSERT INTO resume_degree_levels VALUES (9, 'MBA', 'Master of Business Administration');
-INSERT INTO resume_degree_levels VALUES (10, 'MFA', 'Master of Fine Arts');
-INSERT INTO resume_degree_levels VALUES (11, 'Ph.D.', 'Doctor of Philosophy');
-INSERT INTO resume_degree_levels VALUES (12, 'J.D.', 'Juris Doctor');
-INSERT INTO resume_degree_levels VALUES (13, 'M.D.', 'Doctor of Medicine');
-INSERT INTO resume_degree_levels VALUES (14, 'DDS', 'Doctor of Dental Surgery');
-
--- ----------------------------
--- Table structure for resume_education
--- ----------------------------
-CREATE TABLE resume_education (
-  education_id integer PRIMARY KEY,
-  institution_name varchar(255) NOT NULL,
-  institution_city varchar(100) NOT NULL,
-  state_id integer NOT NULL,
-  degree_level_id integer NOT NULL,
-  degree_name varchar(255) NOT NULL,
-  date_graduated date NOT NULL,
-  cumulative_gpa decimal(3,2) NOT NULL,
-  sort_order smallint,
-  FOREIGN KEY (state_id) REFERENCES cms_us_states (state_id) ON DELETE CASCADE ON UPDATE CASCADE,
-  FOREIGN KEY (degree_level_id) REFERENCES resume_degree_levels (degree_level_id) ON DELETE CASCADE ON UPDATE CASCADE
-);
-
-CREATE INDEX re_degree_level_id_fk ON resume_education (degree_level_id);
-CREATE INDEX re_state_id_fk ON resume_education (state_id);
-
--- ----------------------------
--- Table structure for resume_general_information
--- ----------------------------
-CREATE TABLE resume_general_information (
-  general_information_id integer PRIMARY KEY,
-  first_name varchar(100) NOT NULL,
-  last_name varchar(100) NOT NULL,
-  address varchar(100),
-  city varchar(100) NOT NULL,
-  state_id integer NOT NULL,
-  phone_number varchar(15),
-  photo varchar(255),
-  email_address varchar(100) NOT NULL,
-  resume_pdf_name varchar(100),
-  resume_word_name varchar(100),
-  summary text,
-  specialty varchar(255) NOT NULL,
-  FOREIGN KEY (state_id) REFERENCES cms_us_states (state_id) ON DELETE CASCADE ON UPDATE CASCADE
-);
-
-CREATE INDEX rgi_state_id_fk ON resume_general_information (state_id);
-
--- ----------------------------
--- Table structure for resume_portfolio_project_images
--- ----------------------------
-CREATE TABLE resume_portfolio_project_images (
-  portfolio_project_image_id integer PRIMARY KEY,
-  portfolio_project_id integer NOT NULL,
-  image_name varchar(255),
-  thumbnail_name varchar(255),
-  sort_order smallint NOT NULL,
-  title varchar(255) NOT NULL,
-  description text,
-  FOREIGN KEY (portfolio_project_id) REFERENCES resume_portfolio_projects (portfolio_project_id) ON DELETE CASCADE ON UPDATE CASCADE
-);
-
-CREATE INDEX rppi_portfolio_project_id_fk ON resume_portfolio_project_images (portfolio_project_id);
-
--- ----------------------------
--- Table structure for resume_portfolio_project_skills
--- ----------------------------
-CREATE TABLE resume_portfolio_project_skills (
-  portfolio_project_skill_id integer PRIMARY KEY,
-  portfolio_project_id integer NOT NULL,
-  skill_id integer NOT NULL,
-  sort_order smallint NOT NULL,
-  FOREIGN KEY (skill_id) REFERENCES resume_skills (skill_id) ON DELETE CASCADE ON UPDATE CASCADE,
-  FOREIGN KEY (portfolio_project_id) REFERENCES resume_portfolio_projects (portfolio_project_id) ON DELETE CASCADE ON UPDATE CASCADE
-);
-
-CREATE INDEX rpps_portfolio_project_id_fk ON resume_portfolio_project_skills (portfolio_project_id);
-CREATE INDEX rpps_skill_id_fk ON resume_portfolio_project_skills (skill_id);
-
--- ----------------------------
--- Table structure for resume_portfolio_projects
--- ----------------------------
-CREATE TABLE resume_portfolio_projects (
-  portfolio_project_id integer PRIMARY KEY,
-  project_name varchar(255) NOT NULL,
-  description text NOT NULL,
-  involvement_description text,
-  sort_order smallint NOT NULL,
-  site_url text,
-  work_history_id integer,
-  FOREIGN KEY (work_history_id) REFERENCES resume_work_history (work_history_id) ON DELETE CASCADE ON UPDATE CASCADE
-);
-
-CREATE INDEX rpp_work_history_id_fk ON resume_portfolio_projects (work_history_id);
-
--- ----------------------------
--- Table structure for resume_proficiency_levels
--- ----------------------------
-CREATE TABLE resume_proficiency_levels (
-  proficiency_level_id integer PRIMARY KEY,
-  proficiency_level_name varchar(100) NOT NULL
-);
-
--- ----------------------------
--- Records of resume_proficiency_levels
--- ----------------------------
-INSERT INTO resume_proficiency_levels VALUES (1, 'Beginner');
-INSERT INTO resume_proficiency_levels VALUES (2, 'Intermediate');
-INSERT INTO resume_proficiency_levels VALUES (3, 'Advanced');
-
--- ----------------------------
--- Table structure for resume_skill_categories
--- ----------------------------
-CREATE TABLE resume_skill_categories (
-  skill_category_id integer PRIMARY KEY,
-  skill_category_name varchar(100) NOT NULL,
-  sort_order smallint NOT NULL
-);
-
--- ----------------------------
--- Table structure for resume_skills
--- ----------------------------
-CREATE TABLE resume_skills (
-  skill_id integer PRIMARY KEY,
-  skill_name varchar(100) NOT NULL,
-  skill_category_id integer NOT NULL,
-  years_proficient tinyint NOT NULL,
-  proficiency_level_id integer NOT NULL,
-  sort_order smallint NOT NULL,
-  FOREIGN KEY (skill_category_id) REFERENCES resume_skill_categories (skill_category_id) ON DELETE CASCADE ON UPDATE CASCADE,
-  FOREIGN KEY (proficiency_level_id) REFERENCES resume_proficiency_levels (proficiency_level_id) ON DELETE CASCADE ON UPDATE CASCADE
-);
-
-CREATE INDEX rs_proficiency_level_id_fk ON resume_skills (proficiency_level_id);
-CREATE INDEX rs_skill_category_id_fk ON resume_skills (skill_category_id);
-
--- ----------------------------
--- Table structure for resume_work_history
--- ----------------------------
-CREATE TABLE resume_work_history (
-  work_history_id integer PRIMARY KEY,
-  organization_name varchar(255) NOT NULL,
-  job_title varchar(100) NOT NULL,
-  sort_order smallint NOT NULL
-);
-
--- ----------------------------
--- Table structure for resume_work_history_durations
--- ----------------------------
-CREATE TABLE resume_work_history_durations (
-  work_history_duration_id integer PRIMARY KEY,
-  start_date date NOT NULL,
-  sort_order smallint NOT NULL,
-  work_history_id integer NOT NULL,
-  end_date date,
-  FOREIGN KEY (work_history_id) REFERENCES resume_work_history (work_history_id) ON DELETE CASCADE ON UPDATE CASCADE
-);
-
-CREATE INDEX rwhd_work_history_id_fk ON resume_work_history_durations (work_history_id);
-
--- ----------------------------
--- Table structure for resume_work_history_tasks
--- ----------------------------
-CREATE TABLE resume_work_history_tasks (
-  work_history_task_id integer PRIMARY KEY,
-  work_history_id integer NOT NULL,
-  description text NOT NULL,
-  sort_order smallint NOT NULL,
-  FOREIGN KEY (work_history_id) REFERENCES resume_work_history (work_history_id) ON DELETE CASCADE ON UPDATE CASCADE
-);
-
-CREATE INDEX rwht_work_history_id_fk ON resume_work_history_tasks (work_history_id);
