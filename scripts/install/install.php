@@ -489,7 +489,7 @@ foreach($modules_to_install as $module) {
     ob_start();
             
     //Parse the module's database install script
-    include("{$installation_path}/modules/{$module}/database/{$database_engine}/install.php");
+    include("{$installation_path}/modules/{$module}/scripts/install/database/{$database_engine}.php");
     
     $module_database_script = ob_get_clean();
 
