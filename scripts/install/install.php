@@ -34,6 +34,7 @@
 use \Framework\Core\Framework;
 use \Framework\Utilities\Encryption;
 use \Framework\Data\Database;
+use \Framework\Modules\Module;
 
 print(
     "\nWelcome to the installation for Flow! Before you proceed please go over this checklist:\n\n" . 
@@ -430,24 +431,8 @@ print("Let's setup which modules you want to install.\n- Press enter to continue
 
 $continue = trim(fgets(STDIN));
 
-//Retrieve the list of available modules by scanning the <installation>/modules/ directory
-$modules = array();
-
-$modules_directory = opendir("{$installation_path}/modules");
-
-while($module_entry = readdir($modules_directory)) {
-    switch($module_entry) {
-        case '.':
-        case '..':
-        case 'admin':
-            break;
-        default:
-            $modules[] = $module_entry;
-            break;
-    }
-}
-
-closedir($modules_directory);
+//Retrieve the list of available modules on the filesystem
+$modules = Module::getInstalledModules();
 
 $modules_list = implode(', ', $modules);
 

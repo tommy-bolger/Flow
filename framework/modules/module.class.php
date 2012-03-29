@@ -135,4 +135,31 @@ class Module {
     public function getName() {
         return $this->name;
     }
+    
+    /**
+     * Retrieves a list of all modules installed on the filesystem. 
+     *   
+     * @return array
+     */
+    public static function getInstalledModules() {
+        $modules_directory = opendir(framework()->installation_path . "/modules");
+        
+        $modules = array();
+
+        while($module_entry = readdir($modules_directory)) {
+            switch($module_entry) {
+                case '.':
+                case '..':
+                case 'admin':
+                    break;
+                default:
+                    $modules[] = $module_entry;
+                    break;
+            }
+        }
+        
+        closedir($modules_directory);
+        
+        return $modules;
+    }
 }
