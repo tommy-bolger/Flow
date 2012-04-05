@@ -677,6 +677,10 @@ extends Table {
     public function useQuery($query, $query_placeholders = array(), $processor_function = NULL) {
         if(!empty($this->record_filter)) {
             $this->record_filter_sql = db()->generateWhereClause($this->record_filter);
+        
+            if(stripos($query, 'WHERE') !== false) {
+                $this->record_filter_sql = str_replace('WHERE', 'AND', $this->record_filter_sql);
+            }
 
             $order_by_position = stripos($query, 'ORDER');
         
@@ -688,9 +692,9 @@ extends Table {
             else {
                 $query .= $this->record_filter_sql;
             }
-            
+
             $this->filter_placeholder_values = array_merge($query_placeholders, $this->filter_placeholder_values);
-            
+
             $query_placeholders = $this->filter_placeholder_values;
         }
     
