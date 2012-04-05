@@ -1,6 +1,6 @@
 <?php
 /**
-* Enables the manipulation of a table in the database via a table and form on the same web page.
+* Acts as the add/edit functionality for EditTable on a separate page.
 * Copyright (c) 2011, Tommy Bolger
 * All rights reserved.
 * 
@@ -49,6 +49,11 @@ extends EditTable {
     private $page_filter_columns;
     
     /**
+    * @var array Fields with constant values to be inserted/updated with the current record.
+    */
+    private $constant_fields;
+    
+    /**
      * Initializes a new instance of EditTableForm.
      *      
      * @param string $table_name The name of the edit table.
@@ -58,7 +63,7 @@ extends EditTable {
      * @param array $page_filter_columns (optional) The base filter criteria of the edit table recordset.
      * @return void
      */
-    public function __construct($table_name, $edit_table_name, $table_id_field, $table_sort_field, $page_filter_columns = array()) {
+    public function __construct($table_name, $edit_table_name, $table_id_field, $table_sort_field = '', $page_filter_columns = array()) {
         parent::__construct($table_name, $edit_table_name, page()->getPageName(), $table_id_field, $table_sort_field);
         
         $this->page_filter_columns = $page_filter_columns;
@@ -86,7 +91,19 @@ extends EditTable {
     public function __call($function_name, $arguments) {    
         return call_user_func_array(array($this->edit_form, $function_name), $arguments);
     }
-
+    
+    /**
+     * Adds fields with a constant value to be inserted/updated with the current record.
+     *
+     * @param array $constant_fields The fields to add.
+     * @return void
+     */
+    public function addConstantFields($constant_fields) {
+        assert('!empty($constant_fields) && is_array($constant_fields)');
+        
+        $this->constant_fields = $constant_fields;
+    }
+    
     /**
      * Setups up a form for editing a record and processes its submission.
      *
@@ -98,6 +115,10 @@ extends EditTable {
                 $this->setPageFilter($this->page_filter_columns);
             
                 $form_data = $this->edit_form->getData(true);
+                
+                if(!empty($this->constant_fields)) {
+                    $form_data = array_merge($form_data, $this->constant_fields); 
+                }
     
                 if(!empty($this->record_filter)) {
                     $form_data = array_merge($form_data, $this->record_filter);
