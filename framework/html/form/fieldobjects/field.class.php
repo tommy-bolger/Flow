@@ -329,7 +329,7 @@ extends \Framework\Html\Element {
      * @return void
      */
     public function setValue($field_value) {
-        if(empty($field_value)) {
+        if(empty($field_value) && $field_value != '0') {
             $field_value = NULL;
         }
     

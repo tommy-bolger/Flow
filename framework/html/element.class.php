@@ -181,7 +181,7 @@ class Element {
      * @return void
      */
     public function setAttribute($attribute_name, $attribute_value = NULL) {                
-        if(!empty($attribute_value)) {
+        if(!empty($attribute_value) || $attribute_value == '0') {
             $this->attributes[$attribute_name] = $attribute_value;
         }
         else {
