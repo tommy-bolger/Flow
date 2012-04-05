@@ -118,7 +118,7 @@ extends Form {
                     if($field_tag != 'hidden' && !isset($fields_outside_table[$field_name])) {
                         $row = array();
                     
-                        if($form_field->isInteractive()) {
+                        if($form_field->hasLabel()) {
                             $row[] = $form_field->getLabelHtml();
                             $row[] = $form_field->getFieldHtml();
                             

@@ -39,6 +39,11 @@ extends Field {
     * @var boolean Flag indicating that the field's value gets included when retrieving the data of only interactive fields in the form objects.
     */
     protected $is_interactive = false;
+    
+    /**
+    * @var boolean Flag indicating that the field can have a label.
+    */
+    protected $has_label = false;
 
     /**
     * @var boolean A flag indicating if the button was clicked.

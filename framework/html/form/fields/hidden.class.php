@@ -38,6 +38,11 @@ extends \Framework\Html\Form\FieldObjects\Field {
     * @var boolean Flag indicating that the field's value gets included when retrieving the data of only interactive fields in the form objects.
     */
     protected $is_interactive = false;
+    
+    /**
+    * @var boolean Flag indicating that the field can have a label.
+    */
+    protected $has_label = false;
 
     /**
      * Initializes a new instance of Hidden.

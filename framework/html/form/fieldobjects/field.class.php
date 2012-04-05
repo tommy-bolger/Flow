@@ -46,6 +46,11 @@ extends \Framework\Html\Element {
     protected $is_interactive = true;
     
     /**
+    * @var boolean Flag indicating that the field can have a label.
+    */
+    protected $has_label = true;
+    
+    /**
     * @var string The input type attribute of the field.
     */
     protected $input_type;
@@ -134,12 +139,21 @@ extends \Framework\Html\Element {
     }
     
     /**
-     * Returns the field's interactive state.
+     * Indicates if the field is interactive.
      *      
      * @return boolean
      */
     public function isInteractive() {
         return $this->is_interactive;
+    }
+    
+    /**
+     * Indicates if the field can have a label.
+     *      
+     * @return boolean
+     */
+    public function hasLabel() {
+        return $this->has_label;
     }
     
     /**
