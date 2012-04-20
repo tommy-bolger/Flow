@@ -66,8 +66,6 @@ extends ModulePage {
             Http::redirect(Http::getTopLevelPageUrl('login'));
         }
         
-        $this->initializeModuleLinks();
-        
         $this->constructHeader();
         
         $this->constructContentHeader();
@@ -79,8 +77,43 @@ extends ModulePage {
         $this->constructFooter();
     }
     
+    protected function getAdsLinks() {
+        $ads_path = array('ads');
+        
+        $ad_campaigns_path = $ads_path;
+        $ad_campaigns_path[] = 'campaigns';
+        
+        $campaign_ads_path = $ad_campaigns_path;
+        $campaign_ads_path[] = 'ads';
+    
+        return array(
+            'ads' => array(
+                'top_nav' => array(
+                    'Ads' => Http::getInternalUrl('', array('ads'), 'manage')
+                ),
+                'sub_nav' => array(
+                    'Ads' => array(
+                        'Manage' => Http::getInternalUrl('', $ads_path, 'manage'),
+                        'Add/Edit' => Http::getInternalUrl('', $ads_path, 'add')
+                    ),
+                    'Campaigns' => array(
+                        'Manage' => Http::getInternalUrl('', $ad_campaigns_path, 'manage')
+                    ),
+                    'Campaign Ads' => array(
+                        'Manage' => Http::getInternalUrl('', $campaign_ads_path, 'manage'),
+                        'Add/Edit' => Http::getInternalUrl('', $campaign_ads_path, 'add')
+                    )
+                )
+            )
+        );
+    }
+    
     protected function initializeModuleLinks() {
-        $modules = cache()->get('modules', 'module_links');
+        $modules = array();
+    
+        if(Framework::$enable_cache) {
+            $modules = cache()->get('modules', 'module_links');
+        }
     
         if(empty($modules)) {
             $modules = db()->getAll("
@@ -93,7 +126,9 @@ extends ModulePage {
                 ORDER BY sort_order
             ");
             
-            cache()->set('modules', $modules, 'module_links');
+            if(Framework::$enable_cache) {
+                cache()->set('modules', $modules, 'module_links');
+            }
         }
         
         foreach($modules as $module) {
@@ -105,6 +140,8 @@ extends ModulePage {
     
     protected function loadManagedModule($module_name) {
         $this->managed_module = new WebModule($module_name);
+        
+        session()->current_module = $module_name;
     }
     
     private function constructHeader() {
@@ -125,20 +162,6 @@ extends ModulePage {
             "jquery.min.js",
             'nav.js'
         ));
-        
-        if(!empty($this->module_links)) {
-            $module_sub_nav_links = array();
-        
-            foreach($this->module_links as $link_name => $module_link) {
-                if(isset($module_link['sub_nav'])) {
-                    $module_sub_nav_links[$link_name] = $module_link['sub_nav'];
-                }
-            }
-
-            if(!empty($module_sub_nav_links)) {
-                $this->addInlineJavascript("top_nav_links = " . json_encode($module_sub_nav_links) . ";");
-            }
-        }
     }
     
     protected function constructContentHeader() {
@@ -159,16 +182,46 @@ extends ModulePage {
         $this->body->addChild(Http::getTopLevelPageUrl("login", array('logout' => 1)), 'logout_link');
     }
     
-    protected function constructTopNav() {        
+    protected function constructTopNav() {
+        $this->initializeModuleLinks();
+        
+        //Generate the data structure for the JS hover menus on the top nav
+        if(!empty($this->module_links)) {
+            $module_sub_nav_links = array();
+        
+            foreach($this->module_links as $link_name => $module_link) {
+                if(isset($module_link['sub_nav'])) {
+                    $module_sub_nav_links[$link_name] = $module_link['sub_nav'];
+                }
+            }
+
+            if(!empty($module_sub_nav_links)) {
+                $this->addInlineJavascript("top_nav_links = " . json_encode($module_sub_nav_links) . ";");
+            }
+        }
+    
+        $current_module_name = '';
+        
+        if(!empty($this->managed_module)) {
+            $current_module_name = $this->managed_module->getName();
+            
+             //Aave the nav in module context into the session
+            $module_links_session_name = "{$current_module_name}_links";
+            
+            if(!isset(session()->$module_links_session_name)) {
+                session()->$module_links_session_name = $this->module_links;
+            }
+        }
+    
         $active_nav = '';
     
-        //Use either the active nav property when in a module
+        //Use the active nav property when in a module
         if(!empty($this->active_nav)) {
             $active_nav = $this->active_nav;
         }
         //Use the module name when on the admin home page
-        elseif(!empty($this->managed_module)) {
-            $active_nav = $this->managed_module->getName();
+        elseif(!empty($current_module_name)) {
+            $active_nav = $current_module_name;
         }
         
         $modules_list = new LinkList(array('Home' => Http::getTopLevelPageUrl()), array('id' => 'modules_list'));
@@ -212,7 +265,7 @@ extends ModulePage {
             $active_nav = $this->managed_module->getName();
         }
     
-        if(isset($this->managed_module) && isset($this->module_links[$active_nav]['sub_nav'])) {
+        if(isset($this->module_links[$active_nav]['sub_nav'])) {
             $sub_nav_links = $this->module_links[$active_nav]['sub_nav'];
             
             foreach($sub_nav_links as $section_title => $section_links) {
