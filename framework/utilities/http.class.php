@@ -100,11 +100,12 @@ final class Http {
     /**
     * Returns the url of the current page.
     * 
-    * @param array $query_string_parameters (optional) The rest of the query string in ('name' => 'value') format.      
+    * @param array $query_string_parameters (optional) The rest of the query string in ('name' => 'value') format.    
+    * @param string $module_name (optional) The name of the module to include as an override in the url.      
     * @return string The page url.
     */
-    public static function getPageUrl($query_string_parameters = array()) {
-        return Http::getCurrentLevelPageUrl(framework()->getPageClassName(), $query_string_parameters);
+    public static function getPageUrl($query_string_parameters = array(), $module_name = '') {
+        return Http::getCurrentLevelPageUrl(framework()->getPageClassName(), $query_string_parameters, $module_name);
     }
     
     /**
@@ -232,27 +233,28 @@ final class Http {
     /**
     * Generates and retrieves a url of a page that includes the current module and a subdirectory level one level higher than the current.
     * 
-    * @param array $subdirectories The subdirectories under the current level.    
     * @param string $page_name (optional) The name of the page.
-    * @param array $query_string_parameters (optional) The rest of the query string in ('name' => 'value') format.    
+    * @param array $query_string_parameters (optional) The rest of the query string in ('name' => 'value') format.
+    * @param string $module_name (optional) The name of the module to include as an override in the url.
     * @return string
     */
-    public static function getHigherLevelPageUrl($page_name = '', $query_string_parameters = array()) {    
+    public static function getHigherLevelPageUrl($page_name = '', $query_string_parameters = array(), $module_name = '') {    
         $subdirectory_path = framework()->getSubdirectories();
         array_pop($subdirectory_path);
 
-        return self::getInternalUrl('', $subdirectory_path, $page_name, $query_string_parameters);
+        return self::getInternalUrl($module_name, $subdirectory_path, $page_name, $query_string_parameters);
     }
     
     /**
     * Generates and retrieves a url of a page that includes the current module and subdirectory level.
     * 
     * @param string $page_name (optional) The name of the page.
-    * @param array $query_string_parameters (optional) The rest of the query string in ('name' => 'value') format.    
+    * @param array $query_string_parameters (optional) The rest of the query string in ('name' => 'value') format.
+    * @param string $module_name (optional) The name of the module to include as an override in the url.
     * @return string
     */
-    public static function getCurrentLevelPageUrl($page_name = '', $query_string_parameters = array()) {
-        return self::getInternalUrl('', framework()->getSubdirectories(), $page_name, $query_string_parameters);
+    public static function getCurrentLevelPageUrl($page_name = '', $query_string_parameters = array(), $module_name = '') {
+        return self::getInternalUrl($module_name, framework()->getSubdirectories(), $page_name, $query_string_parameters);
     }
     
     /**
@@ -261,13 +263,14 @@ final class Http {
     * @param array $subdirectories The subdirectories under the current level.    
     * @param string $page_name (optional) The name of the page.
     * @param array $query_string_parameters (optional) The rest of the query string in ('name' => 'value') format.    
+    * @param string $module_name (optional) The name of the module to include as an override in the url.
     * @return string
     */
-    public static function getLowerLevelPageUrl($subdirectories, $page_name = '', $query_string_parameters = array()) {
+    public static function getLowerLevelPageUrl($subdirectories, $page_name = '', $query_string_parameters = array(), $module_name = '') {
         assert('is_array($subdirectories)');
     
         $subdirectory_path = array_merge(framework()->getSubdirectories(), $subdirectories);
 
-        return self::getInternalUrl('', $subdirectory_path, $page_name, $query_string_parameters);
+        return self::getInternalUrl($module_name, $subdirectory_path, $page_name, $query_string_parameters);
     }
 }

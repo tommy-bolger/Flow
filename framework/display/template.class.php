@@ -36,12 +36,17 @@ class Template {
     /**
     * @var string The base template path to use for relative templates.
     */
-    private static $base_template_path;
+    private static $base_path = array();
 
     /**
     * @var string The path to the template file.
     */
     private $template_file_path;
+    
+    /**
+    * @var NULL|boolean Indicates if the template file exists at a specified path.
+    */
+    private $template_file_exists;
     
     /**
     * @var array The values of the template placeholders.
@@ -54,13 +59,17 @@ class Template {
     private $parsed_template;
     
     /**
-    * Sets the base path for relative templates.
+    * Adds a base path for relative templates.
     * 
-    * @param string $base_template_path The base template path.
+    * Paths are added to the beginning of the list of paths making them higher priority over previous paths. 
+    * 
+    * @param string $base_path The base template path.
     * @return void.
     */
-    public static function setBaseTemplatePath($base_template_path) {
-        self::$base_template_path = $base_template_path;
+    public static function addBasePath($base_path) {
+        $base_path = rtrim($base_path, '/');
+
+        self::$base_path[] = $base_path;
     }
     
     /**
@@ -85,10 +94,19 @@ class Template {
         if($relative) {
             $template_file_path = ltrim($template_file_path, '/');
 
-            $template_file_path = self::$base_template_path . "/{$template_file_path}";
+            foreach(self::$base_path as $base_path) {
+                $this->template_file_path = "{$base_path}/{$template_file_path}";
+
+                if(is_file($this->template_file_path)) {                    
+                    $this->template_file_exists = true;
+                    
+                    break;
+                }
+            }
         }
-        
-        $this->template_file_path = $template_file_path;
+        else {
+            $this->template_file_path = $template_file_path;
+        }
     }
     
     /**
@@ -154,11 +172,11 @@ class Template {
     * @return boolean
     */
     public function exists() {
-        if(is_file($this->template_file_path)) {
-            return true;
+        if(!isset($this->template_file_exists)) {
+            $this->template_file_exists = is_file($this->template_file_path);
         }
         
-        return false;
+        return $this->template_file_exists;
     }
     
     /**

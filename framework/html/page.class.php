@@ -193,7 +193,7 @@ class page {
         $this->enable_javascript = config('framework')->enable_javascript;
         
         //Set the assets location
-        $this->assets_path = './assets';
+        $this->assets_path = framework()->installation_path . '/public/assets';
     }
     
     /**
@@ -563,15 +563,18 @@ class page {
                 $css_html .= "<link rel=\"stylesheet\" href=\"{$css_http_path}\" type=\"text/css\" />";
             }
             else {
+                $base_url = Http::getBaseUrl() . '/assets/css/?file=';
+            
                 foreach($this->css_files as $css_file) {
-                    $css_html .= "<link rel='stylesheet' href='{$css_file}' type='text/css' />";
+                    $css_file = str_replace('./', '', $css_file);
+                
+                    $css_html .= "<link rel=\"stylesheet\" href=\"{$base_url}{$css_file}\" type=\"text/css\" />";
                 }
             }
         }
         
         if(!empty($this->inline_css)) {
-            $css_html .= "\n<style type=\"text/css\">\n" . 
-                implode("\n</style><style type=\"text/css\">\n", $this->inline_css) . "\n</style>";
+            $css_html .= "\n<style type=\"text/css\">\n" . implode("\n</style><style type=\"text/css\">\n", $this->inline_css) . "\n</style>";
         }
         
         return $css_html;
@@ -616,8 +619,10 @@ class page {
                 $javascript_html .= "<script type=\"text/javascript\" src=\"{$javascript_http_path}\"></script>";
             }
             else {
+                $base_url = Http::getBaseUrl() . '/assets/javascript/?file=';
+            
                 foreach($this->javascript_files as $javascript_file) {
-                    $javascript_html .= "<script type=\"text/javascript\" src=\"{$javascript_file}\"></script>";
+                    $javascript_html .= "<script type=\"text/javascript\" src=\"{$base_url}{$javascript_file}\"></script>";
                 }
             }
         }

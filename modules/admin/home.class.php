@@ -133,7 +133,7 @@ extends ModulePage {
         
         foreach($modules as $module) {
             $this->module_links[$module['module_name']]['top_nav'] = array(
-                $module['display_name'] => Http::getInternalUrl('', array('subd_1' => $module['module_name']))
+                $module['display_name'] => Http::getInternalUrl($module['module_name'], array('subd_1' => 'admin'))
             );
         }
     }

@@ -39,8 +39,8 @@ class Cache {
     private static $configuration = array(
         'default_cache_time' => 2592000,
         'cache_object_names' => array(
-            'apc' => '\Framework\Caching\APCModule',
-            'memcached' => '\Framework\Caching\MemcachedModule'
+            'apc' => '\Framework\Caching\Modules\APC',
+            'memcached' => '\Framework\Caching\Modules\Memcached'
         )
     );
     

@@ -41,6 +41,11 @@ use \Framework\Utilities\Encryption;
 class EditTable
 extends Table {
     /**
+    * @var string The name of the module to use in generated urls.
+    */
+    protected static $module_name;
+
+    /**
     * @var string The class name of the page to add/edit records for the table.
     */
     private $edit_page;
@@ -134,6 +139,16 @@ extends Table {
     * @var string The word to display to indicate the subject of the action.
     */
     protected $subject_title = 'Record';
+    
+    /**
+     * Sets the name of the module to include in generated urls.
+     *      
+     * @param string $module_name The name of the module.     
+     * @return void
+     */
+    public static function setModuleName($module_name) {
+        self::$module_name = $module_name;
+    }
 
     /**
      * Initializes a new instance of EditTable.
@@ -287,7 +302,7 @@ extends Table {
         assert('is_array($filter_options)');
 
         if(!empty($filter_options)) {            
-            $this->record_filter_form = new Form("{$this->name}_filter_form", Http::getPageUrl(), 'post', false);
+            $this->record_filter_form = new Form("{$this->name}_filter_form", Http::getPageUrl(array(), self::$module_name), 'post', false);
             
             $filter_options_name = "{$this->name}_filter_dropdown";
             
@@ -605,10 +620,10 @@ extends Table {
             case 'add':
                 assert('!empty($this->edit_page)');
             
-                $table_link_url = Http::getCurrentLevelPageUrl($this->edit_page, $page_table_parameters);
+                $table_link_url = Http::getCurrentLevelPageUrl($this->edit_page, $page_table_parameters, self::$module_name);
                 break;
             default:
-                $table_link_url = Http::getPageUrl($page_table_parameters);
+                $table_link_url = Http::getPageUrl($page_table_parameters, self::$module_name);
                 break;
         }
         

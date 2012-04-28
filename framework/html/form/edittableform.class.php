@@ -77,7 +77,7 @@ extends EditTable {
                 'table' => $this->name,
                 'token' => $this->request_token,
                 'action' => 'add'
-            )));
+            ), self::$module_name));
         }
     }
     

@@ -127,9 +127,9 @@ class File {
      * @return string
      */
     private function getFullDirectoryPath($file_path) {
-        $file_path = trim($file_path, '/') . '/';
+        $file_path = rtrim($file_path, '/');
         
-        return "{$this->cache_directory_path}{$file_path}";
+        return "{$this->cache_directory_path}/{$file_path}";
     }
     
     /**

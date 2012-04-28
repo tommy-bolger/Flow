@@ -80,7 +80,7 @@ extends Page {
         
         $module_templates_path = $this->module->getTemplatesPath();
         
-        Template::setBaseTemplatePath($module_templates_path);
+        Template::addBasePath($module_templates_path);
         
         //Add the current module style's error page template to display for errors if it exists.
         if($module_name != 'admin') {

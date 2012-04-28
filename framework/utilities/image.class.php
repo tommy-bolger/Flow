@@ -61,12 +61,31 @@ class Image {
     /**
     * @var float The height of the image file.
     */
-    private $height; 
+    private $height;
+    
+    /**
+    * Indicates if an image extension is valid.
+    * 
+    * @param string $image_extension The image extension. Can either be 'jpg', 'jpeg', 'png', or 'gif'.
+    * @return boolean
+    */
+    public static function isValidExtension($image_extension) {
+        switch($image_extension) {
+            case 'jpg':
+            case 'jpeg':
+            case 'png':
+            case 'gif':
+                return true;
+                break;
+        }
+        
+        return false;
+    }
 
     /**
     * Instantiates a new instance of Image.
     * 
-    * @param string $image_path The path oo the image to load.
+    * @param string $image_path The path of the image to load.
     * @return void
     */
     public function __construct($image_path) {

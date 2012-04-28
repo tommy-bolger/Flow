@@ -75,15 +75,15 @@ extends Module {
         
         $this->theme = $this->configuration->theme;
         
-        $page_assets_path = './assets';
+        $page_assets_path = framework()->installation_path;
         
         //Set the module's assets path
-        $this->assets_path = "{$page_assets_path}/modules/{$module_name}";
+        $this->assets_path = "{$page_assets_path}/modules/{$module_name}/assets";
         
         //Set the module's style path
         $this->theme_path = "{$this->assets_path}/styles/{$this->theme}";
         
-        $this->templates_path = framework()->installation_path . "/modules/{$module_name}/templates/{$this->theme}";
+        $this->templates_path = "{$this->theme_path}/templates";
             
         $this->images_path = "{$this->assets_path}/images";
         

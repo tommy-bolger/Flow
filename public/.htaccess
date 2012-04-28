@@ -3,6 +3,15 @@ RewriteEngine on
 
 RewriteRule ^$ - [L]
 
+#Translate assets/<directory>/<module_name>/<theme>/file urls
+RewriteRule ^assets/(.*)/(.*)/(.*)/((.*).(.*)) assets/$1/index.php?module=$2&theme=$3&file=$4 [QSA,L,NC]
+
+#Translate assets/<directory>/<module_name>/file urls
+RewriteRule ^assets/(.*)/(.*)/((.*).(.*)) assets/$1/index.php?module=$2&file=$3 [QSA,L,NC]
+
+#Translate assets/<directory>/file urls
+RewriteRule ^assets/(.*)/((.*).(.*)) assets/$1/index.php?file=$2 [QSA,L,NC]
+
 RewriteRule ^(assets) - [L]
 
 #Root directory page
