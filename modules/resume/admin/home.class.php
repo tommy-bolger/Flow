@@ -125,7 +125,12 @@ extends AdminHome {
                     'top_nav' => array(
                         'Resume' => Http::getInternalUrl('resume', array('admin'))
                     )
-                ),
+                )
+            );
+            
+            $this->module_links += $this->getSettingsLinks();
+            
+            $this->module_links += array(
                 'general_information' => array(
                     'top_nav' => array(
                         'General Information' => Http::getInternalUrl('resume', $general_information_path, 'edit')

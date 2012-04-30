@@ -1,6 +1,6 @@
 <?php
 /**
-* The home page of the Ads section for the Admin module.
+* The home page of the Settings section for the Admin module.
 * Copyright (c) 2011, Tommy Bolger
 * All rights reserved.
 * 
@@ -31,30 +31,45 @@
 * POSSIBILITY OF SUCH DAMAGE.
 */
 
-namespace Modules\Admin\Ads;
+namespace Modules\Admin\Settings;
 
 use \Modules\Admin\Home as AdminHome;
 use \Framework\Utilities\Http;
 
 class Home
 extends AdminHome {
-    protected $title = "Ads";
+    protected $title = "Settings";
     
-    protected $active_nav = 'ads';
+    protected $active_nav = 'settings';
     
-    protected $active_sub_nav_section = 'Ads';
+    protected $active_sub_nav_section = 'Settings';
+    
+    protected $module_id;        
 
-    public function __construct() {    
+    public function __construct() {
+        $this->module_id = request()->get->module_id;
+            
         parent::__construct();
     }
     
     protected function initializeModuleLinks() {
-        parent::getModuleSessionLinks();
+        if(!empty(request()->get->module_id)) {
+            parent::getModuleSessionLinks();
+        }
+        else {
+            parent::initializeModuleLinks();
+        }
     }
     
     protected function setPageLinks() {
-        $this->page_links = session()->module_path;
+        $this->page_links = session()->module_path;     
+                
+        $query_string_parameters = array();
         
-        $this->page_links['Ads'] = Http::getInternalUrl('', array('ads'), 'manage');
+        if(!empty($this->module_id)) {
+            $query_string_parameters['module_id'] = $this->module_id;
+        }
+        
+        $this->page_links['Settings'] = Http::getInternalUrl('', array('settings'), 'general', $query_string_parameters);
     }
 }

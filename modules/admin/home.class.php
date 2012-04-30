@@ -77,6 +77,42 @@ extends ModulePage {
         $this->constructFooter();
     }
     
+    protected function getModuleSessionLinks() {
+        $current_module_name = session()->current_module;
+        
+        $this->loadManagedModule($current_module_name);
+
+        $module_links_session_name = "{$current_module_name}_links";
+        
+        //Retrieve saved nav links in the session
+        if(isset(session()->$module_links_session_name)) {
+            $this->module_links = session()->$module_links_session_name;
+        }
+    }
+    
+    protected function getSettingsLinks() {
+        $settings_path = array('settings');
+        
+        $query_string_parameters = array();
+        
+        if(!empty($this->managed_module)) {
+            $query_string_parameters['module_id'] = $this->managed_module->getId();
+        }
+        
+        return array(
+            'settings' => array(
+                'top_nav' => array (
+                    'Settings' => Http::getInternalUrl('', $settings_path, 'general', $query_string_parameters)
+                ),
+                'sub_nav' => array(
+                    'Settings' => array(
+                        'General' => Http::getInternalUrl('', $settings_path, 'general', $query_string_parameters)
+                    )
+                )
+            )
+        );
+    }
+    
     protected function getAdsLinks() {
         $ads_path = array('ads');
         
@@ -130,6 +166,8 @@ extends ModulePage {
                 cache()->set('modules', $modules, 'module_links');
             }
         }
+        
+        $this->module_links = $this->getSettingsLinks();
         
         foreach($modules as $module) {
             $this->module_links[$module['module_name']]['top_nav'] = array(
