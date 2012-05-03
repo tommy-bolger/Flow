@@ -54,6 +54,22 @@ CREATE TABLE cms_errors (
 );
 
 -- ----------------------------
+-- Table structure for cms_meta_settings
+-- ----------------------------
+CREATE TABLE cms_meta_settings (
+  meta_setting_id integer PRIMARY KEY,
+  module_id integer NOT NULL,
+  tag_name varchar(30),
+  http_equiv varchar(30),
+  content text NOT NULL,
+  is_active smallint NOT NULL,
+  sort_order smallint NOT NULL,
+  CONSTRAINT cms_module_id_fk FOREIGN KEY (module_id) REFERENCES cms_modules (module_id) ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+CREATE INDEX cms_module_id_fk ON cms_meta_settings (module_id);
+
+-- ----------------------------
 -- Table structure for cms_modules
 -- ----------------------------
 CREATE TABLE cms_modules (
@@ -68,15 +84,6 @@ CREATE TABLE cms_modules (
 -- Records of cms_modules
 -- ----------------------------
 INSERT INTO cms_modules VALUES (1, 'admin', 'Admin', 1, 1);
-
--- ----------------------------
--- Table structure for cms_pages
--- ----------------------------
-CREATE TABLE cms_pages (
-  page_id integer PRIMARY KEY,
-  page_name varchar(25) NOT NULL,
-  page_location text NOT NULL
-);
 
 -- ----------------------------
 -- Table structure for cms_parameter_data_types
@@ -169,6 +176,22 @@ CREATE TABLE cms_sessions (
   session_data text NOT NULL,
   expire_time int NOT NULL
 );
+
+-- ----------------------------
+-- Table structure for cms_static_pages
+-- ----------------------------
+CREATE TABLE cms_static_pages (
+  static_page_id integer PRIMARY KEY,
+  module_id integer NOT NULL,
+  page_name varchar(100) NOT NULL,
+  display_name varchar(255) NOT NULL,
+  title varchar(255),
+  content text,
+  is_active tinyint NOT NULL,
+  CONSTRAINT csp_module_id_fk FOREIGN KEY (module_id) REFERENCES cms_modules (module_id) ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+CREATE INDEX csp_module_id_fk ON cms_static_pages (module_id);
 
 -- ----------------------------
 -- Table structure for cms_us_states

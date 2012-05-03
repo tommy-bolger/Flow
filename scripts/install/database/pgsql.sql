@@ -59,6 +59,26 @@ CREATE SEQUENCE ce_error_id_seq
 ALTER SEQUENCE ce_error_id_seq OWNED BY cms_errors.error_id;
 
 
+CREATE TABLE cms_meta_settings (
+  meta_setting_id integer NOT NULL,
+  module_id integer NOT NULL,
+  tag_name character varying(30),
+  http_equiv character varying(30),
+  content text NOT NULL,
+  is_active smallint NOT NULL,
+  sort_order smallint NOT NULL
+);
+
+CREATE SEQUENCE cms_meta_setting_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MAXVALUE
+    NO MINVALUE
+    CACHE 1;
+
+ALTER SEQUENCE cms_meta_setting_id_seq OWNED BY cms_meta_settings.meta_setting_id;
+
+
 CREATE TABLE cms_modules (
     module_id integer NOT NULL,
     module_name character varying(50) NOT NULL,
@@ -77,22 +97,6 @@ CREATE SEQUENCE cm_module_id_seq
 ALTER SEQUENCE cm_module_id_seq OWNED BY cms_modules.module_id;
 
 SELECT pg_catalog.setval('cm_module_id_seq', 1, true);
-
-
-CREATE TABLE cms_pages (
-    page_id integer NOT NULL,
-    page_name character varying(25) NOT NULL,
-    page_location text NOT NULL
-);
-
-CREATE SEQUENCE cp_page_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MAXVALUE
-    NO MINVALUE
-    CACHE 1;
-
-ALTER SEQUENCE cp_page_id_seq OWNED BY cms_pages.page_id;
 
 
 CREATE TABLE cms_parameter_data_types (
@@ -181,6 +185,26 @@ CREATE TABLE cms_sessions (
 );
 
 
+CREATE TABLE cms_static_pages (
+  static_page_id integer NOT NULL,
+  module_id integer NOT NULL,
+  page_name character varying(100) NOT NULL,
+  display_name character varying(255) NOT NULL,
+  title character varying(255),
+  content text,
+  is_active smallint NOT NULL
+);
+
+CREATE SEQUENCE csp_static_page_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MAXVALUE
+    NO MINVALUE
+    CACHE 1;
+
+ALTER SEQUENCE csp_static_page_id_seq OWNED BY cms_static_pages.static_page_id;
+
+
 CREATE TABLE cms_us_states (
     state_id integer NOT NULL,
     abbreviation character varying(3) NOT NULL,
@@ -228,9 +252,9 @@ ALTER TABLE cms_configuration_parameters ALTER COLUMN configuration_parameter_id
 
 ALTER TABLE cms_errors ALTER COLUMN error_id SET DEFAULT nextval('ce_error_id_seq'::regclass);
 
-ALTER TABLE cms_modules ALTER COLUMN module_id SET DEFAULT nextval('cm_module_id_seq'::regclass);
+ALTER TABLE cms_meta_settings ALTER COLUMN meta_setting_id SET DEFAULT nextval('cms_meta_setting_id_seq'::regclass);
 
-ALTER TABLE cms_pages ALTER COLUMN page_id SET DEFAULT nextval('cp_page_id_seq'::regclass);
+ALTER TABLE cms_modules ALTER COLUMN module_id SET DEFAULT nextval('cm_module_id_seq'::regclass);
 
 ALTER TABLE cms_parameter_values ALTER COLUMN parameter_value_id SET DEFAULT nextval('cpv_parameter_value_id_seq'::regclass);
 
@@ -239,6 +263,8 @@ ALTER TABLE cms_permissions ALTER COLUMN permission_id SET DEFAULT nextval('cp_p
 ALTER TABLE cms_role_permission_affiliation ALTER COLUMN role_permission_affiliation_id SET DEFAULT nextval('crpa_role_permission_affiliation_id_'::regclass);
 
 ALTER TABLE cms_roles ALTER COLUMN role_id SET DEFAULT nextval('cr_role_id_seq'::regclass);
+
+ALTER TABLE cms_static_pages ALTER COLUMN static_page_id SET DEFAULT nextval('csp_static_page_id_seq'::regclass);
 
 ALTER TABLE cms_user_role_affiliation ALTER COLUMN user_role_affiliation_id SET DEFAULT nextval('cura_user_role_affiliation_id_seq'::regclass);
 
@@ -335,11 +361,11 @@ ALTER TABLE ONLY cms_configuration_parameters
 ALTER TABLE ONLY cms_errors
     ADD CONSTRAINT ce_error_id_pk PRIMARY KEY (error_id);
 
+ALTER TABLE ONLY cms_meta_settings
+    ADD CONSTRAINT cms_meta_setting_id_pk PRIMARY KEY (meta_setting_id);
+
 ALTER TABLE ONLY cms_modules
     ADD CONSTRAINT cm_module_id_pk PRIMARY KEY (module_id);
-
-ALTER TABLE ONLY cms_pages
-    ADD CONSTRAINT cp_pages_pk PRIMARY KEY (page_id);
 
 ALTER TABLE ONLY cms_parameter_data_types
     ADD CONSTRAINT cpdt_parameter_data_type_id_pk PRIMARY KEY (parameter_data_type_id);
@@ -358,6 +384,9 @@ ALTER TABLE ONLY cms_role_permission_affiliation
 
 ALTER TABLE ONLY cms_sessions
     ADD CONSTRAINT cs_session_id_pk PRIMARY KEY (session_id);
+    
+ALTER TABLE ONLY cms_static_pages
+    ADD CONSTRAINT csp_static_page_id_pk PRIMARY KEY (static_page_id);
 
 ALTER TABLE ONLY cms_us_states
     ADD CONSTRAINT cus_state_id_pk PRIMARY KEY (state_id);
@@ -382,6 +411,9 @@ ALTER TABLE ONLY cms_permissions
 ALTER TABLE ONLY cms_errors
     ADD CONSTRAINT ce_module_id_fk FOREIGN KEY (module_id) REFERENCES cms_modules(module_id) ON UPDATE CASCADE ON DELETE CASCADE;
 
+ALTER TABLE ONLY cms_meta_settings
+    ADD CONSTRAINT cms_module_id_fk FOREIGN KEY (module_id) REFERENCES cms_modules(module_id) ON UPDATE CASCADE ON DELETE CASCADE;
+
 ALTER TABLE ONLY cms_configuration_parameters
     ADD CONSTRAINT ccp_module_id_fk FOREIGN KEY (module_id) REFERENCES cms_modules(module_id) ON UPDATE CASCADE ON DELETE CASCADE;
 
@@ -390,6 +422,9 @@ ALTER TABLE ONLY cms_configuration_parameters
 
 ALTER TABLE ONLY cms_role_permission_affiliation
     ADD CONSTRAINT crpa_permission_id_fk FOREIGN KEY (permission_id) REFERENCES cms_permissions(permission_id) ON UPDATE CASCADE ON DELETE CASCADE;
+   
+ALTER TABLE ONLY cms_static_pages
+    ADD CONSTRAINT csp_module_id_fk FOREIGN KEY (module_id) REFERENCES cms_modules(module_id) ON UPDATE CASCADE ON DELETE CASCADE;    
 
 ALTER TABLE ONLY cms_role_permission_affiliation
     ADD CONSTRAINT crpa_role_id_fk FOREIGN KEY (role_id) REFERENCES cms_roles(role_id) ON UPDATE CASCADE ON DELETE CASCADE;

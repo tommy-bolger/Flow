@@ -57,6 +57,22 @@ CREATE TABLE `cms_errors` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 -- ----------------------------
+-- Table structure for `cms_meta_settings`
+-- ----------------------------
+CREATE TABLE `cms_meta_settings` (
+  `meta_setting_id` smallint(1) NOT NULL AUTO_INCREMENT,
+  `module_id` int(1) NOT NULL,
+  `tag_name` varchar(30) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `http_equiv` varchar(30) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `content` text COLLATE utf8_unicode_ci NOT NULL,
+  `is_active` tinyint(1) NOT NULL,
+  `sort_order` smallint(1) NOT NULL,
+  PRIMARY KEY (`meta_setting_id`),
+  KEY `cms_module_id_fk` (`module_id`),
+  CONSTRAINT `cms_module_id_fk` FOREIGN KEY (`module_id`) REFERENCES `cms_modules` (`module_id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci
+
+-- ----------------------------
 -- Table structure for `cms_modules`
 -- ----------------------------
 DROP TABLE IF EXISTS `cms_modules`;
@@ -73,17 +89,6 @@ CREATE TABLE `cms_modules` (
 -- Records of cms_modules
 -- ----------------------------
 INSERT INTO `cms_modules` VALUES ('1', 'admin', 'Admin', '1', '1');
-
--- ----------------------------
--- Table structure for `cms_pages`
--- ----------------------------
-DROP TABLE IF EXISTS `cms_pages`;
-CREATE TABLE `cms_pages` (
-  `page_id` int(1) NOT NULL AUTO_INCREMENT,
-  `page_name` varchar(25) COLLATE utf8_unicode_ci NOT NULL,
-  `page_location` text COLLATE utf8_unicode_ci NOT NULL,
-  PRIMARY KEY (`page_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 -- ----------------------------
 -- Table structure for `cms_parameter_data_types`
@@ -186,6 +191,22 @@ CREATE TABLE `cms_sessions` (
   `expire_time` int(1) NOT NULL,
   PRIMARY KEY (`session_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+-- ----------------------------
+-- Table structure for `cms_static_pages`
+-- ----------------------------
+CREATE TABLE `cms_static_pages` (
+  `static_page_id` int(1) NOT NULL AUTO_INCREMENT,
+  `module_id` int(1) NOT NULL,
+  `page_name` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
+  `display_name` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `title` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `content` text COLLATE utf8_unicode_ci,
+  `is_active` tinyint(1) NOT NULL,
+  PRIMARY KEY (`static_page_id`),
+  KEY `csp_module_id_fk` (`module_id`),
+  CONSTRAINT `csp_module_id_fk` FOREIGN KEY (`module_id`) REFERENCES `cms_modules` (`module_id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci
 
 -- ----------------------------
 -- Table structure for `cms_us_states`
