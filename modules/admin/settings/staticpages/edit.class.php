@@ -1,6 +1,6 @@
 <?php
 /**
-* The home page of the Settings section for the Admin module.
+* The edit page of the static page section of the Admin module.
 * Copyright (c) 2011, Tommy Bolger
 * All rights reserved.
 * 
@@ -31,45 +31,56 @@
 * POSSIBILITY OF SUCH DAMAGE.
 */
 
-namespace Modules\Admin\Settings;
+namespace Modules\Admin\Settings\StaticPages;
 
-use \Modules\Admin\Home as AdminHome;
+use \Framework\Html\Form\EditTableForm;
 use \Framework\Utilities\Http;
 
-class Home
-extends AdminHome {
-    protected $title = "Settings";
-    
-    protected $active_nav = 'settings';
-    
-    protected $active_sub_nav_section = 'Settings';
-    
-    protected $module_id;
+class Edit
+extends Manage {
+    protected $title = "Add/Edit Static Pages";
 
     public function __construct() {
-        $this->module_id = request()->module_id;
-            
         parent::__construct();
     }
     
-    protected function initializeModuleLinks() {
-        if(!empty($this->module_id)) {
-            parent::getModuleSessionLinks();
-        }
-        else {
-            parent::initializeModuleLinks();
-        }
+    protected function setPageLinks() {
+        parent::setPageLinks();
+        
+        $this->page_links['Edit'] = Http::getInternalUrl('', array(
+            'settings',
+            'static-pages'
+        ), 'edit');
     }
     
-    protected function setPageLinks() {
-        $this->page_links = session()->module_path;     
-                
-        $query_string_parameters = array();
+    protected function constructRightContent() {
+        $static_page_id = request()->get->static_page_id;
+    
+        $static_page_form = new EditTableForm('static_pages', 'cms_static_pages', 'static_page_id', 'sort_order', array('module_id'));
         
-        if(!empty($this->module_id)) {
-            $query_string_parameters['module_id'] = $this->module_id;
-        }
+        $static_page_form->setTitle('Edit this Static Page');        
+
+        $static_page_form->addHidden('module_id', $this->module_id);
         
-        $this->page_links['Settings'] = Http::getInternalUrl('', array('settings'), 'general', $query_string_parameters);
+        $display_name = db()->getOne("
+            SELECT display_name
+            FROM cms_static_pages
+            WHERE static_page_id = ?
+        ", array($static_page_id));
+        
+        $static_page_form->addReadOnly('display_name', 'Page', $display_name);
+        $static_page_form->addTextbox('title', 'Title')->setMaxLength(255);
+        $static_page_form->addTextArea('content', 'Content');
+        $static_page_form->addBooleanCheckbox('is_active', 'Active');
+        $static_page_form->addSubmit('save', 'Save');
+        
+        $static_page_form->setRequiredFields(array(
+            'title',
+            'content'
+        ));
+        
+        $static_page_form->processForm();
+        
+        $this->body->addChild($static_page_form, 'current_menu_content');
     }
 }

@@ -93,13 +93,19 @@ extends ModulePage {
     protected function getSettingsLinks() {
         $settings_path = array('settings');
         
+        $meta_settings_path = $settings_path;
+        $meta_settings_path[] = 'meta';
+        
+        $static_pages_path = $settings_path;
+        $static_pages_path[] = 'static-pages';
+        
         $query_string_parameters = array();
         
         if(!empty($this->managed_module)) {
             $query_string_parameters['module_id'] = $this->managed_module->getId();
         }
         
-        return array(
+        $settings_links = array(
             'settings' => array(
                 'top_nav' => array (
                     'Settings' => Http::getInternalUrl('', $settings_path, 'general', $query_string_parameters)
@@ -111,6 +117,23 @@ extends ModulePage {
                 )
             )
         );
+        
+        if(!empty($this->managed_module)) {
+            if(!empty($this->managed_module->configuration->has_meta_settings)) {
+                $settings_links['settings']['sub_nav']['Meta'] = array(
+                    'Manage' => Http::getInternalUrl('', $meta_settings_path, 'manage', $query_string_parameters),
+                    'Add/Edit' => Http::getInternalUrl('', $meta_settings_path, 'add', $query_string_parameters),
+                );
+            }
+            
+            if(!empty($this->managed_module->configuration->has_static_pages)) {
+                $settings_links['settings']['sub_nav']['Static Pages'] = array(
+                    'Manage' => Http::getInternalUrl('', $static_pages_path, 'manage', $query_string_parameters)
+                );
+            }
+        }
+        
+        return $settings_links;
     }
     
     protected function getAdsLinks() {

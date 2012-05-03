@@ -1,6 +1,6 @@
 <?php
 /**
-* The home page of the Settings section for the Admin module.
+* The home page for the meta settings section of the admin module.
 * Copyright (c) 2011, Tommy Bolger
 * All rights reserved.
 * 
@@ -31,45 +31,29 @@
 * POSSIBILITY OF SUCH DAMAGE.
 */
 
-namespace Modules\Admin\Settings;
+namespace Modules\Admin\Settings\Meta;
 
-use \Modules\Admin\Home as AdminHome;
+use \Modules\Admin\Settings\Home as SettingsHome;
 use \Framework\Utilities\Http;
 
 class Home
-extends AdminHome {
-    protected $title = "Settings";
+extends SettingsHome {
+    protected $title = "Meta Settings";
     
-    protected $active_nav = 'settings';
-    
-    protected $active_sub_nav_section = 'Settings';
-    
-    protected $module_id;
+    protected $active_sub_nav_section = 'Meta';
 
     public function __construct() {
-        $this->module_id = request()->module_id;
-            
         parent::__construct();
     }
     
-    protected function initializeModuleLinks() {
-        if(!empty($this->module_id)) {
-            parent::getModuleSessionLinks();
-        }
-        else {
-            parent::initializeModuleLinks();
-        }
-    }
-    
     protected function setPageLinks() {
-        $this->page_links = session()->module_path;     
-                
-        $query_string_parameters = array();
+        parent::setPageLinks();
         
-        if(!empty($this->module_id)) {
-            $query_string_parameters['module_id'] = $this->module_id;
-        }
-        
-        $this->page_links['Settings'] = Http::getInternalUrl('', array('settings'), 'general', $query_string_parameters);
+        $this->page_links['Meta'] = Http::getInternalUrl('', array(
+            'settings',
+            'meta'
+        ), 'manage', array(
+            'module_id' => $this->module_id
+        ));
     }
 }
