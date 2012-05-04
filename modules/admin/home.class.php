@@ -49,8 +49,6 @@ extends ModulePage {
     
     protected $managed_module;
     
-    protected $module_id;
-    
     protected $module_links = array();
     
     protected $page_links = array();
