@@ -46,8 +46,14 @@ extends Home {
     
     protected function setPageLinks() {
         parent::setPageLinks();
+        
+        $query_string_parameters = array();
+        
+        if(!empty($this->managed_module)) {
+            $query_string_parameters['module_id'] = $this->managed_module->getId();
+        }
 
-        $this->page_links[$this->title] = Http::getCurrentLevelPageUrl('site-error');
+        $this->page_links[$this->title] = Http::getCurrentLevelPageUrl('one', $query_string_parameters);
     }
 
     protected function constructRightContent() {

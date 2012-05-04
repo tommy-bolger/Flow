@@ -55,9 +55,13 @@ extends Home {
     protected function setPageLinks() {
         parent::setPageLinks();
         
-        $this->page_links['General'] = Http::getInternalUrl('', array('settings'), 'general', array(
-            'module_id' => $this->managed_module->getId()
-        ));
+        $query_string_parameters = array();
+        
+        if(!empty($this->managed_module)) {
+            $query_string_parameters['module_id'] = $this->managed_module->getId();
+        }
+        
+        $this->page_links['General'] = Http::getInternalUrl('', array('settings'), 'general', $query_string_parameters);
     }
     
     protected function constructRightContent() {

@@ -45,13 +45,17 @@ extends ErrorsHome {
     }
     
     protected function setPageLinks() {
-        parent::setPageLinks();    
+        parent::setPageLinks();
+        
+        $query_string_parameters = array();
+        
+        if(!empty($this->managed_module)) {
+            $query_string_parameters['module_id'] = $this->managed_module->getId();
+        }
         
         $this->page_links['View'] = Http::getInternalUrl('', array(
             'errors',
             'view'
-        ), 'all', array(
-            'module_id' => $this->managed_module->getId()
-        ));
+        ), 'all', $query_string_parameters);
     }
 }
