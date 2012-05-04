@@ -1,6 +1,6 @@
 <?php
 /**
-* The home page of the Settings section for the Admin module.
+* The home page of the errors section for the Admin module.
 * Copyright (c) 2011, Tommy Bolger
 * All rights reserved.
 * 
@@ -31,43 +31,27 @@
 * POSSIBILITY OF SUCH DAMAGE.
 */
 
-namespace Modules\Admin\Settings;
+namespace Modules\Admin\Errors\View;
 
-use \Modules\Admin\Home as AdminHome;
+use \Modules\Admin\Errors\Home as ErrorsHome;
 use \Framework\Utilities\Http;
 
 class Home
-extends AdminHome {
-    protected $title = "Settings";
-    
-    protected $active_nav = 'settings';
-    
-    protected $active_sub_nav_section = 'Settings';
+extends ErrorsHome {
+    protected $title = "View Errors";
 
     public function __construct() {            
         parent::__construct();
     }
     
-    protected function initializeModuleLinks() {
-        $module_id = request()->module_id;
-        
-        if(!empty($module_id)) {
-            parent::getModuleSessionLinks();
-        }
-        else {
-            parent::initializeModuleLinks();
-        }
-    }
-    
     protected function setPageLinks() {
-        $this->page_links = session()->module_path;     
-                
-        $query_string_parameters = array();
+        parent::setPageLinks();    
         
-        if(!empty($this->managed_module)) {
-            $query_string_parameters['module_id'] = $this->managed_module->getId();
-        }
-        
-        $this->page_links['Settings'] = Http::getInternalUrl('', array('settings'), 'general', $query_string_parameters);
+        $this->page_links['View'] = Http::getInternalUrl('', array(
+            'errors',
+            'view'
+        ), 'all', array(
+            'module_id' => $this->managed_module->getId()
+        ));
     }
 }

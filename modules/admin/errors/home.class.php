@@ -1,6 +1,6 @@
 <?php
 /**
-* The home page of the Settings section for the Admin module.
+* The home page of the errors section for the Admin module.
 * Copyright (c) 2011, Tommy Bolger
 * All rights reserved.
 * 
@@ -31,18 +31,20 @@
 * POSSIBILITY OF SUCH DAMAGE.
 */
 
-namespace Modules\Admin\Settings;
+namespace Modules\Admin\Errors;
 
 use \Modules\Admin\Home as AdminHome;
 use \Framework\Utilities\Http;
 
 class Home
 extends AdminHome {
-    protected $title = "Settings";
+    protected $title = "Errors";
     
-    protected $active_nav = 'settings';
+    protected $active_nav = 'errors';
     
-    protected $active_sub_nav_section = 'Settings';
+    protected $active_sub_nav_section = 'Errors';
+    
+    protected $active_sub_nav_link = 'View All';
 
     public function __construct() {            
         parent::__construct();
@@ -50,7 +52,7 @@ extends AdminHome {
     
     protected function initializeModuleLinks() {
         $module_id = request()->module_id;
-        
+    
         if(!empty($module_id)) {
             parent::getModuleSessionLinks();
         }
@@ -68,6 +70,9 @@ extends AdminHome {
             $query_string_parameters['module_id'] = $this->managed_module->getId();
         }
         
-        $this->page_links['Settings'] = Http::getInternalUrl('', array('settings'), 'general', $query_string_parameters);
+        $this->page_links['Errors'] = Http::getInternalUrl('', array(
+            'errors',
+            'view'
+        ), 'all', $query_string_parameters);
     }
 }

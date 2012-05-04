@@ -1,6 +1,6 @@
 <?php
 /**
-* The home page of the Settings section for the Admin module.
+* The home page of the Admin module.
 * Copyright (c) 2011, Tommy Bolger
 * All rights reserved.
 * 
@@ -31,43 +31,49 @@
 * POSSIBILITY OF SUCH DAMAGE.
 */
 
-namespace Modules\Admin\Settings;
+namespace Modules\Admin\Errors\View;
 
-use \Modules\Admin\Home as AdminHome;
 use \Framework\Utilities\Http;
+use \Framework\Debug\PageError;
 
-class Home
-extends AdminHome {
-    protected $title = "Settings";
-    
-    protected $active_nav = 'settings';
-    
-    protected $active_sub_nav_section = 'Settings';
+class One
+extends Home {
+    protected $title = "Site Error";
 
-    public function __construct() {            
+    public function __construct() {
         parent::__construct();
     }
     
-    protected function initializeModuleLinks() {
-        $module_id = request()->module_id;
-        
-        if(!empty($module_id)) {
-            parent::getModuleSessionLinks();
-        }
-        else {
-            parent::initializeModuleLinks();
-        }
-    }
-    
     protected function setPageLinks() {
-        $this->page_links = session()->module_path;     
-                
-        $query_string_parameters = array();
+        parent::setPageLinks();
+
+        $this->page_links[$this->title] = Http::getCurrentLevelPageUrl('site-error');
+    }
+
+    protected function constructRightContent() {
+        request()->get->setRequired(array('error_id'));
         
-        if(!empty($this->managed_module)) {
-            $query_string_parameters['module_id'] = $this->managed_module->getId();
-        }
+        $error_id = request()->get->getVariable('error_id', 'integer');
         
-        $this->page_links['Settings'] = Http::getInternalUrl('', array('settings'), 'general', $query_string_parameters);
+        $error_data = db()->getRow("
+            SELECT
+                error_code,
+                error_message,
+                error_file,
+                error_line,
+                error_trace
+            FROM cms_errors
+            WHERE error_id = ?
+        ", array($error_id));
+        
+        $error_html = framework()->error_handler->getDebugHtml(
+            $error_data['error_code'],
+            $error_data['error_message'],
+            $error_data['error_file'],
+            $error_data['error_line'],
+            $error_data['error_trace']
+        );
+
+        $this->body->addChild($error_html, 'current_menu_content');
     }
 }

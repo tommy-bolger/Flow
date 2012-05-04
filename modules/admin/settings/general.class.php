@@ -55,25 +55,18 @@ extends Home {
     protected function setPageLinks() {
         parent::setPageLinks();
         
-        $query_string_parameters = array();
-        
-        if(!empty($this->module_id)) {
-            $query_string_parameters['module_id'] = $this->module_id;
-        }
-        
-        $this->page_links['General'] = Http::getInternalUrl('', array('settings'), 'general', $query_string_parameters);
+        $this->page_links['General'] = Http::getInternalUrl('', array('settings'), 'general', array(
+            'module_id' => $this->managed_module->getId()
+        ));
     }
     
     protected function constructRightContent() {
-        $module_id = request()->get->module_id;
-        
+        $module_id = NULL;        
         $module_where_clause = '';
         $module_placeholder_values = array();
         
-        if(empty($module_id)) {
-            $module_id = NULL;
-        }
-        else {
+        if(!empty($this->managed_module)) {
+            $module_id = $this->managed_module->getId();
             $module_placeholder_values[] = $module_id;
         }
         

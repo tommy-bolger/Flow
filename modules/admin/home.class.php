@@ -49,6 +49,8 @@ extends ModulePage {
     
     protected $managed_module;
     
+    protected $module_id;
+    
     protected $module_links = array();
     
     protected $page_links = array();
@@ -88,6 +90,32 @@ extends ModulePage {
         if(isset(session()->$module_links_session_name)) {
             $this->module_links = session()->$module_links_session_name;
         }
+    }
+    
+    protected function getErrorsLinks() {
+        $errors_path = array(
+            'errors',
+            'view'
+        );
+        
+        $query_string_parameters = array();
+        
+        if(!empty($this->managed_module)) {
+            $query_string_parameters['module_id'] = $this->managed_module->getId();
+        }
+        
+        return array(
+            'errors' => array(
+                'top_nav' => array (
+                    'Errors' => Http::getInternalUrl('', $errors_path, 'all', $query_string_parameters)
+                ),
+                'sub_nav' => array(
+                    'Errors' => array(
+                        'View All' => Http::getInternalUrl('', $errors_path, 'all', $query_string_parameters)
+                    )
+                )
+            )
+        );
     }
     
     protected function getSettingsLinks() {
@@ -190,7 +218,9 @@ extends ModulePage {
             }
         }
         
-        $this->module_links = $this->getSettingsLinks();
+        $this->module_links = $this->getErrorsLinks();
+        
+        $this->module_links += $this->getSettingsLinks();
         
         foreach($modules as $module) {
             $this->module_links[$module['module_name']]['top_nav'] = array(

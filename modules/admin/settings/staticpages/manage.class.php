@@ -53,7 +53,7 @@ extends Home {
             'settings',
             'static-pages'
         ), 'manage', array(
-            'module_id' => $this->module_id
+            'module_id' => $this->managed_module->getId()
         ));
     }
     

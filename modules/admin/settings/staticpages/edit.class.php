@@ -60,7 +60,7 @@ extends Manage {
         
         $static_page_form->setTitle('Edit this Static Page');        
 
-        $static_page_form->addHidden('module_id', $this->module_id);
+        $static_page_form->addHidden('module_id', $this->managed_module->getId());
         
         $display_name = db()->getOne("
             SELECT display_name

@@ -128,6 +128,8 @@ extends AdminHome {
                 )
             );
             
+            $this->module_links += $this->getErrorsLinks();
+            
             $this->module_links += $this->getSettingsLinks();
             
             $this->module_links += array(

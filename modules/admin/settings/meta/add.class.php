@@ -58,7 +58,7 @@ extends Home {
     protected function constructRightContent() {    
         $meta_settings_form = new EditTableForm('meta_settings', 'cms_meta_settings', 'meta_setting_id', 'sort_order', array('module_id'));
 
-        $meta_settings_form->addHidden('module_id', $this->module_id);
+        $meta_settings_form->addHidden('module_id', $this->managed_module->getId());
         
         $meta_settings_form->setTitle('Add a New Meta Setting');
 
