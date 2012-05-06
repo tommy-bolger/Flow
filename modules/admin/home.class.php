@@ -162,6 +162,24 @@ extends ModulePage {
         return $settings_links;
     }
     
+    protected function getAdministratorsLinks() {
+        $administrators_path = array('administrators');
+    
+        return array(
+            'administrators' => array(
+                'top_nav' => array(
+                    'Administrators' => Http::getInternalUrl('', $administrators_path, 'manage')
+                ),
+                'sub_nav' => array(
+                    'Administrators' => array(
+                        'Manage' => Http::getInternalUrl('', $administrators_path, 'manage'),
+                        'Add/Edit' => Http::getInternalUrl('', $administrators_path, 'add')
+                    )
+                )
+            )
+        );
+    }
+    
     protected function getAdsLinks() {
         $ads_path = array('ads');
         
@@ -219,6 +237,8 @@ extends ModulePage {
         $this->module_links = $this->getErrorsLinks();
         
         $this->module_links += $this->getSettingsLinks();
+        
+        $this->module_links += $this->getAdministratorsLinks();
         
         foreach($modules as $module) {
             $this->module_links[$module['module_name']]['top_nav'] = array(
