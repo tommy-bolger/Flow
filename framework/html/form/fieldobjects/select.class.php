@@ -52,7 +52,7 @@ extends Field {
     public function __construct($select_name, $select_label, $options = array(), $css_classes = array()) {
         parent::__construct(NULL, $select_name, $select_label, $css_classes);
         
-        if(is_array($options[key($options)])) {
+        if(!empty($options) && is_array($options[key($options)])) {
             foreach($options as $option_group => $options) {
                 $this->addOptions($options, $option_group);
             }
