@@ -1,6 +1,6 @@
 <?php
 /**
-* The add/edit page of the Ads section for the Admin module.
+* The add/edit page of the administrators section for the Admin module.
 * Copyright (c) 2011, Tommy Bolger
 * All rights reserved.
 * 
