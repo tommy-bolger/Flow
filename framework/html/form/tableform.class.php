@@ -129,6 +129,11 @@ extends Form {
 
                                 $column_count = 3;
                             }
+                            else {
+                                if($column_count == 3) {
+                                    $row[] = '&nbsp;';
+                                }
+                            }
                         }
                         else {
                             $row[] = array(

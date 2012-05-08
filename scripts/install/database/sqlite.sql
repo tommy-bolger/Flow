@@ -135,7 +135,7 @@ CREATE TABLE cms_permissions (
   display_name varchar(100) NOT NULL,
   description varchar(255),
   module_id integer NOT NULL,
-  sort_order smallint NOT NULL,
+  sort_order integer NOT NULL
   FOREIGN KEY (module_id) REFERENCES cms_modules (module_id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 

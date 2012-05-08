@@ -125,6 +125,12 @@ extends ModulePage {
         $static_pages_path = $settings_path;
         $static_pages_path[] = 'static-pages';
         
+        $roles_path = $settings_path;
+        $roles_path[] = 'roles';
+        
+        $permissions_path = $settings_path;
+        $permissions_path[] = 'permissions';
+        
         $query_string_parameters = array();
         
         if(!empty($this->managed_module)) {
@@ -148,13 +154,26 @@ extends ModulePage {
             if(!empty($this->managed_module->configuration->has_meta_settings)) {
                 $settings_links['settings']['sub_nav']['Meta'] = array(
                     'Manage' => Http::getInternalUrl('', $meta_settings_path, 'manage', $query_string_parameters),
-                    'Add/Edit' => Http::getInternalUrl('', $meta_settings_path, 'add', $query_string_parameters),
+                    'Add/Edit' => Http::getInternalUrl('', $meta_settings_path, 'add', $query_string_parameters)
                 );
             }
             
             if(!empty($this->managed_module->configuration->has_static_pages)) {
                 $settings_links['settings']['sub_nav']['Static Pages'] = array(
                     'Manage' => Http::getInternalUrl('', $static_pages_path, 'manage', $query_string_parameters)
+                );
+            }
+            
+            if(true || !empty($this->managed_module->configuration->has_roles)) {
+                $settings_links['settings']['sub_nav']['Roles'] = array(
+                    'Manage' => Http::getInternalUrl('', $roles_path, 'manage', $query_string_parameters),
+                    'Add/Edit' => Http::getInternalUrl('', $roles_path, 'add', $query_string_parameters),
+                );
+            }
+            
+            if(true || !empty($this->managed_module->configuration->has_permissions)) {
+                $settings_links['settings']['sub_nav']['Permissions'] = array(
+                    'Manage' => Http::getInternalUrl('', $permissions_path, 'manage', $query_string_parameters)
                 );
             }
         }

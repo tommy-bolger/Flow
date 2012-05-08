@@ -366,7 +366,7 @@ extends Element {
                     
                     foreach($body_rows as $row) {
                         if($this->pad_rows) {
-                            assert('isset($this->number_of_columns) //Number of columns for this table has not been set.');
+                            assert('isset($this->number_of_columns)');
 
                             $row = array_pad($row, $this->number_of_columns, '&nbsp;');
                         }

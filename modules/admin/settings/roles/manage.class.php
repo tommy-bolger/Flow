@@ -1,6 +1,6 @@
 <?php
 /**
-* The management page for configurations.
+* The management page for roles.
 * Copyright (c) 2011, Tommy Bolger
 * All rights reserved.
 * 
@@ -31,59 +31,73 @@
 * POSSIBILITY OF SUCH DAMAGE.
 */
 
-namespace Modules\Admin;
+namespace Modules\Admin\Settings\Roles;
 
-use \Framework\Html\Misc\Div;
-use \Framework\Html\Table\EditTableForm;
+use \Framework\Html\Table\EditTable;
+use \Framework\Utilities\Http;
 
-class ToggleModules
+class Manage
 extends Home {
-    protected $title = "Toggle Modules";
+    protected $title = "Roles";
+    
+    protected $active_sub_nav_link = 'Manage';
 
     public function __construct() {
         parent::__construct();
     }
     
-    protected function constructRightContent() {
-        $content = new Div(array('id' => 'current_menu_content'), '<h2>Toggle Modules</h2><br />');
+    protected function setPageLinks() {
+        parent::setPageLinks();
 
-        //The education history table
-        $configurations_table = new EditTableForm(
-            'modules',
-            'modules',
-            'module_id',
-            'sort_order'
+        $this->page_links['Manage'] = Http::getCurrentLevelPageUrl('manage', array('module_id' => $this->managed_module->getId()));
+    }
+    
+    protected function constructRightContent() {
+        $roles_table = new EditTable(
+            'roles',
+            'cms_roles',
+            'add',
+            'role_id',
+            'sort_order',
+            array('module_id')
         );
         
-        $configurations_table->disableAddRecord();
-        $configurations_table->disableDeleteRecord();
-        $configurations_table->disableMoveRecord();
+        $roles_table->disableDeleteRecord();
         
-        $configurations_table->setNumberOfColumns(4);
+        $roles_table->setNumberOfColumns(2);
     
-        $configurations_table->addHeader(array(
-            'Module',
-            'enabled' => 'Enabled',
+        $roles_table->addHeader(array(
+            'display_name' => 'Role Name',
+            'Permissions'
         ));
         
-        if($configurations_table->getFormVisibility()) {
-            $configurations_table->addCheckbox('enabled', 'Enabled');
-            $configurations_table->addSubmit('save', 'Save');
-            
-            $configurations_table->processForm();
-        }
-        
-        $configurations_table->useQuery("
+        $roles_table->useQuery("
             SELECT
                 display_name,
-                enabled,
+                NULL AS permissions,
+                role_id,
                 module_id
-            FROM cms_modules
+            FROM cms_roles
             ORDER BY sort_order
-        ");
+        ", array(), function($results_data) {
+            if(!empty($results_data)) {
+                foreach($results_data as &$results_row) {                
+                    $results_row['permissions'] = '
+                        <a href="' . 
+                            Http::getCurrentLevelPageUrl('permissions', array(
+                                'module_id' => $results_row['module_id'],
+                                'role_id' => $results_row['role_id']
+                            )) . 
+                        '">
+                            Manage Permissions
+                        </a>
+                    ';
+                }
+            }
+            
+            return $results_data;
+        });
         
-        $content->addChild($configurations_table);
-        
-        $this->body->addChild($content);
+        $this->body->addChild($roles_table, 'current_menu_content');
     }
 }

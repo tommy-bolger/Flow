@@ -130,7 +130,7 @@ CREATE TABLE cms_permissions (
     display_name character varying(100) NOT NULL,
     description character varying(255),
     module_id integer NOT NULL,
-    sort_order smallint NOT NULL
+    smallint integer NOT NULL
 );
 
 CREATE SEQUENCE cp_permission_id_seq
