@@ -164,14 +164,14 @@ extends ModulePage {
                 );
             }
             
-            if(true || !empty($this->managed_module->configuration->has_roles)) {
+            if(!empty($this->managed_module->configuration->has_roles)) {
                 $settings_links['settings']['sub_nav']['Roles'] = array(
                     'Manage' => Http::getInternalUrl('', $roles_path, 'manage', $query_string_parameters),
                     'Add/Edit' => Http::getInternalUrl('', $roles_path, 'add', $query_string_parameters),
                 );
             }
             
-            if(true || !empty($this->managed_module->configuration->has_permissions)) {
+            if(!empty($this->managed_module->configuration->has_permissions)) {
                 $settings_links['settings']['sub_nav']['Permissions'] = array(
                     'Manage' => Http::getInternalUrl('', $permissions_path, 'manage', $query_string_parameters)
                 );
