@@ -199,6 +199,34 @@ extends ModulePage {
         );
     }
     
+    protected function getBansLinks() {
+        $bans_path = array('bans');
+        
+        $ip_addresses_path = $bans_path;
+        $ip_addresses_path[] = 'ip-addresses';
+        
+        $words_path = $bans_path;
+        $words_path[] = 'words';
+    
+        return array(
+            'bans' => array(
+                'top_nav' => array(
+                    'Bans' => Http::getInternalUrl('', $ip_addresses_path, 'manage')
+                ),
+                'sub_nav' => array(
+                    'IP Addresses' => array(
+                        'Manage' => Http::getInternalUrl('', $ip_addresses_path, 'manage'),
+                        'Add/Edit' => Http::getInternalUrl('', $ip_addresses_path, 'add')
+                    ),
+                    'Words' => array(
+                        'Manage' => Http::getInternalUrl('', $words_path, 'manage'),
+                        'Add/Edit' => Http::getInternalUrl('', $words_path, 'add')
+                    )
+                )
+            )
+        );
+    }
+    
     protected function getAdsLinks() {
         $ads_path = array('ads');
         
