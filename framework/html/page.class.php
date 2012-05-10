@@ -594,8 +594,10 @@ class page {
     
         $javascript_html = "";
         
-        if(!empty($this->name)) {
-            $this->addJavascriptFile("{$this->name}.js");
+        if(!empty($this->external_javascript_files)) {
+            foreach($this->external_javascript_files as $javascript_file) {
+                $javascript_html .= "<script type=\"text/javascript\" src=\"{$javascript_file}\"></script>";
+            }
         }
         
         if($this->load_analytics) {
@@ -603,12 +605,6 @@ class page {
             
             if(is_readable($google_analytics_path)) {
                 $this->addJavascriptFile($google_analytics_path, false);
-            }
-        }
-        
-        if(!empty($this->external_javascript_files)) {
-            foreach($this->external_javascript_files as $javascript_file) {
-                $javascript_html .= "<script type=\"text/javascript\" src=\"{$javascript_file}\"></script>";
             }
         }
 
@@ -633,6 +629,10 @@ class page {
                     $javascript_html .= "<script type=\"text/javascript\" src=\"{$base_url}{$javascript_file}\"></script>";
                 }
             }
+        }
+        
+        if(!empty($this->name)) {
+            $this->addJavascriptFile("{$this->name}.js");
         }
         
         if(!empty($this->inline_javascript)) {
