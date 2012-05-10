@@ -94,9 +94,14 @@ class page {
     private $inline_css = array();
     
     /**
-    * @var array A list of the css files included by the page.
+    * @var array A list of the css files included by the page that are located on the same server as the current page.
     */
-    private $css_files = array();
+    private $internal_css_files = array();
+    
+    /**
+    * @var array A list of the css files included by the page that are located on an external server.
+    */
+    private $external_css_files = array();
     
     /**
     * @var array A list of all inline javascript to be output on the page.
@@ -104,9 +109,14 @@ class page {
     private $inline_javascript = array();
     
     /**
-    * @var array A list of the javascript files included by the page.
+    * @var array A list of the javascript files included by the page that are located on the same server as the current page.
     */
-    private $javascript_files = array();
+    private $internal_javascript_files = array();
+    
+    /**
+    * @var array A list of the javascript files included by the page that are located on an external server.
+    */
+    private $external_javascript_files = array();
     
     /**
     * @var string The file path to the assets utilized by the page.
@@ -379,34 +389,26 @@ class page {
      * Adds a css file to be included on the page.
      *
      * @param string $css_file_path The file path to the css file.
-     * @param boolean (optional) $relative A flag indicating if the css file path is relative to the current page theme directory path. Defaults to true.
+     * @param boolean (optional) $internal A flag indicating if the css file path is an internal relative path. Defaults to true.
      * @return void
      */
-    public function addCssFile($css_file_path, $relative = true) {    
-        if(!isset($this->css_files[$css_file_path])) {
-            $css_file_full_path = '';
-        
-            if($relative) {
-                if(!empty($this->css_base_paths)) {
-                    $trimmed_css_file_path = ltrim($css_file_path, '/');
+    public function addCssFile($css_file_path, $internal = true) {        
+        if($internal) {
+            if(!isset($this->internal_css_files[$css_file_path]) && !empty($this->css_base_paths)) {            
+                $trimmed_css_file_path = ltrim($css_file_path, '/');
+                
+                foreach($this->css_base_paths as $css_base_path) {
+                    $possible_css_path = $css_base_path . $trimmed_css_file_path;
                     
-                    foreach($this->css_base_paths as $css_base_path) {
-                        $possible_css_path = $css_base_path . $trimmed_css_file_path;
-                        
-                        if(is_file($possible_css_path)) {
-                            $css_file_full_path = $possible_css_path;
-                            break;
-                        }
+                    if(is_file($possible_css_path)) {
+                        $this->internal_css_files[$css_file_path] = $possible_css_path;
+                        break;
                     }
                 }
             }
-            else {
-                $css_file_full_path = $css_file_path;
-            }
-            
-            if(!empty($css_file_full_path)) {
-                $this->css_files[$css_file_path] = $css_file_full_path;
-            }
+        }
+        else {
+            $this->internal_css_files[$css_file_path] = $css_file_path;
         }
     }
     
@@ -414,15 +416,15 @@ class page {
      * Adds several css files to the page.
      *
      * @param array $css_files The file paths of the css files to add to the page.
-     * @param boolean (optional) $relative A flag indicating if the css file paths are relative to the current page theme directory path. Defaults to true.
+     * @param boolean (optional) $internal A flag indicating if the css file path is an internal relative path. Defaults to true.
      * @return void
      */
-    public function addCssFiles($css_files, $relative = true) {
+    public function addCssFiles($css_files, $internal = true) {
         assert('is_array($css_files)');
     
         if(!empty($css_files)) {
             foreach($css_files as $css_file) {
-                $this->addCssFile($css_file, $relative);
+                $this->addCssFile($css_file, $internal);
             }
         }
     }
@@ -445,38 +447,32 @@ class page {
      * Adds a javascript file to be included on the page.
      *
      * @param string $javascript_file_path The file path to the javascript file.
-     * @param boolean (optional) $relative A flag indicating if the javascript file path is relative to the page javascript directory path. Defaults to true.
+     * @param boolean (optional) $internal A flag indicating if the javascript file path is an internal relative path. Defaults to true.
      * @return void
      */
-    public function addJavascriptFile($javascript_file_path, $relative = true) {
+    public function addJavascriptFile($javascript_file_path, $internal = true) {
         if(!$this->enable_javascript) {
             return false;
         }
-    
-        if(!isset($this->javascript_files[$javascript_file_path])) {
-            $javascript_file_full_path = '';
-        
-            if($relative) {
-                if(!empty($this->javascript_base_paths)) {
-                    $trimmed_javascript_file_path = ltrim($javascript_file_path, '/');
-                    
-                    foreach($this->javascript_base_paths as $javascript_base_path) {
-                        $possible_javascript_path = $javascript_base_path . $trimmed_javascript_file_path;
 
-                        if(is_file($possible_javascript_path)) {
-                            $javascript_file_full_path = $possible_javascript_path;
-                            break;
-                        }
+        if($internal) {
+            if(!isset($this->internal_javascript_files[$javascript_file_path]) && !empty($this->javascript_base_paths)) {
+                $javascript_file_full_path = '';
+            
+                $trimmed_javascript_file_path = ltrim($javascript_file_path, '/');
+                
+                foreach($this->javascript_base_paths as $javascript_base_path) {
+                    $possible_javascript_path = $javascript_base_path . $trimmed_javascript_file_path;
+
+                    if(is_file($possible_javascript_path)) {
+                        $this->internal_javascript_files[$javascript_file_path] = $possible_javascript_path;
+                        break;
                     }
                 }
             }
-            else {
-                $javascript_file_full_path = $javascript_file_path;
-            }
-            
-            if(!empty($javascript_file_full_path)) {
-                $this->javascript_files[$javascript_file_path] = $javascript_file_full_path;
-            }
+        }
+        else {
+            $this->external_javascript_files[$javascript_file_path] = $javascript_file_path;
         }
     }
     
@@ -484,10 +480,10 @@ class page {
      * Adds several javascript files to the page.
      *
      * @param array $javascript_files The file paths of the javascript files to add to the page.
-     * @param boolean (optional) $relative A flag indicating if the javascript file paths are relative to the page javascript directory path. Defaults to true.
+     * @param boolean (optional) $internal A flag indicating if the javascript file path is an internal relative path. Defaults to true.
      * @return void
      */
-    public function addJavascriptFiles($javascript_files, $relative = true) {
+    public function addJavascriptFiles($javascript_files, $internal = true) {
         if(!$this->enable_javascript) {
             return false;
         }
@@ -496,7 +492,7 @@ class page {
     
         if(!empty($javascript_files)) {
             foreach($javascript_files as $javascript_file) {
-                $this->addJavascriptFile($javascript_file, $relative);
+                $this->addJavascriptFile($javascript_file, $internal);
             }
         }
     }
@@ -543,19 +539,25 @@ class page {
      */
     private function renderCss() {
         $css_html = "";
+        
+        if(!empty($this->external_css_files)) {
+            foreach($this->external_css_files as $css_file) {
+                $css_html .= "<link rel=\"stylesheet\" href=\"{$css_file}\" type=\"text/css\" />";
+            }
+        }
 
         if(!empty($this->name)) {
             $this->addCssFile("pages/{$this->name}.css");
         }
     
-        if(!empty($this->css_files)) {
+        if(!empty($this->internal_css_files)) {
             if(framework()->getEnvironment() == 'production') {
-                $css_file_cache_name = $this->name . implode('-', $this->css_files);
+                $css_file_cache_name = $this->name . implode('-', $this->internal_css_files);
             
                 $css_hash_name = file_cache()->exists($css_file_cache_name, 'css/', 'gz');
             
                 if($css_hash_name === false) {
-                    $css_hash_name = file_cache()->set($css_file_cache_name, Minify::minifyCss($this->css_files, "{$this->name}_css_temp"), 'css/', 'gz');
+                    $css_hash_name = file_cache()->set($css_file_cache_name, Minify::minifyCss($this->internal_css_files, "{$this->name}_css_temp"), 'css/', 'gz');
                 }
                 
                 $css_http_path = Http::getBaseUrl() . "assets/css/?{$css_hash_name}";
@@ -565,7 +567,7 @@ class page {
             else {
                 $base_url = Http::getBaseUrl() . '/assets/css/?file=';
             
-                foreach($this->css_files as $css_file) {
+                foreach($this->internal_css_files as $css_file) {
                     $css_file = str_replace('./', '', $css_file);
                 
                     $css_html .= "<link rel=\"stylesheet\" href=\"{$base_url}{$css_file}\" type=\"text/css\" />";
@@ -603,15 +605,21 @@ class page {
                 $this->addJavascriptFile($google_analytics_path, false);
             }
         }
+        
+        if(!empty($this->external_javascript_files)) {
+            foreach($this->external_javascript_files as $javascript_file) {
+                $javascript_html .= "<script type=\"text/javascript\" src=\"{$javascript_file}\"></script>";
+            }
+        }
 
-        if(!empty($this->javascript_files)) {
+        if(!empty($this->internal_javascript_files)) {
             if(framework()->getEnvironment() == 'production') {
-                $javascript_file_cache_name = $this->name . implode('-', $this->javascript_files);
+                $javascript_file_cache_name = $this->name . implode('-', $this->internal_javascript_files);
             
                 $javascript_hash_name = file_cache()->exists($javascript_file_cache_name, 'javascript/', 'gz');
                 
                 if($javascript_hash_name === false) {
-                    $javascript_hash_name = file_cache()->set($javascript_file_cache_name, Minify::minifyJavascript($this->javascript_files, "{$this->name}_javascript_temp"), 'javascript/', 'gz');
+                    $javascript_hash_name = file_cache()->set($javascript_file_cache_name, Minify::minifyJavascript($this->internal_javascript_files, "{$this->name}_javascript_temp"), 'javascript/', 'gz');
                 }
                 
                 $javascript_http_path = Http::getBaseUrl() . "assets/javascript/?{$javascript_hash_name}";
@@ -621,7 +629,7 @@ class page {
             else {
                 $base_url = Http::getBaseUrl() . '/assets/javascript/?file=';
             
-                foreach($this->javascript_files as $javascript_file) {
+                foreach($this->internal_javascript_files as $javascript_file) {
                     $javascript_html .= "<script type=\"text/javascript\" src=\"{$base_url}{$javascript_file}\"></script>";
                 }
             }
@@ -709,11 +717,11 @@ class page {
             $template_values['meta_tags'] = $this->renderMetaTags();
         }
     
-        if(!empty($this->css_files) || !empty($this->inline_css)) {
+        if(!empty($this->internal_css_files) || !empty($this->external_css_files) || !empty($this->inline_css)) {
             $template_values['css'] = $this->renderCss();
         }
         
-        if(!empty($this->javascript_files) || !empty($this->inline_javascript)) {
+        if(!empty($this->internal_javascript_files) || !empty($this->external_javascript_files) || !empty($this->inline_javascript)) {
             $template_values['javascript'] = $this->renderJavascript();
         }
         
