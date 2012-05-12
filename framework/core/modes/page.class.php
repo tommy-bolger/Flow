@@ -107,8 +107,18 @@ extends Web {
         }
 
         $this->page_class_name = $page_class_name;
+        
+        $module_namespace = '';
+        
+        //If running the admin module and the admin module namespace is present in subd then do not include the module name in the full namespace.
+        if($this->module_name == 'admin' && stripos($sub_path, '/admin/') === false && stripos($sub_path, 'admin') !== false) {
+            $module_namespace = $sub_path;
+        }
+        else {
+            $module_namespace = "{$this->module_name}\\ {$sub_path}";
+        }
 
-        $page_class_path = "\\Modules\\ {$this->module_name}\\ {$sub_path}{$page_class_name}";
+        $page_class_path = "\\Modules\\ {$module_namespace}{$page_class_name}";
 
         //Transform the fully qualified namespace into the camel case naming convention
         $page_class_path = str_replace(array('_', '-'), ' ', $page_class_path);

@@ -167,7 +167,7 @@ class File {
         $full_directory_path = $this->getFullDirectoryPath($file_path);
         
         if(is_writable($full_directory_path)) {
-            $full_file_path = "{$full_directory_path}{$hashed_key}.{$extension}";
+            $full_file_path = "{$full_directory_path}/{$hashed_key}.{$extension}";
         
             if(!is_file($full_file_path)) {
                 file_put_contents($full_file_path, $value);

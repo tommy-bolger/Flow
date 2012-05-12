@@ -560,7 +560,7 @@ class page {
                     $css_hash_name = file_cache()->set($css_file_cache_name, Minify::minifyCss($this->internal_css_files, "{$this->name}_css_temp"), 'css/', 'gz');
                 }
                 
-                $css_http_path = Http::getBaseUrl() . "assets/css/?{$css_hash_name}";
+                $css_http_path = Http::getBaseUrl() . "assets/css/{$css_hash_name}";
                 
                 $css_html .= "<link rel=\"stylesheet\" href=\"{$css_http_path}\" type=\"text/css\" />";
             }
@@ -618,7 +618,7 @@ class page {
                     $javascript_hash_name = file_cache()->set($javascript_file_cache_name, Minify::minifyJavascript($this->internal_javascript_files, "{$this->name}_javascript_temp"), 'javascript/', 'gz');
                 }
                 
-                $javascript_http_path = Http::getBaseUrl() . "assets/javascript/?{$javascript_hash_name}";
+                $javascript_http_path = Http::getBaseUrl() . "assets/javascript/{$javascript_hash_name}";
                 
                 $javascript_html .= "<script type=\"text/javascript\" src=\"{$javascript_http_path}\"></script>";
             }

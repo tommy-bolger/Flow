@@ -14,7 +14,7 @@ $framework = new Framework('web_content');
 if($framework->getEnvironment() == 'production') {
     header('Content-Encoding: gzip');
 
-    $javascript_file_name = $_SERVER['QUERY_STRING'];
+    $javascript_file_name = request()->get->file;
     
     $javascript_file_path = "{$installation_path}/cache/javascript/{$javascript_file_name}.gz";
     

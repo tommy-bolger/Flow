@@ -13,8 +13,8 @@ $framework = new Framework('web_content');
 
 if($framework->getEnvironment() == 'production') {
     header('Content-Encoding: gzip');
-
-    $css_file_name = $_SERVER['QUERY_STRING'];
+    
+    $css_file_name = request()->get->file;
     
     $css_file_path = "{$installation_path}/cache/css/{$css_file_name}.gz";
     

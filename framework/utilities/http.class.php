@@ -183,8 +183,16 @@ final class Http {
         if(!empty($module_name) && $module_name != config('framework')->default_module) {
             $page_path['module'] = $module_name;
         }
-        
-        if(!empty($subdirectory_path)) {            
+                
+        if(!empty($subdirectory_path)) {
+            if(!empty($module_name)) {
+                $matching_index = array_search($module_name, $subdirectory_path);
+                
+                if($matching_index !== false) {
+                    unset($subdirectory_path[$matching_index]);                                
+                }                                                                            
+            }            
+                        
             $page_path['subd'] = implode('/', $subdirectory_path);
         }
         
