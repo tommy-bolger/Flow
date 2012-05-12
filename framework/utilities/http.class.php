@@ -186,10 +186,8 @@ final class Http {
                 
         if(!empty($subdirectory_path)) {
             if(!empty($module_name)) {
-                $matching_index = array_search($module_name, $subdirectory_path);
-                
-                if($matching_index !== false) {
-                    unset($subdirectory_path[$matching_index]);                                
+                if(!empty($subdirectory_path[0]) && $subdirectory_path[0] == $module_name) {
+                    unset($subdirectory_path[0]);
                 }                                                                            
             }            
                         

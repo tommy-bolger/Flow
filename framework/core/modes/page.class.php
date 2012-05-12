@@ -108,14 +108,12 @@ extends Web {
 
         $this->page_class_name = $page_class_name;
         
-        $module_namespace = '';
+        $module_namespace = "{$this->module_name}\\ {$sub_path}";
         
-        //If running the admin module and the admin module namespace is present in subd then do not include the module name in the full namespace.
-        if($this->module_name == 'admin' && stripos($sub_path, '/admin/') === false && stripos($sub_path, 'admin/') !== false) {
-            $module_namespace = $sub_path;
-        }
-        else {
-            $module_namespace = "{$this->module_name}\\ {$sub_path}";
+        if($this->environment == 'production') {
+            if($this->module_name == 'admin' && !empty($this->subdirectory_path[1]) && $this->subdirectory_path[1] == 'admin') {
+                $module_namespace = $sub_path;
+            }
         }
 
         $page_class_path = "\\Modules\\ {$module_namespace}{$page_class_name}";
