@@ -111,7 +111,7 @@ extends Web {
         $module_namespace = '';
         
         //If running the admin module and the admin module namespace is present in subd then do not include the module name in the full namespace.
-        if($this->module_name == 'admin' && stripos($sub_path, '/admin/') === false && stripos($sub_path, 'admin') !== false) {
+        if($this->module_name == 'admin' && stripos($sub_path, '/admin/') === false && stripos($sub_path, 'admin/') !== false) {
             $module_namespace = $sub_path;
         }
         else {
