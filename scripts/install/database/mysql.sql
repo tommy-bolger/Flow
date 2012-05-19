@@ -37,6 +37,9 @@ INSERT INTO `cms_configuration_parameters` VALUES (10, null, 'javascript_minifie
 INSERT INTO `cms_configuration_parameters` VALUES (11, null, 'closure_compiler_path', null, null, '11', '1', null, 'Closure Compiler Path', '0');
 INSERT INTO `cms_configuration_parameters` VALUES (12, null, 'enable_javascript', null, '1', '12', '4', null, 'Enable Javascript', '0');
 INSERT INTO `cms_configuration_parameters` VALUES (13, '1', 'encrypt_urls', null, '1', '2', '4', null, 'Encrypt URLs', '0');
+INSERT INTO `cms_configuration_parameters` VALUES (14, null, 'recaptcha_api_method', null, 'https', '13', '1', null, 'reCaptcha API Method', '1');
+INSERT INTO `cms_configuration_parameters` VALUES (15, null, 'recaptcha_private_key', null, null, '14', '1', null, 'reCaptcha Private Key', '0');
+INSERT INTO `cms_configuration_parameters` VALUES (16, null, 'recaptcha_public_key', null, null, '15', '1', null, 'reCaptcha Public Key', '0');
 
 -- ----------------------------
 -- Table structure for `cms_errors`
@@ -133,6 +136,8 @@ INSERT INTO `cms_parameter_values` VALUES ('4', 'database', '2', '5');
 INSERT INTO `cms_parameter_values` VALUES ('5', 'simple', '1', '10');
 INSERT INTO `cms_parameter_values` VALUES ('6', 'uglify-js', '2', '10');
 INSERT INTO `cms_parameter_values` VALUES ('7', 'closure', '3', '10');
+INSERT INTO `cms_parameter_values` VALUES ('8', 'http', '1', '14');
+INSERT INTO `cms_parameter_values` VALUES ('9', 'https', '2', '14');
 
 -- ----------------------------
 -- Table structure for `cms_permissions`

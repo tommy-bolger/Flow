@@ -285,6 +285,9 @@ INSERT INTO cms_configuration_parameters (configuration_parameter_id, module_id,
 INSERT INTO cms_configuration_parameters (configuration_parameter_id, module_id, parameter_name, value, default_value, sort_order, parameter_data_type_id, description, display_name, has_value_list) VALUES (11, NULL, 'closure_compiler_path', NULL, NULL, 11, 1, NULL, 'Closure Compiler Path', 0);
 INSERT INTO cms_configuration_parameters (configuration_parameter_id, module_id, parameter_name, value, default_value, sort_order, parameter_data_type_id, description, display_name, has_value_list) VALUES (12, NULL, 'enable_javascript', NULL, 1, 12, 4, NULL, 'Enable Javascript', 0);
 INSERT INTO cms_configuration_parameters (configuration_parameter_id, module_id, parameter_name, value, default_value, sort_order, parameter_data_type_id, description, display_name, has_value_list) VALUES (13, 1, 'encrypt_urls', NULL, 1, 2, 4, NULL, 'Encrypt URLs', 0);
+INSERT INTO cms_configuration_parameters (configuration_parameter_id, module_id, parameter_name, value, default_value, sort_order, parameter_data_type_id, description, display_name, has_value_list) VALUES (14, NULL, 'recaptcha_api_method', NULL, 'https', 13, 1, NULL, 'reCaptcha API Method', 1);
+INSERT INTO cms_configuration_parameters (configuration_parameter_id, module_id, parameter_name, value, default_value, sort_order, parameter_data_type_id, description, display_name, has_value_list) VALUES (15, NULL, 'recaptcha_private_key', NULL, NULL, 14, 1, NULL, 'reCaptcha Private Key', 0);
+INSERT INTO cms_configuration_parameters (configuration_parameter_id, module_id, parameter_name, value, default_value, sort_order, parameter_data_type_id, description, display_name, has_value_list) VALUES (16, NULL, 'recaptcha_public_key', NULL, NULL, 15, 1, NULL, 'reCaptcha Public Key', 0);
 
 INSERT INTO cms_modules (module_id, module_name, display_name, sort_order, enabled) VALUES (1, 'admin', 'Admin', 1, 1);
 
@@ -301,6 +304,8 @@ INSERT INTO cms_parameter_values (parameter_value_id, parameter_value, sort_orde
 INSERT INTO cms_parameter_values (parameter_value_id, parameter_value, sort_order, configuration_parameter_id) VALUES (5, 'simple', 1, 10);
 INSERT INTO cms_parameter_values (parameter_value_id, parameter_value, sort_order, configuration_parameter_id) VALUES (6, 'uglify-js', 2, 10);
 INSERT INTO cms_parameter_values (parameter_value_id, parameter_value, sort_order, configuration_parameter_id) VALUES (7, 'closure', 3, 10);
+INSERT INTO cms_parameter_values (parameter_value_id, parameter_value, sort_order, configuration_parameter_id) VALUES (8, 'http', 1, 14);
+INSERT INTO cms_parameter_values (parameter_value_id, parameter_value, sort_order, configuration_parameter_id) VALUES (9, 'https', 2, 14);
 
 INSERT INTO cms_us_states (state_id, abbreviation, state_name) VALUES (1, 'AL', 'Alabama');
 INSERT INTO cms_us_states (state_id, abbreviation, state_name) VALUES (2, 'AK', 'Alaska');
