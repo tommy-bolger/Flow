@@ -413,7 +413,7 @@ print("Adding administrator user to the database...");
 
 $second_key = strlen($administrator_username) * strlen($administrator_password);
 
-$encrypted_admin_password = Encryption::hash($administrator_password, array($administrator_username, $second_key));
+$encrypted_admin_password = Encryption::slowHash($administrator_password, array($administrator_username, $second_key));
 
 db()->insert('cms_users', array(
     'user_name' => $administrator_username,

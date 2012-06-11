@@ -66,7 +66,7 @@ final class Auth {
     public static function userLogin($user_name, $password, $admin_login = false) {
         $second_encryption_key = strlen($user_name) * strlen($password);
     
-        $encrypted_password = Encryption::hash($password, array($user_name, $second_encryption_key));
+        $encrypted_password = Encryption::slowHash($password, array($user_name, $second_encryption_key));
         
         $admin_login_criteria = '';
         
