@@ -39,7 +39,7 @@ extends \Framework\Html\Form\FieldObjects\Field {
      * Initializes a new instance of TextArea.
      *      
      * @param string $textarea_name The name of the textarea.
-     * @param string $textarea_level (optional) The label for the textarea.
+     * @param string $textarea_label (optional) The label for the textarea.
      * @param string $textara_value (optional) The value of the textarea.
      * @param array $css_classes (optional) A list of css classes for this field.           
      * @return void

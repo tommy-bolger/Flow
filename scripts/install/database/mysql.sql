@@ -40,6 +40,8 @@ INSERT INTO `cms_configuration_parameters` VALUES (13, '1', 'encrypt_urls', null
 INSERT INTO `cms_configuration_parameters` VALUES (14, null, 'recaptcha_api_method', null, 'https', '13', '1', null, 'reCaptcha API Method', '1');
 INSERT INTO `cms_configuration_parameters` VALUES (15, null, 'recaptcha_private_key', null, null, '14', '1', null, 'reCaptcha Private Key', '0');
 INSERT INTO `cms_configuration_parameters` VALUES (16, null, 'recaptcha_public_key', null, null, '15', '1', null, 'reCaptcha Public Key', '0');
+INSERT INTO `cms_configuration_parameters` VALUES (17, null, 'attempts_form_max_attempts', null, 5, '16', '2', null, 'Limited Attempts Form Max Attempts', '0');
+INSERT INTO `cms_configuration_parameters` VALUES (18, null, 'attempts_form_timeout_duration', null, 600, '17', '2', null, 'Limited Attempts Form Timeout Duration', '0');
 
 -- ----------------------------
 -- Table structure for `cms_errors`

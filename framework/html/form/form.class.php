@@ -247,7 +247,7 @@ extends Element {
         assert('is_object($form_field)');
         assert('property_exists($form_field, "IS_FORM_FIELD")');
         
-        $field_name = rtrim($form_field->getName(), '[]');
+        $field_name = $form_field->getName();
         
         assert('!isset($this->child_elements[$field_name])');
     

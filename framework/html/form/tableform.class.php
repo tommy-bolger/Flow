@@ -42,6 +42,9 @@ extends Form {
     */
     protected $table;
     
+    /**
+    * @var array The list of fields that will appear outside of the table.
+    */
     protected $fields_outside_table = array();
 
     /**

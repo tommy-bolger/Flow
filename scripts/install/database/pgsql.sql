@@ -288,6 +288,8 @@ INSERT INTO cms_configuration_parameters (configuration_parameter_id, module_id,
 INSERT INTO cms_configuration_parameters (configuration_parameter_id, module_id, parameter_name, value, default_value, sort_order, parameter_data_type_id, description, display_name, has_value_list) VALUES (14, NULL, 'recaptcha_api_method', NULL, 'https', 13, 1, NULL, 'reCaptcha API Method', 1);
 INSERT INTO cms_configuration_parameters (configuration_parameter_id, module_id, parameter_name, value, default_value, sort_order, parameter_data_type_id, description, display_name, has_value_list) VALUES (15, NULL, 'recaptcha_private_key', NULL, NULL, 14, 1, NULL, 'reCaptcha Private Key', 0);
 INSERT INTO cms_configuration_parameters (configuration_parameter_id, module_id, parameter_name, value, default_value, sort_order, parameter_data_type_id, description, display_name, has_value_list) VALUES (16, NULL, 'recaptcha_public_key', NULL, NULL, 15, 1, NULL, 'reCaptcha Public Key', 0);
+INSERT INTO cms_configuration_parameters (configuration_parameter_id, module_id, parameter_name, value, default_value, sort_order, parameter_data_type_id, description, display_name, has_value_list) VALUES (17, NULL, 'attempts_form_max_attempts', NULL, 5, 16, 2, NULL, 'Limited Attempts Form Max Attempts', 0);
+INSERT INTO cms_configuration_parameters (configuration_parameter_id, module_id, parameter_name, value, default_value, sort_order, parameter_data_type_id, description, display_name, has_value_list) VALUES (18, NULL, 'attempts_form_timeout_duration', NULL, 600, 17, 2, NULL, 'Limited Attempts Form Timeout Duration', 0);
 
 INSERT INTO cms_modules (module_id, module_name, display_name, sort_order, enabled) VALUES (1, 'admin', 'Admin', 1, 1);
 

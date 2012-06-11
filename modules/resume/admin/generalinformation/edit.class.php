@@ -81,6 +81,7 @@ extends Home {
         $general_information_form->addSplitEmail('email_address', 'Email Address');
         $general_information_form->addTextbox('specialty', 'Specialty');
         $general_information_form->addTextArea('summary', 'Summary');
+        
         $general_information_form->addSubmit('save', 'Save');
         
         $general_information_form->setRequiredFields(array(
