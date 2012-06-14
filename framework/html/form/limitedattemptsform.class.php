@@ -34,6 +34,7 @@ namespace Framework\Html\Form;
 
 use \Framework\Html\Element;
 use \Framework\Html\Form\Fields\Captcha;
+use \Framework\Security\Bans;
 
 class LimitedAttemptsForm 
 extends Form {
@@ -68,9 +69,9 @@ extends Form {
     protected $attempts_session_name;
     
     /**
-    * @var string The name of the session variable storing the current instance's last timeout time.
+    * @var string The name of the session variable storing the current instance's timeout expiration time.
     */
-    protected $timeout_session_name;
+    protected $expiration_session_name;
     
     /**
     * @var integer The number of attempts a user has submitted the form unsuccessfully.
@@ -83,9 +84,9 @@ extends Form {
     protected $locked_from_timeout = false;
     
     /**
-    * @var integer The unix timestamp of the last time the form reached it's max attempts and was locked.
+    * @var string The expiration date and time of the form timeout.
     */
-    protected $last_timeout;
+    protected $timeout_expiration;
     
     /**
      * Initializes a new instance of AttemptsForm.
@@ -118,12 +119,27 @@ extends Form {
         session()->$attempts_session_name = $this->number_of_attempts;
         
         //Initialize the last time the max limit was reached if it exists
-        $timeout_session_name = "{$form_name}_last_timeout";
+        $expiration_session_name = "{$form_name}_expiration";
         
-        $this->timeout_session_name = $timeout_session_name;
+        $this->expiration_session_name = $expiration_session_name;
         
-        if(!empty(session()->$timeout_session_name)) {
-            $this->last_timeout = session()->$timeout_session_name;
+        if(!empty(session()->$expiration_session_name)) {
+            $this->timeout_expiration = session()->$expiration_session_name;
+        }
+        
+        //If the last timeout cannot be found in the session then check to see if the current ip address has been marked as banned
+        if(empty($this->timeout_expiration)) {
+            $banned_ip_address = Bans::get($_SERVER['REMOTE_ADDR']);
+            
+            if(!empty($banned_ip_address)) {
+                $this->locked_from_timeout = true;
+                
+                if(!empty($banned_ip_address['expiration_time'])) {
+                    $this->timeout_expiration = $banned_ip_address['expiration_time'];
+                }
+                
+                $this->field_errors = $this->getTimeoutErrorMessage();
+            }
         }
     }
     
@@ -173,10 +189,19 @@ extends Form {
      * @return string
      */
     private function getTimeoutErrorMessage() {
-        //Set the timeout error message to display to the user
-        $timeout_duration_minutes = $this->timeout_duration / 60;
+        $error_message = '';
+    
+        if(!empty($this->timeout_expiration)) {
+            //Set the timeout error message to display to the user
+            $timeout_duration_minutes = $this->timeout_duration / 60;
+            
+            $error_message = "You have exceeded the max number of attempts for this page. Please wait about {$timeout_duration_minutes} minutes and try again.";
+        }
+        else {
+            $error_message = "You have been permanently banned from using this form. Please contact the site's administrator for further details.";
+        }
                 
-        return array("You have exceeded the max number of attempts for this page. Please wait {$timeout_duration_minutes} minutes and try again.");
+        return array($error_message);
     }
     
     /**
@@ -185,22 +210,22 @@ extends Form {
      * @return boolean
      */
     public function isLocked() {
-        if(!empty($this->last_timeout)) {
-            $current_time = time();
-                
-            $elapsed_time = $current_time - $this->last_timeout;
-
-            if($elapsed_time <= $this->timeout_duration) {
+        if($this->locked_from_timeout) {
+            return true;
+        }
+    
+        if(!empty($this->timeout_expiration)) {
+            if(time() <= strtotime($this->timeout_expiration)) {
                 $this->field_errors = $this->getTimeoutErrorMessage();
             
                 $this->locked_from_timeout = true;
             }
             else {
                 $attempts_session_name = $this->attempts_session_name;
-                $timeout_session_name = $this->timeout_session_name;
+                $expiration_session_name = $this->expiration_session_name;
                 
                 session()->$attempts_session_name = 1;
-                unset(session()->$timeout_session_name);
+                unset(session()->$expiration_session_name);
             
                 $this->locked_from_timeout = false;
             }
@@ -246,15 +271,15 @@ extends Form {
             //If the max attempts have been reached
             else {
                 $this->locked_from_timeout = true;
-                $this->last_timeout = time();
+                $this->timeout_expiration = date('Y-m-d H:i:s', strtotime("+{$this->timeout_duration} seconds"));
+                
+                //Add the temporary ban to the database
+                Bans::add($_SERVER['REMOTE_ADDR'],$this->timeout_expiration);
                 
                 //Set the timeout in the session
-                $timeout_session_name = $this->timeout_session_name;
+                $expiration_session_name = $this->expiration_session_name;
                 
-                session()->$timeout_session_name = $this->last_timeout;
-                
-                //Set the timeout error message to display to the user
-                $timeout_duration_minutes = $this->timeout_duration / 60;
+                session()->$expiration_session_name = $this->timeout_expiration;
                 
                 $this->field_errors = $this->getTimeoutErrorMessage();
             }

@@ -1,6 +1,70 @@
 PRAGMA foreign_keys=OFF;
 
 -- ----------------------------
+-- Table structure for cms_ad_campaign_affiliation
+-- ----------------------------
+CREATE TABLE cms_ad_campaign_affiliation (
+  ad_campaign_affiliation_id integer PRIMARY KEY,
+  ad_id integer NOT NULL,
+  ad_campaign_id integer NOT NULL,
+  is_active tinyint NOT NULL DEFAULT 0,
+  start_date date NOT NULL,
+  end_date date,
+  show_chance_percentage tinyint NOT NULL DEFAULT 0,
+  CONSTRAINT aca_ad_campaign_id_fk FOREIGN KEY (ad_campaign_id) REFERENCES cms_ad_campaigns (ad_campaign_id) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT aca_ad_id_fk FOREIGN KEY (ad_id) REFERENCES cms_ads (ad_id) ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+CREATE INDEX aca_ad_id_fk ON cms_ad_campaign_affiliation (ad_id);
+CREATE INDEX aca_ad_campaign_id_fk ON cms_ad_campaign_affiliation (ad_campaign_id);
+
+-- ----------------------------
+-- Table structure for cms_ad_campaigns
+-- ----------------------------
+CREATE TABLE cms_ad_campaigns (
+  ad_campaign_id integer PRIMARY KEY,
+  module_id integer NOT NULL,
+  ad_campaign_name varchar(50) NOT NULL,
+  description varchar(255),
+  is_active tinyint NOT NULL DEFAULT 0,
+  CONSTRAINT ac_module_id_fk FOREIGN KEY (module_id) REFERENCES cms_modules (module_id) ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+CREATE INDEX ac_module_id_fk ON cms_ad_campaigns (module_id);
+
+-- ----------------------------
+-- Table structure for cms_ads
+-- ----------------------------
+CREATE TABLE cms_ads (
+  ad_id integer PRIMARY KEY,
+  module_id integer NOT NULL,
+  description varchar(255),
+  code text NOT NULL,
+  is_active tinyint NOT NULL DEFAULT 0,
+  CONSTRAINT ca_module_id_fk FOREIGN KEY (module_id) REFERENCES cms_modules (module_id) ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+CREATE INDEX ca_module_id_fk ON cms_ads (module_id);
+
+-- ----------------------------
+-- Table structure for cms_banned_ip_addresses
+-- ----------------------------
+CREATE TABLE cms_banned_ip_addresses (
+  banned_ip_address_id integer PRIMARY KEY,
+  ip_address varchar(15) NOT NULL,
+  expiration_time datetime
+);
+
+-- ----------------------------
+-- Table structure for cms_censored_words
+-- ----------------------------
+CREATE TABLE cms_censored_words (
+  censored_word_id integer PRIMARY KEY,
+  original_word text NOT NULL,
+  translated_to varchar(255) NOT NULL DEFAULT '[CENSORED]'
+);
+
+-- ----------------------------
 -- Table structure for cms_configuration_parameters
 -- ----------------------------
 CREATE TABLE cms_configuration_parameters (

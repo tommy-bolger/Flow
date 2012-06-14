@@ -13,6 +13,94 @@ SET default_with_oids = false;
 
 -- Create Tables and Sequences --
 
+CREATE TABLE cms_ad_campaign_affiliation (
+  ad_campaign_affiliation_id integer,
+  ad_id integer NOT NULL,
+  ad_campaign_id integer NOT NULL,
+  is_active smallint DEFAULT 0 NOT NULL,
+  start_date date NOT NULL,
+  end_date date,
+  show_chance_percentage smallint DEFAULT 0 NOT NULL
+);
+
+CREATE SEQUENCE caca_ad_campaign_affiliation_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MAXVALUE
+    NO MINVALUE
+    CACHE 1;
+
+ALTER SEQUENCE caca_ad_campaign_affiliation_id_seq OWNED BY cms_ad_campaign_affiliation.ad_campaign_affiliation_id;
+
+
+CREATE TABLE cms_ad_campaigns (
+  ad_campaign_id integer,
+  module_id integer NOT NULL,
+  ad_campaign_name character varying(50) NOT NULL,
+  description character varying(255),
+  is_active smallint DEFAULT 0 NOT NULL
+);
+
+CREATE SEQUENCE cac_ad_campaign_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MAXVALUE
+    NO MINVALUE
+    CACHE 1;
+
+ALTER SEQUENCE cac_ad_campaign_id_seq OWNED BY cms_ad_campaigns.ad_campaign_id;
+
+
+CREATE TABLE cms_ads (
+  ad_id integer,
+  module_id integer NOT NULL,
+  description character varying(255),
+  code text NOT NULL,
+  is_active smallint DEFAULT 0 NOT NULL
+);
+
+CREATE SEQUENCE ca_ad_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MAXVALUE
+    NO MINVALUE
+    CACHE 1;
+
+ALTER SEQUENCE ca_ad_id_seq OWNED BY cms_ads.ad_id;
+
+
+CREATE TABLE cms_banned_ip_addresses (
+  banned_ip_address_id integer,
+  ip_address character varying(15) NOT NULL,
+  expiration_time timestamp without time zone
+);
+
+CREATE SEQUENCE cbia_banned_ip_address_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MAXVALUE
+    NO MINVALUE
+    CACHE 1;
+
+ALTER SEQUENCE cbia_banned_ip_address_id_seq OWNED BY cms_banned_ip_addresses.banned_ip_address_id;
+
+
+CREATE TABLE cms_censored_words (
+  censored_word_id integer,
+  original_word text NOT NULL,
+  translated_to character varying(255) DEFAULT '[CENSORED]' NOT NULL
+);
+
+CREATE SEQUENCE ccw_censored_word_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MAXVALUE
+    NO MINVALUE
+    CACHE 1;
+
+ALTER SEQUENCE ccw_censored_word_id_seq OWNED BY cms_censored_words.censored_word_id;
+
+
 CREATE TABLE cms_configuration_parameters (
     configuration_parameter_id integer NOT NULL,
     module_id integer,
@@ -248,6 +336,16 @@ ALTER SEQUENCE cu_user_id_seq OWNED BY cms_users.user_id;
 
 -- Set Primary Key Auto Increment Default Value --
 
+ALTER TABLE cms_ad_campaign_affiliation ALTER COLUMN ad_campaign_affiliation_id SET DEFAULT nextval('caca_ad_campaign_affiliation_id_seq'::regclass);
+
+ALTER TABLE cms_ad_campaigns ALTER COLUMN ad_campaign_id SET DEFAULT nextval('cac_ad_campaign_id_seq'::regclass);
+
+ALTER TABLE cms_ads ALTER COLUMN ad_id SET DEFAULT nextval('ca_ad_id_seq'::regclass);
+
+ALTER TABLE cms_banned_ip_addresses ALTER COLUMN banned_ip_address_id SET DEFAULT nextval('cbia_banned_ip_address_id_seq'::regclass);
+
+ALTER TABLE cms_censored_words ALTER COLUMN censored_word_id SET DEFAULT nextval('ccw_censored_word_id_seq'::regclass);
+
 ALTER TABLE cms_configuration_parameters ALTER COLUMN configuration_parameter_id SET DEFAULT nextval('ccp_configuration_parameter_id_seq'::regclass);
 
 ALTER TABLE cms_errors ALTER COLUMN error_id SET DEFAULT nextval('ce_error_id_seq'::regclass);
@@ -362,6 +460,21 @@ INSERT INTO cms_us_states (state_id, abbreviation, state_name) VALUES (50, 'WY',
 
 -- Primary Keys --
 
+ALTER TABLE ONLY cms_ad_campaign_affiliation
+    ADD CONSTRAINT caca_ad_campaign_affiliation_id_pk PRIMARY KEY (ad_campaign_affiliation_id);
+
+ALTER TABLE ONLY cms_ad_campaigns
+    ADD CONSTRAINT cac_ad_campaign_id_pk PRIMARY KEY (ad_campaign_id);
+    
+ALTER TABLE ONLY cms_ads
+    ADD CONSTRAINT ca_ad_id_pk PRIMARY KEY (ad_id);
+
+ALTER TABLE ONLY cms_banned_ip_addresses
+    ADD CONSTRAINT cbia_banned_ip_address_id_pk PRIMARY KEY (banned_ip_address_id);
+    
+ALTER TABLE ONLY cms_censored_word
+    ADD CONSTRAINT ccw_censored_word_id_pk PRIMARY KEY (censored_word_id);
+
 ALTER TABLE ONLY cms_configuration_parameters
     ADD CONSTRAINT ccp_configuration_parameter_id_pk PRIMARY KEY (configuration_parameter_id);
 
@@ -405,6 +518,17 @@ ALTER TABLE ONLY cms_user_role_affiliation
     ADD CONSTRAINT cura_user_role_affiliation_id_pk PRIMARY KEY (user_role_affiliation_id);
     
 -- Foreign Keys --
+ALTER TABLE ONLY cms_ad_campaign_affiliation
+    ADD CONSTRAINT caca_ad_campaign_id_fk FOREIGN KEY (ad_campaign_id) REFERENCES cms_ad_campaigns (ad_campaign_id) ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE ONLY cms_ad_campaign_affiliation
+    ADD CONSTRAINT caca_ad_id_fk FOREIGN KEY (ad_id) REFERENCES cms_ads (ad_id) ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE ONLY cms_ad_campaigns
+    ADD CONSTRAINT cac_module_id_fk FOREIGN KEY (module_id) REFERENCES cms_modules (module_id) ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE ONLY cms_ads
+    ADD CONSTRAINT ca_module_id_fk FOREIGN KEY (module_id) REFERENCES cms_modules (module_id) ON DELETE CASCADE ON UPDATE CASCADE;
 
 ALTER TABLE ONLY cms_parameter_values
     ADD CONSTRAINT cpv_configuration_parameter_id_fk FOREIGN KEY (configuration_parameter_id) REFERENCES cms_configuration_parameters(configuration_parameter_id) ON UPDATE CASCADE ON DELETE CASCADE;

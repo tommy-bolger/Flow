@@ -1,5 +1,66 @@
 SET FOREIGN_KEY_CHECKS=0;
 -- ----------------------------
+-- Table structure for `cms_ad_campaign_affiliation`
+-- ----------------------------
+CREATE TABLE `cms_ad_campaign_affiliation` (
+  `ad_campaign_affiliation_id` int(1) NOT NULL AUTO_INCREMENT,
+  `ad_id` int(1) NOT NULL,
+  `ad_campaign_id` int(1) NOT NULL,
+  `is_active` tinyint(1) NOT NULL DEFAULT '0',
+  `start_date` date NOT NULL,
+  `end_date` date DEFAULT NULL,
+  `show_chance_percentage` tinyint(4) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`ad_campaign_affiliation_id`),
+  KEY `aca_ad_id_fk` (`ad_id`),
+  KEY `aca_ad_campaign_id_fk` (`ad_campaign_id`),
+  CONSTRAINT `aca_ad_campaign_id_fk` FOREIGN KEY (`ad_campaign_id`) REFERENCES `cms_ad_campaigns` (`ad_campaign_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `aca_ad_id_fk` FOREIGN KEY (`ad_id`) REFERENCES `cms_ads` (`ad_id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+-- ----------------------------
+-- Table structure for `cms_ad_campaigns`
+-- ----------------------------
+CREATE TABLE `cms_ad_campaigns` (
+  `ad_campaign_id` int(1) NOT NULL AUTO_INCREMENT,
+  `module_id` int(1) NOT NULL,
+  `ad_campaign_name` varchar(50) COLLATE utf8_unicode_ci NOT NULL,
+  `description` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `is_active` tinyint(1) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`ad_campaign_id`),
+  KEY `ac_module_id_fk` (`module_id`),
+  CONSTRAINT `ac_module_id_fk` FOREIGN KEY (`module_id`) REFERENCES `cms_modules` (`module_id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+-- ----------------------------
+-- Table structure for `cms_ads`
+-- ----------------------------
+CREATE TABLE `cms_ads` (
+  `ad_id` int(1) NOT NULL AUTO_INCREMENT,
+  `module_id` int(1) NOT NULL,
+  `description` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `code` text COLLATE utf8_unicode_ci NOT NULL,
+  `is_active` tinyint(1) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`ad_id`),
+  KEY `ca_module_id_fk` (`module_id`),
+  CONSTRAINT `ca_module_id_fk` FOREIGN KEY (`module_id`) REFERENCES `cms_modules` (`module_id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+-- ----------------------------
+-- Table structure for `cms_banned_ip_addresses`
+-- ----------------------------
+CREATE TABLE `cms_banned_ip_addresses` (
+  `banned_ip_address_id` int(1) NOT NULL AUTO_INCREMENT,
+  `ip_address` varchar(15) COLLATE utf8_unicode_ci NOT NULL,
+  `expiration_time` datetime DEFAULT NULL,
+  PRIMARY KEY (`banned_ip_address_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+-- ----------------------------
+-- Table structure for `cms_censored_words`
+-- ----------------------------
+CREATE TABLE `cms_censored_words` (
+  `censored_word_id` int(1) NOT NULL AUTO_INCREMENT,
+  `original_word` text COLLATE utf8_unicode_ci NOT NULL,
+  `translated_to` varchar(255) COLLATE utf8_unicode_ci NOT NULL DEFAULT '[CENSORED]',
+  PRIMARY KEY (`censored_word_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+-- ----------------------------
 -- Table structure for `cms_configuration_parameters`
 -- ----------------------------
 DROP TABLE IF EXISTS `cms_configuration_parameters`;
