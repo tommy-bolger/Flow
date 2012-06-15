@@ -34,6 +34,13 @@
 namespace framework\Security;
 
 class Bans {
+    /**
+     * Adds a banned ip address to the database.
+     *      
+     * @param string $ip_address The ip address to ban.
+     * @param string $expiration_time (optional) The date and time when the ban will expire. Defaults to NULL.           
+     * @return void
+     */
     public static function add($ip_address, $expiration_time = NULL) {
         assert('is_null($expiration_time) || (!is_null($expiration_time) && !empty($expiration_time))');
     
@@ -62,6 +69,12 @@ class Bans {
         return $new_ban_id;
     }
     
+    /**
+     * Retrieves al information about a banned ip address.
+     *      
+     * @param string $ip_address The banned ip address.       
+     * @return array
+     */
     public static function get($ip_address) {
         return db()->getRow("
             SELECT
