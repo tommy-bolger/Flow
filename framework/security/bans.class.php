@@ -70,7 +70,7 @@ class Bans {
     }
     
     /**
-     * Retrieves al information about a banned ip address.
+     * Retrieves all information about a banned ip address.
      *      
      * @param string $ip_address The banned ip address.       
      * @return array
