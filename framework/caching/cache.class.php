@@ -156,4 +156,13 @@ class Cache {
     public function get($value_key, $value_category = '') {
         return $this->cache_object->get("{$value_category}_{$value_key}");
     }
+    
+    /**
+     * Clears all stored values in cache.
+     *
+     * @return void
+     */
+    public function clear() {
+        $this->cache_object->clear();
+    }
 }

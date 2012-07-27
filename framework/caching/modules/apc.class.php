@@ -65,4 +65,13 @@ class APC {
     public function get($key) {
         return apc_fetch($key);
     }
+    
+    /**
+     * Clears the APC user cache.
+     *
+     * @return void
+     */
+    public function clear() {
+        apc_clear_cache('user');
+    }
 }

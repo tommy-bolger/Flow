@@ -32,6 +32,8 @@
 */
 namespace Framework\Modules;
 
+use \Framework\Utilities\Http;
+
 class WebModule 
 extends Module {    
     /**
@@ -43,6 +45,11 @@ extends Module {
     * @var string The path to the assets of the current module.
     */
     protected $assets_path;
+    
+    /**
+    * @var string The http path to the assets of the current module.
+    */
+    protected $assets_http_path;
     
     /**
     * @var string The path to the module's theme.
@@ -60,9 +67,19 @@ extends Module {
     protected $images_path;
     
     /**
+    * @var string The http path to the images of the current module.
+    */
+    protected $images_http_path;
+    
+    /**
     * @var string The path to the downloadable files of the current module.
     */
     protected $files_path;
+    
+    /**
+    * @var string The http path to the downloadable files of the current module.
+    */
+    protected $files_http_path;
 
     /**
      * Initializes the current module.
@@ -80,6 +97,8 @@ extends Module {
         //Set the module's assets path
         $this->assets_path = "{$page_assets_path}/modules/{$module_name}/assets";
         
+        $this->assets_http_path = Http::getBaseUrl() . "assets/modules/{$module_name}";
+        
         //Set the module's style path
         $this->theme_path = "{$this->assets_path}/styles/{$this->theme}";
         
@@ -87,7 +106,11 @@ extends Module {
             
         $this->images_path = "{$this->assets_path}/images";
         
+        $this->images_http_path = "{$this->assets_http_path}/images";
+        
         $this->files_path = "{$this->assets_path}/files";
+        
+        $this->file_http_path = "{$this->assets_http_path}/files";
     }
     
     /**
@@ -97,6 +120,15 @@ extends Module {
      */
     public function getAssetsPath() {
         return $this->assets_path;
+    }
+    
+    /**
+     * Retrieves the module's assets path.
+     *     
+     * @return string
+     */
+    public function getAssetsHttpPath() {
+        return $this->assets_http_path;
     }
     
     /**
@@ -127,11 +159,29 @@ extends Module {
     }
     
     /**
+     * Retrieves the module's images http path.
+     *     
+     * @return string
+     */
+    public function getImagesHttpPath() {
+        return $this->images_http_path;
+    }
+    
+    /**
      * Retrieves the module's files path.
      *     
      * @return string
      */
     public function getFilesPath() {
         return $this->files_path;
+    }
+    
+    /**
+     * Retrieves the module's files http path.
+     *     
+     * @return string
+     */
+    public function getFilesHttpPath() {
+        return $this->files_http_path;
     }
 }

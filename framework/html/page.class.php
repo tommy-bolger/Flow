@@ -124,6 +124,11 @@ class page {
     protected $assets_path;
     
     /**
+    * @var string The http path to the assets utilized by the page.
+    */
+    protected $assets_http_path;
+    
+    /**
     * @var boolean A flag that sets the page to be cached in memory and on the file system.
     */
     protected $cache_page = false;
@@ -555,12 +560,12 @@ class page {
                 $css_file_cache_name = $this->name . implode('-', $this->internal_css_files);
             
                 $css_hash_name = file_cache()->exists($css_file_cache_name, 'css/', 'gz');
-            
+
                 if($css_hash_name === false) {
                     $css_hash_name = file_cache()->set($css_file_cache_name, Minify::minifyCss($this->internal_css_files, "{$this->name}_css_temp"), 'css/', 'gz');
                 }
                 
-                $css_http_path = Http::getBaseUrl() . "assets/css/{$css_hash_name}";
+                $css_http_path = "{$this->assets_http_path}/css/{$css_hash_name}";
                 
                 $css_html .= "<link rel=\"stylesheet\" href=\"{$css_http_path}\" type=\"text/css\" />";
             }
@@ -618,7 +623,7 @@ class page {
                     $javascript_hash_name = file_cache()->set($javascript_file_cache_name, Minify::minifyJavascript($this->internal_javascript_files, "{$this->name}_javascript_temp"), 'javascript/', 'gz');
                 }
                 
-                $javascript_http_path = Http::getBaseUrl() . "assets/javascript/{$javascript_hash_name}";
+                $javascript_http_path = "{$this->assets_http_path}/javascript/{$javascript_hash_name}";
                 
                 $javascript_html .= "<script type=\"text/javascript\" src=\"{$javascript_http_path}\"></script>";
             }

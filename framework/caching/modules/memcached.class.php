@@ -76,4 +76,13 @@ class Memcached {
     public function __call($function_name, $arguments) {
         return call_user_func_array(array($this->memcached_object, $function_name), $arguments);
     }
+    
+    /**
+     * Clears all stored values in  memcached.
+     *
+     * @return void
+     */
+    public function clear() {
+        $this->memcached_object->flush();
+    }
 }

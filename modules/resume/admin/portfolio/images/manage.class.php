@@ -99,8 +99,8 @@ extends Home {
             'description' => 'Description'
         ));
         
-        $image_path = "{$this->managed_module->getImagesPath()}/portfolio_images";
-        
+        $image_path = "{$this->managed_module->getImagesHttpPath()}/portfolio_images";
+
         $portfolio_images_table->useQuery("
             SELECT
                 thumbnail_name,

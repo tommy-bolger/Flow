@@ -16,7 +16,9 @@ if($framework->getEnvironment() == 'production') {
 
     $javascript_file_name = request()->get->file;
     
-    $javascript_file_path = "{$installation_path}/cache/javascript/{$javascript_file_name}.gz";
+    $module_name = request()->get->module;
+    
+    $javascript_file_path = "{$installation_path}/modules/{$module_name}/cache/javascript/{$javascript_file_name}.gz";
     
     $output = '';
     

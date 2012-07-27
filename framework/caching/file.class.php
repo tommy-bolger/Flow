@@ -34,46 +34,62 @@ namespace Framework\Caching;
 
 class File {
     /**
-    * @var object The instance of this object.
+    * @var string The default module name to use when calling file_cache() with no arguments. 
     */
-    private static $instance;
+    private static $default_module_name;
 
     /**
-    * @var array A temporary cache of hashed file keys to avoid calling md5 more than once per key.
-    */  
-    private static $hashed_keys = array();
+    * @var array The list of all instances.
+    */
+    private static $instances;
 
     /**
     * @var string The base path to the cache directory.
     */    
-    private $cache_directory_path;
+    private $directory_path;
     
     /**
-     * Retrieves the current instance of this object.
+     * Sets the default module name to use when calling file_cache() with no arguments.
+     *
+     * @return void
+     */
+    public static function setDefaultModuleName($module_name) {
+        self::$default_module_name = $module_name;
+    }
+    
+    /**
+     * Retrieves the instance of the specified object.
      *
      * @return object
      */
-    public static function getFileCache() {
-        if(!isset(self::$instance)) {
-            self::$instance = new file();
+    public static function getFileCache($module_name = '') {
+        if(empty($module_name)) {
+            $module_name = self::$default_module_name;
+        }
+    
+        if(!isset(self::$instances[$module_name])) {
+            self::$instances[$module_name] = new file($module_name);
         }
         
-        return self::$instance;
+        return self::$instances[$module_name];
     }
     
     /**
      * Initializes this instance of FileCache.
      *
-     * @param string $cache_directory_path (optional) The path to the file cache directory.
+     * @param string $base_path (optional) The base path to the file cache directory.
      * @return void
      */
-    public function __construct($cache_directory_path = '') {
-        if(empty($cache_directory_path)) {
-            $this->cache_directory_path = framework()->installation_path . '/cache/';
+    public function __construct($module_name) {
+        assert('!empty($module_name) && is_string($module_name)');
+        
+        $this->directory_path = framework()->installation_path;
+    
+        if($module_name != 'framework') {
+            $this->directory_path .= "/modules/{$module_name}";
         }
-        else {
-            $this->cache_directory_path = $cache_directory_path;
-        }
+        
+        $this->directory_path .= '/cache';             
     }
     
     /**
@@ -86,16 +102,7 @@ class File {
     public function __call($function_name, $arguments) {
         throw new \Exception("Function '{$function_name}' does not exist in this class.");
     }
-    
-    /**
-     * Retrieves the file cache directory path.
-     *
-     * @return string
-     */
-    public function getCacheDirectoryPath() {
-        return $this->cache_directory_path;
-    }
-    
+
     /**
      * Gets the hashed key of the cached file name.
      *
@@ -104,20 +111,7 @@ class File {
      * @return string
      */
     private function getHashedKey($key, $file_path) {    
-        $full_key = $key . $file_path . config('framework')->version;
-        
-        $hashed_key = '';
-        
-        if(isset(self::$hashed_keys[$full_key])) {
-            $hashed_key = self::$hashed_keys[$full_key];
-        }
-        else {
-            $hashed_key = md5($full_key);
-            
-            self::$hashed_keys[$full_key] = $hashed_key;
-        }
-        
-        return $hashed_key;
+        return md5($key . $file_path . config('framework')->version);
     }
     
     /**
@@ -129,9 +123,9 @@ class File {
     private function getFullDirectoryPath($file_path) {
         $file_path = rtrim($file_path, '/');
         
-        return "{$this->cache_directory_path}/{$file_path}";
+        return "{$this->directory_path}/{$file_path}";
     }
-    
+
     /**
      * Checks for if a cache file exists in the file system.
      *
@@ -145,7 +139,7 @@ class File {
         
         $full_directory_path = $this->getFullDirectoryPath($file_path);
 
-        if(is_readable("{$full_directory_path}{$hashed_key}.{$extension}")) {
+        if(is_readable("{$full_directory_path}/{$hashed_key}.{$extension}")) {
             return $hashed_key;
         }
         
@@ -192,9 +186,9 @@ class File {
         $hashed_key = $this->getHashedKey($key, $file_path);
         
         $full_directory_path = $this->getFullDirectoryPath($file_path);
-        
+
         if(is_readable($full_directory_path)) {
-            $full_file_path = "{$full_directory_path}{$hashed_key}.{$extension}";
+            $full_file_path = "{$full_directory_path}/{$hashed_key}.{$extension}";
         
             if(is_file($full_file_path)) {
                 return file_get_contents($full_file_path);
@@ -205,5 +199,34 @@ class File {
         }
         
         return "";
+    }
+    
+    /**
+     * Clears all cached files.
+     *
+     * @return void
+     */
+    public function clear() {
+        $cache_directories = scandir($this->directory_path);
+        
+        foreach($cache_directories as $cache_directory) {
+            $cache_directory_path = "{$this->directory_path}/{$cache_directory}";
+        
+            if(is_dir($cache_directory_path) && $cache_directory != '.' && $cache_directory != '..') {
+                $cached_files = scandir($cache_directory_path);
+                
+                if(!empty($cached_files)) {
+                    foreach($cached_files as $cached_file) {
+                        if($cached_file == 'index.html' && strpos($cached_file, 'pie.') === false) {
+                            $cache_file_path = "{$cache_directory_path}/{$cached_file}";
+                            
+                            if(is_file($cache_file_path)) {
+                                unlink($cache_file_path);
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 }

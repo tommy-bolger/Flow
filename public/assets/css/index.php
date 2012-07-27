@@ -16,7 +16,9 @@ if($framework->getEnvironment() == 'production') {
     
     $css_file_name = request()->get->file;
     
-    $css_file_path = "{$installation_path}/cache/css/{$css_file_name}.gz";
+    $module_name = request()->get->module;
+    
+    $css_file_path = "{$installation_path}/modules/{$module_name}/cache/css/{$css_file_name}.gz";
     
     $output = '';
     

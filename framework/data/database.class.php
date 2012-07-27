@@ -444,11 +444,11 @@ class Database {
      */
     private function generateSelectQuery($table_name, $fields, $where_clause, $case_insensitive_columns) {
         //Set the beginning of the query        
-          if(is_array($fields)) {
-            $fields = implode("\n, ", $fields);
+        if(is_array($fields)) {
+            $fields = implode(",\n", $fields);
         }
     
-        $select_query = "SELECT\t" . $fields . "\nFROM\t" . $table_name;
+        $select_query = "SELECT\n{$fields}\nFROM {$table_name}";
         
         $select_query .= $this->generateWhereClause($where_clause, $case_insensitive_columns);
 
@@ -483,7 +483,7 @@ class Database {
      */
     private function generateUpdateQuery($table_name, $fields, $where_clause, $case_insensitive_columns) {
         //Set the beginning of the query        
-          $update_query = "UPDATE\n\t{$table_name}\nSET";
+        $update_query = "UPDATE\n\t{$table_name}\nSET";
         
         if(is_array($fields)) {
             $update_query_columns = array_keys($fields);
@@ -514,7 +514,7 @@ class Database {
      */
     private function generateDeleteQuery($table_name, $where_clause, $case_insensitive_columns) {
         //Set the beginning of the query
-          $delete_query = "DELETE FROM\n\t{$table_name}";
+        $delete_query = "DELETE FROM\n\t{$table_name}";
         
         $delete_query .= $this->generateWhereClause($where_clause, $case_insensitive_columns);
         
@@ -538,45 +538,58 @@ class Database {
 
         if(!empty($query_name) && isset($this->cached_queries[$cached_queries_name][$query_name])) {        
             $query = $this->cached_queries[$cached_queries_name][$query_name];
-          }
+        }
           
-          if(empty($query)) {
-              switch($query_type) {
-                  case 'insert':
-                      $query = $this->generateInsertQuery($table_name, $fields);
-                      break;
-                  case 'update':
-                      $query = $this->generateUpdateQuery($table_name, $fields, $where_clause, $case_insensitive_columns);
-                      break;
-                  case 'delete':
-                      $query = $this->generateDeleteQuery($table_name, $where_clause, $case_insensitive_columns);
-                      break;
-                  case 'select':
-                      $query = $this->generateSelectQuery($table_name, $fields, $where_clause, $case_insensitive_columns);
-                      break;
-                  default:
-                      throw new \Exception("Specified query type '{$query_type}' is not valid.");
-                      break;
-              }
+        if(empty($query)) {
+            switch($query_type) {
+                case 'insert':
+                    $query = $this->generateInsertQuery($table_name, $fields);
+                    break;
+                case 'update':
+                    $query = $this->generateUpdateQuery($table_name, $fields, $where_clause, $case_insensitive_columns);
+                    break;
+                case 'delete':
+                    $query = $this->generateDeleteQuery($table_name, $where_clause, $case_insensitive_columns);
+                    break;
+                case 'select':
+                    $query = $this->generateSelectQuery($table_name, $fields, $where_clause, $case_insensitive_columns);
+                    break;
+                default:
+                    throw new \Exception("Specified query type '{$query_type}' is not valid.");
+                    break;
+            }
               
-              if(!empty($query_name)) {
+            if(!empty($query_name)) {
                   $this->cached_queries[$cached_queries_name][$query_name] = $query;
             }
         }
+        
+        //If running a select query remove any NULL values in the where clause to prevent a parameter count mismatch with IS NULL criteria.
+        if($query_type == 'select' || $query_type == 'update' || $query_type == 'delete') {
+            if(!empty($where_clause)) {
+                foreach($where_clause as $column_name => $column_value) {
+                    if(is_null($column_value)) {
+                        unset($where_clause[$column_name]);
+                    }
+                }
+            }
+        }
 
-          $placeholder_values = array();
+        $placeholder_values = array();
+
+        if($query_type != 'select') {
+            if(is_array($fields)) {
+                $placeholder_values = array_values($fields);
+            }
+        }
           
-          if(is_array($fields)) {
-              $placeholder_values = array_values($fields);
-          }
-          
-          if(!empty($where_clause) && is_array($where_clause)) {
-              $placeholder_values = array_merge($placeholder_values, $where_clause);
-          }
+        if(!empty($where_clause) && is_array($where_clause)) {
+            $placeholder_values = array_merge($placeholder_values, array_values($where_clause));
+        }
 
-          $query_object = $this->prepareExecuteQuery($query, array_values($placeholder_values), $query_name);
+        $query_object = $this->prepareExecuteQuery($query, array_values($placeholder_values), $query_name);
 
-          return $query_object;
+        return $query_object;
     }
     
     /**
@@ -589,7 +602,7 @@ class Database {
      * @param string $query_name (optional) The cache name of the query. This enables caching of the prepared statement.
      * @return array
      */
-     public function getData($table_name, $fields = "*", $where_clause = "", $case_insensitive_columns = array(), $query_name = '') {
+    public function getData($table_name, $fields = "*", $where_clause = "", $case_insensitive_columns = array(), $query_name = '') {
         $select_object = $this->generateQuery('select', $table_name, $fields, $where_clause, $case_insensitive_columns, $query_name);
         
         return $select_object->fetchAll(PDO::FETCH_ASSOC);

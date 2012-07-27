@@ -35,12 +35,15 @@ namespace Framework\Modules;
 use \Framework\Html\Page;
 use \Framework\Core\Configuration;
 use \Framework\Display\Template;
+use \Framework\Caching\File;
 
 class ModulePage
 extends Page {
     protected $module;
     
-    public function __construct($module_name) {               
+    public function __construct($module_name) {
+        File::setDefaultModuleName($module_name);
+    
         parent::__construct();
         
         $this->module = new WebModule($module_name);
@@ -51,6 +54,8 @@ extends Page {
         $module_theme_path = $this->module->getThemePath();
         
         $this->setThemeDirectory($module_theme_path);
+        
+        $this->assets_http_path = $this->module->getAssetsHttpPath();
         
         //Set the theme css path
         $theme_css_path =  "{$module_theme_path}/css";

@@ -119,7 +119,6 @@ extends Web {
     protected function sanitizePathParameter($parameter_name) {
         return str_replace(array(
             '~',
-            '/',
             '\\',
             '..'
         ), '', request()->get->$parameter_name);
@@ -163,7 +162,7 @@ extends Web {
         }
         
         $file_path .= "/{$this->assets_folder}/{$this->full_name}";
-        
+
         if(is_file($file_path)) {
             $this->full_path = $file_path;
             
