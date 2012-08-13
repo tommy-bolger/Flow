@@ -265,6 +265,33 @@ CREATE TABLE cms_static_pages (
 CREATE INDEX csp_module_id_fk ON cms_static_pages (module_id);
 
 -- ----------------------------
+-- Table structure for cms_update_types
+-- ----------------------------
+CREATE TABLE cms_update_types (
+  update_type_id integer PRIMARY KEY,
+  update_type varchar(50) NOT NULL
+);
+
+-- ----------------------------
+-- Table structure for cms_updates
+-- ----------------------------
+CREATE TABLE cms_updates (
+  update_id integer PRIMARY KEY,
+  module_id integer,
+  version_id integer NOT NULL,
+  update_type_id integer NOT NULL,
+  update_file varchar(20) NOT NULL,
+  run tinyint NOT NULL DEFAULT 0,
+  CONSTRAINT cu_module_id_fk FOREIGN KEY (module_id) REFERENCES cms_modules (module_id) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT cu_update_type_id_fk FOREIGN KEY (update_type_id) REFERENCES cms_update_types (update_type_id) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT cu_version_id_fk FOREIGN KEY (version_id) REFERENCES cms_versions (version_id) ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+CREATE INDEX cu_module_id_fk ON cms_updates (module_id);
+CREATE INDEX cu_version_id_fk ON cms_updates (version_id);
+CREATE INDEX cu_update_type_id_fk ON cms_updates (update_type_id);
+
+-- ----------------------------
 -- Table structure for cms_us_states
 -- ----------------------------
 CREATE TABLE cms_us_states (
@@ -351,3 +378,16 @@ CREATE TABLE cms_users (
   email_address varchar(255) NOT NULL,
   is_site_admin tinyint NOT NULL DEFAULT 0
 );
+
+-- ----------------------------
+-- Table structure for cms_versions
+-- ----------------------------
+CREATE TABLE cms_versions (
+  version_id integer PRIMARY KEY,
+  module_id integer,
+  version varchar(20) NOT NULL,
+  finished tinyint NOT NULL DEFAULT 0,
+  CONSTRAINT cv_module_id_fk FOREIGN KEY (module_id) REFERENCES cms_modules (module_id) ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+CREATE INDEX cv_module_id_fk ON cms_versions (module_id);

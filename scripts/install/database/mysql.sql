@@ -16,6 +16,7 @@ CREATE TABLE `cms_ad_campaign_affiliation` (
   CONSTRAINT `aca_ad_campaign_id_fk` FOREIGN KEY (`ad_campaign_id`) REFERENCES `cms_ad_campaigns` (`ad_campaign_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `aca_ad_id_fk` FOREIGN KEY (`ad_id`) REFERENCES `cms_ads` (`ad_id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
 -- ----------------------------
 -- Table structure for `cms_ad_campaigns`
 -- ----------------------------
@@ -29,6 +30,7 @@ CREATE TABLE `cms_ad_campaigns` (
   KEY `ac_module_id_fk` (`module_id`),
   CONSTRAINT `ac_module_id_fk` FOREIGN KEY (`module_id`) REFERENCES `cms_modules` (`module_id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
 -- ----------------------------
 -- Table structure for `cms_ads`
 -- ----------------------------
@@ -51,6 +53,7 @@ CREATE TABLE `cms_banned_ip_addresses` (
   `expiration_time` datetime DEFAULT NULL,
   PRIMARY KEY (`banned_ip_address_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
 -- ----------------------------
 -- Table structure for `cms_censored_words`
 -- ----------------------------
@@ -60,6 +63,7 @@ CREATE TABLE `cms_censored_words` (
   `translated_to` varchar(255) COLLATE utf8_unicode_ci NOT NULL DEFAULT '[CENSORED]',
   PRIMARY KEY (`censored_word_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
 -- ----------------------------
 -- Table structure for `cms_configuration_parameters`
 -- ----------------------------
@@ -277,6 +281,34 @@ CREATE TABLE `cms_static_pages` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci
 
 -- ----------------------------
+-- Table structure for `cms_update_types`
+-- ----------------------------
+CREATE TABLE `cms_update_types` (
+  `update_type_id` int(1) NOT NULL AUTO_INCREMENT,
+  `update_type` varchar(50) COLLATE utf8_unicode_ci NOT NULL,
+  PRIMARY KEY (`update_type_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+-- ----------------------------
+-- Table structure for `cms_updates`
+-- ----------------------------
+CREATE TABLE `cms_updates` (
+  `update_id` int(1) NOT NULL AUTO_INCREMENT,
+  `module_id` int(1) DEFAULT NULL,
+  `version_id` int(1) NOT NULL,
+  `update_type_id` int(1) NOT NULL,
+  `update_file` varchar(20) COLLATE utf8_unicode_ci NOT NULL,
+  `run` tinyint(1) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`update_id`),
+  KEY `cu_module_id_fk` (`module_id`),
+  KEY `cu_version_id_fk` (`version_id`),
+  KEY `cu_update_type_id_fk` (`update_type_id`),
+  CONSTRAINT `cu_module_id_fk` FOREIGN KEY (`module_id`) REFERENCES `cms_modules` (`module_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `cu_update_type_id_fk` FOREIGN KEY (`update_type_id`) REFERENCES `cms_update_types` (`update_type_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `cu_version_id_fk` FOREIGN KEY (`version_id`) REFERENCES `cms_versions` (`version_id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+-- ----------------------------
 -- Table structure for `cms_us_states`
 -- ----------------------------
 DROP TABLE IF EXISTS `cms_us_states`;
@@ -367,4 +399,17 @@ CREATE TABLE `cms_users` (
   `email_address` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
   `is_site_admin` tinyint(1) NOT NULL DEFAULT '0',
   PRIMARY KEY (`user_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+-- ----------------------------
+-- Table structure for `cms_versions`
+-- ----------------------------
+CREATE TABLE `cms_versions` (
+  `version_id` int(1) NOT NULL AUTO_INCREMENT,
+  `module_id` int(1) DEFAULT NULL,
+  `version` varchar(20) COLLATE utf8_unicode_ci NOT NULL,
+  `finished` tinyint(1) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`version_id`),
+  KEY `cv_module_id_fk` (`module_id`),
+  CONSTRAINT `cv_module_id_fk` FOREIGN KEY (`module_id`) REFERENCES `cms_modules` (`module_id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;

@@ -293,6 +293,40 @@ CREATE SEQUENCE csp_static_page_id_seq
 ALTER SEQUENCE csp_static_page_id_seq OWNED BY cms_static_pages.static_page_id;
 
 
+CREATE TABLE cms_update_types (
+  update_type_id integer NOT NULL,
+  update_type character varying(50) NOT NULL
+);
+
+CREATE SEQUENCE cut_update_type_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MAXVALUE
+    NO MINVALUE
+    CACHE 1;
+
+ALTER SEQUENCE cut_update_type_id_seq OWNED BY cms_update_types.update_type_id;
+
+
+CREATE TABLE cms_updates (
+  update_id integer NOT NULL,
+  module_id integer,
+  version_id integer NOT NULL,
+  update_type_id integer NOT NULL,
+  update_file character varying(20) NOT NULL,
+  run smallint DEFAULT 0 NOT NULL
+);
+
+CREATE SEQUENCE cu_update_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MAXVALUE
+    NO MINVALUE
+    CACHE 1;
+
+ALTER SEQUENCE cu_update_id_seq OWNED BY cms_updates.update_id;
+
+
 CREATE TABLE cms_us_states (
     state_id integer NOT NULL,
     abbreviation character varying(3) NOT NULL,
@@ -334,6 +368,22 @@ CREATE SEQUENCE cu_user_id_seq
 ALTER SEQUENCE cu_user_id_seq OWNED BY cms_users.user_id;
 
 
+CREATE TABLE cms_versions (
+  version_id integer NOT NULL,
+  module_id integer,
+  version character varying(20) NOT NULL,
+  finished smallint DEFAULT 0 NOT NULL
+);
+
+CREATE SEQUENCE cv_version_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MAXVALUE
+    NO MINVALUE
+    CACHE 1;
+
+ALTER SEQUENCE cv_version_id_seq OWNED BY cms_versions.version_id;
+
 -- Set Primary Key Auto Increment Default Value --
 
 ALTER TABLE cms_ad_campaign_affiliation ALTER COLUMN ad_campaign_affiliation_id SET DEFAULT nextval('caca_ad_campaign_affiliation_id_seq'::regclass);
@@ -364,9 +414,15 @@ ALTER TABLE cms_roles ALTER COLUMN role_id SET DEFAULT nextval('cr_role_id_seq':
 
 ALTER TABLE cms_static_pages ALTER COLUMN static_page_id SET DEFAULT nextval('csp_static_page_id_seq'::regclass);
 
+ALTER TABLE cms_update_types ALTER COLUMN update_type_id SET DEFAULT nextval('cut_update_type_id_seq'::regclass);
+
+ALTER TABLE cms_updates ALTER COLUMN update_id SET DEFAULT nextval('cu_update_id_seq'::regclass);
+
 ALTER TABLE cms_user_role_affiliation ALTER COLUMN user_role_affiliation_id SET DEFAULT nextval('cura_user_role_affiliation_id_seq'::regclass);
 
 ALTER TABLE cms_users ALTER COLUMN user_id SET DEFAULT nextval('cu_user_id_seq'::regclass);
+
+ALTER TABLE cms_versions ALTER COLUMN version_id SET DEFAULT nextval('cv_version_id_seq'::regclass);
 
 -- Table Rows --
 
@@ -508,6 +564,12 @@ ALTER TABLE ONLY cms_sessions
 ALTER TABLE ONLY cms_static_pages
     ADD CONSTRAINT csp_static_page_id_pk PRIMARY KEY (static_page_id);
 
+ALTER TABLE ONLY cms_update_types
+    ADD CONSTRAINT cut_update_type_id_pk PRIMARY KEY (update_type_id);
+
+ALTER TABLE ONLY cms_updates
+    ADD CONSTRAINT cut_update_id_pk PRIMARY KEY (update_id);
+
 ALTER TABLE ONLY cms_us_states
     ADD CONSTRAINT cus_state_id_pk PRIMARY KEY (state_id);
 
@@ -516,6 +578,9 @@ ALTER TABLE ONLY cms_users
 
 ALTER TABLE ONLY cms_user_role_affiliation
     ADD CONSTRAINT cura_user_role_affiliation_id_pk PRIMARY KEY (user_role_affiliation_id);
+    
+ALTER TABLE ONLY cms_versions
+    ADD CONSTRAINT cv_version_id_pk PRIMARY KEY (version_id);
     
 -- Foreign Keys --
 ALTER TABLE ONLY cms_ad_campaign_affiliation
@@ -555,7 +620,16 @@ ALTER TABLE ONLY cms_role_permission_affiliation
     ADD CONSTRAINT crpa_permission_id_fk FOREIGN KEY (permission_id) REFERENCES cms_permissions(permission_id) ON UPDATE CASCADE ON DELETE CASCADE;
    
 ALTER TABLE ONLY cms_static_pages
-    ADD CONSTRAINT csp_module_id_fk FOREIGN KEY (module_id) REFERENCES cms_modules(module_id) ON UPDATE CASCADE ON DELETE CASCADE;    
+    ADD CONSTRAINT csp_module_id_fk FOREIGN KEY (module_id) REFERENCES cms_modules(module_id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+ALTER TABLE ONLY cms_updates
+    ADD CONSTRAINT cu_module_id_fk FOREIGN KEY (module_id) REFERENCES cms_modules (module_id) ON DELETE CASCADE ON UPDATE CASCADE;
+    
+ALTER TABLE ONLY cms_updates
+    ADD CONSTRAINT cu_update_type_id_fk FOREIGN KEY (update_type_id) REFERENCES cms_update_types (update_type_id) ON DELETE CASCADE ON UPDATE CASCADE;
+    
+ALTER TABLE ONLY cms_updates
+    ADD CONSTRAINT cu_version_id_fk FOREIGN KEY (version_id) REFERENCES cms_versions (version_id) ON DELETE CASCADE ON UPDATE CASCADE;
 
 ALTER TABLE ONLY cms_role_permission_affiliation
     ADD CONSTRAINT crpa_role_id_fk FOREIGN KEY (role_id) REFERENCES cms_roles(role_id) ON UPDATE CASCADE ON DELETE CASCADE;
@@ -565,6 +639,9 @@ ALTER TABLE ONLY cms_user_role_affiliation
 
 ALTER TABLE ONLY cms_user_role_affiliation
     ADD CONSTRAINT cura_user_id_fk FOREIGN KEY (user_id) REFERENCES cms_users(user_id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+ALTER TABLE ONLY cms_versions
+    ADD CONSTRAINT cv_module_id_fk FOREIGN KEY (module_id) REFERENCES cms_modules (module_id) ON DELETE CASCADE ON UPDATE CASCADE;
 
 REVOKE ALL ON SCHEMA public FROM PUBLIC;
 REVOKE ALL ON SCHEMA public FROM postgres;

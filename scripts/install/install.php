@@ -434,6 +434,13 @@ $continue = trim(fgets(STDIN));
 //Retrieve the list of available modules on the filesystem
 $modules = Module::getInstalledModules();
 
+//Remove the admin module from the list of installed modules since it is already installed by default
+$admin_module_index = array_search('admin', $modules, true);
+
+if($admin_module_index !== false) {
+    unset($modules[$admin_module_index]);
+}
+
 $modules_list = implode(', ', $modules);
 
 modules:

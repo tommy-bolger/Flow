@@ -150,7 +150,6 @@ class Module {
             switch($module_entry) {
                 case '.':
                 case '..':
-                case 'admin':
                     break;
                 default:
                     $modules[] = $module_entry;

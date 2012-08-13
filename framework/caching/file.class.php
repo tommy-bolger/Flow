@@ -217,7 +217,7 @@ class File {
                 
                 if(!empty($cached_files)) {
                     foreach($cached_files as $cached_file) {
-                        if($cached_file == 'index.html' && strpos($cached_file, 'pie.') === false) {
+                        if($cached_file != 'index.html' && strpos($cached_file, 'pie.') === false) {
                             $cache_file_path = "{$cache_directory_path}/{$cached_file}";
                             
                             if(is_file($cache_file_path)) {

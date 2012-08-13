@@ -10,8 +10,9 @@ PRAGMA foreign_keys=OFF;
 -- ----------------------------
 -- Records of cms_configuration_parameters
 -- ----------------------------
-INSERT INTO cms_configuration_parameters (module_id, parameter_name, value, default_value, sort_order, parameter_data_type_id, description, display_name, has_value_list) VALUES (<?php echo $module_id; ?>, 'theme', NULL, 'default', 1, 1, NULL, 'Theme', 0);
-INSERT INTO cms_configuration_parameters (module_id, parameter_name, value, default_value, sort_order, parameter_data_type_id, description, display_name, has_value_list) VALUES (<?php echo $module_id; ?>, 'code_example_file_extensions', NULL, 'php,html,aspx,asp,js,css,htc,inc', 2, 5, NULL, 'Code Example File Extensions', 0);
+INSERT INTO cms_configuration_parameters (module_id, parameter_name, value, default_value, sort_order, parameter_data_type_id, description, display_name, has_value_list) VALUES (<?php echo $module_id; ?>, 'theme', null, '1.0', 1, 1, null, 'Version', 0);
+INSERT INTO cms_configuration_parameters (module_id, parameter_name, value, default_value, sort_order, parameter_data_type_id, description, display_name, has_value_list) VALUES (<?php echo $module_id; ?>, 'theme', NULL, 'default', 2, 1, NULL, 'Theme', 0);
+INSERT INTO cms_configuration_parameters (module_id, parameter_name, value, default_value, sort_order, parameter_data_type_id, description, display_name, has_value_list) VALUES (<?php echo $module_id; ?>, 'code_example_file_extensions', NULL, 'php,html,aspx,asp,js,css,htc,inc', 3, 5, NULL, 'Code Example File Extensions', 0);
 
 -- ----------------------------
 -- Table structure for resume_code_example_skills

@@ -115,8 +115,8 @@ function cache() {
 *
 * @return object
 */
-function file_cache() {
-    return \Framework\Caching\File::getFileCache();
+function file_cache($module_name = '') {
+    return \Framework\Caching\File::getFileCache($module_name);
 }
 
 /**
