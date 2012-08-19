@@ -97,21 +97,35 @@ extends Web {
         }
 
         $sub_path = '';
+        $is_admin_sub_path = false;
         
         if(isset(request()->get->subd)) {
             $request_subdirectories = request()->get->subd;
             
             $this->subdirectory_path = explode('/', $request_subdirectories);
+            
+            if(!empty($this->subdirectory_path[0]) && $this->subdirectory_path[0] == 'admin') {
+                $this->subdirectory_path[0] = "{$this->subdirectory_path[0]}\\ controllers";
+                
+                $is_admin_sub_path = true;
+            }
 
             $sub_path = implode('\\ ', $this->subdirectory_path) . '\\ ';
         }
 
         $this->page_class_name = $page_class_name;
         
-        $module_namespace = "{$this->module_name}\\ {$sub_path}";
+        $module_namespace = '';
         
+        if($is_admin_sub_path) {
+            $module_namespace = "{$this->module_name}\\ {$sub_path}";
+        }
+        else {
+            $module_namespace = "{$this->module_name}\\ controllers\\ {$sub_path}";
+        }
+
         if($this->environment == 'production') {
-            if($this->module_name == 'admin' && !empty($this->subdirectory_path[1]) && $this->subdirectory_path[1] == 'admin') {
+            if($this->module_name == 'admin' && !empty($this->subdirectory_path[1]) && $this->subdirectory_path[1] == 'admin') {            
                 $module_namespace = $sub_path;
             }
         }
@@ -122,7 +136,7 @@ extends Web {
         $page_class_path = str_replace(array('_', '-'), ' ', $page_class_path);
         $page_class_path = ucwords($page_class_path);
         $page_class_path = str_replace(' ', '', $page_class_path);
-        
+        dump($page_class_path);
         /*
          * Need to call class_exists() in a try/catch block because of PHP bug #52339 found at: 
          * https://bugs.php.net/bug.php?id=52339&edit=1
