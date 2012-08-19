@@ -136,7 +136,7 @@ extends Web {
         $page_class_path = str_replace(array('_', '-'), ' ', $page_class_path);
         $page_class_path = ucwords($page_class_path);
         $page_class_path = str_replace(' ', '', $page_class_path);
-        dump($page_class_path);
+
         /*
          * Need to call class_exists() in a try/catch block because of PHP bug #52339 found at: 
          * https://bugs.php.net/bug.php?id=52339&edit=1

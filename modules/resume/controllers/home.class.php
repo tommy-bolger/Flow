@@ -31,7 +31,7 @@
 * POSSIBILITY OF SUCH DAMAGE.
 */
 
-namespace Modules\Resume;
+namespace Modules\Resume\Controllers;
 
 use \Framework\Modules\ModulePage;
 use \Framework\Html\Table\Table;
