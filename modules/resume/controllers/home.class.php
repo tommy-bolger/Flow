@@ -112,7 +112,7 @@ extends ModulePage {
     }
     
     private function constructContentHeader() {
-        $this->body->addChild("{$this->module->getImagesPath()}/{$this->general_information['photo']}", 'photo_url');
+        $this->body->addChild("{$this->module->getImagesHttpPath()}/{$this->general_information['photo']}", 'photo_url');
         $this->body->addChild("{$this->general_information['first_name']} {$this->general_information['last_name']}", 'name');
         $this->body->addChild($this->general_information['specialty'], 'specialty');
         
@@ -134,7 +134,7 @@ extends ModulePage {
         $this->body->addChild($address, 'address'); 
         $this->body->addChild($this->general_information['summary'], 'description');
         
-        $assets_path = $this->module->getAssetsPath();
+        $assets_path = $this->module->getAssetsHttpPath();
         
         $this->body->addChild("{$assets_path}/files/{$this->general_information['resume_pdf_name']}", 'print_pdf_url');
         $this->body->addChild("{$assets_path}/files/{$this->general_information['resume_word_name']}", 'print_word_url');
@@ -316,7 +316,7 @@ extends ModulePage {
         ");
         
         if(!empty($portfolio_projects)) {
-            $portfolio_screenshots_path = "{$this->module->getImagesPath()}/portfolio_images";
+            $portfolio_screenshots_path = "{$this->module->getImagesHttpPath()}/portfolio_images";
             
             $portfolio_project_images = db()->getAssoc("
                 SELECT
@@ -399,7 +399,7 @@ extends ModulePage {
         ");
         
         if(!empty($code_examples)) {
-            $code_examples_path = "{$this->module->getFilesPath()}/code_examples";
+            $code_examples_path = "{$this->module->getFilesHttpPath()}/code_examples";
         
             $code_example_skills = db()->getGroupedColumn("
                 SELECT
