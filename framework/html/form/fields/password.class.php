@@ -32,8 +32,10 @@
 */
 namespace Framework\Html\Form\Fields;
 
+use \Framework\Html\Form\FieldObjects\Field;
+
 class Password
-extends \Framework\Html\Form\FieldObjects\Field {
+extends Field {
     /**
      * Instantiates a new instance of Password.
      *      

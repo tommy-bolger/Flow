@@ -56,6 +56,11 @@ extends \Framework\Html\Element {
     protected $input_type;
     
     /**
+    * @var string The name of the javascript object of this field.
+    */
+    protected $javascript_object_name = 'Field';
+    
+    /**
     * @var string The name attribute of the field.
     */
     protected $name;
@@ -124,7 +129,13 @@ extends \Framework\Html\Element {
         
         $this->setLabel($field_label);
         
+        $css_classes[] = 'form_field_element';
+        
         $this->addClasses($css_classes);
+
+        if(!empty($this->javascript_object_name)) {
+            $this->setAttribute('data-object', $this->javascript_object_name);
+        }                
     }
     
     /**
@@ -136,6 +147,24 @@ extends \Framework\Html\Element {
      */
     public function __call($function_name, $arguments) {        
         throw new \Exception("Function name '{$function_name}' does not exist for this class.");
+    }
+    
+    /**
+     * Removes the data attribute that enables JS on this field.
+     *      
+     * @return void
+     */
+    public function removeDataAttribute() {
+        $this->removeAttribute('data-object');
+    }
+    
+    /**
+     * Adds the element's javascript and css to the page.
+     *      
+     * @return void
+     */
+    protected function addElementFiles() {
+        page()->addJavascriptFile('form/fields/Field.js');
     }
     
     /**
@@ -284,6 +313,8 @@ extends \Framework\Html\Element {
      */
     public function setRequired() {
         $this->required = true;
+        
+        $this->addClass('required');
     }
     
     /**
@@ -301,7 +332,7 @@ extends \Framework\Html\Element {
      * @return void
      */
     protected function setRequiredError() {                
-        $this->setErrorMessage("{$this->label} is a Required Field.");
+        $this->setErrorMessage("{$this->label} is a required field.");
     }
     
     /**
@@ -432,6 +463,15 @@ extends \Framework\Html\Element {
      */
     public function getDescription() {   
         return $this->description;
+    }
+    
+    /**
+     * Retrieves the field's label text.
+     *      
+     * @return string
+     */
+    public function getLabelText() {
+        return $this->label;
     }
     
     /**

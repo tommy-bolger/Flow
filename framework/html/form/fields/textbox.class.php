@@ -33,8 +33,15 @@
 
 namespace Framework\Html\Form\Fields;
 
+use \Framework\Html\Form\FieldObjects\Field;
+
 class Textbox 
-extends \Framework\Html\Form\FieldObjects\Field {
+extends Field {
+    /**
+    * @var string The name of the javascript object of this field.
+    */
+    protected $javascript_object_name = 'Textbox';
+
     /**
     * @var integerThe maximum number of allowable characters for this field.
     */
@@ -55,6 +62,17 @@ extends \Framework\Html\Form\FieldObjects\Field {
         $this->addClass('textbox');
 
         $this->setDefaultValue($textbox_value);
+    }
+    
+    /**
+     * Adds the element's javascript and css to the page.
+     *      
+     * @return void
+     */
+    protected function addElementFiles() {
+        parent::addElementFiles();
+        
+        page()->addJavascriptFile('form/fields/Textbox.js');
     }
     
     /**
@@ -82,7 +100,7 @@ extends \Framework\Html\Form\FieldObjects\Field {
         if(!empty($this->value)) {
             if(!empty($this->max_length)) {
                 if(strlen($this->value) > $this->max_length) {
-                    $this->setErrorMessage("{$this->label} has a length greater than the max allowed of {$this->max_length} characters.");
+                    $this->setErrorMessage("{$this->label} cannot be longer than {$this->max_length} characters.");
                 
                     return false;
                 }

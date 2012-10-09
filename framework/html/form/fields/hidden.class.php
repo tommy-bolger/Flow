@@ -32,8 +32,10 @@
 */
 namespace Framework\Html\Form\Fields;
 
+use \Framework\Html\Form\FieldObjects\Field;
+
 class Hidden
-extends \Framework\Html\Form\FieldObjects\Field {
+extends Field {
     /**
     * @var boolean Flag indicating that the field's value gets included when retrieving the data of only interactive fields in the form objects.
     */

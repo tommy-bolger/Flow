@@ -33,8 +33,10 @@
 
 namespace Framework\Html\Form\Fields;
 
+use \Framework\Html\Form\FieldObjects\Field;
+
 class Textarea
-extends \Framework\Html\Form\FieldObjects\Field {
+extends Field {
     /**
      * Initializes a new instance of TextArea.
      *      

@@ -36,6 +36,11 @@ namespace Framework\Html\Form\Fields;
 class FloatField
 extends Textbox {
     /**
+    * @var string The name of the javascript object of this field.
+    */
+    protected $javascript_object_name = 'FloatField';
+
+    /**
     * @var integer The number of digits on the left side of the decimal.
     */
     private $left_precision;
@@ -55,6 +60,18 @@ extends Textbox {
      */
     public function __construct($float_name, $float_label = "", $float_value = NULL) {
         parent::__construct($float_name, $float_label, $float_value, array('float_field'));
+    }
+    
+    /**
+     * Adds the element's javascript and css to the page.
+     *      
+     * @return void
+     */
+    protected function addElementFiles() {
+        parent::addElementFiles();
+
+        page()->addJavascriptFile('form/fields/IntField.js');
+        page()->addJavascriptFile('form/fields/FloatField.js');
     }
     
     public function setMaxLength($max_length) {}
@@ -80,6 +97,9 @@ extends Textbox {
         $this->right_precision = $right_precision;
         
         parent::setMaxLength($left_precision + $right_precision + 1);
+        
+        $this->setAttribute('data-left-precision', $left_precision);
+        $this->setAttribute('data-right-precision', $right_precision);
     }
     
     /**
@@ -94,7 +114,7 @@ extends Textbox {
         
         if(!empty($this->value)) {
             if(filter_var($this->value, FILTER_VALIDATE_FLOAT) === false) {
-                $this->setErrorMessage("{$this->label} is not a valid decimal value.");
+                $this->setErrorMessage("{$this->label} is not a valid number.");
             
                 return false;
             }
@@ -102,7 +122,7 @@ extends Textbox {
             $value_split = explode('.', $this->value);
             
             if(isset($this->left_precision) && isset($value_split[0]) && strlen($value_split[0]) > $this->left_precision) {
-                $this->setErrorMessage("{$this->label} can only have {$this->left_precision} digit(s) before the decimal place.");
+                $this->setErrorMessage("{$this->label} can only have {$this->left_precision} digit(s) maximum before the decimal place.");
                 
                 return false;
             }

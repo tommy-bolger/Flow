@@ -33,8 +33,15 @@
 
 namespace Framework\Html\Form\Fields;
 
+use \Framework\Html\Form\FieldObjects\ToggleGroup;
+
 class RadioGroup
-extends \Framework\Html\Form\FieldObjects\ToggleGroup {
+extends ToggleGroup {
+    /**
+    * @var string The name of the javascript object of this field.
+    */
+    protected $javascript_object_name = 'RadioGroup';
+    
     /**
      * Instantiates a new instance of RadioGroup.
      *      
@@ -45,6 +52,45 @@ extends \Framework\Html\Form\FieldObjects\ToggleGroup {
      * @return void
      */
     public function __construct($radio_group_name, $radio_group_label = NULL, $options = array(), $css_classes = array()) {
-        parent::__construct("radio", $radio_group_name, $radio_group_label, $options, $css_classes);
+        parent::__construct($radio_group_name, $radio_group_label, $options, $css_classes);
+    }
+    
+    /**
+     * Adds the element's javascript and css to the page.
+     *      
+     * @return void
+     */
+    protected function addElementFiles() {
+        parent::addElementFiles();
+        
+        page()->addJavascriptFile('form/fields/Select.js');
+        page()->addJavascriptFile('form/fields/Dropdown.js');
+        page()->addJavascriptFile('form/fields/RadioGroup.js');
+    }
+    
+    /**
+     * Sets the type of toggle fields that will appear in this group.
+     *      
+     * @return void
+     */
+    protected function setGroupType() {
+        $this->group_type = 'radio';
+        $this->option_name = $this->name;
+    }
+    
+    /**
+     * Determines if an option was selected and calls that object's setChecked().
+     *      
+     * @param object $option The option object.
+     * @return void
+     */
+    protected function setOptionSelected($option) {
+        parent::setOptionSelected($option);
+    
+        if(!empty($this->value)) {
+            if($option->getDefaultValue() == $this->value) {
+                $option->setChecked();
+            }
+        }
     }
 }

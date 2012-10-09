@@ -36,6 +36,11 @@ namespace Framework\Html\Form\Fields;
 class IPAddress
 extends Textbox {
     /**
+    * @var string The name of the javascript object of this field.
+    */
+    protected $javascript_object_name = 'IPAddress';
+
+    /**
      * Initializes a new instance of IPAddress.
      *      
      * @param string $field_name The field name.
@@ -48,6 +53,17 @@ extends Textbox {
         parent::__construct($field_name, $field_label, $field_value, array('ip_address_field'));
         
         parent::setMaxLength(15);
+    }
+    
+    /**
+     * Adds the element's javascript and css to the page.
+     *      
+     * @return void
+     */
+    protected function addElementFiles() {
+        parent::addElementFiles();
+
+        page()->addJavascriptFile('form/fields/IPAddress.js');
     }
     
     /**
@@ -70,7 +86,7 @@ extends Textbox {
         
         if(!empty($this->value)) {
             if(filter_var($this->value, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) === false) {
-                $this->setErrorMessage("{$this->label} is an invalid IP Address.");
+                $this->setErrorMessage("{$this->label} is not a valid IP Address.");
                 
                 return false;
             }

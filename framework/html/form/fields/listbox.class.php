@@ -33,8 +33,15 @@
 
 namespace Framework\Html\Form\Fields;
 
+use \Framework\Html\Form\FieldObjects\Select;
+
 class Listbox
-extends \Framework\Html\Form\FieldObjects\Select {
+extends Select {
+    /**
+    * @var string The name of the javascript object of this field.
+    */
+    protected $javascript_object_name = 'Listbox';
+
     /**
      * Instantiates a new instance of Listbox.
      *      
@@ -49,4 +56,23 @@ extends \Framework\Html\Form\FieldObjects\Select {
         
         $this->setMultiSelect();
     }
+    
+    /**
+     * Adds the element's javascript and css to the page.
+     *      
+     * @return void
+     */
+    protected function addElementFiles() {
+        parent::addElementFiles();
+
+        page()->addJavascriptFile('form/fields/Listbox.js');
+    }
+    
+    /**
+     * Prepends a blank option to the select field.
+     *      
+     * @param string $blank_option_text (optional) The blank option's display text. Defaults to a blank string.
+     * @return void
+     */
+    public function addBlankOption($blank_option_text = "") {}
 }

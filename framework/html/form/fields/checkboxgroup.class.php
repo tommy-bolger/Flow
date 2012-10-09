@@ -32,8 +32,15 @@
 */
 namespace Framework\Html\Form\Fields;
 
+use \Framework\Html\Form\FieldObjects\ToggleGroup;
+
 class CheckboxGroup
-extends \Framework\Html\Form\FieldObjects\ToggleGroup {
+extends ToggleGroup {
+    /**
+    * @var string The name of the javascript object of this field.
+    */
+    protected $javascript_object_name = 'CheckboxGroup';
+
     /**
      * Instantiates a new instance of a CheckboxGroup.
      *      
@@ -44,6 +51,45 @@ extends \Framework\Html\Form\FieldObjects\ToggleGroup {
      * @return void
      */
     public function __construct($checkbox_group_name, $checkbox_group_label = NULL, array $options = array(), $css_classes = array()) {
-        parent::__construct("checkbox", $checkbox_group_name, $checkbox_group_label, $options, $css_classes);
+        parent::__construct($checkbox_group_name, $checkbox_group_label, $options, $css_classes);
+    }
+    
+    /**
+     * Adds the element's javascript and css to the page.
+     *      
+     * @return void
+     */
+    protected function addElementFiles() {
+        parent::addElementFiles();
+        
+        page()->addJavascriptFile('form/fields/Select.js');
+        page()->addJavascriptFile('form/fields/Listbox.js');
+        page()->addJavascriptFile('form/fields/CheckboxGroup.js');
+    }
+    
+    /**
+     * Sets the type of toggle fields that will appear in this group.
+     *      
+     * @return void
+     */
+    protected function setGroupType() {
+        $this->group_type = 'checkbox';
+        $this->option_name = "{$this->name}[]";
+    }
+    
+    /**
+     * Determines if an option was selected and calls that object's setChecked().
+     *      
+     * @param object $option The option object.
+     * @return void
+     */
+    protected function setOptionSelected($option) {
+        parent::setOptionSelected($option);
+    
+        if(!empty($this->value)) {
+            if(in_array($option->getDefaultValue(), $this->value)) {
+                $option->setChecked();
+            }
+        }
     }
 }

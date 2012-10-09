@@ -33,8 +33,15 @@
 
 namespace Framework\Html\Form\Fields;
 
+use \Framework\Html\Form\FieldObjects\Field;
+
 class PhoneNumber
-extends \Framework\Html\Form\FieldObjects\Field {
+extends Field {
+    /**
+    * @var string The name of the javascript object of this field.
+    */
+    protected $javascript_object_name = 'PhoneNumber';
+
     /**
     * @var string The area code of the phone number.
     */
@@ -60,13 +67,16 @@ extends \Framework\Html\Form\FieldObjects\Field {
     public function __construct($field_name = '', $field_label = '') {
         parent::__construct(NULL, $field_name, $field_label);
         
-        $this->area_code = new textbox("{$this->name}[]", "", "", array('class' => 'area_code'));
+        $this->area_code = new Textbox("{$this->name}[]", "", "", array('class' => 'area_code'));
+        $this->area_code->removeDataAttribute();
         $this->area_code->setMaxLength(3);
         
-        $this->exchange = new textbox("{$this->name}[]", "", "", array('class' => 'exchange'));
+        $this->exchange = new Textbox("{$this->name}[]", "", "", array('class' => 'exchange'));
+        $this->exchange->removeDataAttribute();
         $this->exchange->setMaxLength(3);
         
-        $this->line_number = new textbox("{$this->name}[]", "", "", array('class' => 'line_number'));
+        $this->line_number = new Textbox("{$this->name}[]", "", "", array('class' => 'line_number'));
+        $this->line_number->removeDataAttribute();
         $this->line_number->setMaxLength(4);
     }
     
@@ -76,7 +86,10 @@ extends \Framework\Html\Form\FieldObjects\Field {
      * @return void
      */
     protected function addElementFiles() {
+        parent::addElementFiles();
+    
         page()->addCssFile('framework/PhoneNumber.css');
+        page()->addJavascriptFile('form/fields/PhoneNumber.js');
     }
     
     /**
@@ -187,6 +200,6 @@ extends \Framework\Html\Form\FieldObjects\Field {
      * @return string
      */
     public function getFieldHtml() {        
-        return "{$this->area_code->getFieldHtml()}&nbsp;-&nbsp;{$this->exchange->getFieldHtml()}&nbsp;-&nbsp;{$this->line_number->getFieldHtml()}";
+        return "<input type=\"hidden\"{$this->renderAttributes()} />{$this->area_code->getFieldHtml()}&nbsp;-&nbsp;{$this->exchange->getFieldHtml()}&nbsp;-&nbsp;{$this->line_number->getFieldHtml()}";
     }
 }

@@ -32,8 +32,10 @@
 */
 namespace Framework\Html\Form\Fields;
 
+use \Framework\Html\Form\FieldObjects\Button;
+
 class ImageButton
-extends \Framework\Html\Form\FieldObjects\Button {
+extends Button {
     /**
      * Instantiates a new instance of ImageButton.
      *      

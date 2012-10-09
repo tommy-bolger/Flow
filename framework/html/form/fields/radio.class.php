@@ -33,8 +33,10 @@
 
 namespace Framework\Html\Form\Fields;
 
+use \Framework\Html\Form\FieldObjects\Toggle;
+
 class Radio
-extends \Framework\Html\Form\FieldObjects\Toggle {
+extends Toggle {
     /**
      * Instantiates a new instance of Radio.
      *      

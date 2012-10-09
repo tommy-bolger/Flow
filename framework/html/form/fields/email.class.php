@@ -36,6 +36,11 @@ namespace Framework\Html\Form\Fields;
 class Email
 extends Textbox {
     /**
+    * @var string The name of the javascript object of this field.
+    */
+    protected $javascript_object_name = 'Email';
+
+    /**
      * Initializes a new instance of EmailField.
      *      
      * @param string $email_name The email name.
@@ -46,6 +51,18 @@ extends Textbox {
      */
     public function __construct($email_name, $email_label = "", $email_value = NULL) {
         parent::__construct($email_name, $email_label, $email_value, array('email_field'));
+    }
+    
+    /**
+     * Adds the element's javascript and css to the page.
+     *      
+     * @return void
+     */
+    protected function addElementFiles() {
+        parent::addElementFiles();
+    
+        page()->addCssFile('framework/SplitEmail.css');
+        page()->addJavascriptFile('form/fields/Email.js');
     }
 
     /**

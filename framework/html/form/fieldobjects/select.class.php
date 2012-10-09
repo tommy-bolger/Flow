@@ -36,6 +36,11 @@ namespace Framework\Html\Form\FieldObjects;
 class Select
 extends Field {
     /**
+    * @var string The name of the javascript object of this field.
+    */
+    protected $javascript_object_name = 'Select';
+
+    /**
     * @var boolean Flag determining if the field is multi-select.
     */
     private $is_multi = false;
@@ -60,6 +65,17 @@ extends Field {
         else {
             $this->addOptions($options);
         }
+    }
+    
+    /**
+     * Adds the element's javascript and css to the page.
+     *      
+     * @return void
+     */
+    protected function addElementFiles() {
+        parent::addElementFiles();
+
+        page()->addJavascriptFile('form/fields/Select.js');
     }
     
     /**
@@ -122,17 +138,17 @@ extends Field {
      */
     public function addOption($option_value, $option_text = "", $option_group_name = NULL, $prepend = false) {            
         if(!$prepend) {              
-              $this->child_elements[$option_group_name][$option_value] = $option_text;
-          }
-          else {
-              if(!isset($this->child_elements[NULL])) {
-                  $this->child_elements = array(NULL => array()) + $this->child_elements;
-              
-                  $this->child_elements[NULL] = array();
-              }
-              
-              $this->child_elements[NULL] = array($option_value => $option_text) + $this->child_elements[NULL];
-          }
+            $this->child_elements[$option_group_name][$option_value] = $option_text;
+        }
+        else {
+            if(!isset($this->child_elements[NULL])) {
+                $this->child_elements = array(NULL => array()) + $this->child_elements;
+          
+                $this->child_elements[NULL] = array();
+            }
+          
+            $this->child_elements[NULL] = array($option_value => $option_text) + $this->child_elements[NULL];
+        }
     }
     
     /**
@@ -194,12 +210,12 @@ extends Field {
                         if($this->valueNotEmpty()) {                        
                             if(!is_array($this->value)) {
                                 if((string)$option_value == (string)$this->value) {
-                                    $selected_attribute = ' selected';
+                                    $selected_attribute = ' selected="selected"';
                                 }
                             }
                             else {
                                 if(in_array($option_value, $this->value)) {
-                                    $selected_attribute = ' selected';
+                                    $selected_attribute = ' selected="selected"';
                                 }
                             }
                         }

@@ -32,6 +32,7 @@
 */
 namespace Framework\Html\Form;
 
+use \Framework\Core\Framework;
 use \Framework\Html\Element;
 use \Framework\Utilities\Http;
 use \Framework\Utilities\Encryption;
@@ -84,6 +85,11 @@ extends Element {
     protected $valid;
     
     /**
+    * @var boolean A flag indicating if the form's fields have been reset to their default value.
+    */
+    protected $reset = false;
+    
+    /**
      * Initializes a new instance of Form.
      *      
      * @param string $form_name The form name.
@@ -104,6 +110,8 @@ extends Element {
         $this->setName($form_name);
         
         $this->setId($form_name);
+        
+        $this->addClass('form');
         
         $this->setAttribute('accept-charset', 'utf-8');
     
@@ -142,6 +150,12 @@ extends Element {
      */
     protected function addElementFiles() {
         page()->addCssFile('framework/Form.css');
+        page()->addCssFile('showLoading.css');
+
+        page()->addJavascriptFile('jquery.min.js');
+        page()->addJavascriptFile('jquery.showLoading.js');
+        page()->addJavascriptFile('request.js');
+        page()->addJavascriptFile('form/Form.js');
     }
     
     /**
@@ -267,6 +281,7 @@ extends Element {
         
         if($form_field->getInputType() == 'file') {                
             $this->setAttribute('enctype', 'multipart/form-data');
+            $this->addClass('full_submit');
         }
         
         $this->child_elements[$field_name] = $form_field;
@@ -429,11 +444,15 @@ extends Element {
      * @return void
      */
     public function reset() {
-        if(!empty($this->child_elements)) {
-            foreach($this->child_elements as $child_element) {
-                $child_element->resetValue();
+        if(Framework::$mode == 'web') {
+            if(!empty($this->child_elements)) {
+                foreach($this->child_elements as $child_element) {
+                    $child_element->resetValue();
+                }
             }
         }
+        
+        $this->reset = true;
     }
     
     /**
@@ -444,8 +463,13 @@ extends Element {
      */
     protected function getMessagesHtml($message_type) {
         assert("\$message_type == 'field_errors' || \$message_type == 'warnings' || \$message_type == 'confirmations'");
-    
-        return '<p>' . implode('</p><p>', $this->$message_type) . '</p>';
+        
+        if(!empty($this->$message_type)) {
+            return '<p>' . implode('</p><p>', $this->$message_type) . '</p>';
+        }
+        else {
+            return '';
+        }
     }
     
     /**
@@ -497,21 +521,51 @@ extends Element {
         $form_html = '';
         
         if(empty($this->template)) {
-            if(!empty($this->field_errors)) {
-                $form_html .= "<div class=\"form_errors\">{$this->getMessagesHtml('field_errors')}</div>";
+            $errors_hidden_class = '';
+        
+            if(empty($this->field_errors)) {
+                $errors_hidden_class = ' hidden';
             }
             
-            if(!empty($this->warnings)) {
-                $form_html .= "<div class=\"form_warnings\">{$this->getMessagesHtml('warnings')}</div>";
+            $errors_html = "<div class=\"form_errors{$errors_hidden_class}\">{$this->getMessagesHtml('field_errors')}</div>";
+            
+            $warnings_hidden_class = '';
+            
+            if(empty($this->warnings)) {
+                $warnings_hidden_class = ' hidden';
             }
             
-            if(!empty($this->confirmations)) {
-                $form_html .= "<div class=\"form_confirmations\">{$this->getMessagesHtml('confirmations')}</div>";
+            $warnings_html = "<div class=\"form_warnings{$warnings_hidden_class}\">{$this->getMessagesHtml('warnings')}</div>";
+            
+            $confirmations_hidden_class = '';
+            
+            if(empty($this->confirmations)) {
+                $confirmations_hidden_class = ' hidden';
             }
+            
+            $confirmations_html = "<div class=\"form_confirmations{$confirmations_hidden_class}\">{$this->getMessagesHtml('confirmations')}</div>";
+            
+            array_unshift($this->child_elements, $errors_html, $warnings_html, $confirmations_html);
         }
         
         $form_html .= parent::toHtml();
         
         return $form_html;
+    }
+    
+    /**
+     * Retrieves the form as an array suitable for json encoding.
+     *      
+     * @return array
+     */
+    public function toJsonArray() {
+        $json_array = array(
+            'errors' => $this->getMessagesHtml('field_errors'),
+            'warnings' => $this->getMessagesHtml('warnings'),
+            'confirmations' => $this->getMessagesHtml('confirmations'),
+            'reset' => $this->reset
+        );
+        
+        return $json_array;
     }
 }

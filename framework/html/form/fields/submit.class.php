@@ -33,8 +33,10 @@
 
 namespace Framework\Html\Form\Fields;
 
+use \Framework\Html\Form\FieldObjects\Button;
+
 class Submit
-extends \Framework\Html\Form\FieldObjects\Button {
+extends Button {
     /**
      * Initializes a new instance of Submit.
      *      

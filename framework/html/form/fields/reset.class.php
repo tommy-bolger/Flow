@@ -33,8 +33,10 @@
 
 namespace Framework\Html\Form\Fields;
 
+use \Framework\Html\Form\FieldObjects\Button;
+
 class Reset
-extends \Framework\Html\Form\FieldObjects\Button {
+extends Button {
     /**
      * Instantiates a new instance of a Reset.
      *      

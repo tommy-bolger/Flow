@@ -33,8 +33,15 @@
 
 namespace Framework\Html\Form\Fields;
 
+use \Framework\Html\Form\FieldObjects\Field;
+
 class File
-extends \Framework\Html\Form\FieldObjects\Field {    
+extends Field {
+    /**
+    * @var string The name of the javascript object of this field.
+    */
+    protected $javascript_object_name = '';
+
     /**
     * @var array A list of accepted file types.
     */
@@ -67,6 +74,13 @@ extends \Framework\Html\Form\FieldObjects\Field {
         
         $this->setFileSizeLimit($file_size_limit);
     }
+    
+    /**
+     * Adds the element's javascript and css to the page.
+     *      
+     * @return void
+     */
+    protected function addElementFiles() {}
     
     /**
      * Adds an accepted file type.

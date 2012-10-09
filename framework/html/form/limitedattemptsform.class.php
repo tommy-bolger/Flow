@@ -100,6 +100,8 @@ extends Form {
     public function __construct($form_name, $form_action = NULL, $form_method = "post", $enable_token = true) {    
         parent::__construct($form_name, $form_action, $form_method, $enable_token);
         
+        $this->addClass('full_submit');
+        
         //Set default values
         $this->max_attempts = config('framework')->attempts_form_max_attempts;
         $this->timeout_duration = config('framework')->attempts_form_timeout_duration;
@@ -141,6 +143,17 @@ extends Form {
                 $this->field_errors = $this->getTimeoutErrorMessage();
             }
         }
+    }
+    
+    /**
+     * Adds the element's javascript and css to the page.
+     *      
+     * @return void
+     */
+    protected function addElementFiles() {
+        parent::addElementFiles();
+
+        page()->addJavascriptFile('form/limited_attempts_form.js');
     }
     
     /**

@@ -36,6 +36,11 @@ namespace Framework\Html\Form\Fields;
 class IntField
 extends Textbox {
     /**
+    * @var string The name of the javascript object of this field.
+    */
+    protected $javascript_object_name = 'IntField';
+
+    /**
     * @var integer The maximum allowable digits in the field.
     */
     private $max_digits;
@@ -50,6 +55,17 @@ extends Textbox {
      */
     public function __construct($int_name, $int_label = "", $int_value = NULL) {
         parent::__construct($int_name, $int_label, $int_value, array('int_field'));
+    }
+    
+    /**
+     * Adds the element's javascript and css to the page.
+     *      
+     * @return void
+     */
+    protected function addElementFiles() {
+        parent::addElementFiles();
+
+        page()->addJavascriptFile('form/fields/IntField.js');
     }
     
     public function setMaxLength($max_length) {}
@@ -82,13 +98,13 @@ extends Textbox {
         
         if(!empty($this->value)) {
             if(filter_var($this->value, FILTER_VALIDATE_INT) === false) {
-                $this->setErrorMessage("{$this->label} is not a valid integer value.");
+                $this->setErrorMessage("{$this->label} is not a number.");
                 
                 return false;
             }
             
             if(isset($this->max_digits) && strlen($this->value) > $this->max_digits) {
-                $this->setErrorMessage("{$this->label} cannot be more than {$this->max_digits} digits.");
+                $this->setErrorMessage("{$this->label} cannot be more than {$this->max_digits} digits long.");
                 
                 return false;
             }

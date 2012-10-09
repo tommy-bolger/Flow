@@ -54,6 +54,8 @@ extends Textbox {
      * @return void
      */
     protected function addElementFiles() {
+        parent::addElementFiles();
+    
         page()->addCssFile('jquery-ui.custom.css');
         page()->addJavascriptFile('jquery.min.js');
         page()->addJavascriptFile('jquery-ui.min.js');

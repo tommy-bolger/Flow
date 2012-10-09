@@ -32,8 +32,15 @@
 */
 namespace Framework\Html\Form\Fields;
 
+use \Framework\Html\Form\FieldObjects\Field;
+
 class SplitEmail
-extends \Framework\Html\Form\FieldObjects\Field {
+extends Field {
+    /**
+    * @var string The name of the javascript object of this field.
+    */
+    protected $javascript_object_name = 'SplitEmail';
+
     /**
     * @var string The part of the email before the '@' symbol.
     */
@@ -59,11 +66,14 @@ extends \Framework\Html\Form\FieldObjects\Field {
     public function __construct($field_name = '', $field_label = '') {
         parent::__construct(NULL, $field_name, $field_label);
         
-        $this->user_name = new textbox("{$this->name}[]", "", "", array('class' => 'user_name'));
+        $this->user_name = new Textbox("{$this->name}[]", "", "", array('class' => 'user_name'));
+        $this->user_name->removeDataAttribute();
         
-        $this->domain_name = new textbox("{$this->name}[]", "", "", array('class' => 'domain_name'));
+        $this->domain_name = new Textbox("{$this->name}[]", "", "", array('class' => 'domain_name'));
+        $this->domain_name->removeDataAttribute();
         
-        $this->domain_extension = new textbox("{$this->name}[]", "", "", array('class' => 'domain_extension'));
+        $this->domain_extension = new Textbox("{$this->name}[]", "", "", array('class' => 'domain_extension'));
+        $this->domain_extension->removeDataAttribute();
     }
     
     /**
@@ -72,7 +82,11 @@ extends \Framework\Html\Form\FieldObjects\Field {
      * @return void
      */
     protected function addElementFiles() {
+        parent::addElementFiles();
+    
         page()->addCssFile('framework/SplitEmail.css');
+        page()->addJavascriptFile('form/fields/Email.js');
+        page()->addJavascriptFile('form/fields/SplitEmail.js');
     }
     
     /**
@@ -143,6 +157,7 @@ extends \Framework\Html\Form\FieldObjects\Field {
             }
         }
     }
+    
     /**
      * Validates the aplit email's submitted value.
      *      
@@ -170,6 +185,6 @@ extends \Framework\Html\Form\FieldObjects\Field {
      * @return string
      */
     public function getFieldHtml() {        
-        return "{$this->user_name->getFieldHtml()}&nbsp;@&nbsp;{$this->domain_name->getFieldHtml()}&nbsp;.&nbsp;{$this->domain_extension->getFieldHtml()}";
+        return "<input type=\"hidden\"{$this->renderAttributes()} />{$this->user_name->getFieldHtml()}&nbsp;@&nbsp;{$this->domain_name->getFieldHtml()}&nbsp;.&nbsp;{$this->domain_extension->getFieldHtml()}";
     }
 }

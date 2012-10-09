@@ -32,8 +32,15 @@
 */
 namespace Framework\Html\Form\Fields;
 
+use \Framework\Html\Form\FieldObjects\Select;
+
 class Dropdown
-extends \Framework\Html\Form\FieldObjects\Select {
+extends Select {
+    /**
+    * @var string The name of the javascript object of this field.
+    */
+    protected $javascript_object_name = 'Dropdown';
+
     /**
      * Instantiates a new instance of Dropdown.
      *      
@@ -45,5 +52,16 @@ extends \Framework\Html\Form\FieldObjects\Select {
      */
     public function __construct($dropdown_name, $dropdown_label = "", $options = array(), $css_classes = array()) {
         parent::__construct($dropdown_name, $dropdown_label, $options, $css_classes);
+    }
+    
+    /**
+     * Adds the element's javascript and css to the page.
+     *      
+     * @return void
+     */
+    protected function addElementFiles() {
+        parent::addElementFiles();
+
+        page()->addJavascriptFile('form/fields/Dropdown.js');
     }
 }

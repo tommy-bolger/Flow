@@ -33,10 +33,10 @@
 
 namespace Framework\Html\Form\Fields;
 
-use \Framework\Core as Core;
+use \Framework\Core\Framework;
 
 class StateSelect
-extends \Framework\Html\Form\FieldObjects\Select {
+extends Dropdown {
     /**
      * Initializes a new instance of StateSelect.
      *      
@@ -48,7 +48,7 @@ extends \Framework\Html\Form\FieldObjects\Select {
     public function __construct($select_name, $select_label = "", $css_classes = array()) {
         $options = NULL;
     
-        if(Core\Framework::$enable_cache) {
+        if(Framework::$enable_cache) {
             $options = cache()->get('options', 'state_select');
         }
     
@@ -62,7 +62,7 @@ extends \Framework\Html\Form\FieldObjects\Select {
                 ORDER BY abbreviation
             ", ' - ');
             
-            if(Core\Framework::$enable_cache) {
+            if(Framework::$enable_cache) {
                 cache()->set('options', $options, 'state_select');
             }
         }

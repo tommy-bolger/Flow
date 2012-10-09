@@ -33,8 +33,15 @@
 
 namespace Framework\Html\Form\Fields;
 
+use \Framework\Html\Form\FieldObjects\Field;
+
 class Captcha
-extends Textarea {
+extends Field {
+    /**
+    * @var string The name of the javascript object of this field.
+    */
+    protected $javascript_object_name = 'Captcha';
+
     /**
     * @const string The host name of the reCaptcha API url.
     */
@@ -69,6 +76,11 @@ extends Textarea {
     * @var string The reCaptcha response error code.
     */
     private $api_error_code;
+    
+    /**
+    * @var object The field storing the recaptcha_challenge_field value.
+    */
+    private $challenge_field;
 
     /**
     * @var object The hidden field storing the recaptcha_response_field value.
@@ -81,7 +93,9 @@ extends Textarea {
      * @param string $textarea_label (optional) The label for the textarea.     
      * @return void
      */
-    public function __construct($field_label = '') {    
+    public function __construct($field_label = '') {
+        parent::__construct(NULL, "recaptcha", $field_label);
+        
         $this->api_url = config('framework')->recaptcha_api_method . '://' . self::API_HOST . self::API_PATH;
         $this->api_private_key = config('framework')->recaptcha_private_key;
         $this->api_public_key = config('framework')->recaptcha_public_key;
@@ -90,12 +104,11 @@ extends Textarea {
             throw new \Exception("To use the captcha field a public and private reCAPTCHA API key from https://www.google.com/recaptcha/admin/create must be set in the configuration.");
         }
         
-        $this->response_field = new Hidden('recaptcha_response_field', 'manual_challenge');
-    
-        parent::__construct("recaptcha_challenge_field", $field_label);
+        $this->challenge_field = new Textarea("recaptcha_challenge_field");
+        $this->challenge_field->setWidth(40);
+        $this->challenge_field->setHeight(3);
         
-        parent::setWidth(40);
-        parent::setHeight(3);
+        $this->response_field = new Hidden('recaptcha_response_field', 'manual_challenge');
     }
     
     /**
@@ -104,9 +117,13 @@ extends Textarea {
      * @return void
      */
     protected function addElementFiles() {
+        parent::addElementFiles();
+            
         $page = page();
     
         $page->addCssFile('framework/Captcha.css');
+                
+        $page->addJavascriptFile('form/fields/Captcha.js');        
         $page->addInlineJavascript("
             var RecaptchaOptions = {
                 theme : 'clean'
@@ -137,7 +154,7 @@ extends Textarea {
      * @return void
      */
     public function setValue($field_value) {
-        parent::setValue($field_value);
+        $this->challenge_field->setValue(request()->post->recaptcha_challenge_field);
         
         $this->response_field->setValue(request()->post->recaptcha_response_field);
     }
@@ -151,7 +168,7 @@ extends Textarea {
         $submit_data = array(
             'privatekey' => $this->api_private_key,
             'remoteip' => $_SERVER['REMOTE_ADDR'],
-            'challenge' => $this->value,
+            'challenge' => $this->challenge_field->getValue(),
             'response' => $this->response_field->getValue()
         );      
             
@@ -192,18 +209,13 @@ extends Textarea {
      *      
      * @return boolean
      */
-    protected function validate() {
-        if(!parent::validate()) {
-            $this->api_error_code = 'incorrect-captcha-sol';
-                        
-            return false;
-        }
-        
+    protected function validate() {        
         $error_message = "The value of {$this->label} didn't match the picture.";
         
-        $response_value = $this->response_field->getValue();                
+        $response_value = $this->response_field->getValue();
+        $challenge_value = $this->challenge_field->getValue();
         
-        if(empty($this->value) || empty($response_value)) {
+        if(empty($challenge_value) || empty($response_value)) {
             $this->api_error_code = 'incorrect-captcha-sol';
             
             $this->setErrorMessage($error_message);
@@ -237,10 +249,11 @@ extends Textarea {
         }                        
             
         return "
+            <input type=\"hidden\"{$this->renderAttributes()} />
             <script type=\"text/javascript\" src=\"{$this->api_url}/challenge?k={$this->api_public_key}{$error_string}\"></script>
             <noscript>
           		<iframe src=\"{$this->api_url}/noscript?k={$this->api_public_key}{$error_string}\" height=\"300\" width=\"500\" frameborder=\"0\"></iframe><br/>
-          		" . parent::getFieldHtml() . "
+          		{$this->challenge_field->getFieldHtml()}
           		{$this->response_field->getFieldHtml()}
         	</noscript>
         ";

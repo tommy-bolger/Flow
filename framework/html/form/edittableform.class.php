@@ -33,6 +33,7 @@
 
 namespace Framework\Html\Form;
 
+use \Framework\Core\Framework;
 use \Framework\Html\Table\EditTable;
 use \Framework\Utilities\Http;
 
@@ -64,7 +65,7 @@ extends EditTable {
      * @return void
      */
     public function __construct($table_name, $edit_table_name, $table_id_field, $table_sort_field = '', $page_filter_columns = array()) {
-        parent::__construct($table_name, $edit_table_name, page()->getPageName(), $table_id_field, $table_sort_field);
+        parent::__construct($table_name, $edit_table_name, Framework::$instance->getPageClassName(), $table_id_field, $table_sort_field);
         
         $this->page_filter_columns = $page_filter_columns;
         

@@ -38,12 +38,12 @@ extends Field {
     /**
     * @var string The type of toggle group such as checkbox or radio.
     */
-    private $group_type;
+    protected $group_type;
     
     /**
     * @var string The name of every option in this group.
     */
-    private $option_name;
+    protected $option_name;
 
     /**
      * Initializes a new instance of ToggleGroup.
@@ -54,10 +54,10 @@ extends Field {
      * @param array $css_classes (optional) An array of css classes.   
      * @return void
      */
-    public function __construct($group_type, $group_name, $group_label, $options = array(), $css_classes = array()) {
+    public function __construct($group_name, $group_label, $options = array(), $css_classes = array()) {
         parent::__construct(NULL, $group_name, $group_label, $css_classes);
         
-        $this->setGroupType($group_type);
+        $this->setGroupType();
         
         $this->addOptions($options);
     }
@@ -65,24 +65,9 @@ extends Field {
     /**
      * Sets the type of toggle fields that will appear in this group.
      *      
-     * @param string $group_type The group type. Can either be 'checkbox' or 'radio'.
      * @return void
      */
-    private function setGroupType($group_type) {
-        switch($group_type) {
-            case 'radio':
-                $this->group_type = $group_type;
-                $this->option_name = $this->name;
-                break;
-            case 'checkbox':
-                $this->group_type = $group_type;
-                $this->option_name = "{$this->name}[]";
-                break;
-            default:
-                throw new \Exception("Invalid toggle field group type '{$group_type}'");
-                break;
-        }
-    }
+    protected function setGroupType() {}
     
     /**
      * Enables the field.
@@ -118,8 +103,9 @@ extends Field {
      * @return void
      */
     public function addOption($option_value, $option_label) {
-        $new_option = new toggle_field($this->group_type, "", $option_label, array(), $option_value);
+        $new_option = new Toggle($this->group_type, "", $option_label, array(), $option_value);
         $new_option->setName($this->option_name);
+        $new_option->removeDataAttribute();
         
         $this->child_elements[$option_value] = $new_option;
     }
@@ -146,21 +132,8 @@ extends Field {
      * @param object $option The option object.
      * @return void
      */
-    private function setOptionSelected($option) {
-        assert('is_object($option) && get_class($option) == "ToggleField"');
-    
-        if(!empty($this->value)) {
-            if(!is_array($this->value)) {
-                if($option->getDefaultValue() == $this->value) {
-                    $option->setChecked();
-                }
-            }
-            else {
-                if(in_array($option->getDefaultValue(), $this->value)) {
-                    $option->setChecked();
-                }
-            }
-        }
+    protected function setOptionSelected($option) {
+        assert('is_object($option) && get_class($option) == "Framework\\Html\\Form\\FieldObjects\\Toggle"');
     }
     
     /**
@@ -169,15 +142,13 @@ extends Field {
      * @return string
      */
     public function getFieldHtml() {
-        $field_html = "";
+        $field_html = "<input type=\"hidden\"{$this->renderAttributes()} />";
         
-        if(!empty($this->child_elements)) {        
-            $option_label_name = "{$this->name}_label";
-        
+        if(!empty($this->child_elements)) {
             foreach($this->child_elements as $option) {
                 $this->setOptionSelected($option);
                 
-                $field_html .= $option->toHtml();
+                $field_html .= "<div>{$option->getFieldHtml()}{$option->getLabelText()}</div>";
             }
         }
         
