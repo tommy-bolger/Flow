@@ -53,6 +53,10 @@ extends Home {
     }
     
     protected function constructRightContent() {    
+        $this->page->body->addChild($this->getForm(), 'current_menu_content');
+    }
+    
+    protected function getForm() {
         //The education history table
         $admin_form = new EditTableForm('administrators', 'cms_users', 'user_id');
         
@@ -71,6 +75,6 @@ extends Home {
         
         $admin_form->processForm();
         
-        $this->body->addChild($admin_form, 'current_menu_content');
+        return $admin_form;
     }
 }

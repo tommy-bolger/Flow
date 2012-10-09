@@ -243,6 +243,6 @@ extends AdminHome {
     protected function constructRightContent() {
         $current_menu_content = new TemplateElement('home.php');
     
-        $this->body->addChild($current_menu_content, 'current_menu_content');
+        $this->page->body->addChild($current_menu_content, 'current_menu_content');
     }
 }

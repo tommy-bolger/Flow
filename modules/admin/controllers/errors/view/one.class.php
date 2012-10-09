@@ -33,6 +33,7 @@
 
 namespace Modules\Admin\Controllers\Errors\View;
 
+use \Framework\Core\Framework;
 use \Framework\Utilities\Http;
 use \Framework\Debug\PageError;
 
@@ -72,7 +73,7 @@ extends Home {
             WHERE error_id = ?
         ", array($error_id));
         
-        $error_html = framework()->error_handler->getDebugHtml(
+        $error_html = Framework::$instance->error_handler->getDebugHtml(
             $error_data['error_code'],
             $error_data['error_message'],
             $error_data['error_file'],
@@ -80,6 +81,6 @@ extends Home {
             $error_data['error_trace']
         );
 
-        $this->body->addChild($error_html, 'current_menu_content');
+        $this->page->body->addChild($error_html, 'current_menu_content');
     }
 }

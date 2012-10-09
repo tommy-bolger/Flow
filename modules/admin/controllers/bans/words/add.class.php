@@ -55,7 +55,11 @@ extends Home {
         ), 'add');
     }
     
-    protected function constructRightContent() {    
+    protected function constructRightContent() {            
+        $this->page->body->addChild($this->getForm(), 'current_menu_content');
+    }
+    
+    protected function getForm() {
         $words_form = new EditTableForm('words', 'cms_censored_words', 'censored_word_id');
         
         $words_form->setTitle('Add a New Censored Word');
@@ -73,6 +77,6 @@ extends Home {
         
         $words_form->processForm();
         
-        $this->body->addChild($words_form, 'current_menu_content');
+        return $words_form;
     }
 }

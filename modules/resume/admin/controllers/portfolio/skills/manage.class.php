@@ -109,6 +109,6 @@ extends Home {
         //Get the project name these skills are linked to.
         $portfolio_project_id = request()->get->portfolio_project_id;
         
-        $this->body->addChild($portfolio_skills_table, 'current_menu_content');
+        $this->page->body->addChild($portfolio_skills_table, 'current_menu_content');
     }
 }

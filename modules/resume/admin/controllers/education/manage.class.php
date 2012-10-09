@@ -105,6 +105,6 @@ extends Home {
             return $query_rows;
         });
         
-        $this->body->addChild($education_history_edit_table, 'current_menu_content');
+        $this->page->body->addChild($education_history_edit_table, 'current_menu_content');
     }
 }

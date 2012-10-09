@@ -51,7 +51,11 @@ extends Manage {
         $this->page_links['Permissions'] = Http::getCurrentLevelPageUrl('permissions');
     }
     
-    protected function constructRightContent() {        
+    protected function constructRightContent() {                
+        $this->page->body->addChild($this->getForm(), 'current_menu_content');
+    }
+    
+    protected function getForm() {
         request()->get->setRequired(array('role_id'));
         
         $role_id = request()->get->role_id;
@@ -113,6 +117,6 @@ extends Manage {
             $role_permissions_form->addConfirmation('Permissions successfully updated for this role.');
         }
         
-        $this->body->addChild($role_permissions_form, 'current_menu_content');
+        return $role_permissions_form;
     }
 }

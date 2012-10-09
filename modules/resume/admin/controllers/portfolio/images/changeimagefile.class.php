@@ -44,19 +44,13 @@ extends Home {
     protected $title = "Change Image File";
     
     protected $active_sub_nav_link = "Change Image File";
+    
+    protected $portfolio_project_images;
 
     public function __construct() {
         parent::__construct();
-    }
-    
-    protected function setPageLinks() {
-        parent::setPageLinks();
         
-        $this->page_links["Change Image File"] = Http::getCurrentLevelPageUrl('change-image-file', array(), 'resume');
-    }
-    
-    protected function constructRightContent() {
-        $portfolio_project_images = db()->getAll("
+        $this->portfolio_project_images = db()->getAll("
             SELECT
                 pp.project_name,
                 ppi.portfolio_project_image_id,
@@ -65,81 +59,17 @@ extends Home {
             JOIN resume_portfolio_projects pp USING (portfolio_project_id)
             ORDER BY pp.sort_order, ppi.sort_order
         ");
-        
-        if(!empty($portfolio_project_images)) {
-            $portfolio_project_image_id = request()->get->portfolio_project_image_id;
-        
-            $image_name = db()->getOne("
-                SELECT image_name
-                FROM resume_portfolio_project_images
-                WHERE portfolio_project_image_id = ?
-            ", array($portfolio_project_image_id));
-            
-            $image_path = "{$this->managed_module->getImagesPath()}/portfolio_images";
-        
-            /* ----- The image form -----*/
-            $image_form = new TableForm('image_form');
-            
-            $image_form->setTitle("Change this Project Image");
-            
-            $image_options = array();
-            
-            foreach($portfolio_project_images as $portfolio_project_image) {
-                $image_options[$portfolio_project_image['project_name']][$portfolio_project_image['portfolio_project_image_id']] = $portfolio_project_image['title'];
-            } 
-            
-            $image_form->addDropdown('portfolio_project_image_id', 'Project Image', $image_options)->addBlankOption();
-            $image_form->addSingleImage('image_name', 'Image', $image_path, 200);
-            $image_form->addSubmit('save', 'Save');
+    }
     
-            $image_form->setDefaultValues(array(
-                'portfolio_project_image_id' => $portfolio_project_image_id,
-                'image_name' => $image_name
-            ));
-            
-            $image_form->setRequiredFields(array(
-                'portfolio_project_image_id',
-                'image_name'
-            ));
-            
-            if($image_form->wasSubmitted() && $image_form->isValid()) {
-                $form_data = $image_form->getData();
-                
-                $portfolio_project_image_id = $form_data['portfolio_project_image_id'];
-
-                $table_data = array();
-                
-                if(!empty($form_data['image_name'])) {
-                    $image = $form_data['image_name'];
-                    
-                    if(!empty($image)) {
-                        $image_file_name = $image['name'];
-                        
-                        $table_data['image_name'] = $image_file_name;
-                        
-                        File::moveUpload($image, $image_path);
+    protected function setPageLinks() {
+        parent::setPageLinks();
+        
+        $this->page_links["Change Image File"] = Http::getCurrentLevelPageUrl('change-image-file', array(), 'resume');
+    }
     
-                        //Generate the thumbnail
-                        $image_file_name_split = explode('.', $image_file_name);
-                        
-                        $thumbnail_file_name = "{$image_file_name_split[0]}_thumb";
-                        $table_data['thumbnail_name'] = "{$thumbnail_file_name}.{$image_file_name_split[1]}";
-                        
-                        $thumbnail = new Image("{$image_path}/{$image_file_name}");
-                        $thumbnail->resizeScaleByWidth(100, $image_path, $thumbnail_file_name);
-                    }
-                }
-                else {
-                    $table_data['image_name'] = NULL;
-                    $table_data['thumbnail_name'] = NULL;
-                }
-            
-                db()->update('resume_portfolio_project_images', $table_data, array('portfolio_project_image_id' => $portfolio_project_image_id));
-                
-                $image_form->addConfirmation('Your image has been successfully changed.');
-            }
-            
-            $this->body->addChild($image_form, 'current_menu_content');
+    protected function constructRightContent() {        
+        if(!empty($this->portfolio_project_images)) {
+            $this->page->body->addChild($this->getForm(), 'current_menu_content');
         }
         else {
             $portfolio_images_edit_url = Http::getCurrentLevelPageUrl('manage', array(), 'resume');
@@ -150,7 +80,83 @@ extends Home {
             $required_template->addChild('Images', 'context');
             $required_template->addChild($portfolio_images_edit_url, 'prerequisite_url');
             
-            $this->body->addChild($required_template, 'current_menu_content');
+            $this->page->body->addChild($required_template, 'current_menu_content');
         }
+    }
+    
+    protected function getForm() {
+        $portfolio_project_image_id = request()->get->portfolio_project_image_id;
+        
+        $image_name = db()->getOne("
+            SELECT image_name
+            FROM resume_portfolio_project_images
+            WHERE portfolio_project_image_id = ?
+        ", array($portfolio_project_image_id));
+        
+        $image_path = "{$this->managed_module->getImagesPath()}/portfolio_images";
+    
+        /* ----- The image form -----*/
+        $image_form = new TableForm('image_form');
+        
+        $image_form->setTitle("Change this Project Image");
+        
+        $image_options = array();
+        
+        foreach($this->portfolio_project_images as $portfolio_project_image) {
+            $image_options[$portfolio_project_image['project_name']][$portfolio_project_image['portfolio_project_image_id']] = $portfolio_project_image['title'];
+        } 
+        
+        $image_form->addDropdown('portfolio_project_image_id', 'Project Image', $image_options)->addBlankOption();
+        $image_form->addSingleImage('image_name', 'Image', $image_path, 200);
+        $image_form->addSubmit('save', 'Save');
+
+        $image_form->setDefaultValues(array(
+            'portfolio_project_image_id' => $portfolio_project_image_id,
+            'image_name' => $image_name
+        ));
+        
+        $image_form->setRequiredFields(array(
+            'portfolio_project_image_id',
+            'image_name'
+        ));
+        
+        if($image_form->wasSubmitted() && $image_form->isValid()) {
+            $form_data = $image_form->getData();
+            
+            $portfolio_project_image_id = $form_data['portfolio_project_image_id'];
+
+            $table_data = array();
+            
+            if(!empty($form_data['image_name'])) {
+                $image = $form_data['image_name'];
+                
+                if(!empty($image)) {
+                    $image_file_name = $image['name'];
+                    
+                    $table_data['image_name'] = $image_file_name;
+                    
+                    File::moveUpload($image, $image_path);
+
+                    //Generate the thumbnail
+                    $image_file_name_split = explode('.', $image_file_name);
+                    
+                    $thumbnail_file_name = "{$image_file_name_split[0]}_thumb";
+                    $table_data['thumbnail_name'] = "{$thumbnail_file_name}.{$image_file_name_split[1]}";
+                    
+                    $thumbnail = new Image("{$image_path}/{$image_file_name}");
+                    $thumbnail->resizeScaleByWidth(100, $image_path, $thumbnail_file_name);
+                }
+            }
+            else {
+                $table_data['image_name'] = NULL;
+                $table_data['thumbnail_name'] = NULL;
+            }
+        
+            db()->update('resume_portfolio_project_images', $table_data, array('portfolio_project_image_id' => $portfolio_project_image_id));
+            
+            $image_form->addConfirmation('Your image has been successfully changed.');
+        }
+        
+        return $image_form;
     }
 }

@@ -106,6 +106,6 @@ extends Home {
             ORDER BY sort_order ASC
         ");
         
-        $this->body->addChild($work_history_tasks_table, 'current_menu_content');
+        $this->page->body->addChild($work_history_tasks_table, 'current_menu_content');
     }
 }

@@ -52,7 +52,11 @@ extends Home {
         $this->page_links['Edit'] = Http::getCurrentLevelPageUrl('edit', array(), 'resume');
     }
     
-    protected function constructRightContent() {        
+    protected function constructRightContent() {                
+        $this->page->body->addChild($this->getForm(), 'current_menu_content');
+    }
+    
+    protected function getForm() {
         $general_information = db()->getRow("
             SELECT
                 first_name,
@@ -125,6 +129,6 @@ extends Home {
             $general_information_form->addConfirmation('Your information has been updated.');
         }
         
-        $this->body->addChild($general_information_form, 'current_menu_content');
+        return $general_information_form;
     }
 }

@@ -53,6 +53,10 @@ extends Home {
     }
     
     protected function constructRightContent() {
+        $this->page->body->addChild($this->getForm(), 'current_menu_content');
+    }
+    
+    protected function getForm() {
         //The skill_category table
         $skill_category_form = new EditTableForm(
             'skill_categories', 
@@ -68,6 +72,6 @@ extends Home {
         
         $skill_category_form->processForm();
         
-        $this->body->addChild($skill_category_form, 'current_menu_content');
+        return $skill_category_form;
     }
 }

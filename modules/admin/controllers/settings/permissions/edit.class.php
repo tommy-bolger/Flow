@@ -51,6 +51,10 @@ extends Manage {
     }
     
     protected function constructRightContent() {
+        $this->page->body->addChild($this->getForm(), 'current_menu_content');
+    }
+    
+    protected function getForm() {
         //The education history table
         $permissions_form = new EditTableForm(
             'permissions',
@@ -69,6 +73,6 @@ extends Manage {
         
         $permissions_form->processForm();
         
-        $this->body->addChild($permissions_form, 'current_menu_content');
+        return $permissions_form;
     }
 }

@@ -94,6 +94,6 @@ extends Home {
             return $results_data;
         });
         
-        $this->body->addChild($permissions_table, 'current_menu_content');
+        $this->page->body->addChild($permissions_table, 'current_menu_content');
     }
 }

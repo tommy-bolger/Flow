@@ -101,7 +101,7 @@ extends Home {
                 ORDER BY s.sort_order
             ");
             
-            $this->body->addChild($skills_edit_table, 'current_menu_content');
+            $this->page->body->addChild($skills_edit_table, 'current_menu_content');
         }
         else {
             $skill_category_edit_url = Http::getLowerLevelPageUrl(array('categories'), 'manage', array(), 'resume');
@@ -112,7 +112,7 @@ extends Home {
             $required_template->addChild('Skills', 'context');
             $required_template->addChild($skill_category_edit_url, 'prerequisite_url');
             
-            $this->body->addChild($required_template, 'current_menu_content');
+            $this->page->body->addChild($required_template, 'current_menu_content');
         }
     }
 }

@@ -42,9 +42,19 @@ extends Home {
     protected $title = "Add/Edit a Project Image";
     
     protected $active_sub_nav_link = "Add/Edit";
+    
+    protected $portfolio_projects;
 
     public function __construct() {
         parent::__construct();
+        
+        $this->portfolio_projects = db()->getMappedColumn("
+            SELECT
+                portfolio_project_id,
+                project_name
+            FROM resume_portfolio_projects
+            ORDER BY sort_order
+        ");
     }
     
     protected function setPageLinks() {
@@ -54,38 +64,8 @@ extends Home {
     }
     
     protected function constructRightContent() {
-        $portfolio_projects = db()->getMappedColumn("
-            SELECT
-                portfolio_project_id,
-                project_name
-            FROM resume_portfolio_projects
-            ORDER BY sort_order
-        ");
-
-        if(!empty($portfolio_projects)) {
-            $portfolio_images_form = new EditTableForm(
-                'portfolio_images',
-                'resume_portfolio_project_images',
-                'portfolio_project_image_id',
-                'sort_order',
-                array('portfolio_project_id')
-            );
-            
-            $portfolio_images_form->setTitle("Add a New Project Image");
-    
-            $portfolio_images_form->addDropdown('portfolio_project_id', 'Portfolio Project', $portfolio_projects)->addBlankOption();
-            $portfolio_images_form->addTextbox('title', 'Title');
-            $portfolio_images_form->addTextArea('description', 'Description');
-            $portfolio_images_form->addSubmit('save', 'Save');
-    
-            $portfolio_images_form->setRequiredFields(array(
-                'portfolio_project_id',
-                'title'
-            ));
-            
-            $portfolio_images_form->processForm();
-            
-            $this->body->addChild($portfolio_images_form, 'current_menu_content');
+        if(!empty($this->portfolio_projects)) {            
+            $this->page->body->addChild($this->getForm(), 'current_menu_content');
         }
         else {
             $project_edit_page_url = Http::getHigherLevelPageUrl('manage', array(), 'resume');
@@ -96,7 +76,33 @@ extends Home {
             $required_template->addChild('Project Images', 'context');
             $required_template->addChild($project_edit_page_url, 'prerequisite_url');
             
-            $this->body->addChild($required_template, 'current_menu_content');
+            $this->page->body->addChild($required_template, 'current_menu_content');
         }
+    }
+    
+    protected function getForm() {
+        $portfolio_images_form = new EditTableForm(
+            'portfolio_images',
+            'resume_portfolio_project_images',
+            'portfolio_project_image_id',
+            'sort_order',
+            array('portfolio_project_id')
+        );
+        
+        $portfolio_images_form->setTitle("Add a New Project Image");
+
+        $portfolio_images_form->addDropdown('portfolio_project_id', 'Portfolio Project', $this->portfolio_projects)->addBlankOption();
+        $portfolio_images_form->addTextbox('title', 'Title');
+        $portfolio_images_form->addTextArea('description', 'Description');
+        $portfolio_images_form->addSubmit('save', 'Save');
+
+        $portfolio_images_form->setRequiredFields(array(
+            'portfolio_project_id',
+            'title'
+        ));
+        
+        $portfolio_images_form->processForm();
+        
+        return $portfolio_images_form;
     }
 }

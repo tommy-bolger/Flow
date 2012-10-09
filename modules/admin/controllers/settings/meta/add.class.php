@@ -55,7 +55,11 @@ extends Home {
         ), 'add');
     }
     
-    protected function constructRightContent() {    
+    protected function constructRightContent() {            
+        $this->page->body->addChild($this->getForm(), 'current_menu_content');
+    }
+    
+    protected function getForm() {
         $meta_settings_form = new EditTableForm('meta_settings', 'cms_meta_settings', 'meta_setting_id', 'sort_order', array('module_id'));
 
         $meta_settings_form->addHidden('module_id', $this->managed_module->getId());
@@ -131,6 +135,6 @@ extends Home {
             $meta_settings_form->processForm();
         }
         
-        $this->body->addChild($meta_settings_form, 'current_menu_content');
+        return $meta_settings_form;
     }
 }

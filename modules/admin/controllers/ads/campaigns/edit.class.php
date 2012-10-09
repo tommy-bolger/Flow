@@ -50,7 +50,11 @@ extends Manage {
         $this->page_links['Edit'] = Http::getCurrentLevelPageUrl('add');
     }
     
-    protected function constructRightContent() {
+    protected function constructRightContent() {        
+        $this->page->body->addChild($this->getForm(), 'current_menu_content');
+    }
+    
+    protected function getForm() {
         $ad_campaign_id = request()->get->ad_campaign_id;
         
         //The education history table
@@ -73,6 +77,6 @@ extends Manage {
         
         $ad_campaign_form->processForm();
         
-        $this->body->addChild($ad_campaign_form, 'current_menu_content');
+        return $ad_campaign_form;
     }
 }

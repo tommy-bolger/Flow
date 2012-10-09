@@ -112,15 +112,15 @@ extends ModulePage {
     }
     
     private function constructContentHeader() {
-        $this->body->addChild("{$this->module->getImagesHttpPath()}/{$this->general_information['photo']}", 'photo_url');
-        $this->body->addChild("{$this->general_information['first_name']} {$this->general_information['last_name']}", 'name');
-        $this->body->addChild($this->general_information['specialty'], 'specialty');
+        $this->page->body->addChild("{$this->module->getImagesHttpPath()}/{$this->general_information['photo']}", 'photo_url');
+        $this->page->body->addChild("{$this->general_information['first_name']} {$this->general_information['last_name']}", 'name');
+        $this->page->body->addChild($this->general_information['specialty'], 'specialty');
         
         if(!empty($this->general_information['phone_number'])) {
-            $this->body->addChild($this->general_information['phone_number'], 'phone_number');
+            $this->page->body->addChild($this->general_information['phone_number'], 'phone_number');
         }
         
-        $this->body->addChild($this->general_information['email_address'], 'email_address');
+        $this->page->body->addChild($this->general_information['email_address'], 'email_address');
         
         //Compile the address
         $address = '';
@@ -131,13 +131,13 @@ extends ModulePage {
         
         $address .= "{$this->general_information['city']}, {$this->general_information['state']}";
         
-        $this->body->addChild($address, 'address'); 
-        $this->body->addChild($this->general_information['summary'], 'description');
+        $this->page->body->addChild($address, 'address'); 
+        $this->page->body->addChild($this->general_information['summary'], 'description');
         
         $assets_path = $this->module->getAssetsHttpPath();
         
-        $this->body->addChild("{$assets_path}/files/{$this->general_information['resume_pdf_name']}", 'print_pdf_url');
-        $this->body->addChild("{$assets_path}/files/{$this->general_information['resume_word_name']}", 'print_word_url');
+        $this->page->body->addChild("{$assets_path}/files/{$this->general_information['resume_pdf_name']}", 'print_pdf_url');
+        $this->page->body->addChild("{$assets_path}/files/{$this->general_information['resume_word_name']}", 'print_word_url');
     }
     
     private function constructContent() {        
@@ -185,7 +185,7 @@ extends ModulePage {
                 $education_institution->addChild($date_graduated, 'date_graduated');
                 $education_institution->addChild($education_item['cumulative_gpa'], 'cumulative_gpa');
                 
-                $this->body->addChild($education_institution, 'education_institutions', true);
+                $this->page->body->addChild($education_institution, 'education_institutions', true);
             }
         }
     }
@@ -223,7 +223,7 @@ extends ModulePage {
             }
         }
         
-        $this->body->addChild($skills_list);
+        $this->page->body->addChild($skills_list);
     }
     
     private function constructWorkHistory() {
@@ -289,7 +289,7 @@ extends ModulePage {
 
                 $position_duration_html->addChild($durations_html, 'organization_duration');
                 
-                $this->body->addChild($position_duration_html, 'work_history', true);
+                $this->page->body->addChild($position_duration_html, 'work_history', true);
                 
                 //Work history tasks
                 if(isset($work_history_tasks[$work_history_id])) {
@@ -377,7 +377,7 @@ extends ModulePage {
                 $portfolio_project_html->addChild($portfolio_project['description'], 'portfolio_description');
                 $portfolio_project_html->addChild($portfolio_project['involvement_description'], 'involvment_description');
                 
-                $this->body->addChild($portfolio_project_html, 'portfolio_projects', true);
+                $this->page->body->addChild($portfolio_project_html, 'portfolio_projects', true);
             }
         }
     }
@@ -427,7 +427,7 @@ extends ModulePage {
                 $code_example_html->addChild($code_example['purpose'], 'purpose');
                 $code_example_html->addChild($code_example['description'], 'description');
                 
-                $this->body->addChild($code_example_html, 'code_examples', true);
+                $this->page->body->addChild($code_example_html, 'code_examples', true);
             }
         }
     }

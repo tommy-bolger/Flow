@@ -52,7 +52,11 @@ extends Home {
         $this->page_links['Add/Edit'] = Http::getCurrentLevelPageUrl('add', array(), 'resume');
     }
     
-    protected function constructRightContent() {    
+    protected function constructRightContent() {            
+        $this->page->body->addChild($this->getForm(), 'current_menu_content');
+    }
+    
+    protected function getForm() {
         $portfolio_table = new EditTableForm(
             'portfolio',
             'resume_portfolio_projects',
@@ -84,6 +88,6 @@ extends Home {
         
         $portfolio_table->processForm();
         
-        $this->body->addChild($portfolio_table, 'current_menu_content');
+        return $portfolio_table;
     }
 }

@@ -52,7 +52,11 @@ extends Home {
         $this->page_links['Add/Edit'] = Http::getCurrentLevelPageUrl('add', array(), 'resume');
     }
     
-    protected function constructRightContent() {
+    protected function constructRightContent() {        
+        $this->page->body->addChild($this->getForm(), 'current_menu_content');
+    }
+    
+    protected function getForm() {
         $education_id = request()->get->education_id;
     
         //The education history table
@@ -106,6 +110,6 @@ extends Home {
         
         $education_form->processForm();
         
-        $this->body->addChild($education_form, 'current_menu_content');
+        return $education_form;
     }
 }

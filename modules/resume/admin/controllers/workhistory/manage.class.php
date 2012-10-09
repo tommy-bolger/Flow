@@ -129,6 +129,6 @@ extends Home {
             }
         }
         
-        $this->body->addChild($work_history_table, 'current_menu_content');
+        $this->page->body->addChild($work_history_table, 'current_menu_content');
     }
 }

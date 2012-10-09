@@ -130,7 +130,7 @@ extends Home {
                 }
             }
             
-            $this->body->addChild($source_file_form, 'current_menu_content');
+            $this->page->body->addChild($source_file_form, 'current_menu_content');
         }
         else {
             $code_examples_edit_page_url = Http::getCurrentLevelPageUrl("manage", array(), 'resume');
@@ -141,7 +141,7 @@ extends Home {
             $required_template->addChild('Source Files', 'context');
             $required_template->addChild($code_examples_edit_page_url, 'prerequisite_url');
             
-            $this->body->addChild($required_template, 'current_menu_content');
+            $this->page->body->addChild($required_template, 'current_menu_content');
         }
     }
 }

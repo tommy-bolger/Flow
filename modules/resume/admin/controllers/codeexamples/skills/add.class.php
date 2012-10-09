@@ -42,9 +42,19 @@ extends Home {
     protected $title = "Add/Edit a Code Example Skill";
     
     protected $active_sub_nav_link = "Add/Edit";
+    
+    protected $code_examples;
 
     public function __construct() {
         parent::__construct();
+        
+        $this->code_examples = db()->getMappedColumn("
+            SELECT
+                code_example_id,
+                code_example_name
+            FROM resume_code_examples
+            ORDER BY sort_order
+        ");
     }
     
     protected function setPageLinks() {
@@ -54,53 +64,8 @@ extends Home {
     }
     
     protected function constructRightContent() {
-        $code_examples = db()->getMappedColumn("
-            SELECT
-                code_example_id,
-                code_example_name
-            FROM resume_code_examples
-            ORDER BY sort_order
-        ");
-        
-        if(!empty($code_examples)) {
-            $code_example_skills_form = new EditTableForm(
-                'code_example_skills',
-                'resume_code_example_skills',
-                'code_example_skill_id',
-                'sort_order',
-                array('code_example_id')
-            );
-            
-            $code_example_skills_form->setTitle("Add a Code Example Skill");
-            
-            $available_skills = db()->getAll("
-                SELECT 
-                    sc.skill_category_name,
-                    s.skill_id,
-                    s.skill_name
-                FROM resume_skill_categories sc
-                JOIN resume_skills s USING (skill_category_id)
-                ORDER BY sc.sort_order, s.sort_order
-            ");
-            
-            $skills = array();
-        
-            foreach($available_skills as $available_skill) {
-                $skills[$available_skill['skill_category_name']][$available_skill['skill_id']] = $available_skill['skill_name'];
-            }
-        
-            $code_example_skills_form->addDropdown('code_example_id', 'Code Example', $code_examples)->addBlankOption();
-            $code_example_skills_form->addDropdown('skill_id', 'Skill', $skills)->addBlankOption();
-            $code_example_skills_form->addSubmit('save', 'Save');
-            
-            $code_example_skills_form->setRequiredFields(array(
-                'code_example_id',
-                'skill_id'
-            ));
-            
-            $code_example_skills_form->processForm();
-            
-            $this->body->addChild($code_example_skills_form, 'current_menu_content');
+        if(!empty($this->code_examples)) {
+            $this->page->body->addChild($this->getForm(), 'current_menu_content');
         }
         else {
             $code_example_url = Http::getHigherLevelPageUrl('manage', array(), 'resume');
@@ -111,7 +76,48 @@ extends Home {
             $required_template->addChild('Skills', 'context');
             $required_template->addChild($code_example_url, 'prerequisite_url');
             
-            $this->body->addChild($required_template, 'current_menu_content');
+            $this->page->body->addChild($required_template, 'current_menu_content');
         }
+    }
+    
+    protected function getForm() {
+        $code_example_skills_form = new EditTableForm(
+            'code_example_skills',
+            'resume_code_example_skills',
+            'code_example_skill_id',
+            'sort_order',
+            array('code_example_id')
+        );
+        
+        $code_example_skills_form->setTitle("Add a Code Example Skill");
+        
+        $available_skills = db()->getAll("
+            SELECT 
+                sc.skill_category_name,
+                s.skill_id,
+                s.skill_name
+            FROM resume_skill_categories sc
+            JOIN resume_skills s USING (skill_category_id)
+            ORDER BY sc.sort_order, s.sort_order
+        ");
+        
+        $skills = array();
+    
+        foreach($available_skills as $available_skill) {
+            $skills[$available_skill['skill_category_name']][$available_skill['skill_id']] = $available_skill['skill_name'];
+        }
+    
+        $code_example_skills_form->addDropdown('code_example_id', 'Code Example', $this->code_examples)->addBlankOption();
+        $code_example_skills_form->addDropdown('skill_id', 'Skill', $skills)->addBlankOption();
+        $code_example_skills_form->addSubmit('save', 'Save');
+        
+        $code_example_skills_form->setRequiredFields(array(
+            'code_example_id',
+            'skill_id'
+        ));
+        
+        $code_example_skills_form->processForm();
+        
+        return $code_example_skills_form;
     }
 }

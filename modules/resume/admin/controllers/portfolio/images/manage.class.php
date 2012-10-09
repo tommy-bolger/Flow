@@ -136,6 +136,6 @@ extends Home {
             return $results_data;
         });
         
-        $this->body->addChild($portfolio_images_table, 'current_menu_content');
+        $this->page->body->addChild($portfolio_images_table, 'current_menu_content');
     }
 }

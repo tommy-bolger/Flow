@@ -98,6 +98,6 @@ extends Home {
             return $results_data;
         });
         
-        $this->body->addChild($roles_table, 'current_menu_content');
+        $this->page->body->addChild($roles_table, 'current_menu_content');
     }
 }

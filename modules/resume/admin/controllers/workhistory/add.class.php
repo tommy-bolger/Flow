@@ -53,6 +53,10 @@ extends Home {
     }
     
     protected function constructRightContent() {
+        $this->page->body->addChild($this->getForm(), 'current_menu_content');
+    }
+    
+    protected function getForm() {
         $work_history_form = new EditTableForm(
             'work_history',
             'resume_work_history',
@@ -73,6 +77,6 @@ extends Home {
         
         $work_history_form->processForm();
         
-        $this->body->addChild($work_history_form, 'current_menu_content');
+        return $work_history_form;
     }
 }

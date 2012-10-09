@@ -32,20 +32,19 @@
 */
 namespace Modules\Admin\Controllers;
 
+use \Framework\Core\Controller;
 use \Framework\Utilities\Http;
 use \Framework\Utilities\Auth;
 use \Framework\Html\Form\LimitedAttemptsForm;
 use \Framework\Modules\ModulePage;
 
 class Login
-extends ModulePage {
+extends Controller {
     protected $title = "Administration Control Panel - Login";
     
     protected $name = 'admin_login';
 
-    public function __construct() {
-        parent::__construct('admin');
-        
+    public function __construct() {        
         if(request()->get->logout == 1) {
             session()->end();
             
@@ -55,24 +54,28 @@ extends ModulePage {
         if(Auth::userLoggedIn()) {
             Http::redirect(Http::getTopLevelPageUrl());
         }
-        
-        $this->setTemplate('login.php');
-        
-        $this->constructHeader();
-        
-        $this->constructContent();
     }
     
-    private function constructHeader() {
-        $this->addMetaTag('page_robots', 'name', 'robots', 'noindex');
+    public function setup() {
+        $this->page = new ModulePage('admin');
+        
+        $this->page->setTitle($this->title);
+        
+        $this->page->setName($this->name);
+        
+        $this->page->setTemplate('login.php');
+        
+        $this->page->addMetaTag('page_robots', 'name', 'robots', 'noindex');
 
-        $this->addCssFiles(array(
+        $this->page->addCssFiles(array(
             'reset.css',
             'main.css'
         ));
+        
+        $this->page->body->addChild($this->getAdminLoginForm());
     }
     
-    private function constructContent() {    
+    private function getAdminLoginForm() {
         $login_form = new LimitedAttemptsForm('admin_login_form', NULL, 'post', false);
 
         $login_form->captchaAtAttemptNumber(3, "Verify that You're Human (Sorry)");
@@ -97,7 +100,13 @@ extends ModulePage {
                 }
             }
         }
-
-        $this->body->addChild($login_form);
+        
+        return $login_form;
+    }
+    
+    public function submit() {    
+        $login_form = $this->getAdminLoginForm();
+    
+        return $login_form->toJsonArray();
     }
 }

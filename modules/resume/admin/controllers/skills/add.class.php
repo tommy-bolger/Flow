@@ -41,9 +41,19 @@ extends Home {
     protected $title = "Add/Edit a Skill";
     
     protected $active_sub_nav_link = 'Add/Edit';
+    
+    protected $skill_categories;
 
     public function __construct() {
         parent::__construct();
+        
+        $this->skill_categories = db()->getMappedColumn("
+            SELECT 
+                skill_category_id, 
+                skill_category_name
+            FROM resume_skill_categories
+            ORDER BY sort_order ASC
+        ");
     }
     
     protected function setPageLinks() {
@@ -53,43 +63,8 @@ extends Home {
     }
     
     protected function constructRightContent() {
-        $skill_categories = db()->getMappedColumn("
-            SELECT 
-                skill_category_id, 
-                skill_category_name
-            FROM resume_skill_categories
-            ORDER BY sort_order ASC
-        ");
-        
-        if(!empty($skill_categories)) {       
-            $skills_form = new EditTableForm('skills', 'resume_skills', 'skill_id', 'sort_order', array('skill_category_id'));
-            
-            $skills_form->setTitle('Add a New Skill');
-            
-            $proficiency_levels = db()->getMappedColumn("
-                SELECT
-                    proficiency_level_id,
-                    proficiency_level_name
-                FROM resume_proficiency_levels
-                ORDER BY proficiency_level_id
-            ");
-            
-            $skills_form->addTextbox('skill_name', 'Skill Name');
-            $skills_form->addDropdown('skill_category_id', 'Skill Category', $skill_categories)->addBlankOption();
-            $skills_form->addIntField('years_proficient', 'Years Proficient');
-            $skills_form->addDropdown('proficiency_level_id', 'Proficiency Level', $proficiency_levels)->addBlankOption();
-            $skills_form->addSubmit('save', 'Save');
-            
-            $skills_form->setRequiredFields(array(
-                'skill_name',
-                'skill_category_id',
-                'years_proficient',
-                'proficiency_level_id'
-            ));
-            
-            $skills_form->processForm();
-            
-            $this->body->addChild($skills_form, 'current_menu_content');
+        if(!empty($this->skill_categories)) {       
+            $this->page->body->addChild($this->getForm(), 'current_menu_content');
         }
         else {
             $skill_category_edit_url = Http::getLowerLevelPageUrl(array('categories'), 'manage', array(), 'resume');
@@ -100,7 +75,38 @@ extends Home {
             $required_template->addChild('Skills', 'context');
             $required_template->addChild($skill_category_edit_url, 'prerequisite_url');
             
-            $this->body->addChild($required_template, 'current_menu_content');
+            $this->page->body->addChild($required_template, 'current_menu_content');
         }
+    }
+    
+    protected function getForm() {
+        $skills_form = new EditTableForm('skills', 'resume_skills', 'skill_id', 'sort_order', array('skill_category_id'));
+            
+        $skills_form->setTitle('Add a New Skill');
+        
+        $proficiency_levels = db()->getMappedColumn("
+            SELECT
+                proficiency_level_id,
+                proficiency_level_name
+            FROM resume_proficiency_levels
+            ORDER BY proficiency_level_id
+        ");
+        
+        $skills_form->addTextbox('skill_name', 'Skill Name');
+        $skills_form->addDropdown('skill_category_id', 'Skill Category', $this->skill_categories)->addBlankOption();
+        $skills_form->addIntField('years_proficient', 'Years Proficient');
+        $skills_form->addDropdown('proficiency_level_id', 'Proficiency Level', $proficiency_levels)->addBlankOption();
+        $skills_form->addSubmit('save', 'Save');
+        
+        $skills_form->setRequiredFields(array(
+            'skill_name',
+            'skill_category_id',
+            'years_proficient',
+            'proficiency_level_id'
+        ));
+        
+        $skills_form->processForm();
+        
+        return $skills_form;
     }
 }

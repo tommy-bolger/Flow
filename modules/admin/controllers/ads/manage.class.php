@@ -91,6 +91,6 @@ extends Home {
             return $query_rows;
         });
         
-        $this->body->addChild($ads_table, 'current_menu_content');
+        $this->page->body->addChild($ads_table, 'current_menu_content');
     }
 }

@@ -51,9 +51,7 @@ extends AdminHome {
     }
     
     protected function initializeModuleLinks() {
-        $module_id = request()->module_id;
-    
-        if(!empty($module_id)) {
+        if(!empty($this->managed_module)) {
             parent::getModuleSessionLinks();
         }
         else {

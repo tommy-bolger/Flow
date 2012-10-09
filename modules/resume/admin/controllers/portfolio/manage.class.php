@@ -130,6 +130,6 @@ extends Home {
             }
         }
         
-        $this->body->addChild($portfolio_table, 'current_menu_content');
+        $this->page->body->addChild($portfolio_table, 'current_menu_content');
     }
 }

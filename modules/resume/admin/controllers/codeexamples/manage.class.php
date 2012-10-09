@@ -126,6 +126,6 @@ extends Home {
             }
         }
         
-        $this->body->addChild($code_examples_table, 'current_menu_content');
+        $this->page->body->addChild($code_examples_table, 'current_menu_content');
     }
 }

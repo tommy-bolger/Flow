@@ -53,6 +53,10 @@ extends Home {
     }
 
     protected function constructRightContent() {    
+        $this->page->body->addChild($this->getForm(), 'current_menu_content');
+    }
+    
+    protected function getForm() {
         $code_examples_form = new EditTableForm(
             'code_examples',
             'resume_code_examples',
@@ -91,6 +95,6 @@ extends Home {
         
         $code_examples_form->processForm();
         
-        $this->body->addChild($code_examples_form, 'current_menu_content');
+        return $code_examples_form;
     }
 }

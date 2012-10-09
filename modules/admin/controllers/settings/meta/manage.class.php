@@ -97,6 +97,6 @@ extends Home {
             return $query_rows;
         });
         
-        $this->body->addChild($meta_settings_table, 'current_menu_content');
+        $this->page->body->addChild($meta_settings_table, 'current_menu_content');
     }
 }

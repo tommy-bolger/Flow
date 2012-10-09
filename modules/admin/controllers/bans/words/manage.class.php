@@ -78,6 +78,6 @@ extends Home {
             FROM cms_censored_words
         ");
         
-        $this->body->addChild($words_table, 'current_menu_content');
+        $this->page->body->addChild($words_table, 'current_menu_content');
     }
 }

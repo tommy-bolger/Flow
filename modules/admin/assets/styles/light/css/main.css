@@ -33,6 +33,10 @@ div.clear {
     clear: both;
 }
 
+.hidden {
+    display: none;
+}
+
 /* End general styles */
 
 /*-------------------------------------------------*/

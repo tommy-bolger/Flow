@@ -109,6 +109,6 @@ extends Home {
         //Get the project name these skills are linked to.
         $code_example_id = request()->get->code_example_id;
         
-        $this->body->addChild($code_example_skills_table, 'current_menu_content');
+        $this->page->body->addChild($code_example_skills_table, 'current_menu_content');
     }
 }

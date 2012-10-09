@@ -43,9 +43,19 @@ extends Home {
     protected $title = "Change Photo";
     
     protected $active_sub_nav_link = 'Change Photo';
+    
+    protected $photo_data;
 
     public function __construct() {
         parent::__construct();
+        
+        $this->photo_data = db()->getRow("
+            SELECT
+                general_information_id,
+                photo
+            FROM resume_general_information
+            WHERE general_information_id = 1
+        ");
     }
     
     protected function setPageLinks() {
@@ -54,52 +64,9 @@ extends Home {
         $this->page_links['Change Photo'] = Http::getCurrentLevelPageUrl('change-photo', array(), 'resume');
     }
     
-    protected function constructRightContent() {        
-        $photo_data = db()->getRow("
-            SELECT
-                general_information_id,
-                photo
-            FROM resume_general_information
-            WHERE general_information_id = 1
-        ");
-        
-        if(!empty($photo_data)) {
-            /* ----- The photo form -----*/
-            $photo_form = new TableForm('photo_form');
-            
-            $photo_form->setTitle('Change Your Photo');
-            
-            $image_path = $this->managed_module->getImagesPath();
-            
-            $photo_form->addSingleImage('photo', 'Photo', $image_path, 50);
-            $photo_form->addSubmit('save', 'Save');
-            
-            $photo_form->setRequiredFields(array('photo'));
-    
-            $photo_form->setDefaultValues(array('photo' => $photo_data['photo']));
-    
-            if($photo_form->wasSubmitted() && $photo_form->isValid()) {
-                $form_data = $photo_form->getData();
-                
-                $table_data = array();
-                
-                if(!empty($form_data['photo'])) {
-                    $photo = $form_data['photo'];
-                
-                    $table_data['photo'] = $photo['name'];
-                
-                    File::moveUpload($photo, $image_path);
-                }
-                else {
-                    $table_data['photo'] = NULL;
-                }
-            
-                db()->update('resume_general_information', $table_data, array('general_information_id' => 1));
-                
-                $photo_form->addConfirmation('Your images has been successfully uploaded.');
-            }
-            
-            $this->body->addChild($photo_form, 'current_menu_content');
+    protected function constructRightContent() {                
+        if(!empty($this->photo_data)) {
+            $this->page->body->addChild($this->getForm(), 'current_menu_content');
         }
         else {
             $general_information_edit_url = Http::getCurrentLevelPageUrl('edit', array(), 'resume');
@@ -110,7 +77,46 @@ extends Home {
             $required_template->addChild('Photo', 'context');
             $required_template->addChild($general_information_edit_url, 'prerequisite_url');
             
-            $this->body->addChild($required_template, 'current_menu_content');
+            $this->page->body->addChild($required_template, 'current_menu_content');
         }
+    }
+    
+    protected function getForm() {
+        /* ----- The photo form -----*/
+        $photo_form = new TableForm('photo_form');
+        
+        $photo_form->setTitle('Change Your Photo');
+        
+        $image_path = $this->managed_module->getImagesPath();
+        
+        $photo_form->addSingleImage('photo', 'Photo', $image_path, 50);
+        $photo_form->addSubmit('save', 'Save');
+        
+        $photo_form->setRequiredFields(array('photo'));
+
+        $photo_form->setDefaultValues(array('photo' => $this->photo_data['photo']));
+
+        if($photo_form->wasSubmitted() && $photo_form->isValid()) {
+            $form_data = $photo_form->getData();
+            
+            $table_data = array();
+            
+            if(!empty($form_data['photo'])) {
+                $photo = $form_data['photo'];
+            
+                $table_data['photo'] = $photo['name'];
+            
+                File::moveUpload($photo, $image_path);
+            }
+            else {
+                $table_data['photo'] = NULL;
+            }
+        
+            db()->update('resume_general_information', $table_data, array('general_information_id' => 1));
+            
+            $photo_form->addConfirmation('Your images has been successfully uploaded.');
+        }
+        
+        return $photo_form;
     }
 }

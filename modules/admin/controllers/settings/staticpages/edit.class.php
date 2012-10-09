@@ -53,7 +53,11 @@ extends Manage {
         ), 'edit');
     }
     
-    protected function constructRightContent() {
+    protected function constructRightContent() {        
+        $this->page->body->addChild($this->getForm(), 'current_menu_content');
+    }
+    
+    protected function getForm() {
         $static_page_id = request()->get->static_page_id;
     
         $static_page_form = new EditTableForm('static_pages', 'cms_static_pages', 'static_page_id', 'sort_order', array('module_id'));
@@ -81,6 +85,6 @@ extends Manage {
         
         $static_page_form->processForm();
         
-        $this->body->addChild($static_page_form, 'current_menu_content');
+        return $static_page_form;
     }
 }

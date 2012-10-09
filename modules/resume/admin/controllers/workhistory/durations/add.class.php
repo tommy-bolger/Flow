@@ -42,9 +42,20 @@ extends Home {
     protected $title = 'Add/Edit an Organization Duration';
     
     protected $active_sub_nav_link = 'Add/Edit';
+    
+    protected $organizations;
 
     public function __construct() {
         parent::__construct();
+        
+        $this->organizations = db()->getConcatMappedColumn("
+            SELECT
+                work_history_id,
+                job_title,
+                organization_name
+            FROM resume_work_history
+            ORDER BY sort_order
+        ", ', ');
     }
     
     protected function setPageLinks() {
@@ -53,51 +64,9 @@ extends Home {
         $this->page_links['Add/Edit'] = Http::getCurrentLevelPageUrl('add', array(), 'resume');
     }
     
-    protected function constructRightContent() {
-        $organizations = db()->getConcatMappedColumn("
-            SELECT
-                work_history_id,
-                job_title,
-                organization_name
-            FROM resume_work_history
-            ORDER BY sort_order
-        ", ', ');
-        
-        if(!empty($organizations)) {        
-            $work_history_durations_form = new EditTableForm(
-                'work_history_durations',
-                'resume_work_history_durations',
-                'work_history_duration_id',
-                'sort_order',
-                array('work_history_id')
-            );
-            
-            $work_history_durations_form->setTitle('Add Durations for this Organization');
-            
-            $work_history_durations_form->setNumberOfColumns(2);
-            
-            $work_history_durations_form->addHeader(array(
-                'start_date' => 'Start Date',
-                'end_date' => 'End Date'
-            ));
-            
-            $work_history_durations_form->addDropdown('work_history_id', 'Organization', $organizations)->addBlankOption();
-            $work_history_durations_form->addDate('start_date', 'Start Date');
-            $work_history_durations_form->addDate('end_date', 'End Date');
-            $work_history_durations_form->addSubmit('save', 'Save');
-            
-            $work_history_durations_form->setRequiredFields(array(
-                'work_history_id',
-                'start_date'
-            ));
-            
-            $work_history_durations_form->setDefaultValues(array(
-                'work_history_id' => request()->get->work_history_id
-            ));
-            
-            $work_history_durations_form->processForm();
-            
-            $this->body->addChild($work_history_durations_form, 'current_menu_content');
+    protected function constructRightContent() {        
+        if(!empty($this->organizations)) {        
+            $this->page->body->addChild($this->getForm(), 'current_menu_content');
         }
         else {
             $organization_manage_url = Http::getHigherLevelPageUrl('manage', array(), 'resume');
@@ -108,7 +77,44 @@ extends Home {
             $required_template->addChild('Durations', 'context');
             $required_template->addChild($organization_manage_url, 'prerequisite_url');
             
-            $this->body->addChild($required_template, 'current_menu_content');
+            $this->page->body->addChild($required_template, 'current_menu_content');
         }
+    }
+    
+    protected function getForm() {
+        $work_history_durations_form = new EditTableForm(
+            'work_history_durations',
+            'resume_work_history_durations',
+            'work_history_duration_id',
+            'sort_order',
+            array('work_history_id')
+        );
+        
+        $work_history_durations_form->setTitle('Add Durations for this Organization');
+        
+        $work_history_durations_form->setNumberOfColumns(2);
+        
+        $work_history_durations_form->addHeader(array(
+            'start_date' => 'Start Date',
+            'end_date' => 'End Date'
+        ));
+        
+        $work_history_durations_form->addDropdown('work_history_id', 'Organization', $this->organizations)->addBlankOption();
+        $work_history_durations_form->addDate('start_date', 'Start Date');
+        $work_history_durations_form->addDate('end_date', 'End Date');
+        $work_history_durations_form->addSubmit('save', 'Save');
+        
+        $work_history_durations_form->setRequiredFields(array(
+            'work_history_id',
+            'start_date'
+        ));
+        
+        $work_history_durations_form->setDefaultValues(array(
+            'work_history_id' => request()->get->work_history_id
+        ));
+        
+        $work_history_durations_form->processForm();
+        
+        return $work_history_durations_form;
     }
 }

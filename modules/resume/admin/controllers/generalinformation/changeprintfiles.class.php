@@ -43,9 +43,20 @@ extends Home {
     protected $title = "Change Print Files";
     
     protected $active_sub_nav_link = 'Change Print Files';
+    
+    protected $print_file_data;
 
     public function __construct() {
         parent::__construct();
+        
+        $this->print_file_data = db()->getRow("
+            SELECT
+                general_information_id,
+                resume_pdf_name,
+                resume_word_name
+            FROM resume_general_information
+            WHERE general_information_id = 1
+        ");
     }
     
     protected function setPageLinks() {
@@ -55,83 +66,16 @@ extends Home {
     }
     
     protected function constructRightContent() {        
-        $print_file_data = db()->getRow("
-            SELECT
-                general_information_id,
-                resume_pdf_name,
-                resume_word_name
-            FROM resume_general_information
-            WHERE general_information_id = 1
-        ");
         
-        if(!empty($print_file_data)) {
+        
+        if(!empty($this->print_file_data)) {
             $files_path = $this->managed_module->getFilesPath();
         
             /* ----- The print PDF form -----*/
-            $print_pdf_file_form = new TableForm('print_pdf_file_form');
-            
-            $print_pdf_file_form->setTitle('Change Your PDF Resume');
-            
-            $print_pdf_file_form->addSingleFile('resume_pdf_name', 'PDF Resume', array('pdf'), 500);
-            $print_pdf_file_form->addSubmit('save', 'Save');
-
-            $print_pdf_file_form->setDefaultValues(array('resume_pdf_name' => $print_file_data['resume_pdf_name']));
-    
-            if($print_pdf_file_form->wasSubmitted() && $print_pdf_file_form->isValid()) {
-                $form_data = $print_pdf_file_form->getData();
-                
-                $table_data = array();
-                
-                if(!empty($form_data['resume_pdf_name'])) {
-                    $resume_pdf_name = $form_data['resume_pdf_name'];
-                
-                    $table_data['resume_pdf_name'] = $resume_pdf_name['name'];
-                
-                    File::moveUpload($resume_pdf_name, $files_path);
-                }
-                else {
-                    $table_data['resume_pdf_name'] = NULL;
-                }
-            
-                db()->update('resume_general_information', $table_data, array('general_information_id' => 1));
-                
-                $print_pdf_file_form->addConfirmation('Your PDF file has been successfully uploaded.');
-            }
-            
-            $this->body->addChild($print_pdf_file_form, 'current_menu_content', true);
+            $this->page->body->addChild($this->getPdfForm(), 'current_menu_content', true);
             
             /* ----- The print Word form -----*/
-            $print_word_file_form = new TableForm('print_word_file_form');
-            
-            $print_word_file_form->setTitle('Change Your Word Resume');
-            
-            $print_word_file_form->addSingleFile('resume_word_name', 'Microsoft Word Resume', array('doc'), 100);
-            $print_word_file_form->addSubmit('save', 'Save');
-    
-            $print_word_file_form->setDefaultValues(array('resume_word_name' => $print_file_data['resume_word_name']));
-    
-            if($print_word_file_form->wasSubmitted() && $print_word_file_form->isValid()) {
-                $form_data = $print_word_file_form->getData();
-                
-                $table_data = array();
-                
-                if(!empty($form_data['resume_word_name'])) {
-                    $resume_word_name = $form_data['resume_word_name'];
-                    
-                    $table_data['resume_word_name'] = $resume_word_name['name'];
-                
-                    File::moveUpload($resume_word_name, $files_path);
-                }
-                else {
-                    $table_data['resume_word_name'] = NULL;
-                }
-           
-                db()->update('resume_general_information', $table_data, array('general_information_id' => 1));
-                
-                $print_word_file_form->addConfirmation('Your Word file has been successfully uploaded.');
-            }
-            
-            $this->body->addChild($print_word_file_form, 'current_menu_content', true);
+            $this->page->body->addChild($this->getWordForm(), 'current_menu_content', true);
         }
         else {
             $general_information_edit_url = Http::getCurrentLevelPageUrl('edit', array(), 'resume');
@@ -142,7 +86,94 @@ extends Home {
             $required_template->addChild('Print Files', 'context');
             $required_template->addChild($general_information_edit_url, 'prerequisite_url');
             
-            $this->body->addChild($required_template, 'current_menu_content');
+            $this->page->body->addChild($required_template, 'current_menu_content');
         }
+    }
+    
+    protected function getPdfForm() {
+        $print_pdf_file_form = new TableForm('print_pdf_file_form');
+            
+        $print_pdf_file_form->setTitle('Change Your PDF Resume');
+        
+        $print_pdf_file_form->addSingleFile('resume_pdf_name', 'PDF Resume', array('pdf'), 500);
+        $print_pdf_file_form->addSubmit('save', 'Save');
+
+        $print_pdf_file_form->setDefaultValues(array('resume_pdf_name' => $this->print_file_data['resume_pdf_name']));
+
+        if($print_pdf_file_form->wasSubmitted() && $print_pdf_file_form->isValid()) {
+            $form_data = $print_pdf_file_form->getData();
+            
+            $table_data = array();
+            
+            if(!empty($form_data['resume_pdf_name'])) {
+                $resume_pdf_name = $form_data['resume_pdf_name'];
+            
+                $table_data['resume_pdf_name'] = $resume_pdf_name['name'];
+            
+                File::moveUpload($resume_pdf_name, $this->managed_module->getFilesPath());
+            }
+            else {
+                $table_data['resume_pdf_name'] = NULL;
+            }
+        
+            db()->update('resume_general_information', $table_data, array('general_information_id' => 1));
+            
+            $print_pdf_file_form->addConfirmation('Your PDF file has been successfully uploaded.');
+        }
+        
+        return $print_pdf_file_form;
+    }
+    
+    protected function getWordForm() {
+        $print_word_file_form = new TableForm('print_word_file_form');
+            
+        $print_word_file_form->setTitle('Change Your Word Resume');
+        
+        $print_word_file_form->addSingleFile('resume_word_name', 'Microsoft Word Resume', array('doc'), 100);
+        $print_word_file_form->addSubmit('save', 'Save');
+
+        $print_word_file_form->setDefaultValues(array('resume_word_name' => $this->print_file_data['resume_word_name']));
+
+        if($print_word_file_form->wasSubmitted() && $print_word_file_form->isValid()) {
+            $form_data = $print_word_file_form->getData();
+            
+            $table_data = array();
+            
+            if(!empty($form_data['resume_word_name'])) {
+                $resume_word_name = $form_data['resume_word_name'];
+                
+                $table_data['resume_word_name'] = $resume_word_name['name'];
+            
+                File::moveUpload($resume_word_name, $this->managed_module->getFilesPath());
+            }
+            else {
+                $table_data['resume_word_name'] = NULL;
+            }
+       
+            db()->update('resume_general_information', $table_data, array('general_information_id' => 1));
+            
+            $print_word_file_form->addConfirmation('Your Word file has been successfully uploaded.');
+        }
+        
+        return $print_word_file_form;
+    }
+    
+    public function submit() {
+        $form = NULL;
+        $form_name = request()->post->form_name;
+        
+        switch($form_name) {
+            case 'print_pdf_file_form':
+                $form = $this->getPdfForm();
+                break;
+            case 'print_word_file_form':
+                $form = $this->getWordForm();
+                break;
+            default:
+                throw new \Exception("Form '{$form_name}' is not a valid form.");
+                break;
+        }
+        
+        return $form->toJsonArray();
     }
 }

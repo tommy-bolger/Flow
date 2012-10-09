@@ -53,6 +53,10 @@ extends Home {
     }
     
     protected function constructRightContent() {
+        $this->page->body->addChild($this->getForm(), 'current_menu_content');
+    }
+    
+    protected function getForm() {
         $roles_form = new EditTableForm(
             'roles',
             'cms_roles',
@@ -71,6 +75,6 @@ extends Home {
         
         $roles_form->processForm();
         
-        $this->body->addChild($roles_form, 'current_menu_content');
+        return $roles_form;
     }
 }

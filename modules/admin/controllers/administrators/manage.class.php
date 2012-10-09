@@ -80,6 +80,6 @@ extends Home {
             WHERE is_site_admin = 1
         ");
         
-        $this->body->addChild($admin_table, 'current_menu_content');
+        $this->page->body->addChild($admin_table, 'current_menu_content');
     }
 }

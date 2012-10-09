@@ -42,9 +42,20 @@ extends Home {
     protected $title = "Add/Edit an Organization Task";
     
     protected $active_sub_nav_link = "Add/Edit";
+    
+    protected $organizations;
 
     public function __construct() {
         parent::__construct();
+        
+        $this->organizations = db()->getConcatMappedColumn("
+            SELECT
+                work_history_id,
+                job_title,
+                organization_name
+            FROM resume_work_history
+            ORDER BY sort_order
+        ", ', ');
     }
     
     protected function setPageLinks() {
@@ -54,38 +65,8 @@ extends Home {
     }
     
     protected function constructRightContent() {
-        $organizations = db()->getConcatMappedColumn("
-            SELECT
-                work_history_id,
-                job_title,
-                organization_name
-            FROM resume_work_history
-            ORDER BY sort_order
-        ", ', ');
-        
-        if(!empty($organizations)) {        
-            $work_history_tasks_form = new EditTableForm(
-                'work_history_tasks',
-                'resume_work_history_tasks',
-                'work_history_task_id',
-                'sort_order',
-                array('work_history_id')
-            );
-            
-            $work_history_tasks_form->setTitle('Add a New Task');
-    
-            $work_history_tasks_form->addDropdown('work_history_id', 'Organization', $organizations)->addBlankOption();
-            $work_history_tasks_form->addTextArea('description', 'Task Description');
-            $work_history_tasks_form->addSubmit('save', 'Save');
-            
-            $work_history_tasks_form->setRequiredFields(array(
-                'work_history_id', 
-                'description'
-            ));
-            
-            $work_history_tasks_form->processForm();
-            
-            $this->body->addChild($work_history_tasks_form, 'current_menu_content');
+        if(!empty($this->organizations)) {        
+            $this->page->body->addChild($this->getForm(), 'current_menu_content');
         }
         else {
             $organization_manage_url = Http::getHigherLevelPageUrl('manage', array(), 'resume');
@@ -96,7 +77,32 @@ extends Home {
             $required_template->addChild('Tasks', 'context');
             $required_template->addChild($organization_manage_url, 'prerequisite_url');
             
-            $this->body->addChild($required_template, 'current_menu_content');
+            $this->page->body->addChild($required_template, 'current_menu_content');
         }
+    }
+    
+    protected function getForm() {
+        $work_history_tasks_form = new EditTableForm(
+            'work_history_tasks',
+            'resume_work_history_tasks',
+            'work_history_task_id',
+            'sort_order',
+            array('work_history_id')
+        );
+        
+        $work_history_tasks_form->setTitle('Add a New Task');
+
+        $work_history_tasks_form->addDropdown('work_history_id', 'Organization', $this->organizations)->addBlankOption();
+        $work_history_tasks_form->addTextArea('description', 'Task Description');
+        $work_history_tasks_form->addSubmit('save', 'Save');
+        
+        $work_history_tasks_form->setRequiredFields(array(
+            'work_history_id', 
+            'description'
+        ));
+        
+        $work_history_tasks_form->processForm();
+        
+        return $work_history_tasks_form;
     }
 }

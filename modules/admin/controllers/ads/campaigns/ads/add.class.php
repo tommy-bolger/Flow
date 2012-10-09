@@ -53,6 +53,10 @@ extends Home {
     }
     
     protected function constructRightContent() {
+        $this->page->body->addChild($this->getForm(), 'current_menu_content');
+    }
+    
+    protected function getForm() {
         $module_id = $this->managed_module->getId();
         
         //The education history table
@@ -117,6 +121,6 @@ extends Home {
             $campaign_ads_form->processForm();
         }
         
-        $this->body->addChild($campaign_ads_form, 'current_menu_content');
+        return $campaign_ads_form;
     }
 }

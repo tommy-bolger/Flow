@@ -75,6 +75,6 @@ extends Home {
             FROM resume_skill_categories
         ");
         
-        $this->body->addChild($skill_category_edit_table, 'current_menu_content');
+        $this->page->body->addChild($skill_category_edit_table, 'current_menu_content');
     }
 }

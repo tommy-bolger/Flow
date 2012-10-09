@@ -47,9 +47,38 @@ extends Home {
     protected $title = "Edit General Settings";
     
     protected $active_sub_nav_link = 'General';
+    
+    protected $module_id;
+    
+    protected $parameters;
 
     public function __construct() {
         parent::__construct();
+        
+        $this->module_id = NULL;        
+        $module_where_clause = '';
+        $module_placeholder_values = array();
+        
+        if(!empty($this->managed_module)) {
+            $this->module_id = $this->managed_module->getId();
+            $module_placeholder_values[] = $this->module_id;
+        }
+        
+        $module_where_clause = db()->generateWhereClause(array('module_id' => $this->module_id));
+        
+        $this->parameters = db()->getGroupedRows("
+            SELECT 
+                cp.configuration_parameter_id,
+                cp.parameter_name,
+                cp.display_name,
+                COALESCE(cp.value, cp.default_value) AS value,
+                pdt.data_type,
+                cp.has_value_list
+            FROM cms_configuration_parameters cp
+            JOIN cms_parameter_data_types pdt USING (parameter_data_type_id)
+            {$module_where_clause}
+            ORDER BY cp.sort_order
+        ", $module_placeholder_values);
     }
     
     protected function setPageLinks() {
@@ -65,101 +94,80 @@ extends Home {
     }
     
     protected function constructRightContent() {
-        $module_id = NULL;        
-        $module_where_clause = '';
-        $module_placeholder_values = array();
-        
-        if(!empty($this->managed_module)) {
-            $module_id = $this->managed_module->getId();
-            $module_placeholder_values[] = $module_id;
-        }
-        
-        $module_where_clause = db()->generateWhereClause(array('module_id' => $module_id));
-        
-        $parameters = db()->getGroupedRows("
-            SELECT 
-                cp.configuration_parameter_id,
-                cp.parameter_name,
-                cp.display_name,
-                COALESCE(cp.value, cp.default_value) AS value,
-                pdt.data_type,
-                cp.has_value_list
-            FROM cms_configuration_parameters cp
-            JOIN cms_parameter_data_types pdt USING (parameter_data_type_id)
-            {$module_where_clause}
-            ORDER BY cp.sort_order
-        ", $module_placeholder_values);
-
-        if(!empty($parameters)) {
-            $configuration_form = new TableForm('configuration_form');
-            
-            $configuration_form->setTitle("Edit General Settings");
-            
-            foreach($parameters as $parameter_id => $parameter) {
-                $parameter_name = $parameter['parameter_name'];
-                $display_name = $parameter['display_name'];
-                
-                $parameter_field = NULL;
-            
-                if(empty($parameter['has_value_list'])) {
-                    $data_type = $parameter['data_type'];
-                
-                    switch($data_type) {
-                        case 'boolean':
-                            $parameter_field = new BooleanCheckbox($parameter_id, $display_name);
-                            break;
-                        case 'integer':
-                            $parameter_field = new IntField($parameter_id, $display_name);
-                            break;
-                        case 'float':
-                            $parameter_field = new FloatField($parameter_id, $display_name);
-                            break;
-                        default:
-                            $parameter_field = new Textbox($parameter_id, $display_name);
-                            break;
-                    }
-                }
-                else {
-                    $parameter_options = db()->getMappedColumn("
-                        SELECT 
-                            parameter_value AS display,
-                            parameter_value AS value
-                        FROM cms_parameter_values
-                        WHERE configuration_parameter_id = ?
-                        ORDER BY sort_order ASC
-                    ", array($parameter_id));
-                    
-                    $parameter_field = new Dropdown($parameter_id, $display_name, $parameter_options);
-                    $parameter_field->addBlankOption();
-                }
-                
-                $parameter_field->setDefaultValue($parameter['value']);
-                
-                $configuration_form->addField($parameter_field);
-            }
-            
-            $configuration_form->addSubmit('save', 'Save');
-            
-            if($configuration_form->wasSubmitted() && $configuration_form->isValid()) {
-                $form_data = $configuration_form->getData();
-                
-                $parameter_ids = array_keys($parameters);
-                
-                foreach($parameter_ids as $parameter_id) {
-                    db()->update(
-                        'cms_configuration_parameters', 
-                        array('value' => $form_data[$parameter_id]), 
-                        array('configuration_parameter_id' => $parameter_id)
-                    );
-                }
-                
-                $configuration_form->addConfirmation('Configuration has been successfully updated.');
-            }
-            
-            $this->body->addChild($configuration_form, 'current_menu_content');
+        if(!empty($this->parameters)) {
+            $this->page->body->addChild($this->getForm(), 'current_menu_content');
         }
         else {
-            throw new \Exception("Module ID '{$module_id}' is not valid.");
+            throw new \Exception("Module ID '{$this->module_id}' is not valid.");
         }
+    }
+    
+    protected function getForm() {
+        $configuration_form = new TableForm('configuration_form');
+            
+        $configuration_form->setTitle("Edit General Settings");
+        
+        foreach($this->parameters as $parameter_id => $parameter) {
+            $parameter_name = $parameter['parameter_name'];
+            $display_name = $parameter['display_name'];
+            
+            $parameter_field = NULL;
+        
+            if(empty($parameter['has_value_list'])) {
+                $data_type = $parameter['data_type'];
+            
+                switch($data_type) {
+                    case 'boolean':
+                        $parameter_field = new BooleanCheckbox($parameter_id, $display_name);
+                        break;
+                    case 'integer':
+                        $parameter_field = new IntField($parameter_id, $display_name);
+                        break;
+                    case 'float':
+                        $parameter_field = new FloatField($parameter_id, $display_name);
+                        break;
+                    default:
+                        $parameter_field = new Textbox($parameter_id, $display_name);
+                        break;
+                }
+            }
+            else {
+                $parameter_options = db()->getMappedColumn("
+                    SELECT 
+                        parameter_value AS display,
+                        parameter_value AS value
+                    FROM cms_parameter_values
+                    WHERE configuration_parameter_id = ?
+                    ORDER BY sort_order ASC
+                ", array($parameter_id));
+                
+                $parameter_field = new Dropdown($parameter_id, $display_name, $parameter_options);
+                $parameter_field->addBlankOption();
+            }
+            
+            $parameter_field->setDefaultValue($parameter['value']);
+            
+            $configuration_form->addField($parameter_field);
+        }
+        
+        $configuration_form->addSubmit('save', 'Save');
+        
+        if($configuration_form->wasSubmitted() && $configuration_form->isValid()) {
+            $form_data = $configuration_form->getData();
+            
+            $parameter_ids = array_keys($this->parameters);
+            
+            foreach($parameter_ids as $parameter_id) {
+                db()->update(
+                    'cms_configuration_parameters', 
+                    array('value' => $form_data[$parameter_id]), 
+                    array('configuration_parameter_id' => $parameter_id)
+                );
+            }
+            
+            $configuration_form->addConfirmation('Configuration has been successfully updated.');
+        }
+        
+        return $configuration_form;
     }
 }

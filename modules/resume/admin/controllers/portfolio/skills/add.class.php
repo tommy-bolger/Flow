@@ -42,9 +42,19 @@ extends Home {
     protected $title = "Add/Edit a Project Skill";
     
     protected $active_sub_nav_link = "Add/Edit";
+    
+    protected $portfolio_projects;
 
     public function __construct() {
         parent::__construct();
+        
+        $this->portfolio_projects = db()->getMappedColumn("
+            SELECT
+                portfolio_project_id,
+                project_name
+            FROM resume_portfolio_projects
+            ORDER BY sort_order
+        ");
     }
     
     protected function setPageLinks() {
@@ -54,53 +64,8 @@ extends Home {
     }
     
     protected function constructRightContent() {
-        $portfolio_projects = db()->getMappedColumn("
-            SELECT
-                portfolio_project_id,
-                project_name
-            FROM resume_portfolio_projects
-            ORDER BY sort_order
-        ");
-
-        if(!empty($portfolio_projects)) {
-            $portfolio_skills_form = new EditTableForm(
-                'portfolio_skills',
-                'resume_portfolio_project_skills',
-                'portfolio_project_skill_id',
-                'sort_order',
-                array('portfolio_project_id')
-            );
-            
-            $portfolio_skills_form->setTitle("Add a New Project Skill");
-            
-            $available_skills = db()->getAll("
-                SELECT 
-                    sc.skill_category_name,
-                    s.skill_id,
-                    s.skill_name
-                FROM resume_skill_categories sc
-                JOIN resume_skills s USING (skill_category_id)
-                ORDER BY sc.sort_order, s.sort_order
-            ");
-            
-            $skills = array();
-        
-            foreach($available_skills as $available_skill) {
-                $skills[$available_skill['skill_category_name']][$available_skill['skill_id']] = $available_skill['skill_name'];
-            }
-        
-            $portfolio_skills_form->addDropdown('portfolio_project_id', 'Portfolio Project', $portfolio_projects)->addBlankOption();
-            $portfolio_skills_form->addDropdown('skill_id', 'Skill', $skills)->addBlankOption();
-            $portfolio_skills_form->addSubmit('save', 'Save');
-            
-            $portfolio_skills_form->setRequiredFields(array(
-                'portfolio_project_id',
-                'skill_id'
-            ));
-            
-            $portfolio_skills_form->processForm();
-            
-            $this->body->addChild($portfolio_skills_form, 'current_menu_content');
+        if(!empty($this->portfolio_projects)) {
+            $this->page->body->addChild($this->getForm(), 'current_menu_content');
         }
         else {
             $project_edit_page_url = Http::getHigherLevelPageUrl('manage', array(), 'resume');
@@ -111,7 +76,48 @@ extends Home {
             $required_template->addChild('Project Skills', 'context');
             $required_template->addChild($project_edit_page_url, 'prerequisite_url');
             
-            $this->body->addChild($required_template, 'current_menu_content');
+            $this->page->body->addChild($required_template, 'current_menu_content');
         }
+    }
+    
+    protected function getForm() {
+        $portfolio_skills_form = new EditTableForm(
+            'portfolio_skills',
+            'resume_portfolio_project_skills',
+            'portfolio_project_skill_id',
+            'sort_order',
+            array('portfolio_project_id')
+        );
+        
+        $portfolio_skills_form->setTitle("Add a New Project Skill");
+        
+        $available_skills = db()->getAll("
+            SELECT 
+                sc.skill_category_name,
+                s.skill_id,
+                s.skill_name
+            FROM resume_skill_categories sc
+            JOIN resume_skills s USING (skill_category_id)
+            ORDER BY sc.sort_order, s.sort_order
+        ");
+        
+        $skills = array();
+    
+        foreach($available_skills as $available_skill) {
+            $skills[$available_skill['skill_category_name']][$available_skill['skill_id']] = $available_skill['skill_name'];
+        }
+    
+        $portfolio_skills_form->addDropdown('portfolio_project_id', 'Portfolio Project', $this->portfolio_projects)->addBlankOption();
+        $portfolio_skills_form->addDropdown('skill_id', 'Skill', $skills)->addBlankOption();
+        $portfolio_skills_form->addSubmit('save', 'Save');
+        
+        $portfolio_skills_form->setRequiredFields(array(
+            'portfolio_project_id',
+            'skill_id'
+        ));
+        
+        $portfolio_skills_form->processForm();
+        
+        return $portfolio_skills_form;
     }
 }

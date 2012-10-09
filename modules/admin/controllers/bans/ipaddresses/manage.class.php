@@ -88,6 +88,6 @@ extends Home {
             return $query_rows;
         });
         
-        $this->body->addChild($ip_addresses_table, 'current_menu_content');
+        $this->page->body->addChild($ip_addresses_table, 'current_menu_content');
     }
 }

@@ -33,6 +33,7 @@
 namespace Modules\Admin\Controllers;
 
 use \Framework\Core\Framework;
+use \Framework\Core\Controller;
 use \Framework\Modules\ModulePage;
 use \Framework\Modules\WebModule;
 use \Framework\Utilities\Auth;
@@ -42,7 +43,7 @@ use \Framework\Html\Misc\TemplateElement;
 use \Framework\Html\Custom\PagePath;
 
 class Home
-extends ModulePage {
+extends Controller {
     protected $title = "Administration Control Panel";
     
     protected $cache_page = true;
@@ -60,12 +61,20 @@ extends ModulePage {
     protected $active_sub_nav_link;
 
     public function __construct() {
-        parent::__construct('admin');
-
         if(!Auth::userLoggedIn()) {
             Http::redirect(Http::getTopLevelPageUrl('login'));
         }
         
+        $module_id = request()->module_id;
+        
+        if(!empty($module_id)) {
+            $this->loadManagedModule();
+        }
+    }
+    
+    public function setup() {
+        $this->page = new ModulePage('admin');
+    
         $this->constructHeader();
         
         $this->constructContentHeader();
@@ -79,8 +88,6 @@ extends ModulePage {
     
     protected function getModuleSessionLinks() {
         $current_module_name = session()->current_module;
-        
-        $this->loadManagedModule($current_module_name);
 
         $module_links_session_name = "{$current_module_name}_links";
         
@@ -294,34 +301,38 @@ extends ModulePage {
         }
     }
     
-    protected function loadManagedModule($module_name) {
+    protected function loadManagedModule() {
+        $module_name = session()->current_module;
+    
         $this->managed_module = new WebModule($module_name);
         
         session()->current_module = $module_name;
     }
     
     private function constructHeader() {
-        $this->setTemplate('layout.php');
+        $this->page->setTitle($this->title);
+    
+        $this->page->setTemplate('layout.php');
         
         //Setup the css style        
-        $this->addCssFiles(array(
+        $this->page->addCssFiles(array(
             'reset.css',
             'main.css'
         ));
         
         if(config('framework')->enable_javascript) {
-            $this->addCssFile('top_nav.css');
+            $this->page->addCssFile('top_nav.css');
         }
         
         //Setup the javascript        
-        $this->addJavascriptFiles(array(
+        $this->page->addJavascriptFiles(array(
             "jquery.min.js",
             'nav.js'
         ));
     }
     
     protected function constructContentHeader() {
-        $this->body->addChild(Http::getTopLevelPageUrl(), 'home_link');
+        $this->page->body->addChild(Http::getTopLevelPageUrl(), 'home_link');
         
         $this->constructLoginInfo();
         
@@ -333,9 +344,9 @@ extends ModulePage {
     private function constructLoginInfo() {
         $user_name = session()->user_name;
         
-        $this->body->addChild($user_name, 'user_name');
+        $this->page->body->addChild($user_name, 'user_name');
             
-        $this->body->addChild(Http::getTopLevelPageUrl("login", array('logout' => 1)), 'logout_link');
+        $this->page->body->addChild(Http::getTopLevelPageUrl("login", array('logout' => 1)), 'logout_link');
     }
     
     protected function constructTopNav() {
@@ -352,7 +363,7 @@ extends ModulePage {
             }
 
             if(!empty($module_sub_nav_links)) {
-                $this->addInlineJavascript("top_nav_links = " . json_encode($module_sub_nav_links) . ";");
+                $this->page->addInlineJavascript("top_nav_links = " . json_encode($module_sub_nav_links) . ";");
             }
         }
     
@@ -402,7 +413,7 @@ extends ModulePage {
         
         $modules_list->setActiveItem($active_link_name);
         
-        $this->body->addChild($modules_list);
+        $this->page->body->addChild($modules_list);
     }
     
     private function constructLeftContent() {        
@@ -437,7 +448,7 @@ extends ModulePage {
                 
                 $section_template->addChild($section_list, 'section_list');
                 
-                $this->body->addChild($section_template, 'sub_nav', true);
+                $this->page->body->addChild($section_template, 'sub_nav', true);
             }
         }
     }
@@ -454,16 +465,24 @@ extends ModulePage {
         $page_path = new PagePath('page_path');
         $page_path->addPages($this->page_links);
         
-        $this->body->addChild($page_path);
+        $this->page->body->addChild($page_path);
     }
     
     protected function constructRightContent() {    
         $right_content = new TemplateElement('home.php');
     
-        $this->body->addChild($right_content, 'current_menu_content');
+        $this->page->body->addChild($right_content, 'current_menu_content');
     }
     
     protected function constructFooter() {
-        $this->body->addChild(config('framework')->version, 'version');
+        $this->page->body->addChild(config('framework')->version, 'version');
+    }
+    
+    protected function getForm() {}
+    
+    public function submit() {
+        $form = $this->getForm();
+        
+        return $form->toJsonArray();
     }
 }

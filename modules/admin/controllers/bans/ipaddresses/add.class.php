@@ -56,6 +56,10 @@ extends Home {
     }
     
     protected function constructRightContent() {    
+        $this->page->body->addChild($this->getForm(), 'current_menu_content');
+    }
+    
+    protected function getForm() {
         $ip_addresses_form = new EditTableForm('ip_addresses', 'cms_banned_ip_addresses', 'banned_ip_address_id');
         
         $ip_addresses_form->setTitle('Add a New Banned IP Address');
@@ -68,6 +72,6 @@ extends Home {
         
         $ip_addresses_form->processForm();
         
-        $this->body->addChild($ip_addresses_form, 'current_menu_content');
+        return $ip_addresses_form;
     }
 }

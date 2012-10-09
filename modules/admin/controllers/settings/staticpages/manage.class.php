@@ -103,6 +103,6 @@ extends Home {
             return $query_rows;
         });
         
-        $this->body->addChild($static_pages_table, 'current_menu_content');
+        $this->page->body->addChild($static_pages_table, 'current_menu_content');
     }
 }

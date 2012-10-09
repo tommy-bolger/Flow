@@ -95,6 +95,6 @@ extends Home {
             return $query_rows;
         });
         
-        $this->body->addChild($ad_campaigns_table, 'current_menu_content');
+        $this->page->body->addChild($ad_campaigns_table, 'current_menu_content');
     }
 }
