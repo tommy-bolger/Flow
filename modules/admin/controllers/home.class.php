@@ -301,8 +301,10 @@ extends Controller {
         }
     }
     
-    protected function loadManagedModule() {
-        $module_name = session()->current_module;
+    protected function loadManagedModule($module_name = '') {
+        if(empty($module_name)) {
+            $module_name = session()->current_module;
+        }
     
         $this->managed_module = new WebModule($module_name);
         
