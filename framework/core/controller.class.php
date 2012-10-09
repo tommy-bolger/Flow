@@ -1,6 +1,6 @@
 <?php
 /**
-* The error handling class for the framework's image mode.
+* The base class that all controllers extend from.
 * Copyright (c) 2011, Tommy Bolger
 * All rights reserved.
 * 
@@ -30,34 +30,27 @@
 * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE 
 * POSSIBILITY OF SUCH DAMAGE.
 */
-namespace Framework\Debug;
+namespace Framework\Core;
 
-use \Framework\Core\Framework;
-
-class ImageError
-extends FileError {    
+abstract class Controller {    
     /**
-     * Initializes the error handler.
+    * @var object The framework error handler class name.
+    */
+    protected $page;
+    
+    /**
+     * Sets up the page request.
      *
      * @return void
      */
-    public function __construct() {
-        parent::__construct();
-    }
+    abstract public function setup();
     
     /**
-     * Retrieves the image.
+     * Renders the current page and returns its output.
      *
-     * @param integer $error_code The code specified when the error or exception was thrown.
-     * @param string $error_message The error message.
-     * @param string $error_file (optional) The file that the error or exception occurred at.
-     * @param integer $error_line (optional) The line that the error occurred at.
-     * @param string|array $error_trace (optional) The stack trace of the application execution from beginning to when the error was encountered. Can either be a string for exceptions or arrays for errors.                          
      * @return string
      */
-    protected function getDisplay($error_code, $error_message, $error_file, $error_line, $error_trace) {
-        Framework::initializeNotFound();
-        
-        Framework::display();
+    public function render() {
+        return $this->page->render();
     }
 }

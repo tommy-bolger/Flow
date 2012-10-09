@@ -32,6 +32,8 @@
 */
 namespace Framework\Debug;
 
+use \Framework\Core\Framework;
+
 class PageError
 extends Error {
     /**
@@ -46,6 +48,22 @@ extends Error {
      */
     public function __construct() {
         parent::__construct();
+    }
+    
+    /**
+     * Displays framework/applications errors and exceptions and stops execution of the framework.
+     *
+     * @param integer $error_code The code specified when the error or exception was thrown.
+     * @param string $error_message The error message.
+     * @param string $error_file (optional) The file that the error or exception occurred at.
+     * @param integer $error_line (optional) The line that the error occurred at.
+     * @param string|array $error_trace (optional) The stack trace of the application execution from beginning to when the error was encountered. Can either be a string for exceptions or arrays for errors.                          
+     * @return void
+     */
+    public function handleError($error_code, $error_message, $error_file = '', $error_line = '', $error_trace = '') {
+        header("{$_SERVER['SERVER_PROTOCOL']} 500 Internal Server Error", true, 500);
+        
+        parent::handleError($error_code, $error_message, $error_file, $error_line, $error_trace);
     }
     
     /**
@@ -123,11 +141,11 @@ extends Error {
     protected function getDisplay($error_code, $error_message, $error_file, $error_line, $error_trace) {
         $error_output = "";
     
-        $environment = framework()->getEnvironment();
+        $environment = Framework::$environment;
         
         if(empty($environment) || $environment == 'production') {
             if(empty($this->template_path)) {
-                $this->template_path = framework()->installation_path . '/protected/framework_error.php';
+                $this->template_path = Framework::$installation_path . '/protected/framework_error.php';
             }
             
             if(is_file($this->template_path)) {

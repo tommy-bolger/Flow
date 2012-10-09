@@ -127,7 +127,7 @@ final class Configuration {
      * @return void
      */
     private function loadFrameworkBaseFile() {
-        $config_full_path = framework()->installation_path . "/protected/configuration.ini";
+        $config_full_path = Framework::$installation_path . "/protected/configuration.ini";
 
         //Return false if the configuration file is not available
         if(!is_readable($config_full_path)) {

@@ -1,6 +1,6 @@
 <?php
 /**
-* The error handling class for the framework's image mode.
+* The error handling class for the framework's ajax mode.
 * Copyright (c) 2011, Tommy Bolger
 * All rights reserved.
 * 
@@ -34,19 +34,45 @@ namespace Framework\Debug;
 
 use \Framework\Core\Framework;
 
-class ImageError
-extends FileError {    
+class AjaxError
+extends Error {    
     /**
      * Initializes the error handler.
      *
      * @return void
      */
-    public function __construct() {
+    public function __construct() {        
         parent::__construct();
     }
     
     /**
-     * Retrieves the image.
+     * Displays framework/applications errors and exceptions and stops execution of the framework.
+     *
+     * @param integer $error_code The code specified when the error or exception was thrown.
+     * @param string $error_message The error message.
+     * @param string $error_file (optional) The file that the error or exception occurred at.
+     * @param integer $error_line (optional) The line that the error occurred at.
+     * @param string|array $error_trace (optional) The stack trace of the application execution from beginning to when the error was encountered. Can either be a string for exceptions or arrays for errors.                          
+     * @return void
+     */
+    public function handleError($error_code, $error_message, $error_file = '', $error_line = '', $error_trace = '') {
+        header("{$_SERVER['SERVER_PROTOCOL']} 500 Internal Server Error", true, 500);
+        
+        parent::handleError($error_code, $error_message, $error_file, $error_line, $error_trace);
+    }
+    
+    /**
+     * Adds the error message to a log file.
+     *
+     * @param string $error_log_message The error message to log.                          
+     * @return void
+     */
+    public function logMessage($error_log_message) {
+        error_log($error_log_message);
+    }
+
+    /**
+     * Retrieves the html output of an error when running in web mode.
      *
      * @param integer $error_code The code specified when the error or exception was thrown.
      * @param string $error_message The error message.
@@ -55,9 +81,17 @@ extends FileError {
      * @param string|array $error_trace (optional) The stack trace of the application execution from beginning to when the error was encountered. Can either be a string for exceptions or arrays for errors.                          
      * @return string
      */
-    protected function getDisplay($error_code, $error_message, $error_file, $error_line, $error_trace) {
-        Framework::initializeNotFound();
+    protected function getDisplay($error_code, $error_message, $error_file, $error_line, $error_trace) {    
+        $environment = Framework::$environment;
+        $display_message = '';
         
-        Framework::display();
+        if(empty($environment) || $environment == 'production') {
+            $display_message = "An unexpected error has been encountered.";
+        }
+        else {
+            $display_message = parent::getDisplay($error_code, $error_message, $error_file, $error_line, $error_trace);
+        }
+        
+        return $display_message;
     }
 }

@@ -31,6 +31,8 @@
 * POSSIBILITY OF SUCH DAMAGE.
 */
 
+use \Framework\Core\Framework;
+
 /**
 * Retrieves a PHP environment variable value.
 *
@@ -54,16 +56,6 @@ function environment($environment_variable) {
 }
 
 /**
-* A shortcut function to the Framework::getFramework function.
-*
-* @param string $config_name (optional) The name of the configuration instance to retrieve.
-* @return object
-*/
-function framework() {
-    return \Framework\Core\Framework::getFramework();
-}
-
-/**
 * A shortcut function to the SquConfiguration::getConfiguration function.
 *
 * @param string $config_name (optional) The name of the configuration instance to retrieve.
@@ -74,7 +66,7 @@ function config($config_name = NULL) {
 }
 
 /**
-* A shortcut function to the SquDatabase::getDatabase function.
+* A shortcut function to the Database::getDatabase function.
 *
 * @param string $database_connection_name (optional) The name of the database instance to retrieve.
 * @return object
@@ -135,7 +127,7 @@ function page() {
 * @return void
 */
 function dump($data) {
-    if(framework()->getEnvironment() != 'production') {
-        \framework\debug\debug::dump($data);
+    if(Framework::$environment != 'production') {
+        \Framework\Debug\Debug::dump($data);
     }
 }

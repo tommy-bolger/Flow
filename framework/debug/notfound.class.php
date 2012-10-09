@@ -32,6 +32,7 @@
 */
 namespace Framework\Debug;
 
+use \Framework\Core\Framework;
 use \Framework\Html\Page;
 
 class NotFound
@@ -41,19 +42,17 @@ extends Page {
     protected $cache_page = true;
 
     public function __construct() {
-        header("Status: 404 Not Found");
+        header('HTTP/1.0 404 Not Found');
         
-        //Log that the requested page class could not be found.
-        $framework = framework();
+        //Log that the requested page class could not be found.        
+        $page_class_path = Framework::$instance->getQualifiedPagePath();
         
-        $page_class_path = $framework->getQualifiedPagePath();
-        
-        $framework->error_handler->logMessage("Page class '{$page_class_path}' could not be found.");
+        Framework::$instance->error_handler->logMessage("Page class '{$page_class_path}' could not be found.");
         
         //Initialize this page.
         parent::__construct();
         
         //Load the template for the NotFound page.
-        $this->setTemplate(framework()->installation_path . '/protected/not_found.php', false);
+        $this->setTemplate(Framework::$installation_path . '/protected/not_found.php', false);
     }
 }

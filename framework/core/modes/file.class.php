@@ -109,6 +109,17 @@ extends Web {
         
         $this->constructFilePath();
     }
+    
+    /**
+     * Displays the contents of the requested file.
+     *
+     * @return void
+     */
+    public function run() {
+        readfile($this->full_path);
+        
+        exit;
+    }
 
     /**
      * Retrieves a value from the request and strips it of any potentially dangerous characters.
@@ -148,7 +159,7 @@ extends Web {
      * @return void
      */
     protected function constructFilePath() {
-        $file_path = $this->installation_path;
+        $file_path = self::$installation_path;
         
         if(!empty($this->module_name)) {
             $file_path .= "/modules/{$this->module_name}/assets";
@@ -181,16 +192,5 @@ extends Web {
      */
     public function initializeNotFound() {
         header("HTTP/1.0 404 Not Found");
-    }
-    
-    /**
-     * Displays the contents of the requested file.
-     *
-     * @return void
-     */
-    public function display() {
-        readfile($this->full_path);
-        
-        exit;
     }
 }

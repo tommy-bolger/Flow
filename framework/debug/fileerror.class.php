@@ -32,6 +32,8 @@
 */
 namespace Framework\Debug;
 
+use \Framework\Core\Framework;
+
 class FileError
 extends Error {    
     /**
@@ -54,7 +56,7 @@ extends Error {
      * @return string
      */
     protected function getDisplay($error_code, $error_message, $error_file, $error_line, $error_trace) {
-        framework()->initializeNotFound();
+        Framework::initializeNotFound();
         
         return '';
     }

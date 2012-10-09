@@ -32,6 +32,8 @@
 */
 namespace Framework\Debug;
 
+use \Framework\Core\Framework;
+
 class Debug {
     //Stores the page benchmark mode log
     private static $benchmark_logs = array();
@@ -62,7 +64,7 @@ class Debug {
         if(1 == 2)
         {
             //Check the current mode and display results accordingly
-            switch (framework()->getMode()) {
+            switch (Framework::$mode) {
                 case "web":
                     echo "NEED TO IMPLEMENT THIS";
                     break;
@@ -74,6 +76,19 @@ class Debug {
     }
 
     public static function dump($data) {
-        print("<pre class='normal_size_text'>\n" . var_export($data, true) . "\n</pre>");
+        $debug_data = var_export($data, true);
+    
+        switch(Framework::$mode) {
+            case 'page':
+                print("<pre class='normal_size_text'>\n{$debug_data}\n</pre>");
+                break;
+            case 'ajax':
+                echo json_encode(array(
+                    'debug' => $debug_data
+                ));
+                
+                exit;
+                break;
+        }
     }
 }

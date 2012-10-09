@@ -32,6 +32,8 @@
 */
 namespace Framework\Debug;
 
+use \Framework\Core\Framework;
+
 class Error {
     /**
     * @var integer The ID of the module where the error originated.
@@ -95,7 +97,7 @@ class Error {
         }
         
         //Log the error into the database if in a production environment and database logging is enabled 
-        if(framework()->getEnvironment() == 'production') {
+        if(Framework::$environment == 'production') {
             //If the configuration has been loaded then attempt to log the error in the database.
             if(config('framework')->isLoaded()) {
                 try {
@@ -162,7 +164,7 @@ class Error {
         $is_error = false;
         
         $error = error_get_last();
-        
+
         if(!empty($error)) {
             switch($error['type']) {
                 case E_ERROR:

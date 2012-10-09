@@ -107,7 +107,7 @@ extends File {
         
         header("Content-type: image/png");
     
-        $this->full_path = "{$this->installation_path}/public/assets/images/not_found.png";
+        $this->full_path = self::$installation_path . "/public/assets/images/not_found.png";
     }
     
     /**
@@ -117,7 +117,7 @@ extends File {
      */
     private function resizeImage() {
         //If a width and height have been specified then resize a copy of the image to those dimensions and save the copy to the cache folder.
-        $image_cache_path = "{$this->installation_path}/cache/images";
+        $image_cache_path = self::$installation_path . "/cache/images";
         
         $image_cache_name = "{$this->module_name}_{$this->theme_name}_{$this->name}_{$this->width}_{$this->height}";
     

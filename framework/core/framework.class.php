@@ -34,14 +34,29 @@ namespace Framework\Core;
 
 class Framework {
     /**
-    * @var object The instance of this object for retrieval via getFramework().
+    * @var object The instance of this object for retrieval via getInstance.
     */
-    private static $instance;
+    public static $instance;
+    
+    /**
+    * @var string The path to the directory where the site is installed at.
+    */
+    public static $installation_path;
     
     /**
     * @var boolean A flag telling the framework to enable caching.
     */
     public static $enable_cache = false;
+    
+    /**
+    * @var string The context this framework is running in such as web, command-line, ajax, etc.
+    */
+    public static $mode;
+    
+    /**
+    * @var string The operating environment such as development, production, etc.
+    */
+    public static $environment;
     
     /**
     * @var object The framework error handler class name.
@@ -52,36 +67,11 @@ class Framework {
     * @var object The framework error handler.
     */
     public $error_handler;
-
-    /**
-    * @var string The context this framework is running in such as web, command-line, ajax, etc.
-    */
-    protected $mode;
     
-    /**
-    * @var string The operating environment such as development, production, etc.
-    */
-    protected $environment;
     /**
     * @var array A list of all classes available to the framework and their file path.
     */
     protected $available_classes;
-    
-    /**
-    * @var string The path to the directory where the site is installed at.
-    */
-    public $installation_path;
-    
-    /**
-     * Retrieves the stored instance of the framework.
-     *
-     * @return void
-     */
-    public static function getFramework() {
-        assert('is_object(self::$instance) && !empty(self::$instance)');
-        
-        return self::$instance;
-    }
     
     /**
      * Initializes a new instance of the framework.
@@ -95,15 +85,15 @@ class Framework {
         
         self::$instance = $this;
     
-        $this->mode = $mode;
+        self::$mode = $mode;
         
-        $this->installation_path = dirname(dirname(__DIR__));
+        self::$installation_path = dirname(dirname(__DIR__));
         
         //Load the global framework functions
-        require_once($this->installation_path . "/framework/core/framework_functions.php");
+        require_once(self::$installation_path . "/framework/core/framework_functions.php");
         
         //Set the framework autoloader.
-        set_include_path(get_include_path() . PATH_SEPARATOR . $this->installation_path);
+        set_include_path(get_include_path() . PATH_SEPARATOR . self::$installation_path);
         spl_autoload_extensions('.class.php');
         spl_autoload_register();
         
@@ -117,10 +107,10 @@ class Framework {
             config('framework')->load();
 
             //Retrieve the current environment
-            $this->environment = config('framework')->environment;
+            self::$environment = config('framework')->environment;
 
             //Initialize additional error handling
-            switch($this->environment) {
+            switch(self::$environment) {
                 case 'development':
                     $this->error_handler->initializeDevelopment();
                     break;
@@ -135,29 +125,18 @@ class Framework {
     }
     
     /**
+     * Executes the runtime after initialization.
+     *
+     * @return void
+     */
+    public function run() {}
+    
+    /**
      * Catches calls to undefined functions in this class to prevent fatal errors.
      *
      * @return void
      */
     public function __call($function_name, $arguments) {
         throw new \Exception("Function '{$function_name}' does not exist in this class.");
-    }
-
-    /**
-     * Retrieves the current mode.
-     *
-     * @return string
-     */
-    public function getMode() {
-        return $this->mode;
-    }
-    
-    /**
-     * Retrieves the current environment.
-     *
-     * @return string
-     */
-    public function getEnvironment() {
-        return $this->environment;
     }
 }

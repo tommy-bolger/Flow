@@ -14,11 +14,13 @@ RewriteRule ^assets/modules/((?!/)[a-zA-Z0-9\-]+)/((?!/)[a-zA-Z0-9\-]+)/((.*).(.
 
 RewriteRule ^(assets) - [L]
 
+# ----- Pages -----
+
 #Root directory page
-RewriteRule ^([a-z-]+)$ index.php?page=$1 [QSA,L,NC]
+RewriteRule ^((?!ajax/)([a-z-]+))$ index.php?page=$1 [QSA,L,NC]
 
 #Add on the home page if no page is present
-RewriteRule ^(.*)/$ $1/home [QSA,L,NC]
+RewriteRule ^((?!ajax/)(.*))/$ $1/home [QSA,L,NC]
 
 #Separate out the subdirectory path from the page
-RewriteRule ^(.*)/(.*)$ index.php?subd=$1&page=$2 [QSA,L,NC]
+RewriteRule ^((?!ajax/)(.*))/(.*)$ index.php?subd=$1&page=$2 [QSA,L,NC]
