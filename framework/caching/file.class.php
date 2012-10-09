@@ -32,6 +32,8 @@
 */
 namespace Framework\Caching;
 
+use \Framework\Core\Framework;
+
 class File {
     /**
     * @var string The default module name to use when calling file_cache() with no arguments. 
@@ -83,7 +85,7 @@ class File {
     public function __construct($module_name) {
         assert('!empty($module_name) && is_string($module_name)');
         
-        $this->directory_path = framework()->installation_path;
+        $this->directory_path = Framework::$installation_path;
     
         if($module_name != 'framework') {
             $this->directory_path .= "/modules/{$module_name}";

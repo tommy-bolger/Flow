@@ -165,7 +165,7 @@ class page {
      */
     public static function getPage() {
         if(!isset(self::$page)) {
-            throw new \Exception("The current page as not been instantiated and cannot be retrieved.");
+            //throw new \Exception("The current page as not been instantiated and cannot be retrieved.");
         }
     
         return self::$page;
@@ -178,7 +178,7 @@ class page {
      */
     public function __construct() {
         if(!isset($this->name)) {
-            $this->name = framework()->getPageClassName();
+            $this->name = Framework::$instance->getPageClassName();
         }
     
         //Add this header to help prevent clickjacking attacks in modern browsers
@@ -208,7 +208,7 @@ class page {
         $this->enable_javascript = config('framework')->enable_javascript;
         
         //Set the assets location
-        $this->assets_path = framework()->installation_path . '/public/assets';
+        $this->assets_path = Framework::$installation_path . '/public/assets';
     }
     
     /**
@@ -237,13 +237,23 @@ class page {
     
         return $this->body;
     }
+    
+    /**
+     * Sets the name of the page.
+     * 
+     * @param string $name The name of the page.        
+     * @return void
+     */
+    public function setName($name) {
+        $this->name = $name;
+    }
 
     /**
      * Retrieves the name of the page.
      *     
      * @return string
      */
-    public function getPageName() {
+    public function getName() {
         return $this->name;
     }
     
@@ -293,6 +303,16 @@ class page {
     }
     
     /**
+     * Sets the title for the page.
+     *
+     * @param string $title The title of the page.
+     * @return void
+     */
+    public function setTitle($title) {
+        $this->title = $title;
+    }
+    
+    /**
      * Adds a meta tag to the page.
      *
      * @param string $index_name The array key used to make this tag unique when stored in the $meta_tag class property.
@@ -301,7 +321,7 @@ class page {
      * @param string $content The value of the content attribute of the meta tag.
      * @return void
      */
-    protected function addMetaTag($index_name, $first_tag_name, $first_tag_value, $content) {
+    public function addMetaTag($index_name, $first_tag_name, $first_tag_value, $content) {
         $meta_tag = array(
             $first_tag_name => $first_tag_value,
             'content' => $content
@@ -556,7 +576,7 @@ class page {
         }
     
         if(!empty($this->internal_css_files)) {
-            if(framework()->getEnvironment() == 'production') {
+            if(Framework::$environment == 'production') {
                 $css_file_cache_name = $this->name . implode('-', $this->internal_css_files);
             
                 $css_hash_name = file_cache()->exists($css_file_cache_name, 'css/', 'gz');
@@ -614,7 +634,7 @@ class page {
         }
 
         if(!empty($this->internal_javascript_files)) {
-            if(framework()->getEnvironment() == 'production') {
+            if(Framework::$environment == 'production') {
                 $javascript_file_cache_name = $this->name . implode('-', $this->internal_javascript_files);
             
                 $javascript_hash_name = file_cache()->exists($javascript_file_cache_name, 'javascript/', 'gz');
@@ -764,11 +784,11 @@ class page {
     }
     
     /**
-     * Renders the page into html and outputs it to a user.
+     * Renders the page into html and returns it.
      *
-     * @return void
+     * @return string
      */
-    public function display() {
+    public function render() {
         $page_html = "";
 
         if(isset($this->template)) {
@@ -794,6 +814,6 @@ class page {
             ob_end_flush();
         }
         
-        echo $page_html;
+        return $page_html;
     }
 }

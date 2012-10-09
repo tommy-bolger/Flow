@@ -81,7 +81,11 @@ class Element {
 
         $this->text = $text;
         
-        $this->addElementFiles();
+        $page = page();
+
+        if(!empty($page)) {
+            $this->addElementFiles();
+        }
     }
     
     /**

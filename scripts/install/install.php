@@ -62,7 +62,7 @@ $framework = new Framework();
 
 print("done.\n");
 
-$installation_path = $framework->installation_path;
+$installation_path = Framework::$installation_path;
 
 /*
 * ----- Config directory path -----

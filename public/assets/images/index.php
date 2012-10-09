@@ -7,4 +7,4 @@ require_once("{$installation_path}/framework/core/modes/image.class.php");
 
 $framework = new Image();
 
-$framework->display();
+$framework->run();

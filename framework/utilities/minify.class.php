@@ -32,6 +32,8 @@
 */
 namespace Framework\Utilities;
 
+use \Framework\Core\Framework;
+
 class Minify {
     /**
     * Loads and returns all unminified data.
@@ -78,7 +80,7 @@ class Minify {
         $javascript_minifier = config('framework')->javascript_minifier;
         
         if($javascript_minifier != 'simple') {
-            $temp_file = framework()->installation_path . "/cache/{$minify_temp_name}";
+            $temp_file = Framework::$installation_path . "/cache/{$minify_temp_name}";
             $minified_temp_file = "{$temp_file}_minified";
             
             //Write the unminified data to a temp file

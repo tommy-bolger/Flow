@@ -42,7 +42,7 @@ function display_help() {
 
 $framework = new Framework('cli');
 
-$installation_path = $framework->installation_path;
+$installation_path = Framework::$installation_path;
 
 $arguments = getopt('m:t:h');
 

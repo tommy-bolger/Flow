@@ -32,6 +32,7 @@
 */
 namespace Framework\Modules;
 
+use \Framework\Core\Framework;
 use \Framework\Html\Page;
 use \Framework\Core\Configuration;
 use \Framework\Display\Template;
@@ -89,7 +90,7 @@ extends Page {
         
         //Add the current module style's error page template to display for errors if it exists.
         if($module_name != 'admin') {
-            framework()->error_handler->setTemplatePath("{$module_templates_path}/error_template.php");
+            Framework::$instance->error_handler->setTemplatePath("{$module_templates_path}/error_template.php");
         }
     }
 }

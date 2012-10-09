@@ -32,6 +32,8 @@
 */
 namespace Framework\Utilities;
 
+use \Framework\Core\Framework;
+
 final class Http {
     /**
     * @var string The base url of the current site. Acts as a cache so it is not generated more than once.
@@ -44,8 +46,17 @@ final class Http {
     * @param string $redirect_location The class name to redirect to.
     * @return void   
     */
-    public static function redirect($redirect_location) {
-        header("Location: {$redirect_location}");
+    public static function redirect($redirect_location) {            
+        switch(Framework::$mode) {
+            case 'page':
+                header("Location: {$redirect_location}");
+                break;
+            case 'ajax':
+                echo json_encode(array(
+                    'redirect_location' => $redirect_location 
+                ));
+                break;
+        }
         
         exit;
     }
@@ -88,9 +99,12 @@ final class Http {
             $script_path = $_SERVER['SCRIPT_NAME'];
             
             if(!empty($script_path)) {
-                 self::$base_url .= rtrim(str_replace('index.php', '', $script_path), '/');
+                self::$base_url .= rtrim(str_replace(array(
+                    'index.php',
+                    'ajax/'
+                ), '', $script_path), '/');
             }
-            
+
             self::$base_url .= '/';
         }
         
@@ -105,7 +119,7 @@ final class Http {
     * @return string The page url.
     */
     public static function getPageUrl($query_string_parameters = array(), $module_name = '') {
-        return Http::getCurrentLevelPageUrl(framework()->getPageClassName(), $query_string_parameters, $module_name);
+        return Http::getCurrentLevelPageUrl(Framework::$instance->getPageClassName(), $query_string_parameters, $module_name);
     }
     
     /**
@@ -199,7 +213,7 @@ final class Http {
         }
         
         if(!empty($page_path)) {
-            if(config('framework')->environment == 'development') {
+            if(Framework::$environment == 'development') {
                 $url .= '?' . http_build_query($page_path);
             }
             else {
@@ -245,7 +259,7 @@ final class Http {
     * @return string
     */
     public static function getHigherLevelPageUrl($page_name = '', $query_string_parameters = array(), $module_name = '') {    
-        $subdirectory_path = framework()->getSubdirectories();
+        $subdirectory_path = Framework::$instance->getHttpSubPath();
         array_pop($subdirectory_path);
 
         return self::getInternalUrl($module_name, $subdirectory_path, $page_name, $query_string_parameters);
@@ -260,7 +274,7 @@ final class Http {
     * @return string
     */
     public static function getCurrentLevelPageUrl($page_name = '', $query_string_parameters = array(), $module_name = '') {
-        return self::getInternalUrl($module_name, framework()->getSubdirectories(), $page_name, $query_string_parameters);
+        return self::getInternalUrl($module_name, Framework::$instance->getHttpSubPath(), $page_name, $query_string_parameters);
     }
     
     /**
@@ -275,7 +289,7 @@ final class Http {
     public static function getLowerLevelPageUrl($subdirectories, $page_name = '', $query_string_parameters = array(), $module_name = '') {
         assert('is_array($subdirectories)');
     
-        $subdirectory_path = array_merge(framework()->getSubdirectories(), $subdirectories);
+        $subdirectory_path = array_merge(Framework::$instance->getHttpSubPath(), $subdirectories);
 
         return self::getInternalUrl($module_name, $subdirectory_path, $page_name, $query_string_parameters);
     }

@@ -67,7 +67,7 @@ class Module {
         
         $this->loadConfiguration();
         
-        framework()->error_handler->setModuleId($this->id);
+        Framework::$instance->error_handler->setModuleId($this->id);
     }
     
     /**
@@ -142,7 +142,7 @@ class Module {
      * @return array
      */
     public static function getInstalledModules() {
-        $modules_directory = opendir(framework()->installation_path . "/modules");
+        $modules_directory = opendir(Framework::$installation_path . "/modules");
         
         $modules = array();
 

@@ -11,7 +11,7 @@ require_once("{$installation_path}/framework/core/framework.class.php");
 
 $framework = new Framework('web_content');
 
-if($framework->getEnvironment() == 'production') {
+if(Framework::$environment == 'production') {
     header('Content-Encoding: gzip');
 
     $javascript_file_name = request()->get->file;

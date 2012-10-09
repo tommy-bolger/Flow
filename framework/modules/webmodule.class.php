@@ -32,6 +32,7 @@
 */
 namespace Framework\Modules;
 
+use \Framework\Core\Framework;
 use \Framework\Utilities\Http;
 
 class WebModule 
@@ -92,7 +93,7 @@ extends Module {
         
         $this->theme = $this->configuration->theme;
         
-        $page_assets_path = framework()->installation_path;
+        $page_assets_path = Framework::$installation_path;
         
         //Set the module's assets path
         $this->assets_path = "{$page_assets_path}/modules/{$module_name}/assets";

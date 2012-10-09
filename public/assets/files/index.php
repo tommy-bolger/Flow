@@ -7,4 +7,4 @@ require_once("{$installation_path}/framework/core/modes/file.class.php");
 
 $framework = new File();
 
-$framework->display();
+$framework->run();
