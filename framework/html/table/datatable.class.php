@@ -143,6 +143,7 @@ extends Table {
         $this->table_form = new Form("{$table_name}_form", Http::getPageUrl(), 'post', false);
         
         $this->table_form->removeAttribute('id');
+        $this->table_form->addClass('full_submit');
         
         $this->getTableState();
         

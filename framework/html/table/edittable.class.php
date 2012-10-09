@@ -303,6 +303,7 @@ extends Table {
 
         if(!empty($filter_options)) {            
             $this->record_filter_form = new Form("{$this->name}_filter_form", Http::getPageUrl(array(), self::$module_name), 'post', false);
+            $this->record_filter_form->addClass('full_submit');
             
             $filter_options_name = "{$this->name}_filter_dropdown";
             

@@ -66,7 +66,7 @@ extends EditTable {
      * @return void
      */
     public function __construct($table_name, $edit_table_name, $table_id_field, $table_sort_field, $page_filter_columns = array(), $filter_options = array()) {
-        parent::__construct($table_name, $edit_table_name, page()->getPageName(), $table_id_field, $table_sort_field, $page_filter_columns, $filter_options);
+        parent::__construct($table_name, $edit_table_name, page()->getName(), $table_id_field, $table_sort_field, $page_filter_columns, $filter_options);
         
         $this->setFormVisibility();
     }
