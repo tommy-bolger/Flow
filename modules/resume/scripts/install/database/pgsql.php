@@ -6,7 +6,7 @@
         'enabled' => 1
     ));
     
-    $module_id = db()->lastInsertId('cm_module_id_seq');
+    $module_id = db()->lastInsertId('cms_modules_seq');
 ?>
 SET statement_timeout = 0;
 SET client_encoding = 'UTF8';
@@ -34,14 +34,14 @@ CREATE TABLE resume_code_example_skills (
     sort_order smallint NOT NULL
 );
 
-CREATE SEQUENCE rces_code_example_skill_id_seq
+CREATE SEQUENCE resume_code_example_skills_seq
     START WITH 1
     INCREMENT BY 1
     NO MAXVALUE
     NO MINVALUE
     CACHE 1;
 
-ALTER SEQUENCE rces_code_example_skill_id_seq OWNED BY resume_code_example_skills.code_example_skill_id;
+ALTER SEQUENCE resume_code_example_skills_seq OWNED BY resume_code_example_skills.code_example_skill_id;
 
 
 CREATE TABLE resume_code_examples (
@@ -55,14 +55,14 @@ CREATE TABLE resume_code_examples (
     work_history_id integer
 );
 
-CREATE SEQUENCE rce_code_example_id_seq
+CREATE SEQUENCE resume_code_examples_seq
     START WITH 1
     INCREMENT BY 1
     NO MAXVALUE
     NO MINVALUE
     CACHE 1;
 
-ALTER SEQUENCE rce_code_example_id_seq OWNED BY resume_code_examples.code_example_id;
+ALTER SEQUENCE resume_code_examples_seq OWNED BY resume_code_examples.code_example_id;
 
 
 CREATE TABLE resume_degree_levels (
@@ -84,14 +84,14 @@ CREATE TABLE resume_education (
     sort_order smallint
 );
 
-CREATE SEQUENCE re_education_id_seq
+CREATE SEQUENCE resume_education_seq
     START WITH 1
     INCREMENT BY 1
     NO MAXVALUE
     NO MINVALUE
     CACHE 1;
 
-ALTER SEQUENCE re_education_id_seq OWNED BY resume_education.education_id;
+ALTER SEQUENCE resume_education_seq OWNED BY resume_education.education_id;
 
 
 CREATE TABLE resume_general_information (
@@ -121,14 +121,14 @@ CREATE TABLE resume_portfolio_project_images (
     description text
 );
 
-CREATE SEQUENCE rppi_portfolio_project_image_id_seq
+CREATE SEQUENCE resume_portfolio_project_images_seq
     START WITH 1
     INCREMENT BY 1
     NO MAXVALUE
     NO MINVALUE
     CACHE 1;
 
-ALTER SEQUENCE rppi_portfolio_project_image_id_seq OWNED BY resume_portfolio_project_images.portfolio_project_image_id;
+ALTER SEQUENCE resume_portfolio_project_images_seq OWNED BY resume_portfolio_project_images.portfolio_project_image_id;
 
 
 CREATE TABLE resume_portfolio_project_skills (
@@ -138,14 +138,14 @@ CREATE TABLE resume_portfolio_project_skills (
     sort_order smallint NOT NULL
 );
 
-CREATE SEQUENCE rpps_portfolio_project_skill_id_seq
+CREATE SEQUENCE resume_portfolio_project_skills_seq
     START WITH 1
     INCREMENT BY 1
     NO MAXVALUE
     NO MINVALUE
     CACHE 1;
 
-ALTER SEQUENCE rpps_portfolio_project_skill_id_seq OWNED BY resume_portfolio_project_skills.portfolio_project_skill_id;
+ALTER SEQUENCE resume_portfolio_project_skills_seq OWNED BY resume_portfolio_project_skills.portfolio_project_skill_id;
 
 
 CREATE TABLE resume_portfolio_projects (
@@ -158,14 +158,14 @@ CREATE TABLE resume_portfolio_projects (
     work_history_id integer
 );
 
-CREATE SEQUENCE rpp_portfolio_project_id_seq
+CREATE SEQUENCE resume_portfolio_projects_seq
     START WITH 1
     INCREMENT BY 1
     NO MAXVALUE
     NO MINVALUE
     CACHE 1;
 
-ALTER SEQUENCE rpp_portfolio_project_id_seq OWNED BY resume_portfolio_projects.portfolio_project_id;
+ALTER SEQUENCE resume_portfolio_projects_seq OWNED BY resume_portfolio_projects.portfolio_project_id;
 
 
 CREATE TABLE resume_proficiency_levels (
@@ -180,14 +180,14 @@ CREATE TABLE resume_skill_categories (
     sort_order smallint NOT NULL
 );
 
-CREATE SEQUENCE rsc_skill_category_id_seq
+CREATE SEQUENCE resume_skill_categories_seq
     START WITH 1
     INCREMENT BY 1
     NO MAXVALUE
     NO MINVALUE
     CACHE 1;
 
-ALTER SEQUENCE rsc_skill_category_id_seq OWNED BY resume_skill_categories.skill_category_id;
+ALTER SEQUENCE resume_skill_categories_seq OWNED BY resume_skill_categories.skill_category_id;
 
 
 CREATE TABLE resume_skills (
@@ -200,14 +200,14 @@ CREATE TABLE resume_skills (
 );
 
 
-CREATE SEQUENCE rs_skill_id_seq
+CREATE SEQUENCE resume_skills_seq
     START WITH 1
     INCREMENT BY 1
     NO MAXVALUE
     NO MINVALUE
     CACHE 1;
 
-ALTER SEQUENCE rs_skill_id_seq OWNED BY resume_skills.skill_id;
+ALTER SEQUENCE resume_skills_seq OWNED BY resume_skills.skill_id;
 
 
 CREATE TABLE resume_work_history (
@@ -217,14 +217,14 @@ CREATE TABLE resume_work_history (
     sort_order smallint NOT NULL
 );
 
-CREATE SEQUENCE rwh_work_history_id_seq
+CREATE SEQUENCE resume_work_history_seq
     START WITH 1
     INCREMENT BY 1
     NO MAXVALUE
     NO MINVALUE
     CACHE 1;
 
-ALTER SEQUENCE rwh_work_history_id_seq OWNED BY resume_work_history.work_history_id;
+ALTER SEQUENCE resume_work_history_seq OWNED BY resume_work_history.work_history_id;
 
 
 CREATE TABLE resume_work_history_durations (
@@ -235,14 +235,14 @@ CREATE TABLE resume_work_history_durations (
     end_date date
 );
 
-CREATE SEQUENCE rwhd_work_history_duration_id_seq
+CREATE SEQUENCE resume_work_history_durations_seq
     START WITH 1
     INCREMENT BY 1
     NO MAXVALUE
     NO MINVALUE
     CACHE 1;
 
-ALTER SEQUENCE rwhd_work_history_duration_id_seq OWNED BY resume_work_history_durations.work_history_duration_id;
+ALTER SEQUENCE resume_work_history_durations_seq OWNED BY resume_work_history_durations.work_history_duration_id;
 
 
 CREATE TABLE resume_work_history_tasks (
@@ -252,39 +252,39 @@ CREATE TABLE resume_work_history_tasks (
     sort_order smallint NOT NULL
 );
 
-CREATE SEQUENCE rwht_work_history_task_id_seq
+CREATE SEQUENCE resume_work_history_tasks_seq
     START WITH 1
     INCREMENT BY 1
     NO MAXVALUE
     NO MINVALUE
     CACHE 1;
 
-ALTER SEQUENCE rwht_work_history_task_id_seq OWNED BY resume_work_history_tasks.work_history_task_id;
+ALTER SEQUENCE resume_work_history_tasks_seq OWNED BY resume_work_history_tasks.work_history_task_id;
 
 
 -- Set Primary Key Auto Increment Default Value --
 
-ALTER TABLE resume_code_example_skills ALTER COLUMN code_example_skill_id SET DEFAULT nextval('rces_code_example_skill_id_seq'::regclass);
+ALTER TABLE resume_code_example_skills ALTER COLUMN code_example_skill_id SET DEFAULT nextval('resume_code_example_skills_seq'::regclass);
 
-ALTER TABLE resume_code_examples ALTER COLUMN code_example_id SET DEFAULT nextval('rce_code_example_id_seq'::regclass);
+ALTER TABLE resume_code_examples ALTER COLUMN code_example_id SET DEFAULT nextval('resume_code_examples_seq'::regclass);
 
-ALTER TABLE resume_education ALTER COLUMN education_id SET DEFAULT nextval('re_education_id_seq'::regclass);
+ALTER TABLE resume_education ALTER COLUMN education_id SET DEFAULT nextval('resume_education_seq'::regclass);
 
-ALTER TABLE resume_portfolio_project_images ALTER COLUMN portfolio_project_image_id SET DEFAULT nextval('rppi_portfolio_project_image_id_seq'::regclass);
+ALTER TABLE resume_portfolio_project_images ALTER COLUMN portfolio_project_image_id SET DEFAULT nextval('resume_portfolio_project_images_seq'::regclass);
 
-ALTER TABLE resume_portfolio_project_skills ALTER COLUMN portfolio_project_skill_id SET DEFAULT nextval('rpps_portfolio_project_skill_id_seq'::regclass);
+ALTER TABLE resume_portfolio_project_skills ALTER COLUMN portfolio_project_skill_id SET DEFAULT nextval('resume_portfolio_project_skills_seq'::regclass);
 
-ALTER TABLE resume_portfolio_projects ALTER COLUMN portfolio_project_id SET DEFAULT nextval('rpp_portfolio_project_id_seq'::regclass);
+ALTER TABLE resume_portfolio_projects ALTER COLUMN portfolio_project_id SET DEFAULT nextval('resume_portfolio_projects_seq'::regclass);
 
-ALTER TABLE resume_skill_categories ALTER COLUMN skill_category_id SET DEFAULT nextval('rsc_skill_category_id_seq'::regclass);
+ALTER TABLE resume_skill_categories ALTER COLUMN skill_category_id SET DEFAULT nextval('resume_skill_categories_seq'::regclass);
 
-ALTER TABLE resume_skills ALTER COLUMN skill_id SET DEFAULT nextval('rs_skill_id_seq'::regclass);
+ALTER TABLE resume_skills ALTER COLUMN skill_id SET DEFAULT nextval('resume_skills_seq'::regclass);
 
-ALTER TABLE resume_work_history ALTER COLUMN work_history_id SET DEFAULT nextval('rwh_work_history_id_seq'::regclass);
+ALTER TABLE resume_work_history ALTER COLUMN work_history_id SET DEFAULT nextval('resume_work_history_seq'::regclass);
 
-ALTER TABLE resume_work_history_durations ALTER COLUMN work_history_duration_id SET DEFAULT nextval('rwhd_work_history_duration_id_seq'::regclass);
+ALTER TABLE resume_work_history_durations ALTER COLUMN work_history_duration_id SET DEFAULT nextval('resume_work_history_duration_seq'::regclass);
 
-ALTER TABLE resume_work_history_tasks ALTER COLUMN work_history_task_id SET DEFAULT nextval('rwht_work_history_task_id_seq'::regclass);
+ALTER TABLE resume_work_history_tasks ALTER COLUMN work_history_task_id SET DEFAULT nextval('resume_work_history_tasks_seq'::regclass);
 
 
 -- Table Rows --

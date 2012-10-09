@@ -53,6 +53,11 @@ class Database {
     protected $database_connection;
     
     /**
+    * @var string The name of the loaded database driver (mysql, pgsql, etc.).
+    */
+    protected $database_driver_name;
+    
+    /**
     * @var boolean A flag to determine whether to use the error handler or exception handler.
     */
     private $use_error_handler = true;
@@ -144,6 +149,8 @@ class Database {
         $this->database_connection = new PDO($dsn, $username, $password, array(PDO::ATTR_ERRMODE => PDO::ERRMODE_WARNING));
         
         $this->useExceptionHandler();
+        
+        $this->database_driver_name = $this->database_connection->getAttribute(PDO::ATTR_DRIVER_NAME);
     }
     
     /**
@@ -619,9 +626,15 @@ class Database {
     public function insert($table_name, $fields = array(), $query_name = '') {
         assert('is_array($fields)');
     
-          $this->generateQuery('insert', $table_name, $fields, NULL, NULL, $query_name);
+        $this->generateQuery('insert', $table_name, $fields, NULL, NULL, $query_name);
+          
+        $sequence_name = NULL;
+          
+        if($this->database_driver_name == 'pgsql') {
+            $sequence_name = "{$table_name}_seq";
+        }
 
-          return $this->database_connection->lastInsertId();
+        return $this->database_connection->lastInsertId();
     }
     
     /**

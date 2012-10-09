@@ -23,14 +23,14 @@ CREATE TABLE cms_ad_campaign_affiliation (
   show_chance_percentage smallint DEFAULT 0 NOT NULL
 );
 
-CREATE SEQUENCE caca_ad_campaign_affiliation_id_seq
+CREATE SEQUENCE cms_ad_campaign_affiliation_seq
     START WITH 1
     INCREMENT BY 1
     NO MAXVALUE
     NO MINVALUE
     CACHE 1;
 
-ALTER SEQUENCE caca_ad_campaign_affiliation_id_seq OWNED BY cms_ad_campaign_affiliation.ad_campaign_affiliation_id;
+ALTER SEQUENCE cms_ad_campaign_affiliation_seq OWNED BY cms_ad_campaign_affiliation.ad_campaign_affiliation_id;
 
 
 CREATE TABLE cms_ad_campaigns (
@@ -41,14 +41,14 @@ CREATE TABLE cms_ad_campaigns (
   is_active smallint DEFAULT 0 NOT NULL
 );
 
-CREATE SEQUENCE cac_ad_campaign_id_seq
+CREATE SEQUENCE cms_ad_campaigns_seq
     START WITH 1
     INCREMENT BY 1
     NO MAXVALUE
     NO MINVALUE
     CACHE 1;
 
-ALTER SEQUENCE cac_ad_campaign_id_seq OWNED BY cms_ad_campaigns.ad_campaign_id;
+ALTER SEQUENCE cms_ad_campaigns_seq OWNED BY cms_ad_campaigns.ad_campaign_id;
 
 
 CREATE TABLE cms_ads (
@@ -59,14 +59,14 @@ CREATE TABLE cms_ads (
   is_active smallint DEFAULT 0 NOT NULL
 );
 
-CREATE SEQUENCE ca_ad_id_seq
+CREATE SEQUENCE cms_ads_seq
     START WITH 1
     INCREMENT BY 1
     NO MAXVALUE
     NO MINVALUE
     CACHE 1;
 
-ALTER SEQUENCE ca_ad_id_seq OWNED BY cms_ads.ad_id;
+ALTER SEQUENCE cms_ads_seq OWNED BY cms_ads.ad_id;
 
 
 CREATE TABLE cms_banned_ip_addresses (
@@ -75,14 +75,14 @@ CREATE TABLE cms_banned_ip_addresses (
   expiration_time timestamp without time zone
 );
 
-CREATE SEQUENCE cbia_banned_ip_address_id_seq
+CREATE SEQUENCE cms_banned_ip_addresses_seq
     START WITH 1
     INCREMENT BY 1
     NO MAXVALUE
     NO MINVALUE
     CACHE 1;
 
-ALTER SEQUENCE cbia_banned_ip_address_id_seq OWNED BY cms_banned_ip_addresses.banned_ip_address_id;
+ALTER SEQUENCE cms_banned_ip_addresses_seq OWNED BY cms_banned_ip_addresses.banned_ip_address_id;
 
 
 CREATE TABLE cms_censored_words (
@@ -91,14 +91,14 @@ CREATE TABLE cms_censored_words (
   translated_to character varying(255) DEFAULT '[CENSORED]' NOT NULL
 );
 
-CREATE SEQUENCE ccw_censored_word_id_seq
+CREATE SEQUENCE cms_censored_words_seq
     START WITH 1
     INCREMENT BY 1
     NO MAXVALUE
     NO MINVALUE
     CACHE 1;
 
-ALTER SEQUENCE ccw_censored_word_id_seq OWNED BY cms_censored_words.censored_word_id;
+ALTER SEQUENCE cms_censored_words_seq OWNED BY cms_censored_words.censored_word_id;
 
 
 CREATE TABLE cms_configuration_parameters (
@@ -114,16 +114,16 @@ CREATE TABLE cms_configuration_parameters (
     has_value_list smallint DEFAULT 0 NOT NULL
 );
 
-CREATE SEQUENCE ccp_configuration_parameter_id_seq
+CREATE SEQUENCE cms_configuration_parameters_seq
     START WITH 1
     INCREMENT BY 1
     NO MAXVALUE
     NO MINVALUE
     CACHE 1;
 
-ALTER SEQUENCE ccp_configuration_parameter_id_seq OWNED BY cms_configuration_parameters.configuration_parameter_id;
+ALTER SEQUENCE cms_configuration_parameters_seq OWNED BY cms_configuration_parameters.configuration_parameter_id;
 
-SELECT pg_catalog.setval('ccp_configuration_parameter_id_seq', 14, true);
+SELECT pg_catalog.setval('cms_configuration_parameters_seq', 14, true);
 
 
 CREATE TABLE cms_errors (
@@ -137,14 +137,14 @@ CREATE TABLE cms_errors (
     module_id integer
 );
 
-CREATE SEQUENCE ce_error_id_seq
+CREATE SEQUENCE cms_errors_seq
     START WITH 1
     INCREMENT BY 1
     NO MAXVALUE
     NO MINVALUE
     CACHE 1;
 
-ALTER SEQUENCE ce_error_id_seq OWNED BY cms_errors.error_id;
+ALTER SEQUENCE cms_errors_seq OWNED BY cms_errors.error_id;
 
 
 CREATE TABLE cms_meta_settings (
@@ -157,14 +157,14 @@ CREATE TABLE cms_meta_settings (
   sort_order smallint NOT NULL
 );
 
-CREATE SEQUENCE cms_meta_setting_id_seq
+CREATE SEQUENCE cms_meta_settings_seq
     START WITH 1
     INCREMENT BY 1
     NO MAXVALUE
     NO MINVALUE
     CACHE 1;
 
-ALTER SEQUENCE cms_meta_setting_id_seq OWNED BY cms_meta_settings.meta_setting_id;
+ALTER SEQUENCE cms_meta_settings_seq OWNED BY cms_meta_settings.meta_setting_id;
 
 
 CREATE TABLE cms_modules (
@@ -175,16 +175,16 @@ CREATE TABLE cms_modules (
     enabled smallint DEFAULT 0 NOT NULL
 );
 
-CREATE SEQUENCE cm_module_id_seq
+CREATE SEQUENCE cms_modules_seq
     START WITH 1
     INCREMENT BY 1
     NO MAXVALUE
     NO MINVALUE
     CACHE 1;
 
-ALTER SEQUENCE cm_module_id_seq OWNED BY cms_modules.module_id;
+ALTER SEQUENCE cms_modules_seq OWNED BY cms_modules.module_id;
 
-SELECT pg_catalog.setval('cm_module_id_seq', 1, true);
+SELECT pg_catalog.setval('cms_modules_seq', 1, true);
 
 
 CREATE TABLE cms_parameter_data_types (
@@ -200,16 +200,16 @@ CREATE TABLE cms_parameter_values (
     configuration_parameter_id integer NOT NULL
 );
 
-CREATE SEQUENCE cpv_parameter_value_id_seq
+CREATE SEQUENCE cms_parameter_values_seq
     START WITH 1
     INCREMENT BY 1
     NO MAXVALUE
     NO MINVALUE
     CACHE 1;
 
-ALTER SEQUENCE cpv_parameter_value_id_seq OWNED BY cms_parameter_values.parameter_value_id;
+ALTER SEQUENCE cms_parameter_values_seq OWNED BY cms_parameter_values.parameter_value_id;
 
-SELECT pg_catalog.setval('cpv_parameter_value_id_seq', 8, true);
+SELECT pg_catalog.setval('cms_parameter_values_seq', 8, true);
 
 
 CREATE TABLE cms_permissions (
@@ -221,14 +221,14 @@ CREATE TABLE cms_permissions (
     smallint integer NOT NULL
 );
 
-CREATE SEQUENCE cp_permission_id_seq
+CREATE SEQUENCE cms_permissions_seq
     START WITH 1
     INCREMENT BY 1
     NO MAXVALUE
     NO MINVALUE
     CACHE 1;
     
-ALTER SEQUENCE cp_permission_id_seq OWNED BY cms_permissions.permission_id;
+ALTER SEQUENCE cms_permissions_seq OWNED BY cms_permissions.permission_id;
 
 
 CREATE TABLE cms_role_permission_affiliation (
@@ -238,14 +238,14 @@ CREATE TABLE cms_role_permission_affiliation (
     can smallint DEFAULT 0 NOT NULL
 );
 
-CREATE SEQUENCE crpa_role_permission_affiliation_id_
+CREATE SEQUENCE cms_role_permission_affiliation_seq
     START WITH 1
     INCREMENT BY 1
     NO MAXVALUE
     NO MINVALUE
     CACHE 1;
 
-ALTER SEQUENCE crpa_role_permission_affiliation_id_ OWNED BY cms_role_permission_affiliation.role_permission_affiliation_id;
+ALTER SEQUENCE cms_role_permission_affiliation_seq OWNED BY cms_role_permission_affiliation.role_permission_affiliation_id;
 
 
 CREATE TABLE cms_roles (
@@ -255,14 +255,14 @@ CREATE TABLE cms_roles (
     sort_order smallint NOT NULL
 );
 
-CREATE SEQUENCE cr_role_id_seq
+CREATE SEQUENCE cms_roles_seq
     START WITH 1
     INCREMENT BY 1
     NO MAXVALUE
     NO MINVALUE
     CACHE 1;
 
-ALTER SEQUENCE cr_role_id_seq OWNED BY cms_roles.role_id;
+ALTER SEQUENCE cms_roles_seq OWNED BY cms_roles.role_id;
 
 
 CREATE TABLE cms_sessions (
@@ -283,14 +283,14 @@ CREATE TABLE cms_static_pages (
   is_active smallint NOT NULL
 );
 
-CREATE SEQUENCE csp_static_page_id_seq
+CREATE SEQUENCE cms_static_pages_seq
     START WITH 1
     INCREMENT BY 1
     NO MAXVALUE
     NO MINVALUE
     CACHE 1;
 
-ALTER SEQUENCE csp_static_page_id_seq OWNED BY cms_static_pages.static_page_id;
+ALTER SEQUENCE cms_static_pages_seq OWNED BY cms_static_pages.static_page_id;
 
 
 CREATE TABLE cms_update_types (
@@ -298,14 +298,14 @@ CREATE TABLE cms_update_types (
   update_type character varying(50) NOT NULL
 );
 
-CREATE SEQUENCE cut_update_type_id_seq
+CREATE SEQUENCE cms_update_types_seq
     START WITH 1
     INCREMENT BY 1
     NO MAXVALUE
     NO MINVALUE
     CACHE 1;
 
-ALTER SEQUENCE cut_update_type_id_seq OWNED BY cms_update_types.update_type_id;
+ALTER SEQUENCE cms_update_types_seq OWNED BY cms_update_types.update_type_id;
 
 
 CREATE TABLE cms_updates (
@@ -317,14 +317,14 @@ CREATE TABLE cms_updates (
   run smallint DEFAULT 0 NOT NULL
 );
 
-CREATE SEQUENCE cu_update_id_seq
+CREATE SEQUENCE cms_updates_seq
     START WITH 1
     INCREMENT BY 1
     NO MAXVALUE
     NO MINVALUE
     CACHE 1;
 
-ALTER SEQUENCE cu_update_id_seq OWNED BY cms_updates.update_id;
+ALTER SEQUENCE cms_updates_seq OWNED BY cms_updates.update_id;
 
 
 CREATE TABLE cms_us_states (
@@ -340,14 +340,14 @@ CREATE TABLE cms_user_role_affiliation (
     role_id integer NOT NULL
 );
 
-CREATE SEQUENCE cura_user_role_affiliation_id_seq
+CREATE SEQUENCE cms_user_role_affiliation_seq
     START WITH 1
     INCREMENT BY 1
     NO MAXVALUE
     NO MINVALUE
     CACHE 1;
 
-ALTER SEQUENCE cura_user_role_affiliation_id_seq OWNED BY cms_user_role_affiliation.user_role_affiliation_id;
+ALTER SEQUENCE cms_user_role_affiliation_seq OWNED BY cms_user_role_affiliation.user_role_affiliation_id;
 
 
 CREATE TABLE cms_users (
@@ -358,14 +358,14 @@ CREATE TABLE cms_users (
     is_site_admin smallint DEFAULT 0 NOT NULL
 );
 
-CREATE SEQUENCE cu_user_id_seq
+CREATE SEQUENCE cms_users_seq
     START WITH 1
     INCREMENT BY 1
     NO MAXVALUE
     NO MINVALUE
     CACHE 1;
 
-ALTER SEQUENCE cu_user_id_seq OWNED BY cms_users.user_id;
+ALTER SEQUENCE cms_users_seq OWNED BY cms_users.user_id;
 
 
 CREATE TABLE cms_versions (
@@ -375,54 +375,54 @@ CREATE TABLE cms_versions (
   finished smallint DEFAULT 0 NOT NULL
 );
 
-CREATE SEQUENCE cv_version_id_seq
+CREATE SEQUENCE cms_versions_seq
     START WITH 1
     INCREMENT BY 1
     NO MAXVALUE
     NO MINVALUE
     CACHE 1;
 
-ALTER SEQUENCE cv_version_id_seq OWNED BY cms_versions.version_id;
+ALTER SEQUENCE cms_versions_seq OWNED BY cms_versions.version_id;
 
 -- Set Primary Key Auto Increment Default Value --
 
-ALTER TABLE cms_ad_campaign_affiliation ALTER COLUMN ad_campaign_affiliation_id SET DEFAULT nextval('caca_ad_campaign_affiliation_id_seq'::regclass);
+ALTER TABLE cms_ad_campaign_affiliation ALTER COLUMN ad_campaign_affiliation_id SET DEFAULT nextval('cms_ad_campaign_affiliation_seq'::regclass);
 
-ALTER TABLE cms_ad_campaigns ALTER COLUMN ad_campaign_id SET DEFAULT nextval('cac_ad_campaign_id_seq'::regclass);
+ALTER TABLE cms_ad_campaigns ALTER COLUMN ad_campaign_id SET DEFAULT nextval('cms_ad_campaigns_seq'::regclass);
 
-ALTER TABLE cms_ads ALTER COLUMN ad_id SET DEFAULT nextval('ca_ad_id_seq'::regclass);
+ALTER TABLE cms_ads ALTER COLUMN ad_id SET DEFAULT nextval('cms_ads_seq'::regclass);
 
-ALTER TABLE cms_banned_ip_addresses ALTER COLUMN banned_ip_address_id SET DEFAULT nextval('cbia_banned_ip_address_id_seq'::regclass);
+ALTER TABLE cms_banned_ip_addresses ALTER COLUMN banned_ip_address_id SET DEFAULT nextval('cms_banned_ip_addresses_seq'::regclass);
 
-ALTER TABLE cms_censored_words ALTER COLUMN censored_word_id SET DEFAULT nextval('ccw_censored_word_id_seq'::regclass);
+ALTER TABLE cms_censored_words ALTER COLUMN censored_word_id SET DEFAULT nextval('cms_censored_words_seq'::regclass);
 
-ALTER TABLE cms_configuration_parameters ALTER COLUMN configuration_parameter_id SET DEFAULT nextval('ccp_configuration_parameter_id_seq'::regclass);
+ALTER TABLE cms_configuration_parameters ALTER COLUMN configuration_parameter_id SET DEFAULT nextval('cms_configuration_parameters_seq'::regclass);
 
-ALTER TABLE cms_errors ALTER COLUMN error_id SET DEFAULT nextval('ce_error_id_seq'::regclass);
+ALTER TABLE cms_errors ALTER COLUMN error_id SET DEFAULT nextval('cms_errors_seq'::regclass);
 
-ALTER TABLE cms_meta_settings ALTER COLUMN meta_setting_id SET DEFAULT nextval('cms_meta_setting_id_seq'::regclass);
+ALTER TABLE cms_meta_settings ALTER COLUMN meta_setting_id SET DEFAULT nextval('cms_meta_settings_seq'::regclass);
 
-ALTER TABLE cms_modules ALTER COLUMN module_id SET DEFAULT nextval('cm_module_id_seq'::regclass);
+ALTER TABLE cms_modules ALTER COLUMN module_id SET DEFAULT nextval('cms_modules_seq'::regclass);
 
-ALTER TABLE cms_parameter_values ALTER COLUMN parameter_value_id SET DEFAULT nextval('cpv_parameter_value_id_seq'::regclass);
+ALTER TABLE cms_parameter_values ALTER COLUMN parameter_value_id SET DEFAULT nextval('cms_parameter_values_seq'::regclass);
 
-ALTER TABLE cms_permissions ALTER COLUMN permission_id SET DEFAULT nextval('cp_permission_id_seq'::regclass);
+ALTER TABLE cms_permissions ALTER COLUMN permission_id SET DEFAULT nextval('cms_permissions_seq'::regclass);
 
-ALTER TABLE cms_role_permission_affiliation ALTER COLUMN role_permission_affiliation_id SET DEFAULT nextval('crpa_role_permission_affiliation_id_'::regclass);
+ALTER TABLE cms_role_permission_affiliation ALTER COLUMN role_permission_affiliation_id SET DEFAULT nextval('cms_role_permission_affiliation_seq'::regclass);
 
-ALTER TABLE cms_roles ALTER COLUMN role_id SET DEFAULT nextval('cr_role_id_seq'::regclass);
+ALTER TABLE cms_roles ALTER COLUMN role_id SET DEFAULT nextval('cms_roles_seq'::regclass);
 
-ALTER TABLE cms_static_pages ALTER COLUMN static_page_id SET DEFAULT nextval('csp_static_page_id_seq'::regclass);
+ALTER TABLE cms_static_pages ALTER COLUMN static_page_id SET DEFAULT nextval('cms_static_pages_seq'::regclass);
 
-ALTER TABLE cms_update_types ALTER COLUMN update_type_id SET DEFAULT nextval('cut_update_type_id_seq'::regclass);
+ALTER TABLE cms_update_types ALTER COLUMN update_type_id SET DEFAULT nextval('cms_update_types_seq'::regclass);
 
-ALTER TABLE cms_updates ALTER COLUMN update_id SET DEFAULT nextval('cu_update_id_seq'::regclass);
+ALTER TABLE cms_updates ALTER COLUMN update_id SET DEFAULT nextval('cms_updates_seq'::regclass);
 
-ALTER TABLE cms_user_role_affiliation ALTER COLUMN user_role_affiliation_id SET DEFAULT nextval('cura_user_role_affiliation_id_seq'::regclass);
+ALTER TABLE cms_user_role_affiliation ALTER COLUMN user_role_affiliation_id SET DEFAULT nextval('cms_user_role_affiliation_seq'::regclass);
 
-ALTER TABLE cms_users ALTER COLUMN user_id SET DEFAULT nextval('cu_user_id_seq'::regclass);
+ALTER TABLE cms_users ALTER COLUMN user_id SET DEFAULT nextval('cms_users_seq'::regclass);
 
-ALTER TABLE cms_versions ALTER COLUMN version_id SET DEFAULT nextval('cv_version_id_seq'::regclass);
+ALTER TABLE cms_versions ALTER COLUMN version_id SET DEFAULT nextval('cms_versions_seq'::regclass);
 
 -- Table Rows --
 
