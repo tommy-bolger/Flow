@@ -634,7 +634,7 @@ class Database {
             $sequence_name = "{$table_name}_seq";
         }
 
-        return $this->database_connection->lastInsertId();
+        return $this->database_connection->lastInsertId($sequence_name);
     }
     
     /**
