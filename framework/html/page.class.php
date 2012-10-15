@@ -173,13 +173,20 @@ class page {
 
     /**
      * Initializes a new instance of Page.
-     *          
+     *
+     * @param string $page_name (optional) The name of the called function. Defaults to an empty string. The name of the requested page is used if an empty string is specified.
+     * @param boolean $enable_cache The arguments of the called function. Defaults to false.
      * @return void
      */
-    public function __construct() {
-        if(!isset($this->name)) {
+    public function __construct($page_name = '', $enable_cache = false) {
+        if(empty($page_name)) {
             $this->name = Framework::$instance->getPageClassName();
         }
+        else {
+            $this->name = $page_name;
+        }
+        
+        $this->cache_page = $enable_cache;
     
         //Add this header to help prevent clickjacking attacks in modern browsers
         header('X-Frame-Options: DENY');
@@ -197,7 +204,7 @@ class page {
             
             ob_start();
         }
-        
+    
         if(!isset(self::$page)) {
             self::$page = $this;
         }
@@ -236,16 +243,6 @@ class page {
         }
     
         return $this->body;
-    }
-    
-    /**
-     * Sets the name of the page.
-     * 
-     * @param string $name The name of the page.        
-     * @return void
-     */
-    public function setName($name) {
-        $this->name = $name;
     }
 
     /**
@@ -398,6 +395,15 @@ class page {
         foreach($javascript_directory_paths as $javascript_directory_path) {        
             $this->javascript_base_paths[] = $this->setDirectory($javascript_directory_path);
         }
+    }
+    
+    /**
+     * Enables page analytics to be loaded as the last JS file in the page header.
+     *
+     * @return void
+     */
+    public function enableAnalytics() {
+        $this->load_analytics = true;
     }
     
     /**

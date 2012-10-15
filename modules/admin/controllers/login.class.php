@@ -40,10 +40,6 @@ use \Framework\Modules\ModulePage;
 
 class Login
 extends Controller {
-    protected $title = "Administration Control Panel - Login";
-    
-    protected $name = 'admin_login';
-
     public function __construct() {        
         if(request()->get->logout == 1) {
             session()->end();
@@ -57,9 +53,9 @@ extends Controller {
     }
     
     public function setup() {
-        $this->page = new ModulePage('admin');
+        $this->page = new ModulePage('admin', 'admin_login');
         
-        $this->page->setTitle($this->title);
+        $this->page->setTitle('Administration Control Panel - Login');
         
         $this->page->setName($this->name);
         

@@ -33,22 +33,21 @@
 
 namespace Modules\Resume\Controllers;
 
+use \Framework\Core\Controller;
 use \Framework\Modules\ModulePage;
 use \Framework\Html\Table\Table;
 use \Framework\Html\Lists\UnorderedList;
 use \Framework\Html\Misc\TemplateElement;
 
 class Home
-extends ModulePage {    
-    protected $cache_page = true;
-    
-    protected $load_analytics = true;
-    
+extends Controller {        
     private $general_information = array();
-
-    public function __construct() {
-        parent::__construct('resume');
-
+    
+    public function setup() {
+        $this->page = new ModulePage('resume', 'resume_page', true);
+        
+        $this->page->enableAnalytics();
+    
         $this->constructHeader();
         
         $this->constructContentHeader();
@@ -85,34 +84,33 @@ extends ModulePage {
         
         $full_name = "{$first_name} {$last_name}";
         
-        
         //Set the page title
-        $this->title = "{$full_name} - Resume and Portfolio";
+        $this->page->setTitle("{$full_name} - Resume and Portfolio");
         
         //Set meta tags
-        $this->addMetaTag('encoding', 'http-equiv', 'content-type', 'text/html; charset=UTF-8');
-        $this->addMetaTag('page_author', 'name', 'author', 'Tommy Bolger');
-        $this->addMetaTag('page_keywords', 'name', 'keywords', "{$first_name_lower_case} {$last_name_lower_case}, {$first_name_lower_case} {$last_name_lower_case} resume, {$first_name_lower_case} {$last_name_lower_case} portfolio, {$first_name_lower_case}, {$last_name_lower_case}, education, skills, experience, resume, online, portfolio, ca, php, mysql, postgre, postgres");
-        $this->addMetaTag('page_description', 'name', 'description', "{$full_name} - online resume, trade skills, work experience, and portfolio.");
+        $this->page->addMetaTag('encoding', 'http-equiv', 'content-type', 'text/html; charset=UTF-8');
+        $this->page->addMetaTag('page_author', 'name', 'author', 'Tommy Bolger');
+        $this->page->addMetaTag('page_keywords', 'name', 'keywords', "{$first_name_lower_case} {$last_name_lower_case}, {$first_name_lower_case} {$last_name_lower_case} resume, {$first_name_lower_case} {$last_name_lower_case} portfolio, {$first_name_lower_case}, {$last_name_lower_case}, education, skills, experience, resume, online, portfolio, ca, php, mysql, postgre, postgres");
+        $this->page->addMetaTag('page_description', 'name', 'description', "{$full_name} - online resume, trade skills, work experience, and portfolio.");
         
         //Setup css
-        $this->addCssFiles(array(
+        $this->page->addCssFiles(array(
             'reset.css',
             'main.css'
         ));
         
         //Setup the javascript        
-        $this->addJavascriptFiles(array(
+        $this->page->addJavascriptFiles(array(
             "jquery.min.js",
             'home.js'
         ));
         
         //Set the template for this page
-        $this->setTemplate("page.php");
+        $this->page->setTemplate("page.php");
     }
     
     private function constructContentHeader() {
-        $this->page->body->addChild("{$this->module->getImagesHttpPath()}/{$this->general_information['photo']}", 'photo_url');
+        $this->page->body->addChild("{$this->page->getImagesHttpPath()}/{$this->general_information['photo']}", 'photo_url');
         $this->page->body->addChild("{$this->general_information['first_name']} {$this->general_information['last_name']}", 'name');
         $this->page->body->addChild($this->general_information['specialty'], 'specialty');
         
@@ -134,7 +132,7 @@ extends ModulePage {
         $this->page->body->addChild($address, 'address'); 
         $this->page->body->addChild($this->general_information['summary'], 'description');
         
-        $assets_path = $this->module->getAssetsHttpPath();
+        $assets_path = $this->page->getAssetsHttpPath();
         
         $this->page->body->addChild("{$assets_path}/files/{$this->general_information['resume_pdf_name']}", 'print_pdf_url');
         $this->page->body->addChild("{$assets_path}/files/{$this->general_information['resume_word_name']}", 'print_word_url');
@@ -316,7 +314,7 @@ extends ModulePage {
         ");
         
         if(!empty($portfolio_projects)) {
-            $portfolio_screenshots_path = "{$this->module->getImagesHttpPath()}/portfolio_images";
+            $portfolio_screenshots_path = "{$this->page->getImagesHttpPath()}/portfolio_images";
             
             $portfolio_project_images = db()->getAssoc("
                 SELECT
@@ -349,8 +347,8 @@ extends ModulePage {
                     $current_project_images = $portfolio_project_images[$portfolio_project_id];
                     
                     if(!empty($current_project_images)) {
-                        $this->addCssFile("colorbox.css");
-                        $this->addJavascriptFile("jquery.colorbox-min.js");
+                        $this->page->addCssFile("colorbox.css");
+                        $this->page->addJavascriptFile("jquery.colorbox-min.js");
                     
                         foreach($current_project_images as $current_project_image) {   
                             $portfolio_image_thumbnail = new TemplateElement('portfolio/project_image.php');
@@ -399,7 +397,7 @@ extends ModulePage {
         ");
         
         if(!empty($code_examples)) {
-            $code_examples_path = "{$this->module->getFilesHttpPath()}/code_examples";
+            $code_examples_path = "{$this->page->getFilesHttpPath()}/code_examples";
         
             $code_example_skills = db()->getGroupedColumn("
                 SELECT

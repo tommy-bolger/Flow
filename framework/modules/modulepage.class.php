@@ -42,10 +42,10 @@ class ModulePage
 extends Page {
     protected $module;
     
-    public function __construct($module_name) {
+    public function __construct($module_name, $page_name = '', $cache_page = false) {
         File::setDefaultModuleName($module_name);
     
-        parent::__construct();
+        parent::__construct($page_name, $cache_page);
         
         $this->module = new WebModule($module_name);
         
@@ -92,5 +92,9 @@ extends Page {
         if($module_name != 'admin') {
             Framework::$instance->error_handler->setTemplatePath("{$module_templates_path}/error_template.php");
         }
+    }
+    
+    public function __call($function_name, $arguments) {
+        return call_user_func_array(array($this->module, $function_name), $arguments);
     }
 }
