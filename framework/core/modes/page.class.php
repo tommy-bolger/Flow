@@ -58,6 +58,11 @@ extends Web {
     * @var array The subdirectory path to the page class as it appears in the url.
     */
     protected $subdirectory_http_path;
+    
+    /**
+    * @var string The name of the requested page as specified in the url.
+    */    
+    protected $page_http_name;        
 
     /**
     * @var string The name of the current page class.
@@ -101,11 +106,16 @@ extends Web {
      * @return string The name of the page class.
      */
     protected function getPageClass() {
-        $page_class_name = request()->page;
+        $this->page_http_name = request()->page;
         
-        if(empty($page_class_name)) {
+        $page_class_name = '';                
+        
+        if(empty($this->page_http_name)) {
             $page_class_name = "Home";
         }
+        else {
+            $page_class_name = $this->page_http_name;        
+        }                
         
         if(isset(request()->get->subd)) {
             $request_subdirectories = request()->get->subd;
@@ -224,6 +234,15 @@ extends Web {
         return $this->subdirectory_http_path;
     }
     
+    /**
+     * Retrieves the page name form the requested url.
+     *
+     * @return string
+     */
+    public function getPageHttpName() {
+        return $this->page_http_name;
+    }
+            
     /**
      * Retrieves the current page class name.
      *

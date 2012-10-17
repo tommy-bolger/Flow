@@ -42,8 +42,8 @@ function Form(dom_element) {
     
     //Add ajax/ into the action url
     this.action = this.form.attr('action').replace(window.location.host, window.location.host + '/ajax');
-    
-    if(this.action.search("/\?/") != -1) {
+
+    if(this.action.indexOf('?') != -1) {
         this.action += '&';
     }
     else {
@@ -51,7 +51,7 @@ function Form(dom_element) {
     }
     
     this.action += 'method=submit';
-    
+
     this.errors = $('.form_errors', this.form);
     this.warnings = $('.form_warnings', this.form);
     this.confirmations = $('.form_confirmations', this.form);
