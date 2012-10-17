@@ -44,11 +44,11 @@ extends Controller {
         if(request()->get->logout == 1) {
             session()->end();
             
-            Http::redirect(Http::getTopLevelPageUrl('login'));
+            Http::redirect(Http::getTopLevelPageUrl('login', array(), 'admin'));
         }
         
         if(Auth::userLoggedIn()) {
-            Http::redirect(Http::getTopLevelPageUrl());
+            Http::redirect(Http::getTopLevelPageUrl('', array(), 'admin'));
         }
     }
     
@@ -56,8 +56,6 @@ extends Controller {
         $this->page = new ModulePage('admin', 'admin_login');
         
         $this->page->setTitle('Administration Control Panel - Login');
-        
-        $this->page->setName($this->name);
         
         $this->page->setTemplate('login.php');
         

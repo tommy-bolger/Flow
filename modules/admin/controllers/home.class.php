@@ -62,7 +62,7 @@ extends Controller {
 
     public function __construct() {
         if(!Auth::userLoggedIn()) {
-            Http::redirect(Http::getTopLevelPageUrl('login'));
+            Http::redirect(Http::getTopLevelPageUrl('login', array(), 'admin'));
         }
         
         $module_id = request()->module_id;
@@ -296,7 +296,7 @@ extends Controller {
         
         foreach($modules as $module) {
             $this->module_links[$module['module_name']]['top_nav'] = array(
-                $module['display_name'] => Http::getInternalUrl($module['module_name'], array('subd_1' => 'admin'))
+                $module['display_name'] => Http::getInternalUrl($module['module_name'], array('admin'))
             );
         }
     }

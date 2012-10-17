@@ -33,6 +33,7 @@
 namespace Framework\Core\Modes;
 
 use \Framework\Debug\NotFound;
+use \Framework\Modules\Module;
 
 require_once(__DIR__ . '/web.class.php');
 
@@ -47,11 +48,6 @@ extends Web {
     * @var string The framework error not found class name.
     */
     protected $not_found_class = '\\Framework\\Debug\\NotFound';
-    
-    /**
-    * @var string The name of the current module.
-    */
-    protected $module_name;
     
     /**
     * @var array The subdirectory path to the page class.
@@ -90,8 +86,6 @@ extends Web {
     public function run() {
         session()->start();
         
-        $this->getModule();
-        
         $page_class_name = $this->getPageClass();
         
         $current_page_class = new $page_class_name();
@@ -112,9 +106,6 @@ extends Web {
         if(empty($page_class_name)) {
             $page_class_name = "Home";
         }
-
-        $sub_path = '';
-        $is_admin_sub_path = false;
         
         if(isset(request()->get->subd)) {
             $request_subdirectories = request()->get->subd;
@@ -122,41 +113,43 @@ extends Web {
             $this->subdirectory_http_path = explode('/', $request_subdirectories);
             
             $this->subdirectory_path = $this->subdirectory_http_path;
-            
-            if(!empty($this->subdirectory_path[0])) {
-                if(self::$environment == 'production' && $this->subdirectory_path[0] == 'admin' && !empty($this->subdirectory_path[1])) {
-                    $this->subdirectory_path[0] = "{$this->subdirectory_path[0]}\\ controllers";
-    
-                    $is_admin_sub_path = true;
-                }
-                elseif($this->module_name != 'admin' && $this->subdirectory_path[0] == 'admin') {
-                    $this->subdirectory_path[0] = "{$this->subdirectory_path[0]}\\ controllers";
-    
-                    $is_admin_sub_path = true;
-                }
-            }
-
-            $sub_path = implode('\\ ', $this->subdirectory_path) . '\\ ';
         }
+        
+        $first_subdirectory = '';
+        
+        if(!empty($this->subdirectory_path[0])) {
+            $first_subdirectory = $this->subdirectory_path[0];
+        }
+        
+        $installed_modules = Module::getInstalledModules();
+        
+        //If the first subdirectory is not an installed module name then use the default module
+        if(!isset($installed_modules[$first_subdirectory])) {
+            $first_subdirectory = config('framework')->default_module;
+        
+            array_unshift($this->subdirectory_path, $first_subdirectory);
+        }
+        
+        $second_subdirectory = '';
+        
+        if(!empty($this->subdirectory_path[1])) {
+            $second_subdirectory = $this->subdirectory_path[1];
+        }
+        
+        //If the second subdirectory is admin then append the controllers namespace to it
+        if($second_subdirectory == 'admin') {
+            $this->subdirectory_path[1] = "{$second_subdirectory}\\ controllers";
+        }
+        //If the module name is the admin append the controllers namespace to the first subdirectory
+        else {
+            $this->subdirectory_path[0] = "{$first_subdirectory}\\ controllers";
+        }
+
+        $sub_path = implode('\\ ', $this->subdirectory_path) . '\\ ';
 
         $this->page_class_name = $page_class_name;
-        
-        $module_namespace = '';
-        
-        if($is_admin_sub_path) {
-            $module_namespace = "{$this->module_name}\\ {$sub_path}";
-        }
-        else {
-            $module_namespace = "{$this->module_name}\\ controllers\\ {$sub_path}";
-        }
 
-        if(self::$environment == 'production') {
-            if($this->module_name == 'admin' && !empty($this->subdirectory_path[1]) && $this->subdirectory_path[1] == 'admin') {            
-                $module_namespace = $sub_path;
-            }
-        }
-
-        $page_class_path = "\\Modules\\ {$module_namespace}{$page_class_name}";
+        $page_class_path = "\\Modules\\ {$sub_path}{$page_class_name}";
 
         $page_class_path = $this->formatNamespace($page_class_path);
 
@@ -173,23 +166,6 @@ extends Web {
         $this->qualified_page_path = $page_class_path;
 
         return $page_class_path;
-    }
-    
-    /**
-     * Gets the name of the current module from the request and loads its configuration.
-     *
-     * @return void
-     */
-    protected function getModule() {    
-        $this->module_name = request()->module;
-
-        if(empty($this->module_name) || $this->module_name == 'framework') {
-            $this->module_name = config('framework')->default_module;
-        }
-        
-        if(empty($this->module_name)) {
-            throw new \Exception("Unable to retrieve the module to load.");
-        }
     }
     
     /**

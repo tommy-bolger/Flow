@@ -40,9 +40,17 @@ use \Framework\Caching\File;
 
 class ModulePage
 extends Page {
+    protected static $running_module;
+
     protected $module;
     
+    public static function getRunningModule() {
+        return self::$running_module;
+    }
+    
     public function __construct($module_name, $page_name = '', $cache_page = false) {
+        self::$running_module = $module_name;
+    
         File::setDefaultModuleName($module_name);
     
         parent::__construct($page_name, $cache_page);

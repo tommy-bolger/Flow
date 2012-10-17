@@ -33,12 +33,23 @@
 namespace Framework\Utilities;
 
 use \Framework\Core\Framework;
+use \Framework\Modules\ModulePage;
 
 final class Http {
     /**
     * @var string The base url of the current site. Acts as a cache so it is not generated more than once.
     */  
     private static $base_url;
+    
+    /**
+    * @var string The name of the default module.
+    */  
+    private static $default_module;
+    
+    /**
+    * @var string The name of the module currently running.
+    */ 
+    private static $running_module;
 
     /**
     * Redirects a user to the specified page class name on the current site.
@@ -190,21 +201,33 @@ final class Http {
     public static function getInternalUrl($module_name = '', $subdirectory_path = array(), $page = '', $query_string_parameters = array()) {
         assert('is_array($subdirectory_path) && is_array($query_string_parameters)');
         
+        if(!isset(self::$default_module)) {
+            self::$default_module = config('framework')->default_module;
+        }
+        
+        if(!isset(self::$running_module)) {
+            self::$running_module = ModulePage::getRunningModule();
+        }
+
+        if(empty($module_name)) {
+            $module_name = self::$running_module;
+        }
+        
         $url = self::getBaseUrl();
 
         $page_path = array();
         
-        if(!empty($module_name) && $module_name != config('framework')->default_module) {
-            $page_path['module'] = $module_name;
+        if(self::$running_module != self::$default_module) {
+            if(!empty($subdirectory_path[0]) && $subdirectory_path[0] == $module_name) {        
+                $module_name = '';
+            }
+            
+            if(!empty($module_name)) {            
+                array_unshift($subdirectory_path, $module_name);
+            }                                                
         }
-                
-        if(!empty($subdirectory_path)) {
-            if(!empty($module_name)) {
-                if(!empty($subdirectory_path[0]) && $subdirectory_path[0] == $module_name) {
-                    unset($subdirectory_path[0]);
-                }                                                                            
-            }            
-                        
+           
+        if(!empty($subdirectory_path)) {                        
             $page_path['subd'] = implode('/', $subdirectory_path);
         }
         
@@ -243,11 +266,12 @@ final class Http {
     * Generates and retrieves a url of a page that resides in the top level of a module.
     * 
     * @param string $page_name (optional) The name of the page.
-    * @param array $query_string_parameters (optional) The rest of the query string in ('name' => 'value') format.    
+    * @param array $query_string_parameters (optional) The rest of the query string in ('name' => 'value') format.
+    * @param string $module_name (optional) The name of the module to include as an override in the url.    
     * @return string
     */
-    public static function getTopLevelPageUrl($page_name = '', $query_string_parameters = array()) {
-        return self::getInternalUrl('', array(), $page_name, $query_string_parameters);
+    public static function getTopLevelPageUrl($page_name = '', $query_string_parameters = array(), $module_name = '') {
+        return self::getInternalUrl($module_name, array(), $page_name, $query_string_parameters);
     }
     
     /**

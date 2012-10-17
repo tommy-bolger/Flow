@@ -68,8 +68,6 @@ extends Page {
     public function run() {
         session()->start();
         
-        $this->getModule();
-        
         $page_class_name = $this->getPageClass();
         
         if(empty($page_class_name)) {

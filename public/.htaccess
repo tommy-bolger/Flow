@@ -23,4 +23,4 @@ RewriteRule ^((?!ajax/)([a-z-]+))$ index.php?page=$1 [QSA,L,NC]
 RewriteRule ^((?!ajax/)(.*))/$ $1/home [QSA,L,NC]
 
 #Separate out the subdirectory path from the page
-RewriteRule ^((?!ajax/)(.*))/(.*)$ index.php?subd=$1&page=$2 [QSA,L,NC]
+RewriteRule ^((?!ajax/)(.*))/(.*)$ index.php?subd=$1&page=$3 [QSA,L,NC]

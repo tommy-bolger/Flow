@@ -142,22 +142,28 @@ class Module {
      * @return array
      */
     public static function getInstalledModules() {
-        $modules_directory = opendir(Framework::$installation_path . "/modules");
-        
         $modules = array();
-
-        while($module_entry = readdir($modules_directory)) {
-            switch($module_entry) {
-                case '.':
-                case '..':
-                    break;
-                default:
-                    $modules[] = $module_entry;
-                    break;
-            }
-        }
         
-        closedir($modules_directory);
+        if(Framework::$enable_cache) {
+            $modules = cache()->get('installed_modules');
+        }
+    
+        if(empty($modules)) {
+            $modules_directory = opendir(Framework::$installation_path . "/modules");
+    
+            while($module_entry = readdir($modules_directory)) {
+                switch($module_entry) {
+                    case '.':
+                    case '..':
+                        break;
+                    default:
+                        $modules[$module_entry] = $module_entry;
+                        break;
+                }
+            }
+            
+            closedir($modules_directory);
+        }
         
         return $modules;
     }
