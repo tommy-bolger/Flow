@@ -20,7 +20,7 @@ RewriteRule ^(assets) - [L]
 RewriteRule ^ajax/([a-z-]+)$ ajax/index.php?page=$1 [QSA,L,NC]
 
 #Add on the home page if no page is present
-RewriteRule ^ajax/(.*)/$ ajax/$1/home [QSA,L,NC]
+RewriteRule ^ajax/(.*)/$ ajax/$1/home [QSA,NC]
 
 #Separate out the subdirectory path from the page
 RewriteRule ^ajax/(.*)/(.*)$ ajax/index.php?subd=$1&page=$2 [QSA,L,NC]
