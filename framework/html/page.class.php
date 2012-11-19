@@ -119,11 +119,6 @@ class page {
     private $external_javascript_files = array();
     
     /**
-    * @var string The file path to the assets utilized by the page.
-    */
-    protected $assets_path;
-    
-    /**
     * @var string The http path to the assets utilized by the page.
     */
     protected $assets_http_path;
@@ -213,9 +208,6 @@ class page {
         }
         
         $this->enable_javascript = config('framework')->enable_javascript;
-        
-        //Set the assets location
-        $this->assets_path = Framework::$installation_path . '/public/assets';
     }
     
     /**
@@ -252,15 +244,6 @@ class page {
      */
     public function getName() {
         return $this->name;
-    }
-    
-    /**
-     * Retrieves the assets path;
-     *     
-     * @return string
-     */
-    public function getAssetsPath() {
-        return $this->assets_path;
     }
     
     /**
@@ -632,11 +615,7 @@ class page {
         }
         
         if($this->load_analytics) {
-            $google_analytics_path = "{$this->assets_path}/javascript/google_analytics.js";
-            
-            if(is_readable($google_analytics_path)) {
-                $this->addJavascriptFile($google_analytics_path, false);
-            }
+            $this->addJavascriptFile(google_analytics.js);
         }
 
         if(!empty($this->internal_javascript_files)) {
