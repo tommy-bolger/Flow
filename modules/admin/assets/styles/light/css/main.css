@@ -109,7 +109,7 @@ div.clear {
 	-o-box-shadow: inset 0px -2px 3px #4D5255;
 	-moz-box-shadow: inset 0px -2px 3px #4D5255; 
     -webkit-box-shadow: inset 0px -2px 3px #4D5255;
-    behavior: url(/assets/htc/pie.php);
+    behavior: url(/assets/modules/resume/htc/pie);
 }
 
 #modules_list {
@@ -136,7 +136,7 @@ div.clear {
     background: -moz-linear-gradient(top, #C84202, #E58616);
     background: linear-gradient(#C84202, #E58616);
     -pie-background: linear-gradient(#C84202, #E58616);
-    behavior: url(/assets/htc/pie.php);
+    behavior: url(/assets/modules/resume/htc/pie);
     font-weight: bold;
 }
 
@@ -259,7 +259,7 @@ div.clear {
     background: -moz-linear-gradient(top, #FFFFFF, #DCDCDC);
     background: linear-gradient(#FFFFFF, #DCDCDC);
     -pie-background: linear-gradient(#FFFFFF, #DCDCDC);
-    behavior: url(/assets/htc/pie.php);
+    behavior: url(/assets/modules/resume/htc/pie);
 }
 
 #footer_transition_2 {
@@ -270,7 +270,7 @@ div.clear {
 	-o-box-shadow: 0px 1px 1px #BABABA;
 	-moz-box-shadow: 0px 1px 1px #BABABA; 
     -webkit-box-shadow: 0px 1px 1px #BABABA;
-    behavior: url(/assets/htc/pie.php);
+    behavior: url(/assets/modules/resume/htc/pie);
 }
 
 #footer_text {

@@ -32,7 +32,7 @@
 */
 namespace Framework\Debug;
 
-use \Framework\Core\Framework;
+use \Framework\Core\Modes\File;
 
 class FileError
 extends Error {    
@@ -56,7 +56,7 @@ extends Error {
      * @return string
      */
     protected function getDisplay($error_code, $error_message, $error_file, $error_line, $error_trace) {
-        Framework::initializeNotFound();
+        File::initializeNotFound();
         
         return '';
     }

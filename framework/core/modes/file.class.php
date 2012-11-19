@@ -81,11 +81,10 @@ extends Web {
      *
      * @return void
      */
-    public function __construct($mode = 'file') {    
+    public function __construct($mode = 'file') {
+        $this->sendInitialHeaders();
+                    
         parent::__construct($mode);
-        
-        header("Expires: " . gmdate("D, d M Y H:i:s", time() + 864000) . " GMT");
-        header("Accept-Ranges: bytes");
         
         request()->get->setRequired(array('file'));
         
@@ -108,6 +107,52 @@ extends Web {
         $this->validateExtension();
         
         $this->constructFilePath();
+        
+        if(!empty($this->full_path)) {
+            /* ----- The following code is based on this example: http://www.php.net/manual/en/function.header.php#85146 ----- */
+            $last_modified_time = NULL;
+            $etag = NULL;
+        
+            if(self::$enable_cache) {
+                $last_modified_time = cache()->get($this->full_path, "last_modified_time");
+                $etag = cache()->get($this->full_path, "etag");
+            }
+            
+            if(empty($last_modified_time)) {
+                $last_modified_time = filemtime($this->full_path);
+            }
+            
+            if(empty($etag)) {
+                $etag = md5_file($this->full_path);
+            }
+            
+            if(self::$enable_cache) {                
+                cache()->set($this->full_path, $last_modified_time, "last_modified_time");
+                cache()->set($this->full_path, $etag, "etag");
+            }
+
+            header("Etag: {$etag}");
+            header("Last-Modified: " . gmdate("D, d M Y H:i:s", $last_modified_time) . " GMT"); 
+
+            //If the file is still cached on the client side do not send it.
+            $modified_since = '';
+            
+            if(!empty($_SERVER['HTTP_IF_MODIFIED_SINCE'])) {
+                $modified_since = $_SERVER['HTTP_IF_MODIFIED_SINCE'];
+            }
+
+            $none_match = '';
+            
+            if(!empty($_SERVER['HTTP_IF_NONE_MATCH'])) {
+                $none_match = trim($_SERVER['HTTP_IF_NONE_MATCH']);
+            }
+            
+            if ($modified_since == $last_modified_time || $none_match == $etag) {
+                header("HTTP/1.1 304 Not Modified");
+
+                exit;
+            }
+        }
     }
     
     /**
@@ -119,6 +164,16 @@ extends Web {
         readfile($this->full_path);
         
         exit;
+    }
+    
+    /**
+     * Sends the initial headers for the response.
+     *
+     * @return void
+     */
+    protected function sendInitialHeaders() {
+        header("Expires: " . gmdate("D, d M Y H:i:s", time() + 864000) . " GMT");
+        header("Accept-Ranges: bytes");
     }
 
     /**
@@ -149,6 +204,7 @@ extends Web {
                 break;
             default:
                 header("Content-Type: application/{$extension}");
+
                 break;
         }
     }
@@ -181,16 +237,21 @@ extends Web {
             header("Content-Length: " . filesize($file_path));
         }
         else {
-            $this->initializeNotFound();
+            $this->initializeNotFound(true);
         }
     }
     
     /**
      * Indicates to the client that the requested file could not be found.
-     *
+     *      
+     * @param boolean $exit Indicates if code execution should be terminated immediately after sending 404 headers. Defaults to false.
      * @return void
      */
-    public function initializeNotFound() {
+    public function initializeNotFound($exit = false) {
         header("HTTP/1.0 404 Not Found");
+
+        if($exit) {
+            exit;
+        }
     }
 }

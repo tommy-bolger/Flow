@@ -102,7 +102,7 @@ extends File {
      *
      * @return void
      */
-    public function initializeNotFound() {
+    public function initializeNotFound($exit = false) {
         parent::initializeNotFound();
         
         header("Content-type: image/png");

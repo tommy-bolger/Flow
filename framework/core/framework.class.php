@@ -46,7 +46,7 @@ class Framework {
     /**
     * @var boolean A flag telling the framework to enable caching.
     */
-    public static $enable_cache = false;
+    public static $enable_cache = true;
     
     /**
     * @var string The context this framework is running in such as web, command-line, ajax, etc.

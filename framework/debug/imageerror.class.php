@@ -56,8 +56,8 @@ extends FileError {
      * @return string
      */
     protected function getDisplay($error_code, $error_message, $error_file, $error_line, $error_trace) {
-        Framework::initializeNotFound();
+        Framework::$instance->initializeNotFound();
         
-        Framework::display();
+        Framework::$instance->display();
     }
 }

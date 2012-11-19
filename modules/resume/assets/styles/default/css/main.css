@@ -89,7 +89,7 @@ div.clear {
 }
 
 #top_content, #footer {
-    behavior: url(./assets/htc/pie.php);
+    behavior: url(/assets/modules/resume/htc/pie);
     padding: 40px;
     background-color: #F9F7ED;
     border: 1px #000000 solid;
@@ -155,7 +155,7 @@ div#toolbar {
 /* Content */
 
 div#content {
-    behavior: url(./assets/htc/pie.php);
+    behavior: url(/assets/modules/resume/htc/pie);
     background-color: #EEEEEE;
     padding: 40px 40px 10px 40px;
     position: relative;
@@ -178,7 +178,7 @@ div#tab_bar {
 }
 
 a.tab {
-    behavior: url(./assets/htc/pie.php);
+    behavior: url(/assets/modules/resume/htc/pie);
     margin-right: 10px;
     background-color: #EEEEEE;
     border: 0px solid #000000;
@@ -201,7 +201,7 @@ a.tab {
 }
 
 a.tab:hover, a.tab.active_tab, a.tab.active_tab:hover, a.tab.active_tab:visited {
-    behavior: url(./assets/htc/pie.php);
+    behavior: url(/assets/modules/resume/htc/pie);
     box-shadow: 0px 0px 10px #000000;
     -o-box-shadow: 0px 0px 10px #000000;
 	-moz-box-shadow: 0px 0px 10px #000000; 
