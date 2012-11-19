@@ -615,7 +615,7 @@ class page {
         }
         
         if($this->load_analytics) {
-            $this->addJavascriptFile(google_analytics.js);
+            $this->addJavascriptFile('google_analytics.js');
         }
 
         if(!empty($this->internal_javascript_files)) {
