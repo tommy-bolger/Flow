@@ -46,6 +46,11 @@ extends Field {
     private $is_multi = false;
     
     /**
+    * @var array A list of the selectable option values for this select.
+    */
+    protected $option_values = array();
+    
+    /**
      * Instantiates a new instance of this SelectField.
      *      
      * @param string $select_name The select name.
@@ -120,8 +125,23 @@ extends Field {
      * @return void
      */
     public function setValue($field_value) {
-        if(!$this->is_multi && empty($field_value) && (string)$field_value != '0') {
-            $field_value = NULL;
+        if(!$this->is_multi) {
+            //If the submitted value for the dropdown is empty, not 0, and not in the list of available options then set it to NULL.
+            if((empty($field_value) && (string)$field_value != '0') || !isset($this->option_values[$field_value])) {
+                $field_value = NULL;
+            }
+        }
+        else {
+            //If the selected value for the listbox contains an option that is not in the list of available options then discard all submitted values for this field.
+            if(!empty($field_value)) {
+                foreach($field_value as $selected_option) {
+                    if(!isset($this->option_values[$selected_option])) {
+                        $field_value = NULL;
+                        
+                        break;
+                    }
+                }
+            }
         }
 
         $this->value = $field_value;
@@ -149,6 +169,8 @@ extends Field {
           
             $this->child_elements[NULL] = array($option_value => $option_text) + $this->child_elements[NULL];
         }
+        
+        $this->option_values[$option_value] = $option_value;
     }
     
     /**

@@ -119,6 +119,11 @@ class page {
     private $external_javascript_files = array();
     
     /**
+    * @var string The file path to the assets utilized by the page.
+    */
+    protected $assets_path;
+    
+    /**
     * @var string The http path to the assets utilized by the page.
     */
     protected $assets_http_path;
@@ -208,6 +213,8 @@ class page {
         }
         
         $this->enable_javascript = config('framework')->enable_javascript;
+        
+        $this->assets_path = Framework::$installation_path . '/public/assets';
     }
     
     /**
