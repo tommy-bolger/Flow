@@ -33,6 +33,7 @@
 
 namespace Framework\Html\Form\Fields;
 
+use \Framework\Core\Framework;
 use \Framework\Html\Form\FieldObjects\Field;
 
 class Captcha
@@ -96,9 +97,11 @@ extends Field {
     public function __construct($field_label = '') {
         parent::__construct(NULL, "recaptcha", $field_label);
         
-        $this->api_url = config('framework')->recaptcha_api_method . '://' . self::API_HOST . self::API_PATH;
-        $this->api_private_key = config('framework')->recaptcha_private_key;
-        $this->api_public_key = config('framework')->recaptcha_public_key;
+        $framework = Framework::getInstance();
+        
+        $this->api_url = $framework->configuration->recaptcha_api_method . '://' . self::API_HOST . self::API_PATH;
+        $this->api_private_key = $framework->configuration->recaptcha_private_key;
+        $this->api_public_key = $framework->configuration->recaptcha_public_key;
         
         if(empty($this->api_private_key)) {
             throw new \Exception("To use the captcha field a public and private reCAPTCHA API key from https://www.google.com/recaptcha/admin/create must be set in the configuration.");
@@ -119,12 +122,10 @@ extends Field {
     protected function addElementFiles() {
         parent::addElementFiles();
             
-        $page = page();
-    
-        $page->addCssFile('framework/Captcha.css');
+        $this->addCssFile('framework/Captcha.css');
                 
-        $page->addJavascriptFile('form/fields/Captcha.js');        
-        $page->addInlineJavascript("
+        $this->addJavascriptFile('form/fields/Captcha.js');        
+        $this->addInlineJavascript("
             var RecaptchaOptions = {
                 theme : 'clean'
             };

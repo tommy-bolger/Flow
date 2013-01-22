@@ -112,6 +112,7 @@ INSERT INTO cms_configuration_parameters VALUES (18, NULL, 'attempts_form_timeou
 -- ----------------------------
 CREATE TABLE cms_errors (
   error_id integer PRIMARY KEY,
+  incident_number varchar(9) NOT NULL,
   error_code varchar(20),
   error_message text,
   error_file text,

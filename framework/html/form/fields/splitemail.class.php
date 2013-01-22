@@ -84,9 +84,9 @@ extends Field {
     protected function addElementFiles() {
         parent::addElementFiles();
     
-        page()->addCssFile('framework/SplitEmail.css');
-        page()->addJavascriptFile('form/fields/Email.js');
-        page()->addJavascriptFile('form/fields/SplitEmail.js');
+        $this->addCssFile('framework/SplitEmail.css');
+        $this->addJavascriptFile('form/fields/Email.js');
+        $this->addJavascriptFile('form/fields/SplitEmail.js');
     }
     
     /**

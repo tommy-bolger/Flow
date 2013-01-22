@@ -35,7 +35,6 @@ namespace Modules\Admin\Controllers\Errors\View;
 
 use \Framework\Core\Framework;
 use \Framework\Utilities\Http;
-use \Framework\Debug\PageError;
 
 class One
 extends Home {
@@ -64,6 +63,7 @@ extends Home {
         
         $error_data = db()->getRow("
             SELECT
+                incident_number,
                 error_code,
                 error_message,
                 error_file,
@@ -73,7 +73,9 @@ extends Home {
             WHERE error_id = ?
         ", array($error_id));
         
-        $error_html = Framework::$instance->error_handler->getDebugHtml(
+        $error_html = "<h1>Incident Number: {$error_data['incident_number']}</h1><br />";
+        
+        $error_html .= $this->framework->error_handler->getDebugHtml(
             $error_data['error_code'],
             $error_data['error_message'],
             $error_data['error_file'],

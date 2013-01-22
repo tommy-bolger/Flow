@@ -34,12 +34,11 @@
 namespace Modules\Resume\Admin\Controllers;
 
 use \Modules\Admin\Controllers\Home as AdminHome;
+use \Framework\Modules\AdminPage;
 use \Framework\Html\Misc\Div;
 use \Framework\Html\Lists\LinkList;
 use \Framework\Utilities\Http;
 use \Framework\Html\Misc\TemplateElement;
-use \Framework\Html\Table\EditTable;
-use \Framework\Display\Template;
 
 class Home
 extends AdminHome {
@@ -49,16 +48,12 @@ extends AdminHome {
 
     public function __construct() {
         $this->loadManagedModule('resume');
-        
-        //Set the module name to insert into urls in EditTable        
-        EditTable::setModuleName('resume');
-        
-        //Add the admin assets path to the list of template paths
-        $admin_templates_path = str_replace('resume', 'resume/admin', $this->managed_module->getTemplatesPath());
-
-        Template::addBasePath($admin_templates_path);
     
         parent::__construct();
+    }
+    
+    protected function loadModulePage() {
+        $this->page = new AdminPage('resume');
     }
     
     protected function initializeModuleLinks() {

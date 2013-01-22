@@ -32,34 +32,51 @@
 */
 namespace Framework\Session;
 
+use \Framework\Core\Framework;
+
 class Session {
     /**
     * @var object The instance of this class.
     */
-    private static $session;
+    private static $instance;
+    
+    /**
+    * @var array The list of required session variables for this request.
+    */
+    protected $required_variables;
 
     /**
      * Retrieves the instance of Session.
      *     
      * @return object
      */
-    public static function getSession() {
-        if(!isset(self::$session)) {
-            self::$session = new session();
+    public static function getInstance() {
+        if(!isset(self::$instance)) {
+            self::$instance = new Session();
         }
         
-        return self::$session;
+        return self::$instance;
     }
     
     /**
-     * Sets the session save handler, configures the session, and starts the session.
+     * Initializes a new instance of Session.
      *     
      * @return void
      */
-    public function start() {
+    public function __construct() {
+        /*
+            The session name and storage engine are being pulled from the framework configuration
+            instead of being required constructor arguments because this enables the session to be
+            initialized on demand when session() is called instead of it being loaded every page and ajax
+            request. This has the potential to gain some performance on web requests that do not require
+            a session.
+        */
+        $framework = Framework::getInstance();
+    
         //Determine which session storage engine should be loaded if specified
-        $storage_engine = config('framework')->session_storage_engine;
+        $storage_engine = $framework->configuration->session_storage_engine;
         
+        //Set the session save handler based on the storage engine
         switch($storage_engine) {
             case 'cache':
                 break;
@@ -77,22 +94,11 @@ class Session {
         
         session_cache_limiter('private');
         
-        if(isset(config('framework')->session_name)) {
-            session_name(config('framework')->session_name);
+        if(isset($framework->configuration->session_name)) {
+            session_name($framework->configuration->session_name);
         }
         
         session_start();
-    }
-    
-    /**
-     * Catches invalid function calls and throws an exception to avoid a fatal error.
-     *
-     * @param string $function_name The name of the function being called.
-     * @param mixed $function_arguments The arguments for the called function.          
-     * @return void
-     */
-    public function __call($function_name, $function_arguments) {
-        throw new \Exception("Function name '{$function_name}' is not a valid function in this class.");
     }
     
     /**
@@ -102,9 +108,18 @@ class Session {
      * @return mixed
      */
     public function __get($variable_name) {
-        $this->variableExists($variable_name);
+        $variable_value = '';
         
-        return $_SESSION[$variable_name];
+        if(isset($_SESSION[$variable_name])) {
+            $variable_value = $_SESSION[$variable_name];
+        }
+        else {
+            if(isset($this->required_variables)) {
+                throw new \Exception("Session variable '{$variable_name}' is required but cannot be found in the session.");
+            }
+        }
+        
+        return $variable_value;
     }
     
     /**
@@ -125,7 +140,7 @@ class Session {
      * @return boolean
      */
     public function __isset($variable_name) {
-        return $this->variableExists($variable_name, false);
+        return isset($_SESSION[$variable_name]);
     }
     
     /**
@@ -135,29 +150,21 @@ class Session {
      * @return void
      */
     public function __unset($variable_name) {
-        $this->variableExists($variable_name);
-        
-        unset($_SESSION[$variable_name]);
+        if(isset($_SESSION[$variable_name])) {
+            unset($_SESSION[$variable_name]);
+        }
     }
     
     /**
-     * Checks for if a variable exists in $_SESSION. Can either return a boolean or throw an exception if the variable doesn't exist.
+     * Sets the variable names that are required in the session.
      *
-     * @param string $variable_name The name of the variable.
-     * @param boolean $throw_exception (optional) Determine whether to return a boolean or throw an exception on failure. Defaults to true.
-     * @return mixed
+     * @param array $variable_names The names of the variables that required.
+     * @return void
      */
-    private function variableExists($variable_name, $throw_exception = true) {
-        if(!isset($_SESSION[$variable_name])) {
-            if($throw_exception) {
-                throw new \Exception("Session variable '{$variable_name}' is not valid. Set it first.");
-            }
-            else {
-                return false;
-            }
-        }
+    public function setRequired(array $variable_names) {
+        assert('!empty($variable_names)');
         
-        return true;
+        $this->required_variables = array_combine($variable_names, $variable_names);
     }
     
     /**

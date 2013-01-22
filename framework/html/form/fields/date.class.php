@@ -56,10 +56,10 @@ extends Textbox {
     protected function addElementFiles() {
         parent::addElementFiles();
     
-        page()->addCssFile('jquery-ui.custom.css');
-        page()->addJavascriptFile('jquery.min.js');
-        page()->addJavascriptFile('jquery-ui.min.js');
-        page()->addJavascriptFile('datepicker.js');
+        $this->addCssFile('jquery-ui.custom.css');
+        $this->addJavascriptFile('jquery.min.js');
+        $this->addJavascriptFile('jquery-ui.min.js');
+        $this->addJavascriptFile('datepicker.js');
     }
     
     public function setMaxLength($max_length) {}

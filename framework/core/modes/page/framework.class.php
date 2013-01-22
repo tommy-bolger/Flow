@@ -30,25 +30,20 @@
 * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE 
 * POSSIBILITY OF SUCH DAMAGE.
 */
-namespace Framework\Core\Modes;
+namespace Framework\Core\Modes\Page;
 
-use \Framework\Debug\NotFound;
+use \Framework\Core\Modes\Web;
 use \Framework\Modules\Module;
 
-require_once(__DIR__ . '/web.class.php');
+require_once(dirname(__DIR__) . '/web.class.php');
 
-class Page
+class Framework
 extends Web {
     /**
-    * @var string The framework error handler class name.
+    * @var object The framework error handler class name.
     */
-    protected $error_handler_class = '\\Framework\\Debug\\PageError';
-    
-    /**
-    * @var string The framework error not found class name.
-    */
-    protected $not_found_class = '\\Framework\\Debug\\NotFound';
-    
+    protected $error_handler_class = '\\Framework\\Core\\Modes\\Page\\Error';
+
     /**
     * @var array The subdirectory path to the page class.
     */
@@ -88,9 +83,7 @@ extends Web {
      *
      * @return void
      */
-    public function run() {
-        session()->start();
-        
+    public function run() {        
         $page_class_name = $this->getPageClass();
         
         $current_page_class = new $page_class_name();
@@ -135,7 +128,7 @@ extends Web {
         
         //If the first subdirectory is not an installed module name then use the default module
         if(!isset($installed_modules[$first_subdirectory])) {
-            $first_subdirectory = config('framework')->default_module;
+            $first_subdirectory = $this->configuration->default_module;
         
             array_unshift($this->subdirectory_path, $first_subdirectory);
         }
@@ -167,13 +160,16 @@ extends Web {
         
         //Check to see if the page class exists
         if(empty($class_exists)) {
-            //If the current page class doesn't exist get the not found page and check its availability        
-            $page_class_path = $this->not_found_class;
+            $this->qualified_page_path = $page_class_path;  
+        
+            //If the current page class doesn't exist get the not found page   
+            $page_class_path = '\\Framework\\Core\\Modes\\Page\\NotFound';
             
             $this->page_class_name = $page_class_path;
         }
-        
-        $this->qualified_page_path = $page_class_path;
+        else {
+            $this->qualified_page_path = $page_class_path;        
+        }
 
         return $page_class_path;
     }
@@ -259,5 +255,15 @@ extends Web {
      */
     public function getQualifiedPagePath() {
         return $this->qualified_page_path;
+    }
+    
+    /**
+     * Retrieves the output of the data dump.
+     *
+     * @param mixed $data The data to retrieve a dump of.     
+     * @return string
+     */
+    protected function getDebugOutput($data) {
+        return "<pre class=\"normal_size_text\">\n" . htmlentities(var_export($data, true), ENT_QUOTES, 'UTF-8') . "\n</pre>";
     }
 }

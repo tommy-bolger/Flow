@@ -80,7 +80,7 @@ extends Field {
     protected function addElementFiles() {
         parent::addElementFiles();
 
-        page()->addJavascriptFile('form/fields/Select.js');
+        $this->addJavascriptFile('form/fields/Select.js');
     }
     
     /**

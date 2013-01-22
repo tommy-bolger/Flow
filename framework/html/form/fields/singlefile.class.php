@@ -54,7 +54,7 @@ extends File {
      * @return void
      */
     protected function addElementFiles() {
-        page()->addCssFile('framework/SingleFileField.css');
+        $this->addCssFile('framework/SingleFileField.css');
     }
     
     /**

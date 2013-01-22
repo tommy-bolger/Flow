@@ -33,7 +33,7 @@
 namespace Framework\Request;
 
 final class Request {
-    private static $_request;
+    private static $instance;
     
     private $required_variables;
 
@@ -46,12 +46,12 @@ final class Request {
      *
      * @return object
      */
-    public static function getRequest() {
-        if(!isset(self::$_request)) {
-            self::$_request = new request();
+    public static function getInstance() {
+        if(!isset(self::$instance)) {
+            self::$instance = new Request();
         }
         
-        return self::$_request;
+        return self::$instance;
     }
     
     /**
@@ -98,5 +98,23 @@ final class Request {
         }
         
         return $variable_value;
+    }
+    
+    /**
+     * Indicates if a request variable value is in either get or post.
+     *
+     * @param string $variable_name The name of the request variable.
+     * @return boolean
+     */
+    public function __isset($variable_name) {
+        if(isset($this->post->$variable_name)) {
+            return true;
+        }
+        
+        if(isset($this->get->$variable_name)) {
+            return true;
+        }
+        
+        return false;
     }
 }

@@ -98,13 +98,13 @@ extends Form {
      * @return void
      */
     public function __construct($form_name, $form_action = NULL, $form_method = "post", $enable_token = true) {    
-        parent::__construct($form_name, $form_action, $form_method, $enable_token);
+        parent::__construct($form_name, $form_action, $form_method, $enable_token, false);
         
-        $this->addClass('full_submit');
+        $this->disableJavascript();
         
         //Set default values
-        $this->max_attempts = config('framework')->attempts_form_max_attempts;
-        $this->timeout_duration = config('framework')->attempts_form_timeout_duration;
+        $this->max_attempts = $this->framework->configuration->attempts_form_max_attempts;
+        $this->timeout_duration = $this->framework->configuration->attempts_form_timeout_duration;
         
         //Initialize the form's session variable name to store submit attempts
         $attempts_session_name = "{$form_name}_attempts";
@@ -153,7 +153,7 @@ extends Form {
     protected function addElementFiles() {
         parent::addElementFiles();
 
-        page()->addJavascriptFile('form/limited_attempts_form.js');
+        $this->addJavascriptFile('form/limited_attempts_form.js');
     }
     
     /**
@@ -259,9 +259,10 @@ extends Form {
             
             $last_field = array_pop($this->child_elements);
             
-            //If the last form field is not an interactive field (such as a button) 
-            //then insert the captcha field just prior to the last field
-            if(!empty($last_field) && !$last_field->isInteractive()) {
+            $default_group_name = $last_field->getDefaultGroupName();
+            
+            //If the last form field is s button then insert the captcha field just prior to the last field
+            if(!empty($last_field) && $default_group_name == 'button') {
                 $this->addField($captcha_field);
                 
                 //Re-add the last form field directly since it has already been processed by addField() already

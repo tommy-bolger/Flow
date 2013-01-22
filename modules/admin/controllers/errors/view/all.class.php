@@ -34,6 +34,7 @@ namespace Modules\Admin\Controllers\Errors\View;
 
 use \Framework\Html\Table\DataTable;
 use \Framework\Utilities\Http;
+use \Framework\Data\ResultSet\SQL;
 
 class All
 extends Home {
@@ -54,28 +55,17 @@ extends Home {
 
         $this->page_links['All'] = Http::getCurrentLevelPageUrl('all', $query_string_parameters);
     }
-
-    protected function constructRightContent() {        
-        $site_errors_table = new DataTable('cms_errors', array(), array(
-            'time' => 'Time',
-            'message' => 'Message',
-            'module' => 'Module'
-        ));
+    
+    protected function getDataTable() {
+        $resultset = new SQL('cms_errors');
         
-        $site_errors_table->setNumberofColumns(3);
-        
-        $site_errors_table->setDefaultSortOrder('e.created_time', 'DESC');
-        
-        $site_errors_table->setSortColumnOptions(array(
-            'time' => 'e.created_time',
-            'message' => 'e.error_message',
-            'module' => 'module_name' 
-        ));
+        $resultset->enableTotalRecordCount();
         
         $query_string_parameters = array('error_id' => 'error_id');
         
-        $query = "
+        $resultset->setBaseQuery("
             SELECT
+                e.incident_number,
                 NULL AS error_time,
                 e.error_message,
                 CASE
@@ -87,21 +77,57 @@ extends Home {
                 e.created_time
             FROM cms_errors e
             LEFT JOIN cms_modules m USING (module_id)
-        ";
+            {{WHERE_CRITERIA}}
+        ");
         
-        $query_placeholders = array();
+        //Set default sort criteria
+        $resultset->setSortCriteria('e.created_time', 'DESC');
         
+        //Set default rows per page
+        $resultset->setRowsPerPage(10);
+        
+        $module_id = NULL;
+        $module_name = '';
+        
+        //Set module context for the resultset, datatable, and table links if a module_id is specified
         if(!empty($this->managed_module)) {
             $query_string_parameters['module_id'] = 'module_id';
             
-            $query .= "\nWHERE module_id = ?";
-            
-            $query_placeholders[] = $this->managed_module->getId();
+            $module_id = $this->managed_module->getId();
+            $module_name = $this->managed_module->getName();
+
+            $resultset->addFilterCriteria("module_id = {$module_id}");
         }
         
-        $site_errors_table->setColumnsAsLink(array(2), Http::getCurrentLevelPageUrl('one'), $query_string_parameters);
+        $site_errors_table = new DataTable("cms_errors_{$module_name}", true);
         
-        $site_errors_table->useQuery($query, $query_placeholders, function($query_rows) {
+        if(!empty($module_id)) {
+            $site_errors_table->addRequestVariable('module_id', $module_id);
+        }
+        
+        $site_errors_table->setRowsPerPageOptions(array(10, 25, 50, 100));
+        
+        $site_errors_table->setNumberofColumns(4);
+        
+        $site_errors_table->setHeader(array(
+            'incident_number' => 'Incident number',
+            'time' => 'Time',
+            'message' => 'Message',
+            'module' => 'Module'
+        ));
+        
+        $site_errors_table->setSortColumnOptions(array(
+            'incident_number' => 'e.incident_number',
+            'time' => 'e.created_time',
+            'message' => 'e.error_message',
+            'module' => 'module_name' 
+        ));
+        
+        $site_errors_table->setColumnsAsLink(array(1), Http::getCurrentLevelPageUrl('one'), $query_string_parameters);
+        
+        $site_errors_table->addFilterTextbox('incident_number', 'e.incident_number = ?', 'Matches', 'incident_number');
+        
+        $site_errors_table->process($resultset, function($query_rows) {
             if(!empty($query_rows)) {
                 foreach($query_rows as $row_index => $query_row) {
                     $query_row['error_time'] = date('m/d/Y H:i', strtotime($query_row['created_time']));
@@ -113,6 +139,10 @@ extends Home {
             return $query_rows;
         });
         
-        $this->page->body->addChild($site_errors_table, 'current_menu_content');
+        return $site_errors_table;
+    }
+
+    protected function constructRightContent() {        
+        $this->page->body->addChild($this->getDataTable(), 'current_menu_content');
     }
 }

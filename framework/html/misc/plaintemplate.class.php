@@ -33,6 +33,8 @@
 
 namespace Framework\Html\Misc;
 
+use \Framework\Core\Framework;
+
 class PlainTemplate {
     /**
     * @var string The file path to the template file.
@@ -56,8 +58,10 @@ class PlainTemplate {
      */
     public function toHtml() {
         $template_html = '';
+        
+        $framework = Framework::getInstance();
             
-        if(\Framework\Core\Framework::$enable_cache) {
+        if($framework->enable_cache) {
             $template_html = cache()->get($this->template_path);
         }
         else {
@@ -65,7 +69,7 @@ class PlainTemplate {
             
             $template_html = file_get_contents($this->template_path);
             
-            if(\Framework\Core\Framework::$enable_cache) {
+            if($framework->enable_cache) {
                 cache()->set($this->template_path, $template_html);
             }
         }

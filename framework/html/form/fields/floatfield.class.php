@@ -70,8 +70,8 @@ extends Textbox {
     protected function addElementFiles() {
         parent::addElementFiles();
 
-        page()->addJavascriptFile('form/fields/IntField.js');
-        page()->addJavascriptFile('form/fields/FloatField.js');
+        $this->addJavascriptFile('form/fields/IntField.js');
+        $this->addJavascriptFile('form/fields/FloatField.js');
     }
     
     public function setMaxLength($max_length) {}

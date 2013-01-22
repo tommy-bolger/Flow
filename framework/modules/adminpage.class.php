@@ -1,6 +1,6 @@
 <?php
 /**
-* Allows the rendering of a <p> tag and its child elements dynamically.
+* Page class for a module's admin section.
 * Copyright (c) 2011, Tommy Bolger
 * All rights reserved.
 * 
@@ -30,18 +30,30 @@
 * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE 
 * POSSIBILITY OF SUCH DAMAGE.
 */
-namespace Framework\Html\Text;
+namespace Framework\Modules;
 
-class Paragraph
-extends \Framework\Html\Element {
+use \Framework\Html\Table\EditTable;
+use \Framework\Display\Template;
+
+class AdminPage
+extends ModulePage {
     /**
-     * Initializes a new instance of Paragraph.
-     *
-     * @param string $element_value (optional) The text of the paragraph.
-     * @param array $element_attributes (optional) The attributes of the paragraph.          
+     * Initializes a new instance of AdminPage.
+     *      
+     * @param string $module_name The name of the module currently being managed.
+     * @param string $page_name (optional) The name of the page. Defaults to an empty string.
+     * @param string $cache_page (optional) Indicates if the page should cache its output. Defaults to false.  
      * @return void
      */
-    public function __construct($element_value = NULL, $element_attributes = array()) {
-        parent::__construct("p", $element_attributes, $element_value);
+    public function __construct($module_name, $page_name = '', $cache_page = false) {
+        parent::__construct('admin', $page_name, $cache_page);
+    
+        //Set the module name to insert into urls in EditTable        
+        EditTable::setModuleName($module_name);
+        
+        //Add the admin assets path to the list of template paths
+        $admin_templates_path = str_replace($module_name, "{$module_name}/admin", $this->module->getTemplatesPath());
+
+        Template::addBasePath($admin_templates_path);
     }
 }

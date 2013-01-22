@@ -1,6 +1,6 @@
 <?php
 /**
-* The error handling class for the framework's file mode.
+* The error handling class for the framework's ajax mode.
 * Copyright (c) 2011, Tommy Bolger
 * All rights reserved.
 * 
@@ -30,23 +30,39 @@
 * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE 
 * POSSIBILITY OF SUCH DAMAGE.
 */
-namespace Framework\Debug;
+namespace Framework\Core\Modes\Ajax;
 
-use \Framework\Core\Modes\File;
+use \Framework\Core\Error as BaseError;
 
-class FileError
-extends Error {    
+class Error
+extends BaseError {
     /**
      * Initializes the error handler.
      *
      * @return void
      */
-    public function __construct() {
+    public function __construct() {        
         parent::__construct();
+    }
+    
+    /**
+     * Displays framework/applications errors and exceptions and stops execution of the framework.
+     *
+     * @param integer $error_code The code specified when the error or exception was thrown.
+     * @param string $error_message The error message.
+     * @param string $error_file (optional) The file that the error or exception occurred at.
+     * @param integer $error_line (optional) The line that the error occurred at.
+     * @param string|array $error_trace (optional) The stack trace of the application execution from beginning to when the error was encountered. Can either be a string for exceptions or arrays for errors.                          
+     * @return void
+     */
+    public function handleError($error_code, $error_message, $error_file = '', $error_line = '', $error_trace = '') {
+        header("{$_SERVER['SERVER_PROTOCOL']} 500 Internal Server Error", true, 500);
+        
+        parent::handleError($error_code, $error_message, $error_file, $error_line, $error_trace);
     }
 
     /**
-     * Retrieves the image.
+     * Retrieves the html output of an error when running in web mode.
      *
      * @param integer $error_code The code specified when the error or exception was thrown.
      * @param string $error_message The error message.
@@ -55,9 +71,17 @@ extends Error {
      * @param string|array $error_trace (optional) The stack trace of the application execution from beginning to when the error was encountered. Can either be a string for exceptions or arrays for errors.                          
      * @return string
      */
-    protected function getDisplay($error_code, $error_message, $error_file, $error_line, $error_trace) {
-        File::initializeNotFound();
+    protected function getDisplay($error_code, $error_message, $error_file, $error_line, $error_trace) {    
+        $environment = $this->framework->environment;
+        $display_message = '';
         
-        return '';
+        if(empty($environment) || $environment == 'production') {
+            $display_message = "An unexpected error has been encountered. Please contact support for assistance and provide this incident number: " . strtoupper($this->incident_number);
+        }
+        else {
+            $display_message = parent::getDisplay($error_code, $error_message, $error_file, $error_line, $error_trace);
+        }
+        
+        return $display_message;
     }
 }

@@ -40,14 +40,19 @@ use \Framework\Utilities\Encryption;
 class Form 
 extends Element {
     /**
+    * @var object The instance of the framework.
+    */
+    protected $framework;
+
+    /**
     * @var string The form name attribute.
     */
     protected $name;
     
     /**
-    * @var array The list of all interactive fields of the form.
+    * @var array The list of all logically grouped fields. 
     */
-    protected $interactive_fields = array();
+    protected $grouped_fields = array();
     
     /**
     * @var array The submitted form data.
@@ -98,8 +103,10 @@ extends Element {
      * @param boolean $enable_token A flag to enable/disable the form token.     
      * @return void
      */
-    public function __construct($form_name, $form_action = NULL, $form_method = "post", $enable_token = true) {    
+    public function __construct($form_name, $form_action = NULL, $form_method = "post", $enable_token = true) {
         parent::__construct('form');
+        
+        $this->framework = Framework::getInstance();
         
         if(empty($form_action)) {
             $form_action = Http::getCurrentUrl();
@@ -149,13 +156,13 @@ extends Element {
      * @return void
      */
     protected function addElementFiles() {
-        page()->addCssFile('framework/Form.css');
-        page()->addCssFile('showLoading.css');
+        $this->addCssFile('framework/Form.css');
+        $this->addCssFile('showLoading.css');
 
-        page()->addJavascriptFile('jquery.min.js');
-        page()->addJavascriptFile('jquery.showLoading.js');
-        page()->addJavascriptFile('request.js');
-        page()->addJavascriptFile('form/Form.js');
+        $this->addJavascriptFile('jquery.min.js');
+        $this->addJavascriptFile('jquery.showLoading.js');
+        $this->addJavascriptFile('request.js');
+        $this->addJavascriptFile('form/Form.js');
     }
     
     /**
@@ -203,7 +210,26 @@ extends Element {
         $form_submitted_field = "{$this->name}_submitted";
         
         if(request()->$method->$form_submitted_field == 1) {
-            $this->submitted_data = request()->$method->getAll();
+            $submitted_data = request()->$method->getAll();
+            
+            foreach($submitted_data as $field_name => $field_value) {
+                //If the post variable is an array check to see if the array is associative and if it is then move each element into a field_name[element_name] name variable in submitted_data.
+                if(is_array($field_value)) {
+                    $first_element_key = key($field_value);
+                    
+                    if(filter_var($first_element_key, FILTER_VALIDATE_INT) === false) {
+                        foreach($field_value as $element_name => $element_value) {
+                            $this->submitted_data["{$field_name}[{$element_name}]"] = $element_value;
+                        }
+                    }
+                    else {
+                        $this->submitted_data[$field_name] = $field_value;
+                    }
+                }
+                else {
+                    $this->submitted_data[$field_name] = $field_value;
+                }                                            
+            }                                                
 
             $this->submitted = true;
         }
@@ -254,10 +280,10 @@ extends Element {
      * Adds a field to the form.
      *      
      * @param object $form_field The form field object.
-     * @param boolean $add_to_children A flag indicating whether to add the field to the form's child elements for rendering.     
+     * @param string $group_name (optional) The name of the field's logical group. Defaults to an empty string.
      * @return void
      */
-    public function addField($form_field) {        
+    public function addField($form_field, $group_name = '') {        
         assert('is_object($form_field)');
         assert('property_exists($form_field, "IS_FORM_FIELD")');
         
@@ -281,14 +307,17 @@ extends Element {
         
         if($form_field->getInputType() == 'file') {                
             $this->setAttribute('enctype', 'multipart/form-data');
-            $this->addClass('full_submit');
+            $this->disableJavascript();
         }
         
         $this->child_elements[$field_name] = $form_field;
         
-        if($form_field->isInteractive()) {
-            $this->interactive_fields[$field_name] = $form_field;
+        if(!empty($group_name)) {
+            $this->grouped_fields[$group_name][] = $form_field;
         }
+        
+        //Add the field to its default group
+        $this->grouped_fields[$form_field->getDefaultGroupName()][$field_name] = $form_field;
     }
     
     /**
@@ -302,12 +331,18 @@ extends Element {
     }
     
     /**
-     * Retrieves the form's interactive fields.
+     * Retrieves the fields of the specified group name.
      *      
-     * @return array
+     * @param string $group_name The name of the field group.     
+     * @return object|boolean Returns the field if the field group exists, false if it does not. 
      */
-    public function getInteractiveFields() {
-        return $this->interactive_fields;
+    public function getFieldsByGroup($group_name) {
+        if(isset($this->grouped_fields[$group_name])) {
+            return $this->grouped_fields[$group_name];
+        }
+        else {
+            return false;
+        }
     }
     
     /**
@@ -412,11 +447,11 @@ extends Element {
     /**
      * Retrieves the form's field values.
      *
-     * $param boolean $interactive_fields_only When set to true the values of all fields excluding hidden and button fields are returned.
+     * $param string $field_group_name (optional) The name of the group to retrieve from. Defaults to an empty string causing all field data to be returned.
      * @return array
      */
-    public function getData($interactive_fields_only = false) {
-        if(!$interactive_fields_only) {
+    public function getData($field_group_name = '') {
+        if(empty($field_group_name)) {
             if(!isset($this->field_data['all_fields'])) {
                 foreach($this->child_elements as $field_name => $field) {
                     $this->field_data['all_fields'][$field_name] = $field->getValue();
@@ -426,15 +461,15 @@ extends Element {
             return $this->field_data['all_fields'];
         }
         else {
-            if(!isset($this->field_data['interactive_fields'])) {
-                foreach($this->child_elements as $field_name => $field) {
-                    if($field->isInteractive()) {
-                        $this->field_data['interactive_fields'][$field_name] = $field->getValue();
-                    }
+            if(!isset($this->field_data[$field_group_name])) {
+                $group_fields = $this->getFieldsByGroup($field_group_name);
+            
+                foreach($group_fields as $field_name => $field) {
+                    $this->field_data[$field_group_name][$field_name] = $field->getValue();
                 }
             }
             
-            return $this->field_data['interactive_fields'];
+            return $this->field_data[$field_group_name];
         }
     }
     
@@ -444,7 +479,7 @@ extends Element {
      * @return void
      */
     public function reset() {
-        if(Framework::$mode == 'web') {
+        if($this->framework->mode == 'web') {
             if(!empty($this->child_elements)) {
                 foreach($this->child_elements as $child_element) {
                     $child_element->resetValue();

@@ -88,8 +88,8 @@ extends Field {
     protected function addElementFiles() {
         parent::addElementFiles();
     
-        page()->addCssFile('framework/PhoneNumber.css');
-        page()->addJavascriptFile('form/fields/PhoneNumber.js');
+        $this->addCssFile('framework/PhoneNumber.css');
+        $this->addJavascriptFile('form/fields/PhoneNumber.js');
     }
     
     /**

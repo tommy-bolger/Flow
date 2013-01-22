@@ -47,8 +47,10 @@ extends Dropdown {
      */
     public function __construct($select_name, $select_label = "", $css_classes = array()) {
         $options = NULL;
+        
+        $framework = Framework::getInstance();
     
-        if(Framework::$enable_cache) {
+        if($framework->enable_cache) {
             $options = cache()->get('options', 'state_select');
         }
     
@@ -62,7 +64,7 @@ extends Dropdown {
                 ORDER BY abbreviation
             ", ' - ');
             
-            if(Framework::$enable_cache) {
+            if($framework->enable_cache) {
                 cache()->set('options', $options, 'state_select');
             }
         }

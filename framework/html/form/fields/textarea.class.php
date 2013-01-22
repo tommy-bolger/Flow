@@ -58,7 +58,7 @@ extends Field {
      * @return void
      */
     protected function addElementFiles() {
-        page()->addCssFile('framework/TextArea.css');
+        $this->addCssFile('framework/TextArea.css');
     }
 
     /**

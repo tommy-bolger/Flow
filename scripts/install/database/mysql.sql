@@ -114,6 +114,7 @@ INSERT INTO `cms_configuration_parameters` VALUES (18, null, 'attempts_form_time
 DROP TABLE IF EXISTS `cms_errors`;
 CREATE TABLE `cms_errors` (
   `error_id` bigint(1) NOT NULL AUTO_INCREMENT,
+  `incident_number` varchar(9) COLLATE utf8_unicode_ci NOT NULL,
   `error_code` varchar(20) COLLATE utf8_unicode_ci DEFAULT NULL,
   `error_message` text COLLATE utf8_unicode_ci,
   `error_file` text COLLATE utf8_unicode_ci,
@@ -140,7 +141,7 @@ CREATE TABLE `cms_meta_settings` (
   PRIMARY KEY (`meta_setting_id`),
   KEY `cms_module_id_fk` (`module_id`),
   CONSTRAINT `cms_module_id_fk` FOREIGN KEY (`module_id`) REFERENCES `cms_modules` (`module_id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 -- ----------------------------
 -- Table structure for `cms_modules`
@@ -168,7 +169,7 @@ CREATE TABLE `cms_parameter_data_types` (
   `parameter_data_type_id` tinyint(1) NOT NULL,
   `data_type` varchar(15) COLLATE utf8_unicode_ci NOT NULL,
   PRIMARY KEY (`parameter_data_type_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci ROW_FORMAT=DYNAMIC;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 -- ----------------------------
 -- Records of cms_parameter_data_types
@@ -278,7 +279,7 @@ CREATE TABLE `cms_static_pages` (
   PRIMARY KEY (`static_page_id`),
   KEY `csp_module_id_fk` (`module_id`),
   CONSTRAINT `csp_module_id_fk` FOREIGN KEY (`module_id`) REFERENCES `cms_modules` (`module_id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 -- ----------------------------
 -- Table structure for `cms_update_types`

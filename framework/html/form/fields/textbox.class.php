@@ -72,7 +72,7 @@ extends Field {
     protected function addElementFiles() {
         parent::addElementFiles();
         
-        page()->addJavascriptFile('form/fields/Textbox.js');
+        $this->addJavascriptFile('form/fields/Textbox.js');
     }
     
     /**

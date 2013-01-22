@@ -40,7 +40,9 @@ use \Framework\Modules\ModulePage;
 
 class Login
 extends Controller {
-    public function __construct() {        
+    public function __construct() {
+        parent::__construct();
+    
         if(request()->get->logout == 1) {
             session()->end();
             
@@ -70,7 +72,7 @@ extends Controller {
     }
     
     private function getAdminLoginForm() {
-        $login_form = new LimitedAttemptsForm('admin_login_form', NULL, 'post', false);
+        $login_form = new LimitedAttemptsForm('admin_login_form', NULL, 'post', false);                
 
         $login_form->captchaAtAttemptNumber(3, "Verify that You're Human (Sorry)");
         

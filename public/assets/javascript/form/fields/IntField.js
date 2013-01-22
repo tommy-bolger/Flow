@@ -51,7 +51,7 @@ IntField.prototype.isValid = function() {
             return false;
         }
         
-        if(this.max_length.length > 0) {
+        if(typeof this.max_length != 'undefined' && this.max_length.length > 0) {
             if(!this.maxLengthIsValid()) {
                 return false;
             }

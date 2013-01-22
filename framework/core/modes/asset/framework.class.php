@@ -30,12 +30,14 @@
 * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE 
 * POSSIBILITY OF SUCH DAMAGE.
 */
-namespace Framework\Core\Modes;
+namespace Framework\Core\Modes\Asset;
 
-require_once(__DIR__ . '/file.class.php');
+use \Framework\Core\Modes\File\Framework as BaseFramework;
 
-class Asset
-extends File {
+require_once(dirname(__DIR__) . '/file/framework.class.php');
+
+class Framework
+extends BaseFramework {
     /**
     * @var string The file type of the asset.
     */
@@ -59,10 +61,10 @@ extends File {
      * @return void
      */
     public function run() {
-        if(self::$environment == 'production') {
+        if($this->environment == 'production') {
             $output = '';
         
-            if(self::$enable_cache) {
+            if($this->enable_cache) {
                 $cache = cache();
                 
                 $output = $cache->get($this->full_path, $this->type);
@@ -112,11 +114,19 @@ extends File {
      * @return void
      */
     protected function validateExtension() {
-        if(self::$environment == 'production') {
+        if($this->environment == 'production') {
             header('Content-Encoding: gzip');
         }
         else {
-            parent::validateExtension();
+            $extension = strtolower($this->extension);
+    
+            switch($extension) {
+                case 'php':
+                    throw new \Exception("Requested file '{$extension}' is forbidden.");
+                    break;
+                default:
+                    break;
+            }
         }
     }
     
@@ -126,12 +136,12 @@ extends File {
      * @return void
      */
     protected function constructFilePath() {
-        if(self::$environment == 'production') {        
+        if($this->environment == 'production') {        
             if(empty($this->module_name)) {
                 $this->initializeNotFound(true);
             }
 
-            $file_path = self::$installation_path . "/modules/{$this->module_name}/cache/{$this->type}/{$this->full_name}.gz";
+            $file_path = "{$this->installation_path}/modules/{$this->module_name}/cache/{$this->type}/{$this->full_name}.gz";
         }
         else {
             $file_path = $this->full_name;
@@ -139,7 +149,7 @@ extends File {
 
         if(is_file($file_path)) {
             $this->full_path = $file_path;
-            if(self::$environment != 'production') {
+            if($this->environment != 'production') {
                 //Sent the file's size
                 header("Content-Length: " . filesize($file_path));
             }

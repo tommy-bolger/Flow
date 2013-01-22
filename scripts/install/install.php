@@ -32,6 +32,7 @@
 */
 
 use \Framework\Core\Framework;
+use \Framework\Core\Configuration;
 use \Framework\Utilities\Encryption;
 use \Framework\Data\Database;
 use \Framework\Modules\Module;
@@ -39,9 +40,10 @@ use \Framework\Modules\Module;
 print(
     "\nWelcome to the installation for Flow! Before you proceed please go over this checklist:\n\n" . 
     "1. The following directories relative to the installation path need to be writable recursively for the web user and your user:\n\t" . 
-    "- cache/\n\t" .
+    "- The cache directory for each module you wish to install.\n\t" .
     "- public/assets/\n\t" . 
     "- protected/ (can be reset to default permissions when this script finishes)\n" . 
+    "- logs/\n\t" . 
     "2. The database you'll be installing to needs to be empty.\n" . 
     "3. Read the README file to go over the packages required by this framework.\n\n" . 
     "Press enter to continue when this checklist has been finished."
@@ -62,7 +64,7 @@ $framework = new Framework();
 
 print("done.\n");
 
-$installation_path = Framework::$installation_path;
+$installation_path = $framework->installation_path;
 
 /*
 * ----- Config directory path -----
@@ -133,27 +135,27 @@ if(!is_writable("{$assets_path}/css")) {
 print("done.\n");
 
 /*
-* ----- Cache directory path -----
+* ----- Logs directory path -----
 */
-$cache_path = "{$installation_path}/cache";
+logs_directory_writable:
+$logs_path = "{$installation_path}/logs";
 
-cache_path:
-print("Checking to see if the path to the cache directory is writable ({$cache_path})...");
+print("Checking to see if the path to the logs directory is writable ({$logs_path})...");
 
-if(!is_dir($cache_path)) {
-    print("\nThe directory '{$cache_path}' does not exist. Please create it and press enter to check again. -");
+if(!is_dir($logs_path)) {
+    print("\nThe logs path does not exist. Please create it and press enter to run the check again. -");
     
     $continue = trim(fgets(STDIN));
     
-    goto cache_path;
+    goto logs_directory_writable;
 }
 
-if(!is_writable($cache_path)) {
-    print("\nThe directory '{$cache_path}' is not writable. Write permissions must be granted to the web server user. Press enter to run the check again. -");
+if(!is_writable($logs_path)) {
+    print("\nThe logs path is not writable. Please make the directory writable and press enter to check again. -");
     
     $continue = trim(fgets(STDIN));
     
-    goto cache_path;
+    goto logs_directory_writable;
 }
 
 print("done.\n");
@@ -184,7 +186,9 @@ if(empty($password_salt)) {
 */
 print("Setting the configuration...");
 
-config('framework')->set(array(
+$configuration = new Configuration('framework');
+
+$configuration->set(array(
     'site_key' => $site_key,
     'password_salt' => $password_salt
 ));
@@ -340,7 +344,7 @@ $new_configuration =
 
 file_put_contents($new_configuration_path, $new_configuration);
 
-config('framework')->load();
+$configuration->load();
 
 print("done.\n");
 
@@ -492,5 +496,40 @@ foreach($modules_to_install as $module) {
 }
 
 print("done.\n");
+
+cache_directories:
+print("Checking each installed module to see if their cache directory exists and is writable...");
+
+$module_cache_working = true;
+
+foreach($modules_to_install as $module) {
+    $module_cache_path = "{$installation_path}/modules/{$module}/cache";
+    
+    print("\nChecking '{$module_cache_path}'...");
+    
+    //If the directory does not exist
+    if(!is_dir($module_cache_path)) {
+        $module_cache_working = false;
+    
+        print("does not exist.");
+    }
+    //If the directory is not writable
+    elseif(!is_writable($module_cache_path)) {
+        $module_cache_working = false;
+        
+        print("is not writable.");
+    }
+}
+
+if(!$module_cache_working) {
+    print("\nOne or more modules have a missing or unwritable cache directory. Please fix the above paths and press enter to run this check again. -");
+
+    $continue = trim(fgets(STDIN));
+    
+    goto cache_directories;
+}
+else {
+    print("done.\n");
+}
 
 print("\nCongratulations! The CMS has been setup and the site is ready to be used. Please navigate to the new site's url in your browser and login as the administrator user you just created to begin managing this install.\n\n");

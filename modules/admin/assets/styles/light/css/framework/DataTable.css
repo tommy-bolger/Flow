@@ -1,8 +1,13 @@
+.data_table input.textbox {
+    width: auto;
+}
+
 .data_table div.top_menu {
     clear: both;
 }
 
 .data_table div.table_menu {
+    clear: both;
     text-align: right;
 }
 
@@ -15,7 +20,7 @@
 }
 
 .data_table div.pagination {
-    /*float: right;*/
+    float: left;
     display: inline;
 }
 
@@ -31,4 +36,8 @@
 
 .data_table .table_header {
     vertical-align: middle;
+}
+
+.data_table .filters th {    
+    background: none repeat scroll 0 0 #E3EFF1;
 }

@@ -30,12 +30,12 @@
 * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE 
 * POSSIBILITY OF SUCH DAMAGE.
 */
-namespace Framework\Debug;
+namespace Framework\Core\Modes\Page;
 
-use \Framework\Core\Framework;
+use \Framework\Core\Error as BaseError;
 
-class PageError
-extends Error {
+class Error
+extends BaseError {
     /**
     * @var string The path to the html template to use for display of an error in web mode for a production environment.
     */
@@ -82,16 +82,6 @@ extends Error {
     }
     
     /**
-     * Adds the error message to a log file.
-     *
-     * @param string $error_log_message The error message to log.                          
-     * @return void
-     */
-    public function logMessage($error_log_message) {
-        error_log($error_log_message);
-    }
-    
-    /**
      * Retrieves the debug output of an error when running in web mode.
      *
      * @param integer $error_code The code specified when the error or exception was thrown.
@@ -104,6 +94,7 @@ extends Error {
     public function getDebugHtml($error_code, $error_message, $error_file, $error_line, $error_trace) {
         $error_output = "
             <h1>An Error has Occurred</h1>
+            <br />
             <strong>Message:</strong><br />
             <hr>
             <pre>{$error_message}</pre><br />
@@ -141,11 +132,11 @@ extends Error {
     protected function getDisplay($error_code, $error_message, $error_file, $error_line, $error_trace) {
         $error_output = "";
     
-        $environment = Framework::$environment;
+        $environment = $this->framework->environment;
         
         if(empty($environment) || $environment == 'production') {
             if(empty($this->template_path)) {
-                $this->template_path = Framework::$installation_path . '/protected/framework_error.php';
+                $this->template_path = $this->framework->installation_path . '/protected/framework_error.php';
             }
             
             if(is_file($this->template_path)) {

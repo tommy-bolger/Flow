@@ -65,11 +65,11 @@ extends EditTable {
      * @return void
      */
     public function __construct($table_name, $edit_table_name, $table_id_field, $table_sort_field = '', $page_filter_columns = array()) {
-        parent::__construct($table_name, $edit_table_name, Framework::$instance->getPageClassName(), $table_id_field, $table_sort_field);
+        $this->edit_form = new TableForm("{$table_name}_form");
+    
+        parent::__construct($table_name, $edit_table_name, Framework::getInstance()->getPageClassName(), $table_id_field, $table_sort_field);
         
         $this->page_filter_columns = $page_filter_columns;
-        
-        $this->edit_form = new TableForm("{$this->name}_form");
         
         $request_table_name = request()->get->table;
         
@@ -94,6 +94,15 @@ extends EditTable {
     }
     
     /**
+     * Retrieves the element inline code and files to be included with this element.
+     *
+     * @return array
+     */
+    public function getElementFiles() {
+        return $this->edit_form->getElementFiles();
+    }
+    
+    /**
      * Adds fields with a constant value to be inserted/updated with the current record.
      *
      * @param array $constant_fields The fields to add.
@@ -115,7 +124,7 @@ extends EditTable {
             if($this->edit_form->isValid()) {
                 $this->setPageFilter($this->page_filter_columns);
             
-                $form_data = $this->edit_form->getData(true);
+                $form_data = $this->edit_form->getData('input');
                 
                 if(!empty($this->constant_fields)) {
                     $form_data = array_merge($form_data, $this->constant_fields); 
@@ -177,11 +186,11 @@ extends EditTable {
         }
         else {
             if($this->action == 'edit') {
-                $interactive_fields = $this->edit_form->getInteractiveFields();
+                $input_fields = $this->edit_form->getFieldsByGroup('input');
                 
                 $edit_table_record = db()->getRow("
                     SELECT
-                        " . implode(', ', array_keys($interactive_fields)) . "
+                        " . implode(', ', array_keys($input_fields)) . "
                     FROM {$this->edit_table_name}
                     WHERE {$this->table_id_field} = ?
                 ", array($this->record_id));

@@ -59,17 +59,6 @@ class RequestData {
     }
     
     /**
-     * Catches invalid function calls and throws an exception to prevent a fatal error.
-     *
-     * @param string $function_name The name of the function being called.
-     * @param mixed $function_arguments The arguments for the called function.          
-     * @return void
-     */
-    public function __call($function_name, $function_arguments) {
-        throw new \Exception("Function name '{$function_name}' is not a valid function in this class.");
-    }
-    
-    /**
      * Encode values of an Array, Object, or String
      *      
      * @param mixed $values The value(s) to encode.
@@ -206,6 +195,6 @@ class RequestData {
      * @return boolean
      */
     public function __isset($variable_name) {
-        return $this->variableExists($variable_name);
+        return isset($this->request_values[$variable_name]);
     }
 }

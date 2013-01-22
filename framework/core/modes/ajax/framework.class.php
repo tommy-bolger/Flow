@@ -30,17 +30,19 @@
 * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE 
 * POSSIBILITY OF SUCH DAMAGE.
 */
-namespace Framework\Core\Modes;
+namespace Framework\Core\Modes\Ajax;
 
-require_once(__DIR__ . '/page.class.php');
+use \Framework\Core\Modes\Page\Framework as BaseFramework;
 
-class Ajax
-extends Page {
+require_once(dirname(__DIR__) . '/page/framework.class.php');
+
+class Framework
+extends BaseFramework {  
     /**
     * @var object The framework error handler class name.
     */
-    protected $error_handler_class = '\\Framework\\Debug\\AjaxError';
-    
+    protected $error_handler_class = '\\Framework\\Core\\Modes\\Ajax\\Error';
+
     /**
     * @var string The framework error not found class name.
     */
@@ -66,8 +68,6 @@ extends Page {
      * @return void
      */
     public function run() {
-        session()->start();
-        
         $page_class_name = $this->getPageClass();
         
         if(empty($page_class_name)) {
@@ -119,5 +119,29 @@ extends Page {
         $this->method = request()->method;
         
         return $this->method; 
+    }
+    
+    /**
+     * Retrieves the output of the data dump.
+     *
+     * @param mixed $data The data to retrieve a dump of.     
+     * @return string
+     */
+    protected function getDebugOutput($data) {
+        return json_encode(array(
+            'debug' => var_export($data, true)
+        ));
+    }
+    
+    /**
+     * Outputs a dump of the specified data.
+     *
+     * @param mixed $data The data to output a dump of.     
+     * @return void
+     */
+    public function dump($data) {
+        parent::dump($data);
+        
+        exit;
     }
 }

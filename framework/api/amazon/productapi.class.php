@@ -13,8 +13,10 @@ class ProductAPI {
     protected $result_body_name;
     
     public function __construct($region = '', $public_key = '', $private_key = '') {
+        $framework = Framework::getInstance();
+    
         if(empty($region)) {
-            $region = config('framework')->aws_region;
+            $region = $framework->configuration->aws_region;
         }
     
         switch($region) {
@@ -32,13 +34,13 @@ class ProductAPI {
         }
         
         if(empty($public_key)) {
-            $public_key = config('framework')->aws_public_key;
+            $public_key = $framework->configuration->aws_public_key;
         }
         
         $this->public_key = $public_key;
         
         if(empty($private_key)) {
-            $private_key = config('framework')->aws_private_key;
+            $private_key = $framework->configuration->aws_private_key;
         }
         
         $this->private_key = $private_key;
@@ -58,6 +60,10 @@ class ProductAPI {
         }
         
         return "";
+    }
+    
+    public function __isset($parameter_name) {
+        return isset($this->query_parameters[$parameter_name]);
     }
     
     public function __set($parameter_name, $parameter_value) {

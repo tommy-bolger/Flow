@@ -62,9 +62,9 @@ extends ToggleGroup {
     protected function addElementFiles() {
         parent::addElementFiles();
         
-        page()->addJavascriptFile('form/fields/Select.js');
-        page()->addJavascriptFile('form/fields/Listbox.js');
-        page()->addJavascriptFile('form/fields/CheckboxGroup.js');
+        $this->addJavascriptFile('form/fields/Select.js');
+        $this->addJavascriptFile('form/fields/Listbox.js');
+        $this->addJavascriptFile('form/fields/CheckboxGroup.js');
     }
     
     /**

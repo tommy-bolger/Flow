@@ -44,6 +44,11 @@ class File {
     * @var array The list of all instances.
     */
     private static $instances;
+    
+    /**
+    * @var string The version of the framework.
+    */  
+    private $framework_version;
 
     /**
     * @var string The base path to the cache directory.
@@ -64,7 +69,7 @@ class File {
      *
      * @return object
      */
-    public static function getFileCache($module_name = '') {
+    public static function getInstance($module_name = '') {
         if(empty($module_name)) {
             $module_name = self::$default_module_name;
         }
@@ -85,24 +90,17 @@ class File {
     public function __construct($module_name) {
         assert('!empty($module_name) && is_string($module_name)');
         
-        $this->directory_path = Framework::$installation_path;
+        $framework = Framework::getInstance();
+        
+        $this->directory_path = $framework->installation_path;
     
         if($module_name != 'framework') {
             $this->directory_path .= "/modules/{$module_name}";
         }
         
-        $this->directory_path .= '/cache';             
-    }
-    
-    /**
-     * Catches all function calls not present in this class and throws an exception to avoid a fatal error.
-     *
-     * @param string $function_name The function name.
-     * @param array $arguments The function arguments.
-     * @return mixed
-     */
-    public function __call($function_name, $arguments) {
-        throw new \Exception("Function '{$function_name}' does not exist in this class.");
+        $this->directory_path .= '/cache';
+        
+        $this->framework_version = $framework->configuration->version;
     }
 
     /**
@@ -113,7 +111,7 @@ class File {
      * @return string
      */
     private function getHashedKey($key, $file_path) {    
-        return md5($key . $file_path . config('framework')->version);
+        return md5($key . $file_path . $this->framework_version);
     }
     
     /**

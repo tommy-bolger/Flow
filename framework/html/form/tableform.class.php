@@ -72,7 +72,24 @@ extends Form {
     protected function addElementFiles() {
         parent::addElementFiles();
         
-        page()->addCssFile('framework/TableForm.css');
+        $this->addCssFile('framework/TableForm.css');
+    }
+    
+    /**
+     * Retrieves the element inline code and files to be included with this element.
+     *
+     * @return array
+     */
+    public function getElementFiles() {
+        $element_files = parent::getElementFiles();
+        
+        $table_element_files = $this->table->getElementFiles();
+        
+        $element_files['css'] += $table_element_files['css'];
+        $element_files['javascript'] += $table_element_files['javascript'];
+        $element_files['inline_javascript'] += $table_element_files['inline_javascript'];
+        
+        return $element_files;
     }
     
     /**

@@ -93,7 +93,7 @@ extends Module {
         
         $this->theme = $this->configuration->theme;
         
-        $page_assets_path = Framework::$installation_path;
+        $page_assets_path = $this->framework->installation_path;
         
         //Set the module's assets path
         $this->assets_path = "{$page_assets_path}/modules/{$module_name}/assets";

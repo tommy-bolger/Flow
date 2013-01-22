@@ -34,17 +34,14 @@
 namespace Framework\Html;
 
 use \Framework\Core\Framework;
-use \Framework\Utilities\Minify;
+use \Framework\Minification\Html;
+use \Framework\Minification\Css;
+use \Framework\Minification\Javascript;
 use \Framework\Utilities\Http;
 use \Framework\Display\Template;
 use \Framework\Html\Body;
 
 class page {
-    /**
-    * @var object Stores an instance of this class.
-    */
-    private static $page;
-
     /**
     * @var array A list of valid html doctype tags and their html.
     */
@@ -57,6 +54,11 @@ class page {
         'xhtml_1_frameset' => '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Frameset//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-frameset.dtd">',
         'xhtml_1_1' => '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">'
     );
+    
+    /**
+    * @var object The instance of the framework.
+    */
+    private $framework;
     
     /**
     * @var object The template for the page.
@@ -157,19 +159,6 @@ class page {
     * @var object The page body and its child elements.
     */
     private $body;
-    
-    /**
-     * Retrieves the current instance of Page.
-     *
-     * @return object
-     */
-    public static function getPage() {
-        if(!isset(self::$page)) {
-            //throw new \Exception("The current page as not been instantiated and cannot be retrieved.");
-        }
-    
-        return self::$page;
-    }
 
     /**
      * Initializes a new instance of Page.
@@ -179,8 +168,10 @@ class page {
      * @return void
      */
     public function __construct($page_name = '', $enable_cache = false) {
+        $this->framework = Framework::getInstance();
+    
         if(empty($page_name)) {
-            $this->name = Framework::$instance->getPageClassName();
+            $this->name = $this->framework->getPageClassName();
         }
         else {
             $this->name = $page_name;
@@ -191,7 +182,7 @@ class page {
         //Add this header to help prevent clickjacking attacks in modern browsers
         header('X-Frame-Options: DENY');
 
-        if(Framework::$enable_cache && $this->cache_page) {
+        if($this->framework->enable_cache && $this->cache_page) {
             header('Content-Encoding: gzip');
 
             //Immediately call the displayCache function
@@ -204,28 +195,10 @@ class page {
             
             ob_start();
         }
-    
-        if(!isset(self::$page)) {
-            self::$page = $this;
-        }
-        else {
-            throw new \Exception("Another page has already been initialized.");
-        }
         
-        $this->enable_javascript = config('framework')->enable_javascript;
+        $this->enable_javascript = $this->framework->configuration->enable_javascript;
         
-        $this->assets_path = Framework::$installation_path . '/public/assets';
-    }
-    
-    /**
-     * Catches calls to functions not in this class and throws an exception to prevent a fatal error.
-     *
-     * @param $function_name The name of the called function.
-     * @param $arguments The arguments of the called function.          
-     * @return void
-     */
-    public function __call($function_name, $arguments) {
-        throw new \Exception("Function '{$function_name}' does not exist in this class.");
+        $this->assets_path = $this->framework->installation_path . '/public/assets';
     }
     
     /**
@@ -526,7 +499,7 @@ class page {
     private function renderMetaTags() {
         $meta_tag_html = '';
         
-        if(Framework::$enable_cache) {
+        if($this->framework->enable_cache) {
             $meta_tag_html = cache()->get($this->name, 'meta');
             
             if(!empty($meta_tag_html)) {
@@ -545,7 +518,7 @@ class page {
                 $meta_tag_html .= " />";
             }
             
-            if(Framework::$enable_cache) {
+            if($this->framework->enable_cache) {
                 cache()->set($this->name, $meta_tag_html, 'meta');
             }
         }
@@ -572,13 +545,17 @@ class page {
         }
     
         if(!empty($this->internal_css_files)) {
-            if(Framework::$environment == 'production') {
+            if($this->framework->environment == 'production') {
                 $css_file_cache_name = $this->name . implode('-', $this->internal_css_files);
             
                 $css_hash_name = file_cache()->exists($css_file_cache_name, 'css/', 'gz');
 
                 if($css_hash_name === false) {
-                    $css_hash_name = file_cache()->set($css_file_cache_name, Minify::minifyCss($this->internal_css_files, "{$this->name}_css_temp"), 'css/', 'gz');
+                    $css_minifier = new Css($this->internal_css_files);
+                    $css_minifier->clean();
+                    $css_minifier->compress();
+                
+                    $css_hash_name = file_cache()->set($css_file_cache_name, $css_minifier->getMinifiedData(), 'css/', 'gz');
                 }
                 
                 $css_http_path = "{$this->assets_http_path}/css/{$css_hash_name}";
@@ -626,13 +603,17 @@ class page {
         }
 
         if(!empty($this->internal_javascript_files)) {
-            if(Framework::$environment == 'production') {
+            if($this->framework->environment == 'production') {
                 $javascript_file_cache_name = $this->name . implode('-', $this->internal_javascript_files);
             
                 $javascript_hash_name = file_cache()->exists($javascript_file_cache_name, 'javascript/', 'gz');
                 
                 if($javascript_hash_name === false) {
-                    $javascript_hash_name = file_cache()->set($javascript_file_cache_name, Minify::minifyJavascript($this->internal_javascript_files, "{$this->name}_javascript_temp"), 'javascript/', 'gz');
+                    $javascript_minifier = new Javascript($this->internal_javascript_files);
+                    $javascript_minifier->clean();
+                    $javascript_minifier->compress();
+                
+                    $javascript_hash_name = file_cache()->set($javascript_file_cache_name, $javascript_minifier->getMinifiedData(), 'javascript/', 'gz');
                 }
                 
                 $javascript_http_path = "{$this->assets_http_path}/javascript/{$javascript_hash_name}";
@@ -675,7 +656,7 @@ class page {
      *
      * @return string The rendered head tag.
      */
-    private function renderHeader() {
+    private function renderHeader() {    
         $header_html = '<head>';
 
         //Render the title
@@ -781,6 +762,27 @@ class page {
      * @return string
      */
     public function render() {
+        //Add all element files/inline code
+        if(!empty($this->body)) {
+            $element_files = $this->body->getElementFiles();
+    
+            $css_files = $element_files['css'];
+            $javascript_files = $element_files['javascript'];
+            $inline_javascript = $element_files['inline_javascript'];
+    
+            foreach($css_files as $css_file_path => $internal) {
+                $this->addCssFile($css_file_path, $internal);
+            }
+    
+            foreach($javascript_files as $javascript_file_path => $internal) {
+                $this->addJavascriptFile($javascript_file_path, $internal);
+            }
+            
+            foreach($inline_javascript as $inline_snippet) {
+                $this->addInlineJavascript($inline_snippet);
+            }
+        }
+    
         $page_html = "";
 
         if(isset($this->template)) {
@@ -795,8 +797,12 @@ class page {
         }
         
         //If caching is enabled and this page html is not cached then do so
-        if(Framework::$enable_cache && $this->cache_page) {
-            $page_html = Minify::minifyHtml($page_html);
+        if($this->framework->enable_cache && $this->cache_page) {
+            $html_minifier = new Html($page_html);
+            $html_minifier->clean();
+            $html_minifier->compress();
+        
+            $page_html = $html_minifier->getMinifiedData();
             
             file_cache()->set($this->name, $page_html, 'html/', 'gz');
         

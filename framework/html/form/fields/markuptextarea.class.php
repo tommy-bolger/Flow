@@ -53,16 +53,12 @@ extends Textarea {
      * @return void
      */
     protected function addElementFiles() {
-        page()->addCssFiles(array(
-            'framework/MarkupTextArea/skin_style.css',
-            'framework/MarkupTextArea/setting_style.css'
-        ));
-    
-        page()->addJavascriptFiles(array(
-            'jquery.min.js',
-            'jquery.markitup.js',
-            'framework/MarkupTextArea/jquery.markitup_settings.js',
-            'framework/MarkupTextArea/MarkupTextArea.js'
-        ));
+        $this->addCssFile('framework/MarkupTextArea/skin_style.css');
+        $this->addCssFile('framework/MarkupTextArea/setting_style.css');
+        
+        $this->addJavascriptFile('jquery.min.js');    
+        $this->addJavascriptFile('jquery.markitup.js'); 
+        $this->addJavascriptFile('framework/MarkupTextArea/jquery.markitup_settings.js'); 
+        $this->addJavascriptFile('framework/MarkupTextArea/MarkupTextArea.js');
     }
 }

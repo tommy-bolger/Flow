@@ -84,23 +84,12 @@ extends Element {
     }
     
     /**
-     * Catches calls to functions not in this class and throws an exception to prevent a fatal error.
-     *      
-     * @param string $function_name The called function name.
-     * @param array $arguments The called function arguments.
-     * @return void
-     */
-    public function __call($function_name, $arguments) {
-        throw new \Exception("Function '{$function_name}' does not exist in this class.");
-    }
-    
-    /**
      * Adds the element's javascript and css to the page.
      *      
      * @return void
      */
     protected function addElementFiles() {
-        page()->addCssFile('framework/Table.css');
+        $this->addCssFile('framework/Table.css');
     }
     
     /**
@@ -204,7 +193,7 @@ extends Element {
      * @param string $group_name (optional) The name of the table body the specified records belong to.     
      * @return void
      */
-    public function addRows($rows, $group_name = '') {    
+    public function addRows($rows, $group_name = '') { 
         if(!empty($rows)) {
             assert('is_array($rows)');
         

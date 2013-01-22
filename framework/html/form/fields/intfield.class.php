@@ -65,7 +65,7 @@ extends Textbox {
     protected function addElementFiles() {
         parent::addElementFiles();
 
-        page()->addJavascriptFile('form/fields/IntField.js');
+        $this->addJavascriptFile('form/fields/IntField.js');
     }
     
     public function setMaxLength($max_length) {}

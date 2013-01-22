@@ -37,12 +37,47 @@ use \Framework\Modules\Module;
 require_once('../../framework/core/framework.class.php');
 
 function display_help() {
-    die("The help!\n");
+    die(
+        "\n================================================================================\n" . 
+        "\nThis script will run all php or database sql update scripts for a specific module or the framework to update to a target version.\n" . 
+        "\nOptions:\n" . 
+        "\n-m <module_name> (optional) The name of the module to update. If left blank then framework updates (located under <installation_path>/scripts/update) will be run." . 
+        "\n-t <version> The version to update to." . 
+        "\n-h Outputs this help menu." . 
+        "\n================================================================================\n"
+    );
+}
+
+/**
+ * Compile Files for APC
+ *
+ * This function was adapted from: http://blog.digitalstruct.com/2008/01/31/performance-tuning-overview/
+ *  
+ * @param string $starting_directory The absolute path to the starting directory to begin scanning.
+ * @return void
+ */
+function compile_files($starting_directory) {
+    $directories = glob($starting_directory . DIRECTORY_SEPARATOR . '*', GLOB_ONLYDIR);
+    
+    if(!empty($directories)) {
+        foreach($directories as $directory) {
+            compile_files($directory);
+        }
+    }
+ 
+    $files = glob($starting_directory . DIRECTORY_SEPARATOR . '*.php');
+    
+    if(!empty($files)) {
+        foreach($files as $file) {
+            echo "Compiling {$file}.\n";
+            apc_compile_file($file);
+        }
+    }
 }
 
 $framework = new Framework('cli');
 
-$installation_path = Framework::$installation_path;
+$installation_path = $framework->installation_path;
 
 $arguments = getopt('m:t:h');
 
@@ -77,19 +112,19 @@ echo "Initializing...\n";
 $update_from = '';
 
 if(!empty($module_name)) {
-    config($module_name)->load();
+    $module = new Module($module_name);
 
-    $update_from = config($module_name)->version;
+    $update_from = $module->configuration->version;
 }
 else {
-    $update_from = config('framework')->version;
+    $update_from = $framework->configuration->version;
 }
 
 if($update_from == $update_to) {
     die("Already at version {$update_to}. Exiting.\n");
 }
 
-$database_dsn = config('framework')->database_dsn;
+$database_dsn = $framework->configuration->database_dsn;
 
 $database_engine = substr($database_dsn, 0, strpos($database_dsn, ':'));
 
@@ -277,7 +312,7 @@ else {
 }
 
 //Clear memory cache if enabled
-if(Framework::$enable_cache) {
+if($framework->enable_cache) {
     echo "Clearing memory cache.\n";
     
     cache()->clear();
@@ -297,11 +332,13 @@ else {
     }
 }
 
-//If APC is installed then clear the opcode cache
+//If APC is installed then refresh the opcode cache
 $loaded_extensions = get_loaded_extensions();
 
 if(in_array('apc', $loaded_extensions)) {
     apc_clear_cache();
+    
+    compile_files($installation_path);
 }
 
 echo "Update successful!\n";

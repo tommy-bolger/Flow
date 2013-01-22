@@ -62,6 +62,6 @@ extends Select {
     protected function addElementFiles() {
         parent::addElementFiles();
 
-        page()->addJavascriptFile('form/fields/Dropdown.js');
+        $this->addJavascriptFile('form/fields/Dropdown.js');
     }
 }

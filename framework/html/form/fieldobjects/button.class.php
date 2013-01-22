@@ -36,9 +36,9 @@ namespace Framework\Html\Form\FieldObjects;
 class Button
 extends Field {
     /**
-    * @var boolean Flag indicating that the field's value gets included when retrieving the data of only interactive fields in the form objects.
+    * @var string The default group name of this field.
     */
-    protected $is_interactive = false;
+    protected $default_group_name = 'button';
     
     /**
     * @var boolean Flag indicating that the field can have a label.
@@ -73,7 +73,7 @@ extends Field {
      * @return void
      */
     protected function addElementFiles() {
-        page()->addCssFile('framework/Button.css');
+        $this->addCssFile('framework/Button.css');
     }
 
     public function setWidth($width) {

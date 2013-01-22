@@ -128,6 +128,7 @@ SELECT pg_catalog.setval('cms_configuration_parameters_seq', 14, true);
 
 CREATE TABLE cms_errors (
     error_id bigint NOT NULL,
+    incident_number character varying(9) NOT NULL,
     error_code character varying(20),
     error_message text,
     error_file text,

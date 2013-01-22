@@ -32,6 +32,8 @@
 */
 namespace Framework\Utilities;
 
+use \Framework\Core\Configuration;
+
 class Encryption {
     /**
     * @var integer The encryption algorithm to use for mcrypt.
@@ -57,6 +59,11 @@ class Encryption {
     * @var string The zero-padded number of iterations for use for the Blowfish alogrithm via crypt.
     */
     const CRYPT_ITERATIONS = '15';
+    
+    /**
+    * @var boolean Indicates if this object has been initialized.
+    */
+    private static $initialized = false;
 
     /**
     * @var string The site key stored in the framework configuration.
@@ -96,6 +103,22 @@ class Encryption {
     }
     
     /**
+    * Initializes the encryption object with its frameworm configuration.
+    * 
+    * @return void
+    */
+    private static function initialize() {
+        if(!self::$initialized) {
+            $configuration = Configuration::getInstance('framework');
+    
+            self::$site_key = $configuration->site_key;
+            self::$password_salt = $configuration->password_salt;
+            
+            self::$initialized = true;
+        }
+    }
+    
+    /**
     * Generates and retrieves a key for encryption with mcrypt based on or more plain keys.
     * 
     * @param array $plain_keys The plain keys to use to generate an encryption key.
@@ -106,19 +129,13 @@ class Encryption {
     private static function generateEncryptionKey($plain_keys, $site_key = NULL, $password_salt = NULL) {
         assert('is_array($plain_keys) && !empty($plain_keys)');
         
-        if(!isset($site_key)) {
-            if(!isset(self::$site_key)) {
-                self::$site_key = config('framework')->site_key;
-            }
-            
+        self::initialize();
+        
+        if(!isset($site_key)) {            
             $site_key = self::$site_key;
         }
         
-        if(!isset($password_salt)) {
-            if(!isset(self::$password_salt)) {
-                self::$password_salt = config('framework')->password_salt;
-            }
-            
+        if(!isset($password_salt)) {            
             $password_salt = self::$password_salt;
         }
         
@@ -152,19 +169,13 @@ class Encryption {
     * @return string
     */
     private static function generateNonceSalt($sensitive_data, $site_key, $password_salt) {
-        if(!isset($site_key)) {
-            if(!isset(self::$site_key)) {
-                self::$site_key = config('framework')->site_key;
-            }
-            
+        self::initialize();
+    
+        if(!isset($site_key)) {            
             $site_key = self::$site_key;
         }
         
-        if(!isset($password_salt)) {
-            if(!isset(self::$password_salt)) {
-                self::$password_salt = config('framework')->password_salt;
-            }
-            
+        if(!isset($password_salt)) {            
             $password_salt = self::$password_salt;
         }
         

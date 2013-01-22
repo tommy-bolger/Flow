@@ -30,19 +30,20 @@
 * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE 
 * POSSIBILITY OF SUCH DAMAGE.
 */
-namespace Framework\Core\Modes;
+namespace Framework\Core\Modes\Image;
 
+use \Framework\Core\Modes\File\Framework as BaseFramework;
 use \Framework\Utilities\Image as ImageUtility;
 
-require_once(__DIR__ . '/file.class.php');
+require_once(dirname(__DIR__) . '/file/framework.class.php');
 
-class Image
-extends File {
+class Framework
+extends BaseFramework {
     /**
     * @var object The framework error handler class name.
     */
-    protected $error_handler_class = '\\Framework\\Debug\\ImageError';
-    
+    protected $error_handler_class = '\\Framework\\Core\\Modes\\Image\\Error';
+
     /**
     * @var string The name of the assets folder to use in the full path.
     */
@@ -107,7 +108,7 @@ extends File {
         
         header("Content-type: image/png");
     
-        $this->full_path = self::$installation_path . "/public/assets/images/not_found.png";
+        $this->full_path = "{$this->installation_path}/public/assets/images/not_found.png";
     }
     
     /**
@@ -117,7 +118,7 @@ extends File {
      */
     private function resizeImage() {
         //If a width and height have been specified then resize a copy of the image to those dimensions and save the copy to the cache folder.
-        $image_cache_path = self::$installation_path . "/cache/images";
+        $image_cache_path = "{$this->installation_path}/cache/images";
         
         $image_cache_name = "{$this->module_name}_{$this->theme_name}_{$this->name}_{$this->width}_{$this->height}";
     

@@ -1,6 +1,6 @@
 <?php
 /**
-* Allows the rendering of a <a> tag and its child elements dynamically.
+* Configures, retrieves, and stores data from a result set based on cached data in memory.
 * Copyright (c) 2011, Tommy Bolger
 * All rights reserved.
 * 
@@ -30,21 +30,44 @@
 * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE 
 * POSSIBILITY OF SUCH DAMAGE.
 */
-namespace Framework\Html\Text;
 
-class Hyperlink
-extends \Framework\Html\Element {
+namespace Framework\Data\ResultSet;
+
+class Memory 
+extends ResultSet {
     /**
-     * Initializes a new instance of Hyperlink.
+    * @var object The framework cache object to retrieve values from memory.
+    */
+    protected $cache;
+    
+    /**
+     * Initializes a new instance of a ResultSet.
      *
-     * @param string $hyperlink_url The url of the hyperlink.
-     * @param string $display_text(optional) The display text of the hyperlink.
-     * @param array $element_attributes (optional) The attributes of the hyperlink.          
+     * @param string $name The name of the resultset.    
      * @return void
      */
-    public function __construct($hyperlink_url, $display_text = NULL, $element_attributes = array()) {
-        parent::__construct("a", $element_attributes, $display_text);
+    public function __construct($name) {
+        parent::__construct($name);
         
-        $this->setAttribute('href', $hyperlink_url);
+        $this->cache = cache();
+    }
+    
+    /**
+     * Retrieves the unprocessed result set.
+     * 
+     * @return array
+     */
+    protected function getRawData() {
+        if($this->has_total_record_count) {
+            $this->total_number_of_records = $this->cache->get('total_record_count', $this->name);
+            
+            $this->rows_per_page = $this->cache->get('rows_per_page', $this->name);
+        }
+        
+        if(empty($this->page_number)) {
+            throw new \Exception("Page number is required.");
+        }
+
+        return $this->cache->get($this->page_number, $this->name);
     }
 }

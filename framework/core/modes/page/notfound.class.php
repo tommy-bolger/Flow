@@ -30,29 +30,29 @@
 * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE 
 * POSSIBILITY OF SUCH DAMAGE.
 */
-namespace Framework\Debug;
+namespace Framework\Core\Modes\Page;
 
-use \Framework\Core\Framework;
+use \Framework\Core\Controller;
 use \Framework\Html\Page;
 
 class NotFound
-extends Page {
-    protected $name = 'not_found';
-
-    protected $cache_page = true;
-
+extends Controller {
+    protected $framework;
+    
     public function __construct() {
         header('HTTP/1.0 404 Not Found');
         
+        $this->framework = Framework::getInstance();
+        
         //Log that the requested page class could not be found.        
-        $page_class_path = Framework::$instance->getQualifiedPagePath();
+        $page_class_path = $this->framework->getQualifiedPagePath();
         
-        Framework::$instance->error_handler->logMessage("Page class '{$page_class_path}' could not be found.");
+        $this->framework->error_handler->logMessage("Page class '{$page_class_path}' could not be found.");
+    }
+    
+    public function setup() {
+        $this->page = new Page('not_found', true);
         
-        //Initialize this page.
-        parent::__construct();
-        
-        //Load the template for the NotFound page.
-        $this->setTemplate(Framework::$installation_path . '/protected/not_found.php', false);
+        $this->page->setTemplate("{$this->framework->installation_path}/protected/not_found.php", false);
     }
 }

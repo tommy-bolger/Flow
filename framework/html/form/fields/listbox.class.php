@@ -65,7 +65,7 @@ extends Select {
     protected function addElementFiles() {
         parent::addElementFiles();
 
-        page()->addJavascriptFile('form/fields/Listbox.js');
+        $this->addJavascriptFile('form/fields/Listbox.js');
     }
     
     /**

@@ -37,17 +37,37 @@ use \Framework\Html\Page;
 use \Framework\Core\Configuration;
 use \Framework\Display\Template;
 use \Framework\Caching\File;
+use \Framework\Utilities\Http;
 
 class ModulePage
 extends Page {
+    /**
+    * @var string The name of the module that is serving the current request.
+    */
     protected static $running_module;
 
+    /**
+    * @var object The instance of this page's module.
+    */
     protected $module;
     
+    /**
+     * Retrieves the name of the module that is serving the current request.
+     *       
+     * @return string
+     */
     public static function getRunningModule() {
         return self::$running_module;
     }
     
+    /**
+     * Initializes a new instance of ModulePage.
+     *      
+     * @param string $module_name The name of this page's module.
+     * @param string $page_name (optional) The name of the page. Defaults to an empty string.
+     * @param string $cache_page (optional) Indicates if the page should cache its output. Defaults to false.  
+     * @return void
+     */
     public function __construct($module_name, $page_name = '', $cache_page = false) {
         self::$running_module = $module_name;
     
@@ -59,6 +79,10 @@ extends Page {
         
         //Set the default configuration name to this module's name
         Configuration::setDefault($module_name);
+        
+        if(!empty($this->module->configuration->encrypt_urls)) {
+            Http::enableEncryptedUrls();
+        }
         
         $module_theme_path = $this->module->getThemePath();
         
@@ -98,10 +122,17 @@ extends Page {
         
         //Add the current module style's error page template to display for errors if it exists.
         if($module_name != 'admin') {
-            Framework::$instance->error_handler->setTemplatePath("{$module_templates_path}/error_template.php");
+            Framework::getInstance()->error_handler->setTemplatePath("{$module_templates_path}/error_template.php");
         }
     }
     
+    /**
+     * Intercepts function calls and funnels them to this page's module instance.
+     *      
+     * @param string $function_name The name of the function.
+     * @param string $arguments The arguments of the function.
+     * @return mixed
+     */
     public function __call($function_name, $arguments) {
         return call_user_func_array(array($this->module, $function_name), $arguments);
     }

@@ -41,9 +41,9 @@ extends \Framework\Html\Element {
     public $IS_FORM_FIELD = true;
     
     /**
-    * @var boolean Flag indicating that the field's value gets included when retrieving the data of only interactive fields in the form objects.
+    * @var string The default group name of this field.
     */
-    protected $is_interactive = true;
+    protected $default_group_name = 'input';
     
     /**
     * @var boolean Flag indicating that the field can have a label.
@@ -139,17 +139,6 @@ extends \Framework\Html\Element {
     }
     
     /**
-     * Catches calls to functions that do not exist in this class and throws an Exception to prevent a fatal error.
-     *      
-     * @param string $function_name The name of the function.
-     * @param array $arguments The arguments to the function.
-     * @return void
-     */
-    public function __call($function_name, $arguments) {        
-        throw new \Exception("Function name '{$function_name}' does not exist for this class.");
-    }
-    
-    /**
      * Removes the data attribute that enables JS on this field.
      *      
      * @return void
@@ -164,16 +153,16 @@ extends \Framework\Html\Element {
      * @return void
      */
     protected function addElementFiles() {
-        page()->addJavascriptFile('form/fields/Field.js');
+        $this->addJavascriptFile('form/fields/Field.js');
     }
     
     /**
-     * Indicates if the field is interactive.
+     * Retrieves the default group name of this field.
      *      
-     * @return boolean
+     * @return string
      */
-    public function isInteractive() {
-        return $this->is_interactive;
+    public function getDefaultGroupName() {
+        return $this->default_group_name;
     }
     
     /**
@@ -222,11 +211,16 @@ extends \Framework\Html\Element {
     
     /**
      * Retrieves the field input name. Trims appended '[]' if detected.
-     *      
+     *    
      * @return string
      */
     public function getName() {
-        return rtrim($this->name, '[]');
+        if(strpos($this->name, '[]') !== false) {
+            return rtrim($this->name, '[]');
+        }
+        else {
+            return $this->name;
+        }
     }
     
     /**

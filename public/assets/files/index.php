@@ -1,10 +1,10 @@
 <?php
-use \Framework\Core\Modes\File;
+use \Framework\Core\Modes\File\Framework;
 
 $installation_path = dirname(dirname(dirname(__DIR__)));
 
-require_once("{$installation_path}/framework/core/modes/file.class.php");
+require_once("{$installation_path}/framework/core/modes/file/framework.class.php");
 
-$framework = new File();
+$framework = new Framework();
 
 $framework->run();

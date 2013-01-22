@@ -1,6 +1,6 @@
 <?php
 /**
-* Allows the rendering of a <div> tag and its child elements dynamically.
+* The error handling class for the framework's image mode.
 * Copyright (c) 2011, Tommy Bolger
 * All rights reserved.
 * 
@@ -30,19 +30,34 @@
 * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE 
 * POSSIBILITY OF SUCH DAMAGE.
 */
+namespace Framework\Core\Modes\Image;
 
-namespace Framework\Html\Misc;
+use \Framework\Core\Modes\File\Error as BaseError;
 
-class Div
-extends \Framework\Html\Element {
+class Error
+extends BaseError {
     /**
-     * Initializes a new instance of Div.
-     *      
-     * @param array $element_attributes (optional) The html attributes of the div.
-     * @param string $element_text (optional) The display text inside of the div.
+     * Initializes the error handler.
+     *
      * @return void
      */
-    public function __construct($element_attributes = array(), $element_text = NULL) {
-        parent::__construct("div", $element_attributes, $element_text);
+    public function __construct() {
+        parent::__construct();
+    }
+    
+    /**
+     * Retrieves the image.
+     *
+     * @param integer $error_code The code specified when the error or exception was thrown.
+     * @param string $error_message The error message.
+     * @param string $error_file (optional) The file that the error or exception occurred at.
+     * @param integer $error_line (optional) The line that the error occurred at.
+     * @param string|array $error_trace (optional) The stack trace of the application execution from beginning to when the error was encountered. Can either be a string for exceptions or arrays for errors.                          
+     * @return string
+     */
+    protected function getDisplay($error_code, $error_message, $error_file, $error_line, $error_trace) {
+        $this->framework->initializeNotFound();
+        
+        $this->framework->run();
     }
 }

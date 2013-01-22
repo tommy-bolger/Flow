@@ -34,54 +34,22 @@
 use \Framework\Core\Framework;
 
 /**
-* Retrieves a PHP environment variable value.
-*
-* @param string $environment_variable The name of the variable value.
-* @return mixed
-*/
-function environment($environment_variable) {
-    if(isset($_SERVER[$environment_variable])) {
-        return $_SERVER[$environment_variable];
-    }
-
-    if(isset($_ENV[$environment_variable])) {
-        return $_ENV[$environment_variable];
-    }
-
-    if(function_exists("getenv")) {
-        return getenv($environment_variable);
-    }
-
-    return false;
-}
-
-/**
-* A shortcut function to the SquConfiguration::getConfiguration function.
-*
-* @param string $config_name (optional) The name of the configuration instance to retrieve.
-* @return object
-*/
-function config($config_name = NULL) {
-    return \Framework\Core\Configuration::getConfiguration($config_name);
-}
-
-/**
 * A shortcut function to the Database::getDatabase function.
 *
 * @param string $database_connection_name (optional) The name of the database instance to retrieve.
 * @return object
 */
 function db($database_connection_name = NULL) {
-    return \Framework\Data\Database::getDatabase($database_connection_name);
+    return \Framework\Data\Database::getInstance($database_connection_name);
 }
 
 /**
-* A shortcut function to the Request::getDatabase function.
+* A shortcut function to the Request::getRequest function.
 *
 * @return object
 */
 function request() {
-    return \Framework\Request\Request::getRequest();
+    return \Framework\Request\Request::getInstance();
 }
 
 /**
@@ -90,7 +58,7 @@ function request() {
 * @return object
 */
 function session() {
-    return \Framework\Session\Session::getSession();
+    return \Framework\Session\Session::getInstance();
 }
 
 /**
@@ -99,7 +67,7 @@ function session() {
 * @return object
 */
 function cache() {
-    return \Framework\Caching\Cache::getCache();
+    return \Framework\Caching\Cache::getInstance();
 }
 
 /**
@@ -108,16 +76,7 @@ function cache() {
 * @return object
 */
 function file_cache($module_name = '') {
-    return \Framework\Caching\File::getFileCache($module_name);
-}
-
-/**
-* A shortcut to the Page object instance.
-*
-* @return object
-*/
-function page() {
-    return \Framework\Html\Page::getPage();
+    return \Framework\Caching\File::getInstance($module_name);
 }
 
 /**
@@ -127,7 +86,5 @@ function page() {
 * @return void
 */
 function dump($data) {
-    if(Framework::$environment != 'production') {
-        \Framework\Debug\Debug::dump($data);
-    }
+    Framework::getInstance()->dump($data);
 }

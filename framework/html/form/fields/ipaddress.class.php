@@ -63,7 +63,7 @@ extends Textbox {
     protected function addElementFiles() {
         parent::addElementFiles();
 
-        page()->addJavascriptFile('form/fields/IPAddress.js');
+        $this->addJavascriptFile('form/fields/IPAddress.js');
     }
     
     /**

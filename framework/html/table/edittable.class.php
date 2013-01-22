@@ -191,7 +191,7 @@ extends Table {
     protected function addElementFiles() {
         parent::addElementFiles();
     
-        page()->addCssFile('framework/EditTable.css');
+        $this->addCssFile('framework/EditTable.css');
     }
     
     /**
@@ -413,10 +413,9 @@ extends Table {
         $token_name = "{$this->name}_token";
 
         if($this->request_table_name != $this->name) {
-            if(isset(session()->$token_name)) {
-                $this->request_token = session()->$token_name;
-            }
-            else {
+            $this->request_token = session()->$token_name;
+                        
+            if(empty($this->request_token)) {
                 $this->request_token = substr(Encryption::generateShortHash(), 0, 10);
 
                 //Add the token to the session
@@ -426,7 +425,7 @@ extends Table {
         else {
             $this->request_token = request()->get->token;
         
-            if(!isset(session()->$token_name)) {
+            if(empty(session()->$token_name)) {
                 throw new \Exception("Token '{$token_name}' for table '{$this->name}' does not exist in the session.");
             }
 

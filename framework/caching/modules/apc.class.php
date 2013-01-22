@@ -32,18 +32,7 @@
 */
 namespace Framework\Caching\Modules;
 
-class APC {    
-    /**
-     * Catches all function calls not present in this class and throws an exception to avoid a fatal error.
-     *
-     * @param string $function_name The function name.
-     * @param array $arguments The function arguments.
-     * @return mixed
-     */
-    public function __call($function_name, $arguments) {
-        throw new \Exception("Function '{$function_name}' does not exist in this class.");
-    }
-    
+class APC {        
     /**
      * Sets a variable value in APC.
      *

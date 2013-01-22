@@ -30,17 +30,19 @@
 * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE 
 * POSSIBILITY OF SUCH DAMAGE.
 */
-namespace Framework\Core\Modes;
+namespace Framework\Core\Modes\File;
 
-require_once(__DIR__ . '/web.class.php');
+use \Framework\Core\Modes\Web;
 
-class File
+require_once(dirname(__DIR__) . '/web.class.php');
+
+class Framework
 extends Web {
     /**
     * @var object The framework error handler class name.
     */
-    protected $error_handler_class = '\\Framework\\Debug\\FileError';
-    
+    protected $error_handler_class = '\\Framework\\Core\\Modes\\File\\Error';
+
     /**
     * @var string The name of the assets folder to use in the full path.
     */
@@ -113,7 +115,7 @@ extends Web {
             $last_modified_time = NULL;
             $etag = NULL;
         
-            if(self::$enable_cache) {
+            if($this->enable_cache) {
                 $last_modified_time = cache()->get($this->full_path, "last_modified_time");
                 $etag = cache()->get($this->full_path, "etag");
             }
@@ -126,7 +128,7 @@ extends Web {
                 $etag = md5_file($this->full_path);
             }
             
-            if(self::$enable_cache) {                
+            if($this->enable_cache) {                
                 cache()->set($this->full_path, $last_modified_time, "last_modified_time");
                 cache()->set($this->full_path, $etag, "etag");
             }
@@ -215,7 +217,7 @@ extends Web {
      * @return void
      */
     protected function constructFilePath() {
-        $file_path = self::$installation_path;
+        $file_path = $this->installation_path;
         
         if(!empty($this->module_name)) {
             $file_path .= "/modules/{$this->module_name}/assets";

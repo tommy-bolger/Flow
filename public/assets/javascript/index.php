@@ -1,10 +1,10 @@
 <?php
-use \Framework\Core\Modes\Asset;
+use \Framework\Core\Modes\Asset\Framework;
 
 $installation_path = dirname(dirname(dirname(__DIR__)));
 
-require_once("{$installation_path}/framework/core/modes/asset.class.php");
+require_once("{$installation_path}/framework/core/modes/asset/framework.class.php");
 
-$framework = new Asset('javascript');
+$framework = new Framework('javascript');
 
 $framework->run();

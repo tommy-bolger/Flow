@@ -32,8 +32,8 @@
 */
 namespace Framework\Data;
 
+use \Framework\Core\Framework;
 use \Framework\Utilities\Encryption;
-
 use PDO;
 
 class Database {
@@ -73,7 +73,7 @@ class Database {
      * @param string $database_connection (optional) The name of the database connection.
      * @return object The database connection object.
      */
-    public static function getDatabase($database_connection = NULL) {            
+    public static function getInstance($database_connection = NULL) {            
         if(empty($database_connection)) {
             $database_connection = 'default';            
         }
@@ -82,9 +82,11 @@ class Database {
             $new_database_connection = new database();
 
             if($database_connection == 'default') {
-                $dsn = config('framework')->database_dsn;
-                $username = config('framework')->database_user;
-                $encrypted_password = config('framework')->database_password;
+                $framework = Framework::getInstance();
+            
+                $dsn = $framework->configuration->database_dsn;
+                $username = $framework->configuration->database_user;
+                $encrypted_password = $framework->configuration->database_password;
                 
                 $unencrypted_password = '';
                 
@@ -146,7 +148,10 @@ class Database {
      * @return void
      */
     public function connect($dsn, $username, $password) {
-        $this->database_connection = new PDO($dsn, $username, $password, array(PDO::ATTR_ERRMODE => PDO::ERRMODE_WARNING));
+        $this->database_connection = new PDO($dsn, $username, $password, array(
+            PDO::ATTR_ERRMODE => PDO::ERRMODE_WARNING,
+            PDO::ATTR_EMULATE_PREPARES => false
+        ));
         
         $this->useExceptionHandler();
         

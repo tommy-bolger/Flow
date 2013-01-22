@@ -37,6 +37,11 @@ use \Framework\Modules\ModulePage;
 
 final class Http {
     /**
+    * @var boolean Indicates if the query string of a generated url should be encrypted.
+    */  
+    private static $encrypt_urls = false;
+
+    /**
     * @var string The base url of the current site. Acts as a cache so it is not generated more than once.
     */  
     private static $base_url;
@@ -63,7 +68,7 @@ final class Http {
     * @return void   
     */
     public static function redirect($redirect_location) {            
-        switch(Framework::$mode) {
+        switch(Framework::getInstance()->mode) {
             case 'page':
                 header("Location: {$redirect_location}");
                 break;
@@ -78,6 +83,15 @@ final class Http {
     }
     
     /**
+    * Enables url query string encryption.
+    * 
+    * @return void
+    */    
+    public static function enableEncryptedUrls() {
+        self::$encrypt_urls = true;
+    }
+    
+    /**
     * Checks to see if SSL is enabled.
     * 
     * Compares the server HTTPS value with 'on' and returns the result.
@@ -85,7 +99,7 @@ final class Http {
     * @return boolean The boolean value indicating SSL status.
     */
     public static function usingSSL() {
-        return environment('HTTPS') == 'on';
+        return !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on';
     }
     
     /**
@@ -104,9 +118,9 @@ final class Http {
                 self::$base_url .= 'https://';
             }
             
-            self::$base_url .= environment("SERVER_NAME");
+            self::$base_url .= $_SERVER["SERVER_NAME"];
             
-            $port = environment("SERVER_PORT");
+            $port = $_SERVER["SERVER_PORT"];
             
             if($port != 80 && $port != 443) {
                 self::$base_url .= ":{$port}";
@@ -135,7 +149,7 @@ final class Http {
     * @return string The page url.
     */
     public static function getPageUrl($query_string_parameters = array(), $module_name = '') {
-        return Http::getCurrentLevelPageUrl(Framework::$instance->getPageClassName(), $query_string_parameters, $module_name);
+        return Http::getCurrentLevelPageUrl(Framework::getInstance()->getPageClassName(), $query_string_parameters, $module_name);
     }
     
     /**
@@ -156,7 +170,7 @@ final class Http {
             }
         }
          
-        return self::getInternalUrl('', Framework::$instance->getHttpSubPath(), Framework::$instance->getPageHttpName(), self::$request_parameters);
+        return self::getInternalUrl('', Framework::getInstance()->getHttpSubPath(), Framework::getInstance()->getPageHttpName(), self::$request_parameters);
     }
     
     /**
@@ -199,7 +213,7 @@ final class Http {
     public static function generateQueryString($query_string_parameters) {
         $query_string = http_build_query($query_string_parameters);
             
-        if(isset(config()->encrypt_urls) && config()->encrypt_urls) {
+        if(self::$encrypt_urls) {
             $query_string = 'e=' . rtrim(strtr(Encryption::encrypt($query_string, array('encrypted_url')), '+/', '-_'), '=');
         }
     
@@ -219,7 +233,7 @@ final class Http {
         assert('is_array($subdirectory_path) && is_array($query_string_parameters)');
         
         if(!isset(self::$default_module)) {
-            self::$default_module = config('framework')->default_module;
+            self::$default_module = Framework::getInstance()->configuration->default_module;
         }
         
         if(!isset(self::$running_module)) {
@@ -256,8 +270,11 @@ final class Http {
         }
         
         if(!empty($page_path)) {
-            if(Framework::$environment == 'development') {
+            if(Framework::getInstance()->environment == 'development') {
                 $url .= '?' . http_build_query($page_path);
+                
+                //Decode encoded '/' characters
+                $url = str_replace('%2F', '/', $url);
             }
             else {
                 $url .= implode('/', $page_path);
@@ -303,7 +320,7 @@ final class Http {
     * @return string
     */
     public static function getHigherLevelPageUrl($page_name = '', $query_string_parameters = array(), $module_name = '') {    
-        $subdirectory_path = Framework::$instance->getHttpSubPath();
+        $subdirectory_path = Framework::getInstance()->getHttpSubPath();
         array_pop($subdirectory_path);
 
         return self::getInternalUrl($module_name, $subdirectory_path, $page_name, $query_string_parameters);
@@ -318,7 +335,7 @@ final class Http {
     * @return string
     */
     public static function getCurrentLevelPageUrl($page_name = '', $query_string_parameters = array(), $module_name = '') {
-        return self::getInternalUrl($module_name, Framework::$instance->getHttpSubPath(), $page_name, $query_string_parameters);
+        return self::getInternalUrl($module_name, Framework::getInstance()->getHttpSubPath(), $page_name, $query_string_parameters);
     }
     
     /**
@@ -333,7 +350,7 @@ final class Http {
     public static function getLowerLevelPageUrl($subdirectories, $page_name = '', $query_string_parameters = array(), $module_name = '') {
         assert('is_array($subdirectories)');
     
-        $subdirectory_path = array_merge(Framework::$instance->getHttpSubPath(), $subdirectories);
+        $subdirectory_path = array_merge(Framework::getInstance()->getHttpSubPath(), $subdirectories);
 
         return self::getInternalUrl($module_name, $subdirectory_path, $page_name, $query_string_parameters);
     }

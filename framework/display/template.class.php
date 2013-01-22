@@ -151,6 +151,15 @@ class Template {
         
         return '';
     }
+    
+    /**
+    * Indicates if a template placeholder value is set.
+    * 
+    * @return boolean
+    */
+    public function __isset($variable_name) {        
+        return isset($this->placeholder_values[$variable_name]);
+    }
 
     /**
     * Retrieves all template placeholder values as a string glued together with a specified delimiter.

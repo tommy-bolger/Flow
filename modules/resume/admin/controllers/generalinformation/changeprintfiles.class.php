@@ -66,8 +66,6 @@ extends Home {
     }
     
     protected function constructRightContent() {        
-        
-        
         if(!empty($this->print_file_data)) {
             $files_path = $this->managed_module->getFilesPath();
         

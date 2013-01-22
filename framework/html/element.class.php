@@ -45,6 +45,26 @@ class Element {
     * @var object The template for contents of the element.
     */
     protected $contents_template;
+    
+    /**
+    * @var array The list of css files to include with this element.
+    */
+    protected $css_files = array();
+    
+    /**
+    * @var array The list of javascript files to include with this element.
+    */
+    protected $javascript_files = array();
+    
+    /**
+    * @var array The list of inline javascript to include with this element.
+    */
+    protected $inline_javascript = array();
+    
+    /**
+    * @var boolean Indicates if javascript is enabled for this element and its children.
+    */
+    protected $javascript_enabled = true;
 
     /**
     * @var string The html tag name of the element.
@@ -81,22 +101,7 @@ class Element {
 
         $this->text = $text;
         
-        $page = page();
-
-        if(!empty($page)) {
-            $this->addElementFiles();
-        }
-    }
-    
-    /**
-     * Catches calls to functions not in this class and throws an exception to prevent a fatal error.
-     *
-     * @param $function_name The name of the called function.
-     * @param $arguments The arguments of the called function.          
-     * @return void
-     */
-    public function __call($function_name, $arguments) {
-        throw new \Exception("Function '{$function_name}' does not exist in this class.");
+        $this->addElementFiles();
     }
     
     /**
@@ -315,6 +320,121 @@ class Element {
      * @return void
      */
     protected function addElementFiles() {}
+    
+    /**
+     * Retrieves the element inline code and files to be included with this element.
+     *
+     * @return array
+     */
+    public function getElementFiles() {
+        $css_files = $this->css_files;
+        
+        $javascript_files = array();
+        
+        if($this->javascript_enabled) {
+            $javascript_files = $this->javascript_files;
+        }
+        
+        $inline_javascript = $this->inline_javascript;
+
+        if(!empty($this->child_elements)) {
+            $child_element_files = $this->getChildElementFiles($this->child_elements);
+            
+            $css_files += $child_element_files['css'];
+                
+            if($this->javascript_enabled) {
+                $javascript_files += $child_element_files['javascript'];
+            }
+            
+            $inline_javascript += $child_element_files['inline_javascript'];
+        }
+        
+        return array(
+            'css' => $css_files,
+            'javascript' => $javascript_files,
+            'inline_javascript' => $inline_javascript
+        );
+    }
+    
+    /**
+     * Retrieves all child element files.
+     *
+     * @param array $child_elements The list of child element objects to retrieve from.
+     * @return array
+     */
+    protected function getChildElementFiles($child_elements) {
+        assert('is_array($child_elements)');
+    
+        $css_files = array();
+        $javascript_files = array();
+        $inline_javascript = array();
+    
+        foreach($child_elements as $child_element) {
+            if(is_object($child_element)) {
+                $child_element_files = $child_element->getElementFiles();
+                
+                $css_files += $child_element_files['css'];
+                $javascript_files += $child_element_files['javascript'];
+                $inline_javascript += $child_element_files['inline_javascript'];
+            }
+            elseif(is_array($child_element) && !empty($child_element)) {
+                $sub_child_element_files = $this->getChildElementFiles($child_element);
+                
+                $css_files += $sub_child_element_files['css'];
+                $javascript_files += $sub_child_element_files['javascript'];
+                $inline_javascript += $sub_child_element_files['inline_javascript'];
+            }
+        }
+        
+        return array(
+            'css' => $css_files,
+            'javascript' => $javascript_files,
+            'inline_javascript' => $inline_javascript
+        );
+    }
+    
+    /**
+     * Adds a css file to be included with this element.
+     *
+     * @param string $css_file_path The file path to the css file.
+     * @param boolean (optional) $internal A flag indicating if the css file path is an internal relative path. Defaults to true.
+     * @return void
+     */
+    protected function addCssFile($css_file_path, $internal = true) {
+        $this->css_files[$css_file_path] = $internal;                
+    }
+    
+    /**
+     * Adds a javascript file to be included with this element.
+     *
+     * @param string $javascript_file_path The file path to the javascript file.
+     * @param boolean (optional) $internal A flag indicating if the javascript file path is an internal relative path. Defaults to true.
+     * @return void
+     */
+    protected function addJavascriptFile($javascript_file_path, $internal = true) {
+        $this->javascript_files[$javascript_file_path] = $internal;
+    }
+    
+    /**
+     * Adds inline javascript to be included with this element.
+     *
+     * @param string $inline_javascript The inline javascript.
+     * @return void
+     */
+    protected function addInlineJavascript($inline_javascript) {
+        $this->inline_javascript[] = $inline_javascript;
+    }
+    
+    /**
+     * Disables javascript for this element.
+     *      
+     * @return void
+     */
+    public function disableJavascript() {
+        $this->javascript_enabled = false;
+        
+        $this->addClass('no_js');
+    }
     
     /**
      * Renders the element's attributes as html.

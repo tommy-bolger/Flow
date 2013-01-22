@@ -36,42 +36,56 @@ class Framework {
     /**
     * @var object The instance of this object for retrieval via getInstance.
     */
-    public static $instance;
+    private static $instance;
     
     /**
     * @var string The path to the directory where the site is installed at.
     */
-    public static $installation_path;
+    protected $installation_path;
     
     /**
     * @var boolean A flag telling the framework to enable caching.
     */
-    public static $enable_cache = true;
+    protected $enable_cache = false;
+    
+    /**
+    * @var object The framework configuration.
+    */
+    protected $configuration;
     
     /**
     * @var string The context this framework is running in such as web, command-line, ajax, etc.
     */
-    public static $mode;
+    protected $mode;
     
     /**
     * @var string The operating environment such as development, production, etc.
     */
-    public static $environment;
+    protected $environment;
     
     /**
     * @var object The framework error handler class name.
     */
-    protected $error_handler_class = '\\Framework\\Debug\\Error';
+    protected $error_handler_class = '\\Framework\\Core\\Error';
     
     /**
     * @var object The framework error handler.
     */
-    public $error_handler;
+    protected $error_handler;
     
     /**
     * @var array A list of all classes available to the framework and their file path.
     */
     protected $available_classes;
+    
+    /**
+     * Retrieves the current instance of the framework.
+     *
+     * @return Framework
+     */
+    public static function getInstance() {
+        return self::$instance;
+    }
     
     /**
      * Initializes a new instance of the framework.
@@ -85,15 +99,15 @@ class Framework {
         
         self::$instance = $this;
     
-        self::$mode = $mode;
+        $this->mode = $mode;
         
-        self::$installation_path = dirname(dirname(__DIR__));
+        $this->installation_path = dirname(dirname(__DIR__));
         
         //Load the global framework functions
-        require_once(self::$installation_path . "/framework/core/framework_functions.php");
+        require_once("{$this->installation_path}/framework/core/framework_functions.php");
         
         //Set the framework autoloader.
-        set_include_path(get_include_path() . PATH_SEPARATOR . self::$installation_path);
+        set_include_path(get_include_path() . PATH_SEPARATOR . $this->installation_path);
         spl_autoload_extensions('.class.php');
         spl_autoload_register();
         
@@ -104,24 +118,43 @@ class Framework {
         
         //When not in safe mode initialize the rest of the framework.
         if($mode != 'safe') {
-            config('framework')->load();
+            $this->configuration = new Configuration('framework');
+            $this->configuration->load();
 
             //Retrieve the current environment
-            self::$environment = config('framework')->environment;
+            $this->environment = $this->configuration->environment;
 
             //Initialize additional error handling
-            switch(self::$environment) {
+            switch($this->environment) {
                 case 'development':
                     $this->error_handler->initializeDevelopment();
                     break;
                 case 'production':
-                    $this->error_handler->initializeProduction();
-                    break;
                 default:
                     $this->error_handler->initializeProduction();
                     break;
             }
         }
+    }
+    
+    /**
+     * Retrieves a specified property of the framework instance.
+     *
+     * @param string $property_name The name of the property to retrieve.     
+     * @return mixed
+     */
+    public function __get($property_name) {
+        return $this->$property_name;
+    }
+    
+    /**
+     * Indicates if a specified property is set.
+     *
+     * @param string $property_name The name of the property.     
+     * @return boolean
+     */
+    public function __isset($property_name) {
+        return isset($this->$property_name);
     }
     
     /**
@@ -132,11 +165,24 @@ class Framework {
     public function run() {}
     
     /**
-     * Catches calls to undefined functions in this class to prevent fatal errors.
+     * Retrieves the output of the data dump.
      *
+     * @param mixed $data The data to retrieve a dump of.     
+     * @return string
+     */
+    protected function getDebugOutput($data) {
+        return var_export($data, true);
+    }
+    
+    /**
+     * Outputs a dump of the specified data.
+     *
+     * @param mixed $data The data to output a dump of.     
      * @return void
      */
-    public function __call($function_name, $arguments) {
-        throw new \Exception("Function '{$function_name}' does not exist in this class.");
+    public function dump($data) {
+        if($this->environment != 'production') {
+            echo $this->getDebugOutput($data);
+        }
     }
 }

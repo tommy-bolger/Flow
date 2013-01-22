@@ -37,9 +37,9 @@ use \Framework\Html\Form\FieldObjects\Field;
 class Hidden
 extends Field {
     /**
-    * @var boolean Flag indicating that the field's value gets included when retrieving the data of only interactive fields in the form objects.
+    * @var string The default group name of this field.
     */
-    protected $is_interactive = false;
+    protected $default_group_name = 'hidden';
     
     /**
     * @var boolean Flag indicating that the field can have a label.

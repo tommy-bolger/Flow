@@ -205,7 +205,7 @@ $(document).ready(function() {
     $('.form').each(function() {
         var form_element = $(this);
         
-        if(!form_element.hasClass('full_submit')) {
+        if(!form_element.hasClass('no_js')) {
             var form = new Form(form_element);
         }
     });

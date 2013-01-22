@@ -37,21 +37,32 @@ use \Framework\Utilities\Http;
 use \Framework\Utilities\ArrayFunctions;
 use \Framework\Html\Form\Form;
 use \Framework\Html\Form\Fields\Dropdown;
+use \Framework\Html\Form\Fields\Textbox;
 use \Framework\Html\Form\Fields\Submit;
 
 class DataTable
 extends Table {
     /**
-    * @var array The table's name in array format for use in generating a query string.
+    * @var array Stores the table state as an array to pass between requests.
     */
-    protected $url_query_parameter;
+    protected $table_state_request;
 
     /**
     * @var object The form of the table that handles various display options.
     */
     protected $table_form;
+    
+    /**
+    * @var object The resultset used to populate the table.
+    */
+    protected $resultset;
 
     /* Table configuration properties */
+    
+    /**
+    * @var boolean Indicates if the DataTable should store store resume its state from the session.
+    */
+    protected $resume_from_session;
     
     /**
     * @var array A list of columns that can be sorted in the table.
@@ -59,19 +70,9 @@ extends Table {
     protected $sort_column_options;
     
     /**
-    * @var string The default column to sort the results by.
-    */
-    protected $default_sort_columns;
-    
-    /**
     * @var array The list of options of the number of rows to display per page.
     */
     protected $rows_per_page_options;
-    
-    /**
-    * @var integer The default number of rows to display per page.
-    */
-    protected $default_rows_per_page = 10;
     
     /**
     * @var array The list of columns with contents that can be a link to another page.
@@ -113,7 +114,7 @@ extends Table {
     /**
     * @var integer The index of the selected option in the filter dropdown.
     */
-    protected $current_selected_filter;
+    protected $current_selected_filters = array();
     
     /**
     * @var integer The total number of records in the resultset.
@@ -129,27 +130,23 @@ extends Table {
      * Initializes a new instance of DataTable.
      *      
      * @param string $table_name The table's name.
-     * @param array $rows (optional) The records to display on this table.
-     * @param array $header (optional) The header row(s) to display on this table.
-     * @param array $footer (optional) The footer row(s) to display on this table.
+     * @param boolean $resume_from_session Indicates if the DataTable should store store resume its state from the session.
      * @return void
      */
-    public function __construct($table_name, $rows = array(), $header = array(), $footer = array()) {
-        parent::__construct($table_name, $rows, array(), $footer);
+    public function __construct($table_name, $resume_from_session = false) {
+        parent::__construct($table_name);
         
-        $this->addHeader($header);
+        $this->resume_from_session = $resume_from_session;
         
         //Create the table form        
         $this->table_form = new Form("{$table_name}_form", Http::getPageUrl(), 'post', false);
         
         $this->table_form->removeAttribute('id');
         $this->table_form->addClass('full_submit');
+
+        $this->addRequestVariable('t', $table_name);
         
         $this->getTableState();
-        
-        $this->rows_per_page_options = array(10, 25, 50, 100);
-        
-        $this->url_query_parameter = array("table" => $table_name);
     }
     
     /**
@@ -160,8 +157,33 @@ extends Table {
     protected function addElementFiles() {
         parent::addElementFiles();
     
-        page()->addCssFile('framework/DataTable.css');
+        $this->addCssFile('framework/DataTable.css');
+        $this->addCssFile('framework/Form.css');
+        $this->addCssFile('showLoading.css');        
+        
+        $this->addJavascriptFile('jquery.min.js');
+        $this->addJavascriptFile('jquery.showLoading.js');
+        $this->addJavascriptFile('request.js');
+        $this->addJavascriptFile('DataTable.js');
     }
+    
+    /**
+     * Sets the table header row.
+     *      
+     * @param array|string $header The columns for the header. Can either be an array for each column of the table or a string as a cell that spans all columns of the table.
+     * @return void
+     */
+    public function setHeader($header) {
+        parent::addHeader($header);
+    }
+    
+    /**
+     * Not used in this object.
+     *      
+     * @param array|string $header
+     * @return void
+     */
+    public function addHeader($header) {}
     
     /**
      * Not used in this object.
@@ -172,121 +194,67 @@ extends Table {
     public function addHeaderRows($header_rows) {}
     
     /**
-     * Adds a table body row.
-     *      
-     * @param array $row The record to add.
-     * @param string $group_name Not used in this object.   
-     * @return void
-     */
-    public function addRow($row, $group_name = '') {
-        parent::addRow($row);
-    }
-    
-    /**
-     * Adds several table body rows.
-     *      
-     * @param array $rows The records to add.
-     * @param string $group_name Not used in this object.    
-     * @return void
-     */
-    public function addRows($rows, $group_name = '') {
-        parent::addRows($rows);
-    }
-    
-    /**
      * Retrieves the table's current view state either from a request or from the session. 
      *      
      * @return void
      */
     private function getTableState() {
-        //The names of all session variables used to store the table's state
+        //The names of all session variables used to store the table's state if the resume_from_session property is set to true
         $page_session_name = "{$this->name}_page_number";
         $sort_column_session_name = "{$this->name}_sort_column";
         $sort_order_session_name = "{$this->name}_sort_direction";
         $rows_per_page_session_name = "{$this->name}_rows_per_page";
-        $selected_filter_session_name = "{$this->name}_selected_filter";
+        $selected_filter_session_name = "{$this->name}_selected_filters";
         
-        //Load the table's state from the session
-        if(isset(session()->$page_session_name)) {
+        if($this->resume_from_session) {            
+            //Load the table's state from the session
             $this->current_page = session()->$page_session_name;
-        }
-        
-        if(isset(session()->$sort_column_session_name)) {
             $this->current_sort_column = session()->$sort_column_session_name;
-        }
-        
-        if(isset(session()->$sort_order_session_name)) {
-            $this->setSortDirection(session()->$sort_order_session_name);
-        }
-        
-        if(isset(session()->$rows_per_page_session_name)) {
+            $this->current_sort_direction = session()->$sort_order_session_name;
             $this->current_rows_per_page = session()->$rows_per_page_session_name;
+            $this->current_selected_filters = session()->$selected_filter_session_name;
         }
-        
-        if(isset(session()->$selected_filter_session_name)) {
-            $this->current_selected_filter = session()->$selected_filter_session_name;
-        }
-        
+
         //Retrieve any changes to the table's state from either a get request or a post request
-        if(request()->get->table == $this->name) {
-            //The current page
-            $current_page = request()->get->getVariable('table_page', 'integer');
+        if(request()->t == $this->name) {
+            $this->current_page = request()->get->getVariable('p', 'integer');
+            $this->current_sort_column = request()->s;
+            $this->current_sort_direction = request()->d;
+            $this->current_rows_per_page = request()->get->getVariable("r", 'integer');
             
-            if(!empty($current_page)) {
-                $this->current_page = $current_page;
-            
-                session()->$page_session_name = $this->current_page;
-            }
-            
-            //The current sort column
-            $current_sort_column = request()->get->sort;
-            
-            if(!empty($current_sort_column)) {
-                $this->current_sort_column = $current_sort_column;
-            
-                session()->$sort_column_session_name = $this->current_sort_column;
+            if($this->table_form->wasSubmitted() && $this->table_form->isValid()) {                
+                $form_rows_per_page = request()->post->getVariable("r", 'integer');
                 
-                $this->setSortDirection(request()->get->direction);
-                session()->$sort_order_session_name = $this->current_sort_direction;
-            }
-            
-            //The current number of rows to show per page
-            $current_rows_per_page = request()->get->getVariable('rows', 'integer');
-            
-            if(!empty($current_rows_per_page)) {
-                $this->current_rows_per_page = $current_rows_per_page;
+                if(!empty($form_rows_per_page) && $form_rows_per_page != $this->current_rows_per_page) {
+                    $this->current_rows_per_page = $form_rows_per_page;
                 
-                session()->$rows_per_page_session_name = $this->current_rows_per_page;
-            }
-        }
-        elseif($this->table_form->wasSubmitted() && $this->table_form->isValid()) {
-            //The current number of rows to show per page
-            $current_rows_per_page = request()->post->getVariable("{$this->name}_rows", 'integer');
-            
-            if(!empty($current_rows_per_page)) {
-                $this->current_rows_per_page = $current_rows_per_page;
-                
-                if(!isset(session()->$rows_per_page_session_name) || $this->current_rows_per_page != session()->$rows_per_page_session_name) {
                     $this->current_page = 1;
                 }
                 
-                session()->$rows_per_page_session_name = $this->current_rows_per_page;
+                $current_selected_filters = request()->post->f;
+
+                if(!empty($current_selected_filters)) {
+                    foreach($current_selected_filters as $filter_name => $filter_value) {
+                        $this->current_selected_filters[$filter_name] = $filter_value;
+                    }
+                }
             }
             
-            //The selected filter option
-            $current_selected_filter = request()->post->getVariable("{$this->name}_filter", 'integer');
-            
-            if(filter_var($current_selected_filter, FILTER_VALIDATE_INT) !== false) {
-                $this->current_selected_filter = $current_selected_filter;
-                
-                session()->$selected_filter_session_name = $this->current_selected_filter;
+            if($this->resume_from_session) {
+                session()->$page_session_name = $this->current_page;
+                session()->$sort_column_session_name = $this->current_sort_column;
+                session()->$sort_order_session_name = $this->current_sort_direction;
+                session()->$rows_per_page_session_name = $this->current_rows_per_page;
+                session()->$selected_filter_session_name = $this->current_selected_filters;
             }
         }
-
+        
         if(empty($this->current_page)) {
             $this->current_page = 1;
-            
-            session()->$page_session_name = 1;
+        }
+        
+        if(!empty($this->current_page)) {
+            $this->addRequestVariable('p', $this->current_page);
         }
     }
     
@@ -297,58 +265,11 @@ extends Table {
      * @return void
      */
     public function setRowsPerPageOptions($rows_per_page_options) {
-        assert('is_array($rows_per_page_options && !empty($rows_per_page_options))');
+        assert('(is_array($rows_per_page_options) && !empty($rows_per_page_options))');
         
-        $this->rows_per_page_options = $rows_per_page_options;
-    }
-    
-    /**
-     * Sets the default allowed number of rows to limit each page by.
-     *      
-     * @param int $default_rows_per_page
-     * @return void
-     */
-    public function setDefaultRowsPerPage($default_rows_per_page) {
-        assert('is_integer($rows_per_page) && !empty($rows_per_page)');
-    
-        $this->default_rows_per_page = $default_rows_per_page;
-    }
-    
-    /**
-     * Sets the direction that the records will be sorted in.
-     *      
-     * @param string $sort_direction The sort direction. Can only be either ASC or DESC.
-     * @return void
-     */
-    private function setSortDirection($sort_direction) {
-        $sort_direction = strtoupper($sort_direction);
-    
-        switch($sort_direction) {
-            case 'ASC':
-            case 'DESC':
-                $this->current_sort_direction = $sort_direction;
-                break;
-            default:
-                $this->current_sort_direction = 'ASC';
-                break;
-        }
-    }
-    
-    /**
-     * Sets the columns that the resultset will be sorted by default.
-     * 
-     * @param string|array $sort_columns The columns to sort the resultset by.     
-     * @param string $sort_direction The sort direction. Can only be either ASC or DESC.
-     * @return void
-     */
-    public function setDefaultSortOrder($sort_columns, $direction) {
-        assert('(is_string($sort_columns) || is_array($sort_columns)) && !empty($sort_columns)');
+        $this->rows_per_page_options = array_combine($rows_per_page_options, $rows_per_page_options);
         
-        $this->default_sort_columns = $sort_columns;
-        
-        if(empty($this->current_sort_direction)) {
-            $this->setSortDirection($direction);
-        }
+        $this->addRequestVariable('r', $this->current_rows_per_page, false);
     }
     
     /**
@@ -361,6 +282,9 @@ extends Table {
         assert('is_array($sort_column_options)');
         
         $this->sort_column_options = $sort_column_options;
+        
+        $this->addRequestVariable('s', $this->current_sort_column);
+        $this->addRequestVariable('d', $this->current_sort_direction);
     }
     
     /**
@@ -386,109 +310,156 @@ extends Table {
     /**
      * Adds record filter options as a dropdown.
      *
-     * @param string $filter_field_name The label of the record filter dropdown.
-     * @param array $filter_options The options for the record filter dropdown.     
+     * @param string $filter_field_name The name of the record filter field.
+     * @param array $filter_options The criteria options for the record filter dropdown.
+     * @param string $filter_label (optional) The label of the filter dropdown. Defaults to an empty string.
+     * @param string $column_name (optional) The name of the column to attach the filter field to. Defaults to an empty string.
      * @return void
      */
-    public function addFilterOptions($filter_field_name, $filter_options) {
-        assert('is_array($filter_options)');
-
-        if(!empty($filter_options)) {            
-            $filter_options_name = "{$this->name}_filter";
-            
-            $filter_dropdown = new Dropdown($filter_options_name, $filter_field_name, array_keys($filter_options));
-            $filter_dropdown->setDefaultValue($this->current_selected_filter);
-            $filter_dropdown->addBlankOption();
-            
-            $this->table_form->addField($filter_dropdown);
-                          
-            $filter_option_values = array_values($filter_options);
-            
-            if(!is_null($this->current_selected_filter) && isset($filter_option_values[$this->current_selected_filter])) {
-                $this->selected_filter_criteria = $filter_option_values[$this->current_selected_filter];
+    public function addFilterDropdown($filter_field_name, $filter_options, $filter_label = '', $column_name = '') {
+        if(!$this->resume_from_session) {
+            throw new \Exception("This feature is only supported when resume_from_session is enabled in the constructor.");
+        }
+    
+        assert('is_array($filter_options) && !empty($filter_options)');
+        
+        $filter_option_labels = array_keys($filter_options);
+        
+        if(!empty($filter_label)) {
+            foreach($filter_option_labels as &$filter_option_label) {
+                $filter_option_label = "{$filter_label}: {$filter_option_label}";
             }
         }
+
+        $filter_dropdown = new Dropdown("f[{$filter_field_name}]", '', $filter_option_labels);
+        
+        $selected_dropdown_index = NULL;
+        
+        //Retrieve the submitted index for this field
+        if(isset($this->current_selected_filters[$filter_field_name])) {
+            $selected_dropdown_index = $this->current_selected_filters[$filter_field_name];
+        }
+
+        $filter_dropdown->setDefaultValue($selected_dropdown_index);        
+        $filter_dropdown->addBlankOption($filter_label);
+
+        //If this field was submitted then retrieve the criteria option at the submitted index.
+        $filter_option_values = array_values($filter_options);
+
+        if(isset($filter_option_values[$selected_dropdown_index])) {
+            $this->selected_filter_criteria[] = array(
+                'criteria' => $filter_option_values[$selected_dropdown_index],
+                'placeholder_values' => array()
+            );
+        }
+
+        //If the field isn't attached to a column then give it the group name for table filters.
+        if(empty($column_name)) {
+            $column_name = 'table_filters';
+        }
+        
+        $this->table_form->addField($filter_dropdown, $column_name);
     }
     
     /**
-     * Sets the query that will be used to populate the table.
+     * Adds a record filter option as a textbox.
+     *
+     * @param string $filter_field_name The name of the record filter field.
+     * @param string $filter_criteria The filter criteria with placeholders to be added to the resultset if a value is entered for this field.
+     * @param string $filter_label (optional) The label of the filter dropdown. Defaults to an empty string.
+     * @param string $column_name (optional) The name of the column to attach the filter field to. Defaults to an empty string.
+     * @return void
+     */
+    public function addFilterTextbox($filter_field_name, $filter_criteria, $filter_label = '', $column_name = '') {
+        assert('is_string($filter_field_name) && !empty($filter_field_name)');
+        assert('is_string($filter_criteria) && !empty($filter_criteria)');
+    
+        $filter_textbox = new Textbox("f[{$filter_field_name}]", $filter_label);
+        
+        $selected_value = NULL;
+
+        //Retrieve the submitted index for this field if it was submitted
+        if(isset($this->current_selected_filters[$filter_field_name])) {
+            $selected_value = $this->current_selected_filters[$filter_field_name];
+
+            if(!empty($selected_value) || (string)$selected_value == '0') {         
+                //Retrieve the number of times the question mark placeholder appears in the query and multiply the number of placeholder values to correspond
+                $placeholder_values = array();
+                
+                $placeholder_count = substr_count($filter_criteria, '?');
+                
+                if($placeholder_count > 0) {
+                    $placeholder_values = array_fill(0, $placeholder_count, $selected_value);
+                }
+                
+                $this->selected_filter_criteria[] = array(
+                    'criteria' => $filter_criteria,
+                    'placeholder_values' => $placeholder_values
+                );
+            }            
+        }
+
+        $filter_textbox->setDefaultValue($selected_value);
+        
+        //If the field isn't attached to a column then give it the group name for table filters.
+        if(empty($column_name)) {
+            $column_name = 'table_filters';
+        }
+        
+        $this->table_form->addField($filter_textbox, $column_name);
+    }
+    
+    /**
+     * Processes and retrieves data from the finalized resultset.
+     * 
+     * @param object $resultset An object of type ResultSet. Valid classes fall under \Framework\Data\ResultSet.
+     * @return void
+     */        
+    public function process($resultset, $processor_function = NULL) {
+        assert('is_object($resultset) && !empty($resultset)');
+        
+        if(!empty($this->selected_filter_criteria)) {
+            foreach($this->selected_filter_criteria as $filter_criteria) {
+                $resultset->addFilterCriteria($filter_criteria['criteria'], $filter_criteria['placeholder_values']);
+            }
+        }
+        
+        if(!empty($this->current_sort_column) && !empty($this->sort_column_options[$this->current_sort_column])) {
+            $resultset->setSortCriteria($this->sort_column_options[$this->current_sort_column], $this->current_sort_direction);
+        }
+        
+        $rows_per_page = $this->current_rows_per_page;
+        
+        if(!empty($rows_per_page) && !empty($this->rows_per_page_options[$rows_per_page])) {
+            $resultset->setRowsPerPage($rows_per_page);
+        }
+        
+        $resultset->setPageNumber($this->current_page);
+        
+        $resultset->process();
+        
+        $data = $resultset->getData();
+        
+        if(is_callable($processor_function)) {
+            $data = $processor_function($data);
+        }
+        
+        $this->addRows($data);
+        
+        $this->total_number_of_records = $resultset->getTotalNumberOfRecords();
+        
+        $this->resultset = $resultset;
+    }                
+    
+    /**
+     * This function is not available in this object.
      * 
      * @param string $query the base query of the resultset.
      * @param array $query_placeholders (optional) The values of the query placeholders.
      * @param function $processor_function (optional) The function that will perform post-processing of the resultset.       
      * @return void
      */
-    public function useQuery($query, $query_placeholders = array(), $processor_function = NULL) {
-        $where_criteria = '';
-        
-        if(isset($this->current_selected_filter)) {
-            if(stripos($query, 'WHERE ') !== false) {
-                $where_criteria = 'AND ';
-            }
-            else {
-                $where_criteria = 'WHERE ';
-            }
-
-            $where_criteria .= implode(' AND ', $this->selected_filter_criteria);
-            
-            if(strpos($query, '{{WHERE_CRITERIA}}') !== false) {
-                $query = str_replace('{{WHERE_CRITERIA}}', $where_criteria, $query);
-            }
-            else {
-                $query .= "\n{$where_criteria}";
-            }
-        }
-    
-        $this->total_number_of_records = db()->getOne("
-            SELECT COUNT(*)
-            FROM (
-                {$query}
-            ) AS query_record_count
-        ", $query_placeholders);
-        
-        $sort_columns = '';
-
-        if(!empty($this->current_sort_column)) {
-            if(isset($this->sort_column_options[$this->current_sort_column])) {
-                $sort_option = $this->sort_column_options[$this->current_sort_column];
-                
-                if(is_array($sort_option)) {
-                    $sort_option = implode(', ', $sort_option);
-                }
-                
-                $sort_columns = $sort_option;
-            }
-        }
-        
-        if(empty($sort_columns) && !empty($this->default_sort_columns)) {            
-            if(!is_array($this->default_sort_columns)) {
-                $sort_columns = $this->default_sort_columns;
-            }
-            else {
-                $sort_columns = implode(', ', $this->default_sort_columns);
-            }
-        }
-        
-        if(!empty($sort_columns)) {
-            $query .= "\nORDER BY {$sort_columns} {$this->current_sort_direction}";
-        }
-        
-        if(empty($this->current_rows_per_page)) {
-            $this->current_rows_per_page = $this->default_rows_per_page;
-        }
-    
-        if(!empty($this->current_rows_per_page)) {
-            if($this->current_rows_per_page > $this->total_number_of_records) {
-                $this->current_page = 1;
-            }
-        
-            $record_offset = ($this->current_page - 1) * $this->current_rows_per_page;
-
-            $query .= "\nLIMIT {$this->current_rows_per_page} OFFSET {$record_offset}";
-        }
-
-        parent::useQuery($query, $query_placeholders, $processor_function);
-    }
+    public function useQuery($query, $query_placeholders = array(), $processor_function = NULL) {}
     
     /**
      * Renders and retrieves the rows per page options as an html dropdown.
@@ -496,18 +467,36 @@ extends Table {
      * @return string
      */
     protected function setRowsPerPageHtml() {
-        $rows_per_page_options = array_combine($this->rows_per_page_options, $this->rows_per_page_options);
+        if(!empty($this->rows_per_page_options)) {
+            $rows_per_page_options = array_combine($this->rows_per_page_options, $this->rows_per_page_options);
+            
+            $rows_per_page_dropdown = new Dropdown("r", '', $rows_per_page_options, array('data_table_rows'));
+            $rows_per_page_dropdown->setDefaultValue($this->current_rows_per_page);
+            $rows_per_page_dropdown->removeAttribute('id');
+            
+            $this->table_form->addField($rows_per_page_dropdown);
+            
+            $submit_button = new Submit("submit", '&gt;', array('rows_submit'));        
+            $submit_button->removeAttribute('id');
+            
+            $this->table_form->addField($submit_button);
+        }
+    }
+    
+    /**
+     * Adds a variable to the request used to change table state.
+     * 
+     * @param string $variable_name The name of the variable to add.
+     * @param string|integer $variable_value The value of the variable to add.
+     * @param boolean $add_to_form (optional) Indicates if the variable should be added to the table form. Defaults to true.     
+     * @return string
+     */
+    public function addRequestVariable($variable_name, $variable_value, $add_to_form = true) {
+        $this->table_state_request[$variable_name] = $variable_value;
         
-        $rows_per_page_dropdown = new Dropdown("{$this->name}_rows", '', $rows_per_page_options, array('data_table_rows'));
-        $rows_per_page_dropdown->setDefaultValue($this->current_rows_per_page);
-        $rows_per_page_dropdown->removeAttribute('id');
-        
-        $this->table_form->addField($rows_per_page_dropdown);
-        
-        $submit_button = new Submit("{$this->name}_page_rows_submit", '&gt;', array('rows_submit'));        
-        $submit_button->removeAttribute('id');
-        
-        $this->table_form->addField($submit_button);
+        if($add_to_form) {
+            $this->table_form->addHidden($variable_name, $variable_value);
+        }
     }
     
     /**
@@ -517,7 +506,7 @@ extends Table {
      * @return string
      */
     protected function generateUrl($query_string_parameters) {
-        $query_string_parameters = array_merge($this->url_query_parameter, $query_string_parameters);
+        $query_string_parameters = array_merge($this->table_state_request, $query_string_parameters);
     
         return Http::getPageUrl($query_string_parameters);
     } 
@@ -530,9 +519,11 @@ extends Table {
      * @return string
      */
     private function generatePageLinkTitle($page_number, $title_name = '') {
-        $page_number_start_range = ($page_number * $this->current_rows_per_page) - $this->current_rows_per_page;
+        $rows_per_page = $this->resultset->getRowsPerPage();
+    
+        $page_number_start_range = ($page_number * $rows_per_page) - $rows_per_page;
             
-        $page_number_end_range = $page_number_start_range + $this->current_rows_per_page;
+        $page_number_end_range = $page_number_start_range + $rows_per_page;
         
         $page_number_start_range += 1;
         
@@ -550,146 +541,162 @@ extends Table {
     /**
      * Renders and retrieves the pagination navigation html.
      *  
+     * @param boolean $render_container (optional) Indicates if the pagination should be wrapped in a <div> tag or not. Defaults to true.         
      * @return string
      */
-    protected function getPaginationHtml() {
-        $total_pages = 1;
+    protected function getPaginationHtml($render_container = true) {
+        $page_count_html = '';
+        $first_page_html = '';
+        $previous_page_html = '';
+        $page_numbers_html = '';
+        $next_page_html = '';
+        $last_page_html = '';
         
-        if(!empty($this->current_rows_per_page)) {
-            $total_pages = floor($this->total_number_of_records / $this->current_rows_per_page);
+    
+        if($this->resultset->hasTotalRecordCount()) {
+            $total_pages = 1;
             
-            //If the number of rows per page doesn't cleanly divide into the total records then add a final page.
-            if(($this->total_number_of_records % $this->current_rows_per_page) > 0) {
-                $total_pages += 1;
+            $rows_per_page = $this->resultset->getRowsPerPage();
+            
+            if(!empty($rows_per_page)) {
+                $total_pages = floor($this->total_number_of_records / $rows_per_page);
+                
+                //If the number of rows per page doesn't cleanly divide into the total records then add a final page.
+                if(($this->total_number_of_records % $rows_per_page) > 0) {
+                    $total_pages += 1;
+                }
             }
-        }
-        
-        if($total_pages == 1) {
-            return "";
-        }
-        
-        //Determine the start of the page range to show in pagination
-        $page_range_start = NULL;
-        
-        if($this->current_page == 1) {
-            $page_range_start = 1;
-        }
-        elseif($this->current_page == $total_pages) {
-            $page_range_start = $this->current_page - 4;
             
-            if($page_range_start <= 0) {
+            if($total_pages == 1) {
+                return "";
+            }
+            
+            //Determine the start of the page range to show in pagination
+            $page_range_start = NULL;
+            
+            if($this->current_page == 1) {
                 $page_range_start = 1;
             }
-        }
-        else {
-            $page_range_start = $this->current_page - 2;
-            
-            if($page_range_start <= 0) {
-                $page_range_start = 1;
-            }
-        }
-        
-        //Determine the end of the page range to show in pagination
-        $page_range_end = NULL;
-        
-        if($this->current_page == $total_pages) {
-            $page_range_end = $this->current_page;
-        }
-        elseif($this->current_page == 1) {
-            $page_range_end = $this->current_page + 4;
-            
-            if($page_range_end >= $total_pages) {
-                $page_range_end = $total_pages;
-            }
-        }
-        else {
-            $page_range_end = $this->current_page + 2;
-            
-            if($page_range_end >= $total_pages) {
-                $page_range_end = $total_pages;
-            }
-        }
-        
-        //Generate the page numbers to display for pagination
-        $page_range = range($page_range_start, $page_range_end);
-        
-        $previous_page_number = $this->current_page - 1;
-        
-        $next_page_number = $this->current_page + 1;
-        
-        //Generate the pagination html for the table
-        $pagination_html = "
-            <div class=\"pagination\">
-                <span>Page {$this->current_page} of {$total_pages}</span>
-                <ul class=\"page_numbers\">
-        ";
-        
-        //Generate the previous page and first page links if not on the first page
-        if($this->current_page > 1) {
-            $first_page_title = $this->generatePageLinkTitle(1, 'First page');
-            $first_page_url = $this->generateUrl(array('table_page' => 1));
-            
-            $previous_page_title = $this->generatePageLinkTitle($previous_page_number, 'Previous page');
-            $previous_page_url = $this->generateUrl(array('table_page' => $previous_page_number));
-        
-            $pagination_html .= "
-                <li class=\"page_number\">
-                    <a href=\"{$first_page_url}\" title=\"{$first_page_title}\">&laquo;First</a>
-                </li>
-                <li class=\"page_number\">
-                    <a href=\"{$previous_page_url}\" title=\"{$previous_page_title}\">&lt;</a>
-                </li>
-            ";
-        }
-        
-        //Generate a link for each page in the pagination range
-        foreach($page_range as $page_number) {
-            //Generate the title of the link
-            $page_number_title = $this->generatePageLinkTitle($page_number);
-            $page_number_url = $this->generateUrl(array('table_page' => $page_number));
-        
-            $current_page_class = "";
-            
-            $page_number_link = '';
-            
-            if($page_number != $this->current_page) {
-                $page_number_link = "<a href=\"{$page_number_url}\" title=\"{$page_number_title}\">{$page_number}</a>";
+            elseif($this->current_page == $total_pages) {
+                $page_range_start = $this->current_page - 4;
+                
+                if($page_range_start <= 0) {
+                    $page_range_start = 1;
+                }
             }
             else {
-                $current_page_class = " current_page_number";
+                $page_range_start = $this->current_page - 2;
                 
-                $page_number_link = "<span title=\"{$page_number_title}\">{$page_number}</span>";
+                if($page_range_start <= 0) {
+                    $page_range_start = 1;
+                }
             }
-        
-            $pagination_html .= "
-                <li class=\"page_number{$current_page_class}\">
-                    {$page_number_link}
-                </li>
-            ";
-        }
-        
-        //Generate the next page and last page links if not on the last page
-        if($this->current_page < $total_pages) {
-            $next_page_title = $this->generatePageLinkTitle($next_page_number, 'Next page');
-            $next_page_url = $this->generateUrl(array('table_page' => $next_page_number));
             
-            $last_page_title = $this->generatePageLinkTitle($total_pages, 'Last page');
-            $last_page_url = $this->generateUrl(array('table_page' => $total_pages));
-        
-            $pagination_html .= "
-                <li class=\"page_number\">
-                    <a href=\"{$next_page_url}\" title=\"{$next_page_title}\">&gt;</a>
-                </li>
-                <li class=\"page_number\">
-                    <a href=\"{$last_page_url}\" title=\"{$last_page_title}\">Last&raquo;</a>
-                </li>
-            ";
+            //Determine the end of the page range to show in pagination
+            $page_range_end = NULL;
+            
+            if($this->current_page == $total_pages) {
+                $page_range_end = $this->current_page;
+            }
+            elseif($this->current_page == 1) {
+                $page_range_end = $this->current_page + 4;
+                
+                if($page_range_end >= $total_pages) {
+                    $page_range_end = $total_pages;
+                }
+            }
+            else {
+                $page_range_end = $this->current_page + 2;
+                
+                if($page_range_end >= $total_pages) {
+                    $page_range_end = $total_pages;
+                }
+            }
+            
+            //Generate the page numbers to display for pagination
+            $page_range = range($page_range_start, $page_range_end);
+            
+            $previous_page_number = $this->current_page - 1;
+            
+            $next_page_number = $this->current_page + 1;
+            
+            $page_count_html = "<span>Page {$this->current_page} of {$total_pages}</span>";
+            
+            //Generate the previous page and first page links if not on the first page
+            if($this->current_page > 1) {
+                $first_page_title = $this->generatePageLinkTitle(1, 'First page');
+                $first_page_url = $this->generateUrl(array('p' => 1));
+                
+                $first_page_html = "&nbsp;<li class=\"page_number\"><a href=\"{$first_page_url}\" title=\"{$first_page_title}\">&laquo;First</a></li>";
+                
+                $previous_page_title = $this->generatePageLinkTitle($previous_page_number, 'Previous page');
+                $previous_page_url = $this->generateUrl(array('p' => $previous_page_number));
+            
+                $previous_page_html = "&nbsp;<li class=\"page_number\"><a href=\"{$previous_page_url}\" title=\"{$previous_page_title}\">&lt;</a></li>";
+            }
+            
+            //Generate a link for each page in the pagination range
+            foreach($page_range as $page_number) {
+                //Generate the title of the link
+                $page_number_title = $this->generatePageLinkTitle($page_number);
+                $page_number_url = $this->generateUrl(array('p' => $page_number));
+            
+                $current_page_class = "";
+                
+                $page_number_link = '';
+                
+                if($page_number != $this->current_page) {
+                    $page_number_link = "<a href=\"{$page_number_url}\" title=\"{$page_number_title}\">{$page_number}</a>";
+                }
+                else {
+                    $current_page_class = " current_page_number";
+                    
+                    $page_number_link = "<span title=\"{$page_number_title}\">{$page_number}</span>";
+                }
+            
+                $page_numbers_html .= "&nbsp;<li class=\"page_number{$current_page_class}\">{$page_number_link}</li>";
+            }
+            
+            //Generate the next page and last page links if not on the last page
+            if($this->current_page < $total_pages) {
+                $next_page_title = $this->generatePageLinkTitle($next_page_number, 'Next page');
+                $next_page_url = $this->generateUrl(array('p' => $next_page_number));
+                
+                $next_page_html = "&nbsp;<li class=\"page_number\"><a href=\"{$next_page_url}\" title=\"{$next_page_title}\">&gt;</a></li>";
+                
+                $last_page_title = $this->generatePageLinkTitle($total_pages, 'Last page');
+                $last_page_url = $this->generateUrl(array('p' => $total_pages));
+            
+                $last_page_html = "&nbsp;<li class=\"page_number\"><a href=\"{$last_page_url}\" title=\"{$last_page_title}\">Last&raquo;</a></li>";
+            }
+        }
+        else {            
+            //Generate the previous page link if not on the first page
+            if($this->current_page > 1) {
+                $previous_page_number = $this->current_page - 1;
+            
+                $previous_page_title = $this->generatePageLinkTitle($previous_page_number, 'Previous page');
+                $previous_page_url = $this->generateUrl(array('p' => $previous_page_number));
+            
+                $previous_page_html = "<li class=\"page_number\"><a href=\"{$previous_page_url}\" title=\"{$previous_page_title}\">&lt;</a></li>";
+            }
+            
+            //Generate the next page link if the resultset still has data
+            if(!empty($this->child_elements)) {
+                $next_page_number = $this->current_page + 1;
+            
+                $next_page_title = $this->generatePageLinkTitle($next_page_number, 'Next page');
+                $next_page_url = $this->generateUrl(array('p' => $next_page_number));
+                
+                $next_page_html = "<li class=\"page_number\"><a href=\"{$next_page_url}\" title=\"{$next_page_title}\">&gt;</a></li>";
+            }
         }
         
-        $pagination_html .= "
-                </ul>
-            </div>
-        ";
+        $pagination_html = "<ul class=\"page_numbers\">{$page_count_html}{$first_page_html}{$previous_page_html}{$page_numbers_html}{$next_page_html}{$last_page_html}</ul>";
+        
+        if($render_container) {
+            $pagination_html = "<div class=\"pagination\">{$pagination_html}</div>";
+        }
         
         return $pagination_html;
     }
@@ -697,37 +704,53 @@ extends Table {
     /**
      * Renders and retrieves the table's header html.
      *      
+     * @param boolean $render_container (optional) Indicates if the table header should be wrapped in a <thead> tag or not. Defaults to true.
+     * @param boolean $render_second_row (optional) Indicates if only the columns should be rendered. Defaults to false.
      * @return string
      */
-    protected function getHeaderHtml() {
+    protected function getHeaderHtml($render_container = true, $columns_only = false) {
+        if(empty($this->sort_column_options)) {
+            return parent::getHeaderHtml();
+        }
+    
         $header_html = "";
     
         if(isset($this->header[0])) {
             $table_header = $this->header[0];
+            $table_filter_header = array();
             
-            if(!empty($table_header)) {                    
-                $header_html .= '
-                    <thead>
-                        <tr>
-                ';
+            if(!empty($table_header)) {
+                $header_index = 0;
             
                 foreach($table_header as $column_name => $column_display_name) {
+                    //If a filter field is attached to this column then add it to the table header array
+                    $column_filter_fields = $this->table_form->getFieldsByGroup($column_name);
+                
+                    if(!empty($column_filter_fields)) {
+                        $table_filter_header[$header_index] = current($column_filter_fields);
+                    }
+                
                     $sort_direction_indicator = '';
                     $link_sort_direction = 'asc';
+                    $sorted_column_class = '';
 
                     //Determine which sort direction to pass in the column's url and the visual sort indicator.
                     if($column_name == $this->current_sort_column) {
+                        $sorted_column_class = ' sorted_column';
+                    
                         switch($this->current_sort_direction) {
-                            case 'ASC':
+                            case 'asc':
                                 $sort_direction_indicator = '&uarr;';
                                 $link_sort_direction = 'desc';
                                 break;
-                            case 'DESC':
+                            case 'desc':
                                 $sort_direction_indicator = '&darr;';
                                 $link_sort_direction = 'asc';
                                 break;
                         }
                     }
+                    
+                    $sort_direction_indicator = "<span class=\"sort_indicator {$link_sort_direction}\">{$sort_direction_indicator}</span>";
                     
                     $sort_link_title = "Sort by {$column_display_name} ";
                     
@@ -741,22 +764,52 @@ extends Table {
                     }
                     
                     $sort_link_url = $this->generateUrl(array(
-                        'sort' => $column_name,
-                        'direction' => $link_sort_direction
+                        's' => $column_name,
+                        'd' => $link_sort_direction
                     ));
 
-                    $header_html .= "
-                        <th class=\"table_header\">
-                            <a href=\"{$sort_link_url}\" title=\"{$sort_link_title}\">{$column_display_name}</a>
-                            {$sort_direction_indicator}
-                        </th>
-                    "; 
+                    $header_html .= "<th class=\"table_header{$sorted_column_class}\"><a href=\"{$sort_link_url}\" title=\"{$sort_link_title}\">{$column_display_name}</a>{$sort_direction_indicator}</th>";
+                    
+                    $header_index++; 
                 }
                 
-                $header_html .= '
-                        </tr>
-                    </thead>
-                ';
+                if($columns_only) {
+                    return $header_html;
+                }
+                
+                $header_html = "<tr class=\"columns\">{$header_html}</tr>";
+
+                //If the filter header has fields then render it.
+                if(!empty($table_filter_header)) {
+                    $header_html .= '<tr class="filters">';
+                
+                    for($filter_header_index = 0; $filter_header_index < $header_index; $filter_header_index++) {
+                        $header_html .= '<th>';
+                    
+                        if(!empty($table_filter_header[$filter_header_index])) {
+                            $filter_field = $table_filter_header[$filter_header_index];
+                        
+                            $label_html = $filter_field->getLabelHtml();
+                
+                            if(!empty($label_html)) {
+                                $label_html .= ':&nbsp;&nbsp;';
+                            }
+                        
+                            $header_html .= $label_html . $filter_field->getFieldHtml();
+                        }
+                        else {
+                            $header_html .= '&nbsp;';
+                        }
+                        
+                        $header_html .= '</th>';
+                    }
+                    
+                    $header_html .= '</tr>';
+                }
+                
+                if($render_container) {
+                    $header_html = "<thead>{$header_html}</thead>";
+                }
             }
         }
         
@@ -765,18 +818,17 @@ extends Table {
     
     /**
      * Renders and retrieves the table's body html.
-     *      
+     * 
+     * @param boolean $render_container (optional) Indicates if the table body should be wrapped in a <tbody> tag or not. Defaults to true.     
      * @return string
      */
-    protected function getBodyHtml() {            
+    protected function getBodyHtml($render_container = true) {            
         $body_html = '';
     
         if(isset($this->child_elements['default_body'])) {
             $body_rows = $this->child_elements['default_body'];
         
-            if(!empty($body_rows)) {
-                $body_html .= "<tbody>";
-                
+            if(!empty($body_rows)) {                
                 foreach($body_rows as $row) {                    
                     $display_columns = NULL;
                     
@@ -823,7 +875,7 @@ extends Table {
                                     $column_values = ArrayFunctions::extractKeys($row, $column_link_parameters);
                                     
                                     $url_parameters = Http::generateQueryString(array_combine(array_keys($column_link_parameters), $column_values));
-                                    
+
                                     $column_link_url = Http::generateUrl($column_link_url, $url_parameters);
                                 }
                             }
@@ -832,14 +884,12 @@ extends Table {
                         }
                     }
                     
-                    $body_html .= '
-                        <tr>
-                            <td class="table_body">' . implode('</td><td class="table_body">', $display_columns) . '</td>
-                        </tr>
-                    ';
+                    $body_html .= '<tr><td class="table_body">' . implode('</td><td class="table_body">', $display_columns) . '</td></tr>';
                 }
                 
-                $body_html .= '</tbody>';
+                if($render_container) {
+                    $body_html = "<tbody>{$body_html}</tbody>";
+                }
             }
         }
         
@@ -851,7 +901,7 @@ extends Table {
      *      
      * @return string
      */
-    protected function getMenuHtml() {    
+    protected function getMenuHtml() {
         $this->setRowsPerPageHtml();
         
         $pagination_html = $this->getPaginationHtml();
@@ -860,24 +910,34 @@ extends Table {
         
         $table_menu_items = array();
         
-        if(isset($form_template["{$this->name}_filter_label"])) {
-            $table_menu_items = array(
-                "{$form_template["{$this->name}_filter_label"]} {$form_template["{$this->name}_filter"]} {$form_template["{$this->name}_page_rows_submit"]}"
-            );
+        $filter_fields = $this->table_form->getFieldsByGroup('table_filters');
+        
+        if(!empty($filter_fields)) {
+            foreach($filter_fields as $filter_field) {
+                $label_html = $filter_field->getLabelHtml();
+                
+                if(!empty($label_html)) {
+                    $label_html .= ':&nbsp;';
+                }
+            
+                $table_menu_items[] = "{$label_html}{$filter_field->getFieldHtml()}&nbsp;{$form_template["submit"]}&nbsp;";
+            }
         }
         
-        $table_menu_items[] = "{$form_template["{$this->name}_rows"]} per page {$form_template["{$this->name}_page_rows_submit"]}";
+        if(isset($form_template["r"])) {
+            $table_menu_items[] = "{$form_template["r"]} per page {$form_template["submit"]}";
+        }
         
         if(!empty($pagination_html)) {
             $table_menu_items[] = $pagination_html;
         }
 
         return "
-            <div class=\"table_menu\">
-                {$form_template["{$this->name}_form_open"]}
-                    " . implode(' | ', $table_menu_items) . "
-                </form>
-            </div>
+            {$form_template["{$this->name}_form_open"]}
+                <div class=\"table_menu\">
+                        " . implode('', $table_menu_items) . "
+                    <div class=\"clear\"></div>
+                </div>
         ";
     }
     
@@ -895,7 +955,7 @@ extends Table {
             <div class=\"data_table\">
                 {$table_menu_html}
                 {$table_html}
-                {$table_menu_html}
+                </form>
             </div>
         ";
         
@@ -915,5 +975,23 @@ extends Table {
         $template_array = array_merge($template_array, $this->table_form->toTemplateArray());
         
         return $template_array;
+    }
+    
+    /**
+     * Retrieves the DataTable as an array suitable for json encoding.
+     *      
+     * @return array
+     */
+    public function toJsonArray() {
+        $json_array = array(
+            'pagination' => $this->getPaginationHtml(false),
+            'body' => $this->getBodyHtml(false),
+            'header' => $this->getHeaderHtml(false, true),
+            'sort_column' => $this->current_sort_column,
+            'sort_direction' => $this->current_sort_direction,
+            'page_number' => $this->current_page
+        );
+        
+        return $json_array;
     }
 }

@@ -61,6 +61,8 @@ extends Controller {
     protected $active_sub_nav_link;
 
     public function __construct() {
+        parent::__construct();
+    
         if(!Auth::userLoggedIn()) {
             Http::redirect(Http::getTopLevelPageUrl('login', array(), 'admin'));
         }
@@ -73,7 +75,7 @@ extends Controller {
     }
     
     public function setup() {
-        $this->page = new ModulePage('admin');
+        $this->loadModulePage();
     
         $this->constructHeader();
         
@@ -85,6 +87,10 @@ extends Controller {
         
         $this->constructFooter();
     }
+    
+    protected function loadModulePage() {
+        $this->page = new ModulePage('admin');        
+    }                
     
     protected function getModuleSessionLinks() {
         $current_module_name = session()->current_module;
@@ -267,8 +273,8 @@ extends Controller {
     
     protected function initializeModuleLinks() {
         $modules = array();
-    
-        if(Framework::$enable_cache) {
+            
+        if($this->framework->enable_cache) {
             $modules = cache()->get('modules', 'module_links');
         }
     
@@ -283,7 +289,7 @@ extends Controller {
                 ORDER BY sort_order
             ");
             
-            if(Framework::$enable_cache) {
+            if($this->framework->enable_cache) {
                 cache()->set('modules', $modules, 'module_links');
             }
         }
@@ -322,7 +328,7 @@ extends Controller {
             'main.css'
         ));
         
-        if(config('framework')->enable_javascript) {
+        if($this->framework->configuration->enable_javascript) {
             $this->page->addCssFile('top_nav.css');
         }
         
@@ -477,7 +483,7 @@ extends Controller {
     }
     
     protected function constructFooter() {
-        $this->page->body->addChild(config('framework')->version, 'version');
+        $this->page->body->addChild($this->framework->configuration->version, 'version');
     }
     
     protected function getForm() {}
@@ -486,5 +492,13 @@ extends Controller {
         $form = $this->getForm();
         
         return $form->toJsonArray();
+    }
+    
+    protected function getDataTable() {}
+    
+    public function updateTableState() {
+        $data_table = $this->getDataTable();
+        
+        return $data_table->toJsonArray();
     }
 }

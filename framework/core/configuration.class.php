@@ -36,14 +36,19 @@ use \Framework\Core\Framework;
 
 final class Configuration {
     /**
-    * @var string The default configuration name when calling config() with a blank parameter.
+    * @var string The default configuration name when calling getInstance with a blank parameter.
     */
     private static $default_configuration_name;
 
     /**
     * @var array A static list of all application configurations.
     */
-    private static $configurations = array();
+    private static $instances = array();
+    
+    /**
+    * @var object The instance of the framework.
+    */
+    private $framework;
     
     /**
     * @var string The name of the configuration.
@@ -66,16 +71,16 @@ final class Configuration {
      * @param string $configuration_name The name of the configuration.
      * @return object The configuration object.
      */
-    public static function getConfiguration($configuration_name) {        
+    public static function getInstance($configuration_name) {        
         if(empty($configuration_name)) {
             $configuration_name = self::$default_configuration_name;
         }
         
-        if(!isset(self::$configurations[$configuration_name])) {
-            self::$configurations[$configuration_name] = new configuration($configuration_name);
+        if(!isset(self::$instances[$configuration_name])) {
+            self::$instances[$configuration_name] = new configuration($configuration_name);
         }
         
-        return self::$configurations[$configuration_name];
+        return self::$instances[$configuration_name];
     }
     
     /**
@@ -95,7 +100,16 @@ final class Configuration {
      * @return void
      */
     public function __construct($configuration_name) {
+        if(!empty(self::$instances[$configuration_name])) {
+            throw new \Exception("Configuration '{$configuration_name}' has already been instantiated. Use Configuration::getInstance(configuration_name) to retrieve it.");
+        }
+        else {
+            self::$instances[$configuration_name] = $this;
+        }
+    
         $this->name = $configuration_name;
+        
+        $this->framework = Framework::getInstance();
     }
     
     /**
@@ -127,7 +141,7 @@ final class Configuration {
      * @return void
      */
     private function loadFrameworkBaseFile() {
-        $config_full_path = Framework::$installation_path . "/protected/configuration.ini";
+        $config_full_path = $this->framework->installation_path . "/protected/configuration.ini";
 
         //Return false if the configuration file is not available
         if(!is_readable($config_full_path)) {
@@ -196,7 +210,7 @@ final class Configuration {
      * @return void
      */
     public function load() {    
-        if(Framework::$enable_cache) {
+        if($this->framework->enable_cache) {
             $this->full_configuration = cache()->get($this->name, 'configurations');
         }
         
@@ -234,7 +248,7 @@ final class Configuration {
                 //Merge the two configurations into one
                 $this->full_configuration = array_merge($this->full_configuration, $database_configuration);
             
-                if(Framework::$enable_cache) {
+                if($this->framework->enable_cache) {
                     cache()->set($this->name, $this->full_configuration, 'configurations');
                 }
                 

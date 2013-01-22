@@ -30,11 +30,19 @@
 * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE 
 * POSSIBILITY OF SUCH DAMAGE.
 */
-namespace Framework\Debug;
-
-use \Framework\Core\Framework;
+namespace Framework\Core;
 
 class Error {
+    /**
+    * @var object The current instance of the framework.
+    */
+    protected $framework;
+    
+    /**
+    * @var string The unique identifier of the current caught error.
+    */
+    protected $incident_number;
+
     /**
     * @var integer The ID of the module where the error originated.
     */
@@ -46,6 +54,8 @@ class Error {
      * @return void
      */
     public function __construct() {
+        $this->framework = Framework::getInstance();
+    
         //Register the framework error handler with PHP
         set_error_handler(array($this, "handleError"));
         
@@ -87,21 +97,24 @@ class Error {
         //Reset the error and exception handlers to ones that don't do anything so the original error process can be completed
         set_error_handler(array($this, 'errorModeErrorHandler'));
         set_exception_handler(array($this, 'errorModeExceptionHandler'));
+        
+        $this->incident_number = substr(sha1(uniqid(mt_rand(), true)), 0, 9);
     
-        $error_log_message = "Framework Error: {$error_message}, Code: {$error_code}, File: {$error_file}, Line: {$error_line}";
+        $error_log_message = "Incident Number: {$this->incident_number}\nMessage: {$error_message}\nCode: {$error_code}\nFile: {$error_file}\nLine: {$error_line}";
         
         if(is_array($error_trace) || empty($error_trace)) {
             $error_trace = $this->getExceptionTraceFromDebug();
-        
-            $error_log_message .= ", Trace: {$error_trace}";
         }
         
+        $error_log_message .= "\nTrace: {$error_trace}";                
+
         //Log the error into the database if in a production environment and database logging is enabled 
-        if(Framework::$environment == 'production') {
+        if($this->framework->environment == 'production') {
             //If the configuration has been loaded then attempt to log the error in the database.
-            if(config('framework')->isLoaded()) {
+            if(!empty($this->framework->configuration) && $this->framework->configuration->isLoaded()) {
                 try {
                     db()->insert('cms_errors', array(
+                        'incident_number' => $this->incident_number,
                         'error_code' => $error_code,
                         'error_message' => $error_message,
                         'error_file' => $error_file,
@@ -239,7 +252,11 @@ class Error {
      * @param string $error_log_message The error message to log.                          
      * @return void
      */
-    public function logMessage($error_log_message) {}
+    public function logMessage($error_log_message) {
+        $error_log_message = "[---------- " . date('H:i:s') . " ----------]\n{$error_log_message}\n\n";
+        
+        error_log($error_log_message, 3, "{$this->framework->installation_path}/logs/" . date('Y-m-d') . ".log");
+    }
     
     /**
      * Displays a formatted error for when running without an GUI.

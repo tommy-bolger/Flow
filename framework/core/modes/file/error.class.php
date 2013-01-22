@@ -1,6 +1,6 @@
 <?php
 /**
-* Allows the rendering of an <img> tag dynamically.
+* The error handling class for the framework's file mode.
 * Copyright (c) 2011, Tommy Bolger
 * All rights reserved.
 * 
@@ -30,40 +30,35 @@
 * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE 
 * POSSIBILITY OF SUCH DAMAGE.
 */
-namespace Framework\Html\Misc;
+namespace Framework\Core\Modes\File;
 
-class Image
-extends \Framework\Html\Element {
+use \Framework\Core\Modes\File\Framework;
+use \Framework\Core\Error as BaseError;
+
+class Error
+extends BaseError {    
     /**
-     * Initializes a new instance of ImageElement.
-     *      
-     * @param string $image_file_path The file path to the image relative to the document root.
-     * @param array $element_attributes (optional) The html attributes of the image element.
-     * @return void
-     */
-    public function __construct($image_file_path, $element_attributes = array()) {    
-        parent::__construct("img", $element_attributes, NULL);
-        
-        $this->setAttribute('src', $image_file_path);
-    }
-    
-    /**
-     * Catches calls to functions not in this class and throws an exception to avoid a fatal error.
-     *      
-     * @param string $function_name The called function name.
-     * @param array $arguments The function arguments.
-     * @return void
-     */
-    public function __call($function_name, $arguments) {
-        throw new \Exception("Function name '{$function_name}' does not exist in this class.");
-    }
-    
-    /**
-     * Renders and retrieves the image element's html.
+     * Initializes the error handler.
      *
+     * @return void
+     */
+    public function __construct() {
+        parent::__construct();
+    }
+
+    /**
+     * Retrieves the image.
+     *
+     * @param integer $error_code The code specified when the error or exception was thrown.
+     * @param string $error_message The error message.
+     * @param string $error_file (optional) The file that the error or exception occurred at.
+     * @param integer $error_line (optional) The line that the error occurred at.
+     * @param string|array $error_trace (optional) The stack trace of the application execution from beginning to when the error was encountered. Can either be a string for exceptions or arrays for errors.                          
      * @return string
      */
-    public function toHtml() {
-        return "<{$this->tag}{$this->renderAttributes()} />";
+    protected function getDisplay($error_code, $error_message, $error_file, $error_line, $error_trace) {
+        $this->framework->initializeNotFound();
+        
+        return '';
     }
 }

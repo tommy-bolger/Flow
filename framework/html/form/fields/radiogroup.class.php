@@ -63,9 +63,9 @@ extends ToggleGroup {
     protected function addElementFiles() {
         parent::addElementFiles();
         
-        page()->addJavascriptFile('form/fields/Select.js');
-        page()->addJavascriptFile('form/fields/Dropdown.js');
-        page()->addJavascriptFile('form/fields/RadioGroup.js');
+        $this->addJavascriptFile('form/fields/Select.js');
+        $this->addJavascriptFile('form/fields/Dropdown.js');
+        $this->addJavascriptFile('form/fields/RadioGroup.js');
     }
     
     /**

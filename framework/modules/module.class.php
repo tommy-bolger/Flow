@@ -6,7 +6,7 @@
 * 
 * Redistribution and use in source and binary forms, with or without 
 * modification, are permitted provided that the following conditions 
-* are met:
+* are met: 
 * 
 * Redistributions of source code must retain the above copyright 
 * notice, this list of conditions and the following disclaimer.
@@ -32,9 +32,15 @@
 */
 namespace Framework\Modules;
 
-use Framework\Core\Framework;
+use \Framework\Core\Framework;
+use \Framework\Core\Configuration;
 
 class Module {
+    /**
+    * @var object The instance of the framework.
+    */
+    protected $framework;
+
     /**
     * @var integer The ID of the module.
     */
@@ -61,13 +67,15 @@ class Module {
      * @return void
      */
     public function __construct($module_name) {
+        $this->framework = Framework::getInstance();
+    
         $this->name = $module_name;
         
         $this->loadData($module_name);
         
         $this->loadConfiguration();
         
-        Framework::$instance->error_handler->setModuleId($this->id);
+        $this->framework->error_handler->setModuleId($this->id);
     }
     
     /**
@@ -76,7 +84,7 @@ class Module {
      * @return void
      */
     private function loadData() {
-        if(Framework::$enable_cache) {
+        if($this->framework->enable_cache) {
             $this->data = cache()->get($this->name, 'modules');
         }
         
@@ -96,7 +104,7 @@ class Module {
             }
         }
         
-        if(Framework::$enable_cache) {
+        if($this->framework->enable_cache) {
             cache()->set($this->name, $this->data, 'modules');
         }
         
@@ -113,7 +121,7 @@ class Module {
      * @return void
      */
     private function loadConfiguration() {
-        $this->configuration = config($this->name);
+        $this->configuration = new Configuration($this->name);
         
         $this->configuration->load();
     }
@@ -144,12 +152,14 @@ class Module {
     public static function getInstalledModules() {
         $modules = array();
         
-        if(Framework::$enable_cache) {
+        $framework = Framework::getInstance();
+        
+        if($framework->enable_cache) {
             $modules = cache()->get('installed_modules');
         }
     
         if(empty($modules)) {
-            $modules_directory = opendir(Framework::$installation_path . "/modules");
+            $modules_directory = opendir($framework->installation_path . "/modules");
     
             while($module_entry = readdir($modules_directory)) {
                 switch($module_entry) {

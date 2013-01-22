@@ -61,8 +61,8 @@ extends Textbox {
     protected function addElementFiles() {
         parent::addElementFiles();
     
-        page()->addCssFile('framework/SplitEmail.css');
-        page()->addJavascriptFile('form/fields/Email.js');
+        $this->addCssFile('framework/SplitEmail.css');
+        $this->addJavascriptFile('form/fields/Email.js');
     }
 
     /**

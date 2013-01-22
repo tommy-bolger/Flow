@@ -87,9 +87,9 @@ extends Home {
         
         $photo_form->setTitle('Change Your Photo');
         
-        $image_path = $this->managed_module->getImagesPath();
+        $image_http_path = $this->managed_module->getImagesHttpPath();
         
-        $photo_form->addSingleImage('photo', 'Photo', $image_path, 50);
+        $photo_form->addSingleImage('photo', 'Photo', $image_http_path, 50);
         $photo_form->addSubmit('save', 'Save');
         
         $photo_form->setRequiredFields(array('photo'));
@@ -106,7 +106,7 @@ extends Home {
             
                 $table_data['photo'] = $photo['name'];
             
-                File::moveUpload($photo, $image_path);
+                File::moveUpload($photo, $this->managed_module->getImagesPath());
             }
             else {
                 $table_data['photo'] = NULL;

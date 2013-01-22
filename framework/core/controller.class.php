@@ -32,11 +32,25 @@
 */
 namespace Framework\Core;
 
-abstract class Controller {    
+abstract class Controller {
     /**
-    * @var object The framework error handler class name.
+    * @var object The instance of the framework.
+    */
+    protected $framework;
+
+    /**
+    * @var object The instance of the current page.
     */
     protected $page;
+    
+    /**
+     * Initializes a new instance of Controller.
+     *
+     * @return void
+     */
+    public function __construct() {
+        $this->framework = Framework::getInstance();
+    }
     
     /**
      * Sets up the page request.

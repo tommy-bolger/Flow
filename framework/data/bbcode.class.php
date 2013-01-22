@@ -69,16 +69,6 @@ class BBCode {
         
         $this->unparsed_string = $unparsed_string;
     }
-    /**
-     * Catches calls to functions not in this class and throws an exception to prevent a fatal error.
-     *      
-     * @param string $function_name The called function name.
-     * @param array $arguments The called function arguments.
-     * @return void
-     */
-    public function __call($function_name, $arguments) {
-        throw new \Exception("Function '{$function_name}' does not exist in this class.");
-    }
     
     /**
      * Sets or alters parser options.

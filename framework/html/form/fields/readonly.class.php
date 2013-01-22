@@ -38,9 +38,9 @@ use \Framework\Html\Form\FieldObjects\Field;
 class ReadOnly
 extends Field {
     /**
-    * @var boolean Indicates if the field is interactive to the user.
+    * @var string The default group name of this field.
     */
-    protected $is_interactive = false;
+    protected $default_group_name = 'read_only';
 
     /**
     * @var object The hidden input field used to store the read-only value.

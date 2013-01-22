@@ -69,7 +69,7 @@ class Cache {
      *
      * @return object
      */
-    public static function getCache() {
+    public static function getInstance() {
         if(!isset(self::$instance)) {
             self::$instance = new cache();
         }
