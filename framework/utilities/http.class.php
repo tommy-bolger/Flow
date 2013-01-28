@@ -247,19 +247,17 @@ final class Http {
         $url = self::getBaseUrl();
 
         $page_path = array();
-        
-        if(self::$running_module != self::$default_module) {
-            if(!empty($subdirectory_path[0]) && $subdirectory_path[0] == $module_name) {        
-                $module_name = '';
-            }
-            elseif(!empty($subdirectory_path[1]) && $subdirectory_path[1] == 'admin') {
-                $module_name = '';
-            }
-            
-            if(!empty($module_name)) {            
-                array_unshift($subdirectory_path, $module_name);
-            }
+
+        if(!empty($subdirectory_path[0]) && $subdirectory_path[0] == $module_name) {        
+            $module_name = '';
         }
+        elseif(!empty($subdirectory_path[1]) && $subdirectory_path[1] == 'admin') {
+            $module_name = '';
+        }
+
+        if(!empty($module_name)) {            
+            array_unshift($subdirectory_path, $module_name);
+        }                
            
         if(!empty($subdirectory_path)) {                        
             $page_path['subd'] = implode('/', $subdirectory_path);

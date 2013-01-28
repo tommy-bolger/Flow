@@ -284,6 +284,7 @@ else {
     if(empty($database_path)) {
         goto database_path;
     }
+    
     $database_dsn = "{$database_engine}:{$database_path}";
 }
 
@@ -292,7 +293,7 @@ try {
 }
 catch(Exception $exception) {
     print("Could not connect to the database based on what was given. Please try again.\n");
-    goto database_host;
+    goto database_path;
 }
 
 Database::setDefault('setup');

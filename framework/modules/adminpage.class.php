@@ -52,7 +52,7 @@ extends ModulePage {
         EditTable::setModuleName($module_name);
         
         //Add the admin assets path to the list of template paths
-        $admin_templates_path = str_replace($module_name, "{$module_name}/admin", $this->module->getTemplatesPath());
+        $admin_templates_path = str_replace('admin', "{$module_name}/admin", $this->module->getTemplatesPath());
 
         Template::addBasePath($admin_templates_path);
     }

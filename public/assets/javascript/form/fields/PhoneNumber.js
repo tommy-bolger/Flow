@@ -47,11 +47,16 @@ PhoneNumber.prototype.isValid = function() {
     var area_code = $.trim(this.area_code.val());
     var exchange = $.trim(this.exchange.val());
     var line_number = $.trim(this.line_number.val());
-    
-    if(this.dom_object.hasClass('required') && area_code.length == 0 && exchange.length == 0 && line_number.length == 0) {
-        this.last_error_message = this.label_text + ' is required.';
+
+    if(area_code.length == 0 && exchange.length == 0 && line_number.length == 0) {
+        if(this.dom_object.hasClass('required')) {
+            this.last_error_message = this.label_text + ' is required.';
         
-        return false;
+            return false;
+        }
+        else {
+            return true;
+        }
     }
     
     var full_number = area_code + exchange + line_number;

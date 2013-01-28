@@ -11,8 +11,8 @@ CREATE TABLE cms_ad_campaign_affiliation (
   start_date date NOT NULL,
   end_date date,
   show_chance_percentage tinyint NOT NULL DEFAULT 0,
-  CONSTRAINT aca_ad_campaign_id_fk FOREIGN KEY (ad_campaign_id) REFERENCES cms_ad_campaigns (ad_campaign_id) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT aca_ad_id_fk FOREIGN KEY (ad_id) REFERENCES cms_ads (ad_id) ON DELETE CASCADE ON UPDATE CASCADE
+  FOREIGN KEY (ad_campaign_id) REFERENCES cms_ad_campaigns (ad_campaign_id) ON DELETE CASCADE ON UPDATE CASCADE,
+  FOREIGN KEY (ad_id) REFERENCES cms_ads (ad_id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 CREATE INDEX aca_ad_id_fk ON cms_ad_campaign_affiliation (ad_id);
@@ -27,7 +27,7 @@ CREATE TABLE cms_ad_campaigns (
   ad_campaign_name varchar(50) NOT NULL,
   description varchar(255),
   is_active tinyint NOT NULL DEFAULT 0,
-  CONSTRAINT ac_module_id_fk FOREIGN KEY (module_id) REFERENCES cms_modules (module_id) ON DELETE CASCADE ON UPDATE CASCADE
+  FOREIGN KEY (module_id) REFERENCES cms_modules (module_id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 CREATE INDEX ac_module_id_fk ON cms_ad_campaigns (module_id);
@@ -41,7 +41,7 @@ CREATE TABLE cms_ads (
   description varchar(255),
   code text NOT NULL,
   is_active tinyint NOT NULL DEFAULT 0,
-  CONSTRAINT ca_module_id_fk FOREIGN KEY (module_id) REFERENCES cms_modules (module_id) ON DELETE CASCADE ON UPDATE CASCADE
+  FOREIGN KEY (module_id) REFERENCES cms_modules (module_id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 CREATE INDEX ca_module_id_fk ON cms_ads (module_id);
@@ -134,7 +134,7 @@ CREATE TABLE cms_meta_settings (
   content text NOT NULL,
   is_active smallint NOT NULL,
   sort_order smallint NOT NULL,
-  CONSTRAINT cms_module_id_fk FOREIGN KEY (module_id) REFERENCES cms_modules (module_id) ON DELETE CASCADE ON UPDATE CASCADE
+  FOREIGN KEY (module_id) REFERENCES cms_modules (module_id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 CREATE INDEX cms_module_id_fk ON cms_meta_settings (module_id);
@@ -207,7 +207,7 @@ CREATE TABLE cms_permissions (
   display_name varchar(100) NOT NULL,
   description varchar(255),
   module_id integer NOT NULL,
-  sort_order integer NOT NULL
+  sort_order integer NOT NULL,
   FOREIGN KEY (module_id) REFERENCES cms_modules (module_id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
@@ -260,7 +260,7 @@ CREATE TABLE cms_static_pages (
   title varchar(255),
   content text,
   is_active tinyint NOT NULL,
-  CONSTRAINT csp_module_id_fk FOREIGN KEY (module_id) REFERENCES cms_modules (module_id) ON DELETE CASCADE ON UPDATE CASCADE
+  FOREIGN KEY (module_id) REFERENCES cms_modules (module_id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 CREATE INDEX csp_module_id_fk ON cms_static_pages (module_id);
@@ -283,9 +283,9 @@ CREATE TABLE cms_updates (
   update_type_id integer NOT NULL,
   update_file varchar(20) NOT NULL,
   run tinyint NOT NULL DEFAULT 0,
-  CONSTRAINT cu_module_id_fk FOREIGN KEY (module_id) REFERENCES cms_modules (module_id) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT cu_update_type_id_fk FOREIGN KEY (update_type_id) REFERENCES cms_update_types (update_type_id) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT cu_version_id_fk FOREIGN KEY (version_id) REFERENCES cms_versions (version_id) ON DELETE CASCADE ON UPDATE CASCADE
+  FOREIGN KEY (module_id) REFERENCES cms_modules (module_id) ON DELETE CASCADE ON UPDATE CASCADE,
+  FOREIGN KEY (update_type_id) REFERENCES cms_update_types (update_type_id) ON DELETE CASCADE ON UPDATE CASCADE,
+  FOREIGN KEY (version_id) REFERENCES cms_versions (version_id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 CREATE INDEX cu_module_id_fk ON cms_updates (module_id);
@@ -388,7 +388,7 @@ CREATE TABLE cms_versions (
   module_id integer,
   version varchar(20) NOT NULL,
   finished tinyint NOT NULL DEFAULT 0,
-  CONSTRAINT cv_module_id_fk FOREIGN KEY (module_id) REFERENCES cms_modules (module_id) ON DELETE CASCADE ON UPDATE CASCADE
+  FOREIGN KEY (module_id) REFERENCES cms_modules (module_id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 CREATE INDEX cv_module_id_fk ON cms_versions (module_id);
