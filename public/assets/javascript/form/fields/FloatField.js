@@ -34,7 +34,7 @@ function FloatField(dom_object) {
     this.right_precision = dom_object.attr('data-right-precision');
 
     Textbox.call(this, dom_object);
-}
+};
 
 FloatField.prototype = Object.create(IntField.prototype);
 
@@ -60,4 +60,4 @@ FloatField.prototype.isValid = function() {
     }
     
     return true;
-}
+};

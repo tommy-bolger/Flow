@@ -51,7 +51,7 @@ function DataTable(dom_element) {
     this.initializePagination();
         
     this.body = $('tbody', this.data_table);
-}
+};
 
 DataTable.prototype.initializeHeader = function() {
     this.table_header = $('.table_header', this.table_header_container);
@@ -59,7 +59,7 @@ DataTable.prototype.initializeHeader = function() {
     $('a', this.table_header).bind('click', {
         instance: this
     }, this.sortColumn);   
-}
+};
 
 DataTable.prototype.initializePagination = function() {
     this.page_numbers = $('.page_number', this.data_table)
@@ -67,7 +67,7 @@ DataTable.prototype.initializePagination = function() {
     $('a', this.page_numbers).bind('click', {
         instance: this
     }, this.changePage);
-}
+};
 
 DataTable.prototype.setState = function(state) {
     if(state.hasOwnProperty('body')) {
@@ -101,7 +101,7 @@ DataTable.prototype.convertUrl = function(url) {
     converted_url += 'method=updateTableState';
     
     return converted_url;
-}
+};
 
 DataTable.prototype.changePage = function(event) {
     event.preventDefault();
@@ -116,13 +116,13 @@ DataTable.prototype.changePage = function(event) {
     }, instance.data_table);
     
     return false;
-}
+};
 
 DataTable.prototype.changePageSuccess = function(request, response) {
     this.setState(response);
     
     $('input[name="p"]', this.form).val(response.page_number);
-}
+};
 
 DataTable.prototype.sortColumn = function(event) {
     event.preventDefault();
@@ -137,14 +137,14 @@ DataTable.prototype.sortColumn = function(event) {
     }, instance.data_table);
     
     return false;
-}
+};
 
 DataTable.prototype.sortColumnSuccess = function(request, response) {    
     this.setState(response);
     
     $('input[name="s"]', this.form).val(response.sort_column);
     $('input[name="d"]', this.form).val(response.sort_direction);
-}
+};
 
 DataTable.prototype.submitForm = function(event) {
     event.preventDefault();
@@ -187,11 +187,11 @@ DataTable.prototype.submitForm = function(event) {
     }, instance.data_table);
     
     return false;
-}
+};
 
 DataTable.prototype.submitFormSuccess = function(request, response) {
     this.setState(response);
-}
+};
 
 $(document).ready(function() {
     $('.data_table').each(function() {

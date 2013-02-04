@@ -90,6 +90,10 @@ extends Page {
         
         $this->assets_http_path = $this->module->getAssetsHttpPath();
         
+        $this->css_http_path = $this->getCssHttpPath();
+        
+        $this->javascript_http_path = $this->getJavascriptHttpPath();
+        
         //Set the theme css path
         $theme_css_path =  "{$module_theme_path}/css";
         

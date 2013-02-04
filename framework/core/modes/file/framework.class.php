@@ -49,6 +49,11 @@ extends Web {
     protected $assets_folder = 'files';
     
     /**
+    * @var array The uri segments containing the module, theme, and file path of this request.
+    */
+    protected $uri_segments;
+    
+    /**
     * @var string The name of the module in the request.
     */
     protected $module_name;
@@ -88,10 +93,10 @@ extends Web {
                     
         parent::__construct($mode);
         
-        request()->get->setRequired(array('file'));
-        
+        $this->parsed_uri_segments = $this->getParsedUri();
+
         $this->full_name = $this->sanitizePathParameter('file');
-        
+
         $this->module_name = $this->sanitizePathParameter('module');
         
         $this->theme_name = $this->sanitizePathParameter('theme');
@@ -169,6 +174,56 @@ extends Web {
     }
     
     /**
+     * Retrieves the parsed request uri.
+     *
+     * @return string
+     */
+    public function getParsedUri() {
+        $unparsed_uri = parent::getParsedUri();
+
+        $unparsed_uri_segments = explode('/', $unparsed_uri);
+
+        //If the first element is a blank string then remove it
+        if(isset($unparsed_uri_segments[0]) && empty($unparsed_uri_segments[0])) {
+            array_shift($unparsed_uri_segments);
+        }
+        
+        $parsed_uri_segments = array();
+        
+        $module_segment_index = array_search('modules', $unparsed_uri_segments);
+
+        if($module_segment_index !== false) {
+            //Remove all elements before module
+            $unparsed_uri_segments = array_slice($unparsed_uri_segments, ($module_segment_index));
+            
+            //Reset the module segment index to the first element
+            $module_segment_index = 0;
+        
+            $module_value_index = $module_segment_index + 1;
+        
+            $parsed_uri_segments['module'] = $unparsed_uri_segments[$module_value_index];
+
+            unset($unparsed_uri_segments[$module_segment_index]);
+            unset($unparsed_uri_segments[$module_value_index]);
+        
+            $theme_segment_index = array_search('theme', $unparsed_uri_segments);
+            
+            if(!empty($theme_segment_index)) {
+                $theme_value_index = $theme_segment_index + 1;
+                                    
+                $parsed_uri_segments['theme'] = $unparsed_uri_segments[$theme_value_index];
+                
+                unset($unparsed_uri_segments[$theme_segment_index]);
+                unset($unparsed_uri_segments[$theme_value_index]);
+            }
+        }
+
+        $parsed_uri_segments['file'] = urldecode(implode('/', $unparsed_uri_segments));
+
+        return $parsed_uri_segments;
+    }
+    
+    /**
      * Sends the initial headers for the response.
      *
      * @return void
@@ -185,11 +240,15 @@ extends Web {
      * @return string
      */
     protected function sanitizePathParameter($parameter_name) {
-        return str_replace(array(
-            '~',
-            '\\',
-            '..'
-        ), '', request()->get->$parameter_name);
+        if(!empty($this->parsed_uri_segments[$parameter_name])) {
+            return str_replace(array(
+                '~',
+                '\\',
+                '..'
+            ), '', $this->parsed_uri_segments[$parameter_name]);
+        }
+        
+        return '';
     }
     
     /**

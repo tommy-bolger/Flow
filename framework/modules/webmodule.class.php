@@ -63,6 +63,16 @@ extends Module {
     protected $templates_path;
     
     /**
+    * @var string The http path to the module's css.
+    */            
+    protected $css_http_path;
+    
+    /**
+    * @var string The http path to the module's javascript.
+    */        
+    protected $javascript_http_path;                
+    
+    /**
     * @var string The path to the images of the current module.
     */
     protected $images_path;
@@ -98,7 +108,11 @@ extends Module {
         //Set the module's assets path
         $this->assets_path = "{$page_assets_path}/modules/{$module_name}/assets";
         
-        $this->assets_http_path = Http::getBaseUrl() . "assets/modules/{$module_name}";
+        $this->assets_http_path = Http::getBaseUrl() . "assets";
+        
+        $this->css_http_path = "{$this->assets_http_path}/css/modules/{$module_name}";
+        
+        $this->javascript_http_path = "{$this->assets_http_path}/javascript/modules/{$module_name}";
         
         //Set the module's style path
         $this->theme_path = "{$this->assets_path}/styles/{$this->theme}";
@@ -107,11 +121,11 @@ extends Module {
             
         $this->images_path = "{$this->assets_path}/images";
         
-        $this->images_http_path = "{$this->assets_http_path}/images";
+        $this->images_http_path = "{$this->assets_http_path}/images/modules/{$module_name}";
         
         $this->files_path = "{$this->assets_path}/files";
         
-        $this->file_http_path = "{$this->assets_http_path}/files";
+        $this->files_http_path = "{$this->assets_http_path}/files/modules/{$module_name}";
     }
     
     /**
@@ -130,6 +144,24 @@ extends Module {
      */
     public function getAssetsHttpPath() {
         return $this->assets_http_path;
+    }
+    
+    /**
+     * Retrieves the module's css http path.
+     *     
+     * @return string
+     */
+    public function getCssHttpPath() {
+        return $this->css_http_path;
+    }
+    
+    /**
+     * Retrieves the module's javascript http path.
+     *     
+     * @return string
+     */
+    public function getJavascriptHttpPath() {
+        return $this->javascript_http_path;
     }
     
     /**

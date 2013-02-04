@@ -31,7 +31,7 @@
 */
 function Dropdown(dom_object) {    
     Select.call(this, dom_object);
-}
+};
 
 Dropdown.prototype = Object.create(Select.prototype);
 
@@ -47,4 +47,4 @@ Dropdown.prototype.valueInOptions = function() {
     }
 
     return true;
-}
+};

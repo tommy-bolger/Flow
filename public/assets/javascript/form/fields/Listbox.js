@@ -31,7 +31,7 @@
 */
 function Listbox(dom_object) {
     Select.call(this, dom_object);
-}
+};
 
 Listbox.prototype = Object.create(Select.prototype);
 
@@ -53,4 +53,4 @@ Listbox.prototype.valueInOptions = function() {
     }
     
     return true;
-}
+};

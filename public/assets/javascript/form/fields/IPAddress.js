@@ -33,7 +33,7 @@ function IPAddress(dom_object) {
     this.max_length = dom_object.attr('maxlength');
 
     Textbox.call(this, dom_object);
-}
+};
 
 IPAddress.prototype = Object.create(Textbox.prototype);
 
@@ -75,4 +75,4 @@ IPAddress.prototype.isValid = function() {
     }
     
     return true;
-}
+};

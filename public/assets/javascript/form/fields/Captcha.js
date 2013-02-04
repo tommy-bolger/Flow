@@ -35,7 +35,7 @@ function Captcha(dom_object) {
     this.dom_object.closest("form").bind('submit_cleanup', function() {
         Recaptcha.reload();
     });
-}
+};
 
 Captcha.prototype = Object.create(Field.prototype);
 
@@ -55,11 +55,11 @@ Captcha.prototype.isValid = function() {
     }
     
     return true;
-}
+};
 
 Captcha.prototype.getValue = function() {
     return {
         recaptcha_challenge_field: Recaptcha.get_challenge(),
         recaptcha_response_field: Recaptcha.get_response()
     };
-}
+};

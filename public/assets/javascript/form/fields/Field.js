@@ -39,7 +39,7 @@ function Field(dom_object) {
     this.required_message = this.label_text + ' is a required field.';
 
     this.last_error_message = '';
-}
+};
 
 Field.prototype.isValid = function() {
     if(this.dom_object.hasClass('required')) {
@@ -57,16 +57,16 @@ Field.prototype.isValid = function() {
     }
     
     return true;
-}
+};
 
 Field.prototype.getLastErrorMessage = function() {
     return this.last_error_message;
-}
+};
 
 Field.prototype.getValue = function() {
     return this.dom_object.val();
-}
+};
 
 Field.prototype.getLabel = function() {
     return this.label.text();
-}
+};

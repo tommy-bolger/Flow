@@ -94,26 +94,50 @@ extends Web {
     }
     
     /**
+     * Retrieves the parsed request uri.
+     *
+     * @return string
+     */
+    public function getParsedUri() {
+        $unparsed_uri = parent::getParsedUri();
+        
+        $last_uri_index = strlen($unparsed_uri) - 1;
+        
+        if($unparsed_uri{$last_uri_index} == '/') {
+            $unparsed_uri .= 'home';
+        }
+        
+        $parsed_uri = explode('/', $unparsed_uri);
+        
+        if(isset($parsed_uri[0]) && empty($parsed_uri[0])) {
+            array_shift($parsed_uri);
+        }
+        
+        if($this->environment == 'development' && $parsed_uri[0] == 'index.php') {
+            array_shift($parsed_uri);
+        }
+
+        return $parsed_uri;
+    }
+    
+    /**
      * Gets the name of the current page class.
      *
      * @return string The name of the page class.
      */
     protected function getPageClass() {
-        $this->page_http_name = request()->page;
+        $uri_segments = $this->getParsedUri();
+    
+        $this->page_http_name = array_pop($uri_segments);
         
-        $page_class_name = '';                
+        $page_class_name = $this->page_http_name;                
         
-        if(empty($this->page_http_name)) {
+        if($page_class_name == 'home') {
             $page_class_name = "Home";
         }
-        else {
-            $page_class_name = $this->page_http_name;        
-        }                
         
-        if(isset(request()->get->subd)) {
-            $request_subdirectories = request()->get->subd;
-
-            $this->subdirectory_http_path = explode('/', $request_subdirectories);
+        if(!empty($uri_segments)) {
+            $this->subdirectory_http_path = $uri_segments;
             
             $this->subdirectory_path = $this->subdirectory_http_path;
         }

@@ -1,7 +1,7 @@
 .loading-indicator {
 	height: 80px;
 	width: 80px;
-	background: url( '/assets/modules/admin/images/theme/light/loading.gif' );
+	background: url( '/assets/images/modules/admin/theme/light/loading.gif' );
 	background-repeat: no-repeat;
 	background-position: center center;
 }

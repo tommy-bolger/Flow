@@ -91,6 +91,25 @@ extends BaseFramework {
     }
     
     /**
+     * Retrieves the parsed request uri.
+     *
+     * @return string
+     */
+    public function getParsedUri() {
+        $parsed_uri = parent::getParsedUri();
+        
+        //Remove 'ajax' as the first element
+        array_shift($parsed_uri);
+        
+        //Remove 'index.php' as the first element
+        if($this->environment == 'development' && $parsed_uri[0] == 'index.php') {
+            array_shift($parsed_uri);
+        }
+
+        return $parsed_uri;
+    }
+    
+    /**
      * Executes functionality for when a page or method is not found.
      *
      * @return void

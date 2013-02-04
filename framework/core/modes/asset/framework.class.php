@@ -87,6 +87,21 @@ extends BaseFramework {
     }
     
     /**
+     * Retrieves the parsed request uri.
+     *
+     * @return string
+     */
+    public function getParsedUri() {
+        $parsed_uri_segments = parent::getParsedUri();
+        
+        if($this->environment == 'development') {
+            $parsed_uri_segments['file'] = '';
+        }
+
+        return $parsed_uri_segments;
+    }
+    
+    /**
      * Sends the initial headers for the response.
      *
      * @return void
@@ -136,6 +151,8 @@ extends BaseFramework {
      * @return void
      */
     protected function constructFilePath() {
+        $file_path = '';
+    
         if($this->environment == 'production') {        
             if(empty($this->module_name)) {
                 $this->initializeNotFound(true);
@@ -144,11 +161,12 @@ extends BaseFramework {
             $file_path = "{$this->installation_path}/modules/{$this->module_name}/cache/{$this->type}/{$this->full_name}.gz";
         }
         else {
-            $file_path = $this->full_name;
+            $file_path = request()->get->file;
         }
 
         if(is_file($file_path)) {
             $this->full_path = $file_path;
+            
             if($this->environment != 'production') {
                 //Sent the file's size
                 header("Content-Length: " . filesize($file_path));

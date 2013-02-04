@@ -87,7 +87,7 @@ function Form(dom_element) {
     if(typeof this.parent_container.attr('id') == 'undefined') {
         this.parent_container = undefined;
     }
-}
+};
 
 Form.prototype.submit = function(event) {
     event.preventDefault();
@@ -159,7 +159,7 @@ Form.prototype.submit = function(event) {
     }, instance.parent_container);
     
     return false;
-}
+};
 
 Form.prototype.submitSuccess = function(request, response) {
     if(response.errors.length > 0) {
@@ -181,25 +181,25 @@ Form.prototype.submitSuccess = function(request, response) {
     }
     
     this.form.trigger('submit_cleanup');
-}
+};
 
 Form.prototype.showErrors = function(error_messages) {
     this.errors.html(error_messages);
         
     this.errors.show();
-}
+};
 
 Form.prototype.showWarnings = function(warning_messages) {
     this.warnings.html(warning_messages);
         
     this.warnings.show();
-}
+};
 
 Form.prototype.showConfirmations = function(confirmation_messages) {
     this.confirmations.html(confirmation_messages);
         
     this.confirmations.show();
-}
+};
 
 $(document).ready(function() {
     $('.form').each(function() {

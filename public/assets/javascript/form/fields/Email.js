@@ -31,7 +31,7 @@
 */
 function Email(dom_object) {
     Field.call(this, dom_object);
-}
+};
 
 Email.prototype = Object.create(Field.prototype);
 
@@ -43,7 +43,7 @@ Email.prototype.isValid = function() {
     }
 
     return this.emailIsValid(this.dom_object.val());
-}
+};
 
 Email.prototype.emailIsValid = function(email_address) {
     //The following regex expression was found here: http://stackoverflow.com/a/9204568
@@ -54,4 +54,4 @@ Email.prototype.emailIsValid = function(email_address) {
     }
     
     return true;
-}
+};

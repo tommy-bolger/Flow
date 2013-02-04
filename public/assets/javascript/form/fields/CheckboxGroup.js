@@ -31,7 +31,7 @@
 */
 function CheckboxGroup(dom_object) {
     Listbox.call(this, dom_object);
-}
+};
 
 CheckboxGroup.prototype = Object.create(Listbox.prototype);
 
@@ -45,7 +45,7 @@ CheckboxGroup.prototype.loadOptions = function() {
     
         instance.options[option_element.attr('value')] = option_element;
     });
-}
+};
 
 CheckboxGroup.prototype.getValue = function() {
     var values = new Array();
@@ -57,4 +57,4 @@ CheckboxGroup.prototype.getValue = function() {
     });
 
     return values;
-}
+};

@@ -131,6 +131,16 @@ class page {
     protected $assets_http_path;
     
     /**
+    * @var string The http path to the module's css.
+    */            
+    protected $css_http_path;
+    
+    /**
+    * @var string The http path to the module's javascript.
+    */        
+    protected $javascript_http_path;
+    
+    /**
     * @var boolean A flag that sets the page to be cached in memory and on the file system.
     */
     protected $cache_page = false;
@@ -558,12 +568,12 @@ class page {
                     $css_hash_name = file_cache()->set($css_file_cache_name, $css_minifier->getMinifiedData(), 'css/', 'gz');
                 }
                 
-                $css_http_path = "{$this->assets_http_path}/css/{$css_hash_name}";
+                $css_http_path = "{$this->css_http_path}/{$css_hash_name}";
                 
                 $css_html .= "<link rel=\"stylesheet\" href=\"{$css_http_path}\" type=\"text/css\" />";
             }
             else {
-                $base_url = Http::getBaseUrl() . '/assets/css/?file=';
+                $base_url = Http::getBaseUrl() . '/assets/css/index.php?file=';
             
                 foreach($this->internal_css_files as $css_file) {
                     $css_file = str_replace('./', '', $css_file);
@@ -616,12 +626,12 @@ class page {
                     $javascript_hash_name = file_cache()->set($javascript_file_cache_name, $javascript_minifier->getMinifiedData(), 'javascript/', 'gz');
                 }
                 
-                $javascript_http_path = "{$this->assets_http_path}/javascript/{$javascript_hash_name}";
+                $javascript_http_path = "{$this->javascript_http_path}/{$javascript_hash_name}";
                 
                 $javascript_html .= "<script type=\"text/javascript\" src=\"{$javascript_http_path}\"></script>";
             }
             else {
-                $base_url = Http::getBaseUrl() . '/assets/javascript/?file=';
+                $base_url = Http::getBaseUrl() . '/assets/javascript/index.php?file=';
             
                 foreach($this->internal_javascript_files as $javascript_file) {
                     $javascript_html .= "<script type=\"text/javascript\" src=\"{$base_url}{$javascript_file}\"></script>";

@@ -37,7 +37,7 @@ function SplitEmail(dom_object) {
     this.domain_extension = dom_object_siblings.filter('.domain_extension');
 
     Email.call(this, dom_object);
-}
+};
 
 SplitEmail.prototype = Object.create(Email.prototype);
 
@@ -55,7 +55,7 @@ SplitEmail.prototype.isValid = function() {
     }
 
     return this.emailIsValid(user_name + '@' + domain_name + '.' + domain_extension);
-}
+};
 
 SplitEmail.prototype.getValue = function() {
     var user_name = this.user_name.val();
@@ -67,4 +67,4 @@ SplitEmail.prototype.getValue = function() {
     }
     
     return '';
-}
+};

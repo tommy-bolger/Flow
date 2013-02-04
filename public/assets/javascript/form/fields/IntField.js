@@ -31,7 +31,7 @@
 */
 function IntField(dom_object) {
     Textbox.call(this, dom_object);
-}
+};
 
 IntField.prototype = Object.create(Textbox.prototype);
 
@@ -66,4 +66,4 @@ IntField.prototype.isValid = function() {
     }
     
     return true;
-}
+};

@@ -37,7 +37,7 @@ function PhoneNumber(dom_object) {
     this.line_number = dom_object_siblings.filter('.line_number');
 
     Field.call(this, dom_object);
-}
+};
 
 PhoneNumber.prototype = Object.create(Field.prototype);
 
@@ -68,8 +68,8 @@ PhoneNumber.prototype.isValid = function() {
     }
     
     return true;
-}
+};
 
 PhoneNumber.prototype.getValue = function() {
     return this.area_code.val() + this.exchange.val() + this.line_number.val();
-}
+};

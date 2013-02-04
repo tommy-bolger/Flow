@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
     <head>
         <title>Unexpected Error</title>
-        <link rel='stylesheet' href='./assets/modules/online_resume/styles/default/css/main.css' type='text/css' />
+        <link rel='stylesheet' href='./assets/modules/online_resume/theme/default/css/main.css' type='text/css' />
     </head>
     <body>
         <div id="canvas">

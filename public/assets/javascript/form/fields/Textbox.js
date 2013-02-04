@@ -33,7 +33,7 @@ function Textbox(dom_object) {
     this.max_length = dom_object.attr('maxlength');
 
     Field.call(this, dom_object);
-}
+};
 
 Textbox.prototype = Object.create(Field.prototype);
 
@@ -60,7 +60,7 @@ Textbox.prototype.isValid = function() {
     }
     
     return true;
-}
+};
 
 Textbox.prototype.maxLengthIsValid = function() {
     if(isNaN(this.max_length)) {
@@ -70,4 +70,4 @@ Textbox.prototype.maxLengthIsValid = function() {
     }
     
     return true;
-}
+};

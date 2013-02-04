@@ -31,7 +31,7 @@
 */
 function RadioGroup(dom_object) {
     Dropdown.call(this, dom_object);
-}
+};
 
 RadioGroup.prototype = Object.create(Dropdown.prototype);
 
@@ -45,7 +45,7 @@ RadioGroup.prototype.loadOptions = function() {
     
         instance.options[option_element.attr('value')] = option_element;
     });
-}
+};
 
 RadioGroup.prototype.getValue = function() {
     var field_value = '';
@@ -57,4 +57,4 @@ RadioGroup.prototype.getValue = function() {
     });
     
     return field_value;
-}
+};

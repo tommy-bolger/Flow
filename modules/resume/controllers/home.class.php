@@ -132,10 +132,10 @@ extends Controller {
         $this->page->body->addChild($address, 'address'); 
         $this->page->body->addChild($this->general_information['summary'], 'description');
         
-        $assets_path = $this->page->getAssetsHttpPath();
+        $assets_path = $this->page->getFilesHttpPath();
         
-        $this->page->body->addChild("{$assets_path}/files/{$this->general_information['resume_pdf_name']}", 'print_pdf_url');
-        $this->page->body->addChild("{$assets_path}/files/{$this->general_information['resume_word_name']}", 'print_word_url');
+        $this->page->body->addChild("{$assets_path}/{$this->general_information['resume_pdf_name']}", 'print_pdf_url');
+        $this->page->body->addChild("{$assets_path}/{$this->general_information['resume_word_name']}", 'print_word_url');
     }
     
     private function constructContent() {        

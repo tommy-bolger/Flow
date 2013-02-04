@@ -49,4 +49,27 @@ extends Framework {
         
         parent::__construct($mode);
     }
+    
+    /**
+     * Retrieves the parsed request uri.
+     *
+     * @return string
+     */
+    public function getParsedUri() {
+        $unparsed_uri = $_SERVER['REQUEST_URI'];
+        
+        if(strpos($unparsed_uri, '?') !== false) {
+            $unparsed_uri_split = explode('?', $unparsed_uri);
+            
+            $unparsed_uri = $unparsed_uri_split[0];
+        }
+        
+        if(strpos($unparsed_uri, '#') !== false) {
+            $unparsed_uri_split = explode('#', $unparsed_uri);
+            
+            $unparsed_uri = $unparsed_uri_split[0];
+        }
+        
+        return $unparsed_uri;
+    }
 }

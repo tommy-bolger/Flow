@@ -269,17 +269,13 @@ final class Http {
         
         if(!empty($page_path)) {
             if(Framework::getInstance()->environment == 'development') {
-                $url .= '?' . http_build_query($page_path);
-                
-                //Decode encoded '/' characters
-                $url = str_replace('%2F', '/', $url);
+                $url .= 'index.php/';
             }
-            else {
-                $url .= implode('/', $page_path);
-                
-                if(!isset($page_path['page'])) {
-                    $url .= '/';
-                }
+            
+            $url .= implode('/', $page_path);
+            
+            if(!isset($page_path['page'])) {
+                $url .= '/';
             }
         }
 
