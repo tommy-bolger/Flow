@@ -26,7 +26,7 @@ table th {
     background: -moz-linear-gradient(top, #FBFBFB, #D5D5D5);
     background: linear-gradient(#FBFBFB, #D5D5D5);
     -pie-background: linear-gradient(#FBFBFB, #D5D5D5);
-    behavior: url(/assets/modules/resume/htc/pie);
+    behavior: url(/assets/htc/modules/admin/pie);
 }
 
 table td {

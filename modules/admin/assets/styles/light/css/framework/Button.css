@@ -15,7 +15,7 @@ input.form_button, input.button {
     background: -moz-linear-gradient(top, #FFAC47, #F56C06);
     background: linear-gradient(#FFAC47, #F56C06);
     -pie-background: linear-gradient(#FFAC47, #F56C06);
-    behavior: url(/assets/modules/resume/htc/pie);
+    behavior: url(/assets/htc/modules/admin/pie);
 }
 
 input.button {

@@ -181,7 +181,7 @@ extends Web {
     public function getParsedUri() {
         $unparsed_uri = parent::getParsedUri();
         
-        $unparsed_uri = str_replace('assets/images/', '', $unparsed_uri);
+        $unparsed_uri = str_replace("assets/{$this->assets_folder}/", '', $unparsed_uri);
 
         $unparsed_uri_segments = explode('/', $unparsed_uri);
 
