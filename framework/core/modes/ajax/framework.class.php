@@ -100,11 +100,6 @@ extends BaseFramework {
         
         //Remove 'ajax' as the first element
         array_shift($parsed_uri);
-        
-        //Remove 'index.php' as the first element
-        if($this->environment == 'development' && $parsed_uri[0] == 'index.php') {
-            array_shift($parsed_uri);
-        }
 
         return $parsed_uri;
     }

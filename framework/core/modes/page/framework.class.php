@@ -100,20 +100,16 @@ extends Web {
      */
     public function getParsedUri() {
         $unparsed_uri = parent::getParsedUri();
-        
+
         $last_uri_index = strlen($unparsed_uri) - 1;
-        
+
         if($unparsed_uri{$last_uri_index} == '/') {
             $unparsed_uri .= 'home';
         }
         
         $parsed_uri = explode('/', $unparsed_uri);
-        
-        if(isset($parsed_uri[0]) && empty($parsed_uri[0])) {
-            array_shift($parsed_uri);
-        }
-        
-        if($this->environment == 'development' && $parsed_uri[0] == 'index.php') {
+
+        if(empty($parsed_uri[0])) {
             array_shift($parsed_uri);
         }
 

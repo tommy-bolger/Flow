@@ -70,6 +70,14 @@ extends Framework {
             $unparsed_uri = $unparsed_uri_split[0];
         }
         
+        $unparsed_uri = str_replace(array(
+            'index.php',
+            '//'
+        ), array(
+            '',
+            '/'
+        ), $unparsed_uri);
+        
         return $unparsed_uri;
     }
 }
