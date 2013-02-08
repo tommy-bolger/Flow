@@ -98,18 +98,18 @@ extends Home {
             ORDER BY ces.sort_order ASC
         ");
         
-        if(!empty($code_examples)) {
-            $source_file_edit_url = Http::getCurrentLevelPageUrl('change-source-code');
-            $skills_used_edit_url = Http::getLowerLevelPageUrl(array('skills'), 'manage');
-        
+        if(!empty($code_examples)) {        
             foreach($code_examples as $code_example) {
                 $code_example_id = $code_example['code_example_id'];
+                
+                $source_file_edit_url = Http::getCurrentLevelPageUrl('change-source-code', array('code_example_id' => $code_example_id));
+                $skills_used_edit_url = Http::getLowerLevelPageUrl(array('skills'), 'manage', array('code_example_id' => $code_example_id));                                
             
-                $source_file_edit_link = "<a href=\"{$source_file_edit_url}&code_example_id={$code_example_id}\">Edit Source File</a>";
+                $source_file_edit_link = "<a href=\"{$source_file_edit_url}\">Edit Source File</a>";
             
                 $code_example['source_file'] = $source_file_edit_link;
                 
-                $skills_used_edit_link = "<a href=\"{$skills_used_edit_url}&code_example_id={$code_example_id}\">Edit Skills Used</a>";
+                $skills_used_edit_link = "<a href=\"{$skills_used_edit_url}\">Edit Skills Used</a>";
             
                 if(!empty($code_example_skills[$code_example_id])) {
                     $code_example['skills_used'] = implode('<br />', $code_example_skills[$code_example_id]) . "<br /><br />{$skills_used_edit_link}";

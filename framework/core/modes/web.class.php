@@ -64,6 +64,12 @@ extends Framework {
             $unparsed_uri = $unparsed_uri_split[0];
         }
         
+        if(strpos($unparsed_uri, '&') !== false) {
+            $unparsed_uri_split = explode('&', $unparsed_uri);
+            
+            $unparsed_uri = $unparsed_uri_split[0];
+        }
+        
         if(strpos($unparsed_uri, '#') !== false) {
             $unparsed_uri_split = explode('#', $unparsed_uri);
             
