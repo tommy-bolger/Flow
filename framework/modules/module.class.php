@@ -102,10 +102,10 @@ class Module {
             if(empty($this->data)) {
                 throw new \Exception("Module {$this->name} does not exist.");
             }
-        }
-        
-        if($this->framework->enable_cache) {
-            cache()->set($this->name, $this->data, 'modules');
+            
+            if($this->framework->enable_cache) {
+                cache()->set($this->name, $this->data, 'modules');
+            }
         }
         
         if(empty($this->data['enabled'])) {
@@ -173,6 +173,10 @@ class Module {
             }
             
             closedir($modules_directory);
+            
+            if($framework->enable_cache) {
+                cache()->set('installed_modules', $modules);
+            }
         }
         
         return $modules;

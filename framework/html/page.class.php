@@ -562,10 +562,8 @@ class page {
 
                 if($css_hash_name === false) {
                     $css_minifier = new Css($this->internal_css_files);
-                    $css_minifier->clean();
-                    $css_minifier->compress();
                 
-                    $css_hash_name = file_cache()->set($css_file_cache_name, $css_minifier->getMinifiedData(), 'css/', 'gz');
+                    $css_hash_name = file_cache()->set($css_file_cache_name, $css_minifier->getUnminifiedData(), 'css/', 'tmp');
                 }
                 
                 $css_http_path = "{$this->css_http_path}/{$css_hash_name}";
@@ -620,10 +618,8 @@ class page {
                 
                 if($javascript_hash_name === false) {
                     $javascript_minifier = new Javascript($this->internal_javascript_files);
-                    $javascript_minifier->clean();
-                    $javascript_minifier->compress();
                 
-                    $javascript_hash_name = file_cache()->set($javascript_file_cache_name, $javascript_minifier->getMinifiedData(), 'javascript/', 'gz');
+                    $javascript_hash_name = file_cache()->set($javascript_file_cache_name, $javascript_minifier->getUnminifiedData(), 'javascript/', 'tmp');
                 }
                 
                 $javascript_http_path = "{$this->javascript_http_path}/{$javascript_hash_name}";

@@ -33,6 +33,7 @@
 namespace Framework\Core\Modes\File;
 
 use \Framework\Core\Modes\Web;
+use \Framework\Utilities\File;
 
 require_once(dirname(__DIR__) . '/web.class.php');
 
@@ -243,11 +244,7 @@ extends Web {
      */
     protected function sanitizePathParameter($parameter_name) {
         if(!empty($this->parsed_uri_segments[$parameter_name])) {
-            return str_replace(array(
-                '~',
-                '\\',
-                '..'
-            ), '', $this->parsed_uri_segments[$parameter_name]);
+            return File::sanitizePathSegment($this->parsed_uri_segments[$parameter_name]);
         }
         
         return '';

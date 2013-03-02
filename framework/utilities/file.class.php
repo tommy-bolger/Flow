@@ -36,6 +36,20 @@ use \ZipArchive;
 
 class File {
     /**
+    * Removes illegal characters from a path segment.
+    * 
+    * @param string $path_segment The segment to sanitize.    
+    * @return string
+    */
+    public static function sanitizePathSegment($path_segment) {
+        return str_replace(array(
+            '~',
+            '\\',
+            '..'
+        ), '', $path_segment);
+    }
+
+    /**
     * Moves an uploaded file to a specified directory path.
     * 
     * @param array $upload_file_data The data from the file's position in $_FILES.

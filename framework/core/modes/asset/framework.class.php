@@ -74,7 +74,7 @@ extends BaseFramework {
                     
                     $cache->set($this->full_path, $output, $this->type);
                 }
-            
+
                 echo $output;
             }
             else {
@@ -151,6 +151,7 @@ extends BaseFramework {
      * @return void
      */
     protected function constructFilePath() {
+        $base_file_path = '';
         $file_path = '';
     
         if($this->environment == 'production') {        
@@ -158,7 +159,8 @@ extends BaseFramework {
                 $this->initializeNotFound(true);
             }
 
-            $file_path = "{$this->installation_path}/modules/{$this->module_name}/cache/{$this->type}/{$this->full_name}.gz";
+            $base_file_path = "{$this->installation_path}/modules/{$this->module_name}/cache/{$this->type}/{$this->full_name}";
+            $file_path = "{$base_file_path}.gz";
         }
         else {
             $file_path = request()->get->file;
@@ -166,14 +168,32 @@ extends BaseFramework {
 
         if(is_file($file_path)) {
             $this->full_path = $file_path;
-            
-            if($this->environment != 'production') {
-                //Sent the file's size
-                header("Content-Length: " . filesize($file_path));
-            }
         }
         else {
-            $this->initializeNotFound(true);
+            $file_path = "{$base_file_path}.tmp";
+            $file_lock_path = "{$base_file_path}.lock";
+            
+            if(is_file($file_path)) {
+                $this->full_path = $file_path;
+            
+                ini_set('zlib.output_compression', 1);
+
+                ini_set('zlib.output_compression_level', 9);
+                
+                ob_start();
+            
+                if(!is_file($file_lock_path)) {
+                    passthru(PHP_BINDIR . "/php {$this->installation_path}/scripts/minify_assets.php -m {$this->module_name} -t {$this->type} -f {$this->full_name} >> {$this->installation_path}/logs/minification.log 2>&1 &");
+                }
+            }
+            else {
+                $this->initializeNotFound(true);
+            }
+        }
+        
+        if($this->environment != 'production') {
+            //Sent the file's size
+            header("Content-Length: " . filesize($this->full_path));
         }
     }
 }

@@ -67,7 +67,7 @@ class Minifier {
     * 
     * @return string The loaded unminified data.
     */
-    protected function getUnminifiedData() {
+    public function getUnminifiedData() {
         $all_unminified_data = '';
 
         if(is_array($this->unminified_files)) {
@@ -76,7 +76,7 @@ class Minifier {
             }
         }
         else {
-            $all_unminified_data = $this->unminified_files;
+            $all_unminified_data = file_get_contents($this->unminified_files);
         }
         
         return $all_unminified_data;
