@@ -40,6 +40,8 @@ extends Minifier {
     * @return void
     */
     public function clean() {
-        $this->minified_data = $this->getUnminifiedData();
+        $this->loadUnminifiedData();
+    
+        $this->minified_data = $this->unminified_data;
     }
 }

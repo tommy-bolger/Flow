@@ -40,7 +40,7 @@ extends Minifier {
     * @return void
     */
     public function clean() {
-        $all_unminified_data = $this->getUnminifiedData();
+        $this->loadUnminifiedData();
         
         $javascript_minifier = $this->framework->configuration->javascript_minifier;
         
@@ -49,7 +49,7 @@ extends Minifier {
             $minified_temp_file = tempnam('flow_scratch', 'js_minified');
             
             //Write the unminified data to a temp file
-            file_put_contents($unminified_temp_file, $all_unminified_data);
+            file_put_contents($unminified_temp_file, $this->unminified_data);
         
             switch($javascript_minifier) {
                 case 'closure':
@@ -74,7 +74,7 @@ extends Minifier {
         }
         
         if(empty($this->minified_data)) {
-            $this->minified_data = $all_unminified_data;
+            $this->minified_data = $this->unminified_data;
         }
     }
 }

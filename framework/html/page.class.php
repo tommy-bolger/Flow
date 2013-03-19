@@ -179,7 +179,7 @@ class page {
      */
     public function __construct($page_name = '', $enable_cache = false) {
         $this->framework = Framework::getInstance();
-    
+
         if(empty($page_name)) {
             $this->name = $this->framework->getPageClassName();
         }
@@ -801,10 +801,11 @@ class page {
         else {
             $page_html = $this->toHtml();
         }
-        
+
         //If caching is enabled and this page html is not cached then do so
         if($this->framework->enable_cache && $this->cache_page) {
-            $html_minifier = new Html($page_html);
+            $html_minifier = new Html();
+            $html_minifier->setUnminifiedData($page_html);
             $html_minifier->clean();
             $html_minifier->compress();
         

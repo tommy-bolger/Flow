@@ -40,7 +40,7 @@ extends Minifier {
     * @return void
     */
     public function clean() {
-        $all_unminified_data = $this->getUnminifiedData();
+        $this->loadUnminifiedData();
     
         /*
             The following code was adapted from this page:
@@ -52,7 +52,7 @@ extends Minifier {
         );
         
         $search = array_keys($replace);
-        $this->minified_data = preg_replace($search, $replace, $all_unminified_data);
+        $this->minified_data = preg_replace($search, $replace, $this->unminified_data);
         
         $replace = array(
             ": "  => ":",

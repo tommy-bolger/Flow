@@ -40,9 +40,9 @@ extends Minifier {
     * @return void
     */
     public function clean() {
-        $unminified_data = $this->getUnminifiedData();
+        $this->loadUnminifiedData();
     
-        $this->minified_data = tidy_parse_string($unminified_data, array(
+        $this->minified_data = tidy_parse_string($this->unminified_data, array(
             'clean' => 1,
             'bare' => 1,
             'hide-comments' => 1,

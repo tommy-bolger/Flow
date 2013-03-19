@@ -46,6 +46,11 @@ class Minifier {
     protected $unminified_files;
     
     /**
+    * @var string The unminified data.
+    */ 
+    protected $unminified_data;
+    
+    /**
     * @var string The data that has been minified.
     */ 
     protected $minified_data;
@@ -56,30 +61,49 @@ class Minifier {
     * @param array|string $unminified_files A list of file paths to all files that need to be loaded or the raw data to be minified.
     * @return void
     */
-    public function __construct($unminified_files) {    
+    public function __construct($unminified_files = array()) {    
         $this->framework = Framework::getInstance();
         
         $this->unminified_files = $unminified_files;
     }
+    
+    /**
+    * Sets the unminified to be processed. 
+    * 
+    * @param string $unminified_data
+    * @return void
+    */
+    public function setUnminifiedData($unminified_data) {
+        $this->unminified_data = $unminified_data;
+    }
 
     /**
-    * Loads and returns all unminified data.
+    * Loads all unminified data.
+    * 
+    * @return string The loaded unminified data.
+    */
+    protected function loadUnminifiedData() {
+        if(empty($this->unminified_data)) {
+            if(is_array($this->unminified_files)) {
+                foreach($this->unminified_files as $unminified_file) {
+                    $this->unminified_data .= file_get_contents($unminified_file) . "\n";
+                }
+            }
+            else {
+                $this->unminified_data = file_get_contents($this->unminified_files);
+            }
+        }
+    }
+    
+    /**
+    * Returns all unminified data.
     * 
     * @return string The loaded unminified data.
     */
     public function getUnminifiedData() {
-        $all_unminified_data = '';
-
-        if(is_array($this->unminified_files)) {
-            foreach($this->unminified_files as $unminified_file) {
-                $all_unminified_data .= file_get_contents($unminified_file) . "\n";
-            }
-        }
-        else {
-            $all_unminified_data = file_get_contents($this->unminified_files);
-        }
-        
-        return $all_unminified_data;
+        $this->loadUnminifiedData();
+    
+        return $this->unminified_data;
     }
     
     /**

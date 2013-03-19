@@ -162,9 +162,14 @@ class File {
         
         if(is_writable($full_directory_path)) {
             $full_file_path = "{$full_directory_path}/{$hashed_key}.{$extension}";
-        
-            if(!is_file($full_file_path)) {
+            $file_lock_path = "{$full_file_path}.lock";
+            
+            if(!is_file($file_lock_path)) {
+                file_put_contents($file_lock_path, 'locked');
+
                 file_put_contents($full_file_path, $value);
+                
+                unlink($file_lock_path);
             }
         }
         else {
