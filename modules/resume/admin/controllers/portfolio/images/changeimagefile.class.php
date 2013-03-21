@@ -94,6 +94,7 @@ extends Home {
         ", array($portfolio_project_image_id));
         
         $image_path = "{$this->managed_module->getImagesPath()}/portfolio_images";
+        $image_http_path = "{$this->managed_module->getImagesHttpPath()}/portfolio_images";
     
         /* ----- The image form -----*/
         $image_form = new TableForm('image_form');
@@ -107,7 +108,7 @@ extends Home {
         } 
         
         $image_form->addDropdown('portfolio_project_image_id', 'Project Image', $image_options)->addBlankOption();
-        $image_form->addSingleImage('image_name', 'Image', $image_path, 200);
+        $image_form->addSingleImage('image_name', 'Image', $image_http_path, 200);
         $image_form->addSubmit('save', 'Save');
 
         $image_form->setDefaultValues(array(
