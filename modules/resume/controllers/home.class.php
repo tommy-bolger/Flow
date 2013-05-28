@@ -171,9 +171,9 @@ extends Controller {
                 $date_graduated = NULL;
                 
                 if(!empty($education_item['date_graduated'])) {
-                    $date_graduated = $education_item['date_graduated'];
+                    $date_graduated = date('m/Y', strtotime($education_item['date_graduated']));
                 }
-            
+
                 $education_institution = new TemplateElement('education/institution.php');
                 $education_institution->addChild($education_item['degree_level_name'], 'degree_level_name');
                 $education_institution->addChild($education_item['degree_name'], 'degree_name');
