@@ -3,5 +3,5 @@
     <p><?php echo $this->institution_name; ?></p>
     <p><?php echo $this->institution_city; ?>, <?php echo $this->state; ?></p>
     <p><span class="italic">Graduation Date: </span> <?php echo $this->date_graduated; ?></p>
-    <p><span class="italic">Cumulative GPA: </span> <?php echo $this->culumative_gpa; ?></p>
+    <p><span class="italic">Cumulative GPA: </span> <?php echo $this->cumulative_gpa; ?></p>
 </div>
