@@ -7,5 +7,5 @@
         <?php echo $this->organization_duration; ?>
     </div>
     <div class="clear"></div>
-    <?php $this->organization_tasks; ?>
 </div>
+<?php echo $this->organization_tasks; ?>
