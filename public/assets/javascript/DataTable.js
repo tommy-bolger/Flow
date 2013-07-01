@@ -32,7 +32,7 @@
 function DataTable(dom_element) {
     var instance = this;
 
-    this.data_table = dom_element;
+    this.data_table = dom_element;        
     this.form = $('form', this.data_table);
     
     $(this.form).bind('submit', {
@@ -62,7 +62,7 @@ DataTable.prototype.initializeHeader = function() {
 };
 
 DataTable.prototype.initializePagination = function() {
-    this.page_numbers = $('.page_number', this.data_table)
+    this.page_numbers = $('.page_number', this.data_table);
     
     $('a', this.page_numbers).bind('click', {
         instance: this
@@ -192,11 +192,3 @@ DataTable.prototype.submitForm = function(event) {
 DataTable.prototype.submitFormSuccess = function(request, response) {
     this.setState(response);
 };
-
-$(document).ready(function() {
-    $('.data_table').each(function() {
-        var element = $(this);
-        
-        var data_table = new DataTable(element);
-    });
-});

@@ -35,6 +35,7 @@ namespace Modules\Admin\Controllers\Bans\Words;
 
 use \Framework\Html\Table\EditTable;
 use \Framework\Utilities\Http;
+use \Framework\Data\ResultSet\SQL;
 
 class Manage
 extends Home {
@@ -55,7 +56,17 @@ extends Home {
         ), 'manage');
     }
     
-    protected function constructRightContent() {            
+    protected function getDataTable() {
+        $resultset = new SQL('word_bans');
+        
+        $resultset->setBaseQuery("
+            SELECT
+                original_word,
+                translated_to,
+                censored_word_id
+            FROM cms_censored_words
+        ");
+    
         $words_table = new EditTable(
             'words',
             'cms_censored_words',
@@ -63,21 +74,19 @@ extends Home {
             'censored_word_id'
         );
 
-        $words_table->addHeader(array(
+        $words_table->setHeader(array(
             'original_word' => 'Original Word',
             'translated_to' => 'Translated To'
         ));
         
         $words_table->setNumberOfColumns(2);
         
-        $words_table->useQuery("
-            SELECT
-                original_word,
-                translated_to,
-                censored_word_id
-            FROM cms_censored_words
-        ");
+        $words_table->process($resultset);
         
-        $this->page->body->addChild($words_table, 'current_menu_content');
+        return $words_table;
+    }
+    
+    protected function constructRightContent() {                    
+        $this->page->body->addChild($this->getDataTable(), 'current_menu_content');
     }
 }

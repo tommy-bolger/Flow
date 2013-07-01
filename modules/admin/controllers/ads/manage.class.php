@@ -35,6 +35,7 @@ namespace Modules\Admin\Controllers\Ads;
 
 use \Framework\Html\Table\EditTable;
 use \Framework\Utilities\Http;
+use \Framework\Data\ResultSet\SQL;
 
 class Manage
 extends Home {
@@ -52,31 +53,39 @@ extends Home {
         $this->page_links['Manage'] = Http::getInternalUrl('', array('ads'), 'manage');
     }
     
-    protected function constructRightContent() {            
-        $ads_table = new EditTable(
-            'ads',
-            'cms_ads',
-            'add',
-            'ad_id'
-        );
+    protected function getDataTable() {
+        $resultset = new SQL('ads');
         
-        $ads_table->disableMoveRecord();
-
-        $ads_table->addHeader(array(
-            'description' => 'Description',
-            'active' => 'Active'
-        ));
-        
-        $ads_table->setNumberOfColumns(2);
-        
-        $ads_table->useQuery("
+        $resultset->setBaseQuery("
             SELECT
                 description,
                 is_active,
                 ad_id
             FROM cms_ads
             WHERE module_id = ?
-        ", array($this->managed_module->getId()), function($query_rows) {
+        ", array(
+            $this->managed_module->getId()
+        ));
+        
+        $ads_table = new EditTable(
+            'ads',
+            'cms_ads',
+            'add',
+            'ad_id',
+            NULL,
+            array('module_id')
+        );
+        
+        $ads_table->disableMoveRecord();
+
+        $ads_table->setHeader(array(
+            'description' => 'Description',
+            'active' => 'Active'
+        ));
+        
+        $ads_table->setNumberOfColumns(2);
+        
+        $ads_table->process($resultset, function($query_rows) {
             if(!empty($query_rows)) {
                 foreach($query_rows as &$query_row) {
                     if(!empty($query_row['is_active'])) {
@@ -91,6 +100,10 @@ extends Home {
             return $query_rows;
         });
         
-        $this->page->body->addChild($ads_table, 'current_menu_content');
+        return $ads_table;
+    }
+    
+    protected function constructRightContent() {                    
+        $this->page->body->addChild($this->getDataTable(), 'current_menu_content');
     }
 }

@@ -35,6 +35,7 @@ namespace Modules\Resume\Admin\Controllers\Skills\Categories;
 
 use \Framework\Html\Table\EditTable;
 use \Framework\Utilities\Http;
+use \Framework\Data\ResultSet\SQL;
 
 class Manage
 extends Home {
@@ -52,7 +53,18 @@ extends Home {
         $this->page_links['Manage'] = Http::getCurrentLevelPageUrl('manage', array(), 'resume');
     }
     
-    protected function constructRightContent() {            
+    protected function getDataTable() {
+        $resultset = new SQL('skill_categories');
+        
+        $resultset->setBaseQuery("
+            SELECT
+                skill_category_id,
+                skill_category_name
+            FROM resume_skill_categories
+        ");
+        
+        $resultset->setSortCriteria('sort_order', 'ASC');
+    
         //The skill_category table
         $skill_category_edit_table = new EditTable(
             'skill_categories', 
@@ -64,17 +76,16 @@ extends Home {
         
         $skill_category_edit_table->setNumberOfColumns(1);
         
-        $skill_category_edit_table->addHeader(array(
+        $skill_category_edit_table->setHeader(array(
             'skill_category_name' => 'Skill Category Name'
         ));
-
-        $skill_category_edit_table->useQuery("
-            SELECT
-                skill_category_id,
-                skill_category_name
-            FROM resume_skill_categories
-        ");
         
-        $this->page->body->addChild($skill_category_edit_table, 'current_menu_content');
+        $skill_category_edit_table->process($resultset);
+        
+        return $skill_category_edit_table;
+    }
+    
+    protected function constructRightContent() {                    
+        $this->page->body->addChild($this->getDataTable(), 'current_menu_content');
     }
 }

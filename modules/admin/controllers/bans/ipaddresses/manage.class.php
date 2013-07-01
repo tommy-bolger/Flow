@@ -35,6 +35,7 @@ namespace Modules\Admin\Controllers\Bans\IPAddresses;
 
 use \Framework\Html\Table\EditTable;
 use \Framework\Utilities\Http;
+use \Framework\Data\ResultSet\SQL;
 
 class Manage
 extends Home {
@@ -55,7 +56,17 @@ extends Home {
         ), 'manage');
     }
     
-    protected function constructRightContent() {            
+    protected function getDataTable() {
+        $resultset = new SQL('ipaddress_bans');
+        
+        $resultset->setBaseQuery("
+            SELECT
+                ip_address,
+                expiration_time,
+                banned_ip_address_id
+            FROM cms_banned_ip_addresses
+        ");
+    
         $ip_addresses_table = new EditTable(
             'ip_addresses',
             'cms_banned_ip_addresses',
@@ -63,31 +74,33 @@ extends Home {
             'banned_ip_address_id'
         );
 
-        $ip_addresses_table->addHeader(array(
+        $ip_addresses_table->setHeader(array(
             'ip_address' => 'IP Address',
-            'expiration_date' => 'Expiration Date'
+            'expiration_time' => 'Expiration Time'
         ));
         
         $ip_addresses_table->setNumberOfColumns(2);
         
-        $ip_addresses_table->useQuery("
-            SELECT
-                ip_address,
-                expiration_date,
-                banned_ip_address_id
-            FROM cms_banned_ip_addresses
-        ", array(), function($query_rows) {
+        $ip_addresses_table->disableMoveRecord();
+        
+        $ip_addresses_table->process($resultset, function($query_rows) {
             if(!empty($query_rows)) {
-                foreach($query_rows as &$query_row) {
-                    if(!empty($query_row['expiration_date'])) {
-                        $query_row['expiration_date'] = date('m/d/Y', strtotime($query_row['expiration_date']));
+                foreach($query_rows as $index => $query_row) {
+                    if(!empty($query_row['expiration_time'])) {
+                        $query_row['expiration_time'] = date('m/d/Y', strtotime($query_row['expiration_time']));
                     }
+                    
+                    $query_rows[$index] = $query_row;
                 }
             }
 
             return $query_rows;
         });
         
-        $this->page->body->addChild($ip_addresses_table, 'current_menu_content');
+        return $ip_addresses_table;
+    }
+    
+    protected function constructRightContent() {                    
+        $this->page->body->addChild($this->getDataTable(), 'current_menu_content');
     }
 }

@@ -35,6 +35,7 @@ namespace Modules\Admin\Controllers\Settings\StaticPages;
 
 use \Framework\Html\Table\EditTable;
 use \Framework\Utilities\Http;
+use \Framework\Data\ResultSet\SQL;
 
 class Manage
 extends Home {
@@ -57,7 +58,20 @@ extends Home {
         ));
     }
     
-    protected function constructRightContent() {            
+    protected function getDataTable() {
+        $resultset = new SQL('static_pages');
+        
+        $resultset->setBaseQuery("
+            SELECT
+                display_name,
+                title,
+                content,
+                is_active,
+                static_page_id
+            FROM cms_static_pages
+            {{WHERE_CRITERIA}}
+        ");
+    
         $static_pages_table = new EditTable(
             'static_pages',
             'cms_static_pages',
@@ -71,7 +85,7 @@ extends Home {
         $static_pages_table->disableMoveRecord();
         $static_pages_table->disableDeleteRecord();
 
-        $static_pages_table->addHeader(array(
+        $static_pages_table->setHeader(array(
             'display_name' => 'Page',
             'title' => 'Title',
             'content' => 'Content',
@@ -80,29 +94,27 @@ extends Home {
         
         $static_pages_table->setNumberOfColumns(4);
         
-        $static_pages_table->useQuery("
-            SELECT
-                display_name,
-                title,
-                content,
-                is_active,
-                static_page_id
-            FROM cms_static_pages
-        ", array(), function($query_rows) {
+        $static_pages_table->process($resultset, function($query_rows) {
             if(!empty($query_rows)) {
-                foreach($query_rows as &$query_row) {
+                foreach($query_rows as $index => $query_row) {
                     if(!empty($query_row['is_active'])) {
                         $query_row['is_active'] = 'Yes';
                     }
                     else {
                         $query_row['is_active'] = 'No';
                     }
+                    
+                    $query_rows[$index] = $query_row;
                 }
             }
 
             return $query_rows;
         });
         
-        $this->page->body->addChild($static_pages_table, 'current_menu_content');
+        return $static_pages_table;
+    }
+    
+    protected function constructRightContent() {                    
+        $this->page->body->addChild($this->getDataTable(), 'current_menu_content');
     }
 }

@@ -35,15 +35,26 @@ namespace Modules\Resume\Admin\Controllers\Skills;
 use \Framework\Html\Table\EditTable;
 use \Framework\Utilities\Http;
 use \Framework\Html\Misc\TemplateElement;
+use \Framework\Data\ResultSet\SQL;
 
 class Manage
 extends Home {
     protected $title = "Manage Skills";
     
     protected $active_sub_nav_link = 'Manage';
+    
+    protected $skill_categories;
 
     public function __construct() {
         parent::__construct();
+        
+        $this->skill_categories = db()->getMappedColumn("
+            SELECT 
+                skill_category_name,
+                skill_category_id
+            FROM resume_skill_categories
+            ORDER BY sort_order ASC
+        ");
     }
     
     protected function setPageLinks() {
@@ -52,56 +63,62 @@ extends Home {
         $this->page_links['Manage'] = Http::getCurrentLevelPageUrl('skills-edit', array(), 'resume');
     }
     
-    protected function constructRightContent() {            
-        $skill_categories = db()->getMappedColumn("
-            SELECT 
-                skill_category_id, 
-                skill_category_name
-            FROM resume_skill_categories
-            ORDER BY sort_order ASC
+    protected function getDataTable() {
+        $resultset = new SQL('skills');
+        
+        $resultset->setBaseQuery("
+            SELECT
+                s.skill_id,
+                s.skill_name,
+                sc.skill_category_name,
+                s.years_proficient,
+                pl.proficiency_level_name
+            FROM resume_skills s
+            JOIN resume_skill_categories sc USING (skill_category_id)
+            JOIN resume_proficiency_levels pl USING (proficiency_level_id)
+            {{WHERE_CRITERIA}}
         ");
         
-        if(!empty($skill_categories)) {
-            $skill_category_filters = array();
-            
-            foreach($skill_categories as $skill_category_id => $skill_category_name) {
-                $skill_category_filters[$skill_category_name] = array('skill_category_id' => $skill_category_id);
-            }
-
-            //The education history table
-            $skills_edit_table = new EditTable(
-                'skills',
-                'resume_skills',
-                'add',
-                'skill_id',
-                'sort_order',
-                array(),
-                array('Skill Category' => $skill_category_filters)
-            );
-            
-            $skills_edit_table->setNumberOfColumns(4);
+        $resultset->setSortCriteria('s.sort_order', 'ASC');
+                    
+        //The education history table
+        $skills_edit_table = new EditTable(
+            'skills',
+            'resume_skills',
+            'add',
+            'skill_id',
+            'sort_order'
+        );
         
-            $skills_edit_table->addHeader(array(
-                'skill_name' => 'Skill Name',
-                'Skill Category',
-                'years_proficient' => 'Years Proficient',
-                'proficiency_level_id' => 'Proficiency Level'
-            ));
-            
-            $skills_edit_table->useQuery("
-                SELECT
-                    s.skill_id,
-                    s.skill_name,
-                    sc.skill_category_name,
-                    s.years_proficient,
-                    pl.proficiency_level_name
-                FROM resume_skills s
-                JOIN resume_skill_categories sc USING (skill_category_id)
-                JOIN resume_proficiency_levels pl USING (proficiency_level_id)
-                ORDER BY s.sort_order
-            ");
-            
-            $this->page->body->addChild($skills_edit_table, 'current_menu_content');
+        $skills_edit_table->setEditTableAlias('s');
+        
+        $categories_options = array();
+        
+        foreach($this->skill_categories as $category_name => $category_id) {
+            $categories_options[$category_name] = "s.skill_category_id = {$category_id}";
+        }
+        
+        $skills_edit_table->addFilterDropdown('categories', $categories_options, 'Category');
+        
+        $skills_edit_table->setPrimaryDropdown('categories');
+        
+        $skills_edit_table->setNumberOfColumns(4);
+    
+        $skills_edit_table->setHeader(array(
+            'skill_name' => 'Skill Name',
+            'Skill Category',
+            'years_proficient' => 'Years Proficient',
+            'proficiency_level_id' => 'Proficiency Level'
+        ));
+        
+        $skills_edit_table->process($resultset);
+        
+        return $skills_edit_table;
+    }
+    
+    protected function constructRightContent() {
+        if(!empty($this->skill_categories)) {
+            $this->page->body->addChild($this->getDataTable(), 'current_menu_content');
         }
         else {
             $skill_category_edit_url = Http::getLowerLevelPageUrl(array('categories'), 'manage', array(), 'resume');

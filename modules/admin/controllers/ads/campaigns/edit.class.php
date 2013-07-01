@@ -55,7 +55,7 @@ extends Manage {
     }
     
     protected function getForm() {
-        $ad_campaign_id = request()->get->ad_campaign_id;
+        $ad_campaign_id = request()->get->id;
         
         //The education history table
         $ad_campaign_form = new EditTableForm('ad_campaigns', 'cms_ad_campaigns', 'ad_campaign_id');

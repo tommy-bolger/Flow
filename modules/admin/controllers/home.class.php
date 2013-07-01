@@ -212,6 +212,24 @@ extends Controller {
         );
     }
     
+    protected function getUsersLinks() {
+        $users_path = array('users');
+    
+        return array(
+            'users' => array(
+                'top_nav' => array(
+                    'Users' => Http::getInternalUrl('', $users_path, 'manage')
+                ),
+                'sub_nav' => array(
+                    'Users' => array(
+                        'Manage' => Http::getInternalUrl('', $users_path, 'manage'),
+                        'Add/Edit' => Http::getInternalUrl('', $users_path, 'add')
+                    )
+                )
+            )
+        );
+    }
+    
     protected function getBansLinks() {
         $bans_path = array('bans');
         
@@ -248,23 +266,29 @@ extends Controller {
         
         $campaign_ads_path = $ad_campaigns_path;
         $campaign_ads_path[] = 'ads';
+        
+        $query_string_parameters = array();
+        
+        if(!empty($this->managed_module)) {
+            $query_string_parameters['module_id'] = $this->managed_module->getId();
+        }
     
         return array(
             'ads' => array(
                 'top_nav' => array(
-                    'Ads' => Http::getInternalUrl('', array('ads'), 'manage')
+                    'Ads' => Http::getInternalUrl('', array('ads'), 'manage', $query_string_parameters)
                 ),
                 'sub_nav' => array(
                     'Ads' => array(
-                        'Manage' => Http::getInternalUrl('', $ads_path, 'manage'),
-                        'Add/Edit' => Http::getInternalUrl('', $ads_path, 'add')
+                        'Manage' => Http::getInternalUrl('', $ads_path, 'manage', $query_string_parameters),
+                        'Add/Edit' => Http::getInternalUrl('', $ads_path, 'add', $query_string_parameters)
                     ),
                     'Campaigns' => array(
-                        'Manage' => Http::getInternalUrl('', $ad_campaigns_path, 'manage')
+                        'Manage' => Http::getInternalUrl('', $ad_campaigns_path, 'manage', $query_string_parameters)
                     ),
                     'Campaign Ads' => array(
-                        'Manage' => Http::getInternalUrl('', $campaign_ads_path, 'manage'),
-                        'Add/Edit' => Http::getInternalUrl('', $campaign_ads_path, 'add')
+                        'Manage' => Http::getInternalUrl('', $campaign_ads_path, 'manage', $query_string_parameters),
+                        'Add/Edit' => Http::getInternalUrl('', $campaign_ads_path, 'add', $query_string_parameters)
                     )
                 )
             )
@@ -299,6 +323,8 @@ extends Controller {
         $this->module_links += $this->getSettingsLinks();
         
         $this->module_links += $this->getAdministratorsLinks();
+        
+        $this->module_links += $this->getUsersLinks();
         
         foreach($modules as $module) {
             $this->module_links[$module['module_name']]['top_nav'] = array(

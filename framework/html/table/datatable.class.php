@@ -140,9 +140,13 @@ extends Table {
         
         //Create the table form        
         $this->table_form = new Form("{$table_name}_form", Http::getPageUrl(), 'post', false);
-        
         $this->table_form->removeAttribute('id');
         $this->table_form->addClass('full_submit');
+        
+        $submit_button = new Submit("submit", '&gt;', array('rows_submit'));        
+        $submit_button->removeAttribute('id');
+        
+        $this->table_form->addField($submit_button);
 
         $this->addRequestVariable('t', $table_name);
         
@@ -165,6 +169,12 @@ extends Table {
         $this->addJavascriptFile('jquery.showLoading.js');
         $this->addJavascriptFile('request.js');
         $this->addJavascriptFile('DataTable.js');
+        
+        $this->addInlineJavascript("
+            $(document).ready(function() {
+                var data_table = new DataTable($('#{$this->name}_dt'));
+            });
+        ", $this->name);
     }
     
     /**
@@ -198,7 +208,7 @@ extends Table {
      *      
      * @return void
      */
-    private function getTableState() {
+    protected function getTableState() {
         //The names of all session variables used to store the table's state if the resume_from_session property is set to true
         $page_session_name = "{$this->name}_page_number";
         $sort_column_session_name = "{$this->name}_sort_column";
@@ -347,7 +357,7 @@ extends Table {
         $filter_option_values = array_values($filter_options);
 
         if(isset($filter_option_values[$selected_dropdown_index])) {
-            $this->selected_filter_criteria[] = array(
+            $this->selected_filter_criteria[$filter_field_name] = array(
                 'criteria' => $filter_option_values[$selected_dropdown_index],
                 'placeholder_values' => array()
             );
@@ -435,7 +445,7 @@ extends Table {
         }
         
         $resultset->setPageNumber($this->current_page);
-        
+
         $resultset->process();
         
         $data = $resultset->getData();
@@ -475,11 +485,6 @@ extends Table {
             $rows_per_page_dropdown->removeAttribute('id');
             
             $this->table_form->addField($rows_per_page_dropdown);
-            
-            $submit_button = new Submit("submit", '&gt;', array('rows_submit'));        
-            $submit_button->removeAttribute('id');
-            
-            $this->table_form->addField($submit_button);
         }
     }
     
@@ -518,7 +523,7 @@ extends Table {
      * @param string $title_name The text of the alt text prior to the page number text.          
      * @return string
      */
-    private function generatePageLinkTitle($page_number, $title_name = '') {
+    protected function generatePageLinkTitle($page_number, $title_name = '') {
         $rows_per_page = $this->resultset->getRowsPerPage();
     
         $page_number_start_range = ($page_number * $rows_per_page) - $rows_per_page;
@@ -545,6 +550,7 @@ extends Table {
      * @return string
      */
     protected function getPaginationHtml($render_container = true) {
+        $pagination_html = '';
         $page_count_html = '';
         $first_page_html = '';
         $previous_page_html = '';
@@ -552,150 +558,151 @@ extends Table {
         $next_page_html = '';
         $last_page_html = '';
         
-    
-        if($this->resultset->hasTotalRecordCount()) {
-            $total_pages = 1;
-            
-            $rows_per_page = $this->resultset->getRowsPerPage();
-            
-            if(!empty($rows_per_page)) {
-                $total_pages = floor($this->total_number_of_records / $rows_per_page);
+        if(!empty($this->total_number_of_records)) {
+            if($this->resultset->hasTotalRecordCount()) {
+                $total_pages = 1;
                 
-                //If the number of rows per page doesn't cleanly divide into the total records then add a final page.
-                if(($this->total_number_of_records % $rows_per_page) > 0) {
-                    $total_pages += 1;
+                $rows_per_page = $this->resultset->getRowsPerPage();
+                
+                if(!empty($rows_per_page)) {
+                    $total_pages = floor($this->total_number_of_records / $rows_per_page);
+                    
+                    //If the number of rows per page doesn't cleanly divide into the total records then add a final page.
+                    if(($this->total_number_of_records % $rows_per_page) > 0) {
+                        $total_pages += 1;
+                    }
                 }
-            }
-            
-            if($total_pages == 1) {
-                return "";
-            }
-            
-            //Determine the start of the page range to show in pagination
-            $page_range_start = NULL;
-            
-            if($this->current_page == 1) {
-                $page_range_start = 1;
-            }
-            elseif($this->current_page == $total_pages) {
-                $page_range_start = $this->current_page - 4;
                 
-                if($page_range_start <= 0) {
+                if($total_pages == 1) {
+                    return "";
+                }
+                
+                //Determine the start of the page range to show in pagination
+                $page_range_start = NULL;
+                
+                if($this->current_page == 1) {
                     $page_range_start = 1;
                 }
-            }
-            else {
-                $page_range_start = $this->current_page - 2;
-                
-                if($page_range_start <= 0) {
-                    $page_range_start = 1;
-                }
-            }
-            
-            //Determine the end of the page range to show in pagination
-            $page_range_end = NULL;
-            
-            if($this->current_page == $total_pages) {
-                $page_range_end = $this->current_page;
-            }
-            elseif($this->current_page == 1) {
-                $page_range_end = $this->current_page + 4;
-                
-                if($page_range_end >= $total_pages) {
-                    $page_range_end = $total_pages;
-                }
-            }
-            else {
-                $page_range_end = $this->current_page + 2;
-                
-                if($page_range_end >= $total_pages) {
-                    $page_range_end = $total_pages;
-                }
-            }
-            
-            //Generate the page numbers to display for pagination
-            $page_range = range($page_range_start, $page_range_end);
-            
-            $previous_page_number = $this->current_page - 1;
-            
-            $next_page_number = $this->current_page + 1;
-            
-            $page_count_html = "<span>Page {$this->current_page} of {$total_pages}</span>";
-            
-            //Generate the previous page and first page links if not on the first page
-            if($this->current_page > 1) {
-                $first_page_title = $this->generatePageLinkTitle(1, 'First page');
-                $first_page_url = $this->generateUrl(array('p' => 1));
-                
-                $first_page_html = "&nbsp;<li class=\"page_number\"><a href=\"{$first_page_url}\" title=\"{$first_page_title}\">&laquo;First</a></li>";
-                
-                $previous_page_title = $this->generatePageLinkTitle($previous_page_number, 'Previous page');
-                $previous_page_url = $this->generateUrl(array('p' => $previous_page_number));
-            
-                $previous_page_html = "&nbsp;<li class=\"page_number\"><a href=\"{$previous_page_url}\" title=\"{$previous_page_title}\">&lt;</a></li>";
-            }
-            
-            //Generate a link for each page in the pagination range
-            foreach($page_range as $page_number) {
-                //Generate the title of the link
-                $page_number_title = $this->generatePageLinkTitle($page_number);
-                $page_number_url = $this->generateUrl(array('p' => $page_number));
-            
-                $current_page_class = "";
-                
-                $page_number_link = '';
-                
-                if($page_number != $this->current_page) {
-                    $page_number_link = "<a href=\"{$page_number_url}\" title=\"{$page_number_title}\">{$page_number}</a>";
+                elseif($this->current_page == $total_pages) {
+                    $page_range_start = $this->current_page - 4;
+                    
+                    if($page_range_start <= 0) {
+                        $page_range_start = 1;
+                    }
                 }
                 else {
-                    $current_page_class = " current_page_number";
+                    $page_range_start = $this->current_page - 2;
                     
-                    $page_number_link = "<span title=\"{$page_number_title}\">{$page_number}</span>";
+                    if($page_range_start <= 0) {
+                        $page_range_start = 1;
+                    }
                 }
-            
-                $page_numbers_html .= "&nbsp;<li class=\"page_number{$current_page_class}\">{$page_number_link}</li>";
-            }
-            
-            //Generate the next page and last page links if not on the last page
-            if($this->current_page < $total_pages) {
-                $next_page_title = $this->generatePageLinkTitle($next_page_number, 'Next page');
-                $next_page_url = $this->generateUrl(array('p' => $next_page_number));
                 
-                $next_page_html = "&nbsp;<li class=\"page_number\"><a href=\"{$next_page_url}\" title=\"{$next_page_title}\">&gt;</a></li>";
+                //Determine the end of the page range to show in pagination
+                $page_range_end = NULL;
                 
-                $last_page_title = $this->generatePageLinkTitle($total_pages, 'Last page');
-                $last_page_url = $this->generateUrl(array('p' => $total_pages));
-            
-                $last_page_html = "&nbsp;<li class=\"page_number\"><a href=\"{$last_page_url}\" title=\"{$last_page_title}\">Last&raquo;</a></li>";
-            }
-        }
-        else {            
-            //Generate the previous page link if not on the first page
-            if($this->current_page > 1) {
+                if($this->current_page == $total_pages) {
+                    $page_range_end = $this->current_page;
+                }
+                elseif($this->current_page == 1) {
+                    $page_range_end = $this->current_page + 4;
+                    
+                    if($page_range_end >= $total_pages) {
+                        $page_range_end = $total_pages;
+                    }
+                }
+                else {
+                    $page_range_end = $this->current_page + 2;
+                    
+                    if($page_range_end >= $total_pages) {
+                        $page_range_end = $total_pages;
+                    }
+                }
+                
+                //Generate the page numbers to display for pagination
+                $page_range = range($page_range_start, $page_range_end);
+                
                 $previous_page_number = $this->current_page - 1;
-            
-                $previous_page_title = $this->generatePageLinkTitle($previous_page_number, 'Previous page');
-                $previous_page_url = $this->generateUrl(array('p' => $previous_page_number));
-            
-                $previous_page_html = "<li class=\"page_number\"><a href=\"{$previous_page_url}\" title=\"{$previous_page_title}\">&lt;</a></li>";
-            }
-            
-            //Generate the next page link if the resultset still has data
-            if(!empty($this->child_elements)) {
-                $next_page_number = $this->current_page + 1;
-            
-                $next_page_title = $this->generatePageLinkTitle($next_page_number, 'Next page');
-                $next_page_url = $this->generateUrl(array('p' => $next_page_number));
                 
-                $next_page_html = "<li class=\"page_number\"><a href=\"{$next_page_url}\" title=\"{$next_page_title}\">&gt;</a></li>";
+                $next_page_number = $this->current_page + 1;
+                
+                $page_count_html = "<span>Page {$this->current_page} of {$total_pages}</span>";
+                
+                //Generate the previous page and first page links if not on the first page
+                if($this->current_page > 1) {
+                    $first_page_title = $this->generatePageLinkTitle(1, 'First page');
+                    $first_page_url = $this->generateUrl(array('p' => 1));
+                    
+                    $first_page_html = "&nbsp;<li class=\"page_number\"><a href=\"{$first_page_url}\" title=\"{$first_page_title}\">&laquo;First</a></li>";
+                    
+                    $previous_page_title = $this->generatePageLinkTitle($previous_page_number, 'Previous page');
+                    $previous_page_url = $this->generateUrl(array('p' => $previous_page_number));
+                
+                    $previous_page_html = "&nbsp;<li class=\"page_number\"><a href=\"{$previous_page_url}\" title=\"{$previous_page_title}\">&lt;</a></li>";
+                }
+                
+                //Generate a link for each page in the pagination range
+                foreach($page_range as $page_number) {
+                    //Generate the title of the link
+                    $page_number_title = $this->generatePageLinkTitle($page_number);
+                    $page_number_url = $this->generateUrl(array('p' => $page_number));
+                
+                    $current_page_class = "";
+                    
+                    $page_number_link = '';
+                    
+                    if($page_number != $this->current_page) {
+                        $page_number_link = "<a href=\"{$page_number_url}\" title=\"{$page_number_title}\">{$page_number}</a>";
+                    }
+                    else {
+                        $current_page_class = " current_page_number";
+                        
+                        $page_number_link = "<span title=\"{$page_number_title}\">{$page_number}</span>";
+                    }
+                
+                    $page_numbers_html .= "&nbsp;<li class=\"page_number{$current_page_class}\">{$page_number_link}</li>";
+                }
+                
+                //Generate the next page and last page links if not on the last page
+                if($this->current_page < $total_pages) {
+                    $next_page_title = $this->generatePageLinkTitle($next_page_number, 'Next page');
+                    $next_page_url = $this->generateUrl(array('p' => $next_page_number));
+                    
+                    $next_page_html = "&nbsp;<li class=\"page_number\"><a href=\"{$next_page_url}\" title=\"{$next_page_title}\">&gt;</a></li>";
+                    
+                    $last_page_title = $this->generatePageLinkTitle($total_pages, 'Last page');
+                    $last_page_url = $this->generateUrl(array('p' => $total_pages));
+                
+                    $last_page_html = "&nbsp;<li class=\"page_number\"><a href=\"{$last_page_url}\" title=\"{$last_page_title}\">Last&raquo;</a></li>";
+                }
             }
-        }
-        
-        $pagination_html = "<ul class=\"page_numbers\">{$page_count_html}{$first_page_html}{$previous_page_html}{$page_numbers_html}{$next_page_html}{$last_page_html}</ul>";
-        
-        if($render_container) {
-            $pagination_html = "<div class=\"pagination\">{$pagination_html}</div>";
+            else {            
+                //Generate the previous page link if not on the first page
+                if($this->current_page > 1) {
+                    $previous_page_number = $this->current_page - 1;
+                
+                    $previous_page_title = $this->generatePageLinkTitle($previous_page_number, 'Previous page');
+                    $previous_page_url = $this->generateUrl(array('p' => $previous_page_number));
+                
+                    $previous_page_html = "<li class=\"page_number\"><a href=\"{$previous_page_url}\" title=\"{$previous_page_title}\">&lt;</a></li>";
+                }
+                
+                //Generate the next page link if the resultset still has data
+                if(!empty($this->child_elements)) {
+                    $next_page_number = $this->current_page + 1;
+                
+                    $next_page_title = $this->generatePageLinkTitle($next_page_number, 'Next page');
+                    $next_page_url = $this->generateUrl(array('p' => $next_page_number));
+                    
+                    $next_page_html = "<li class=\"page_number\"><a href=\"{$next_page_url}\" title=\"{$next_page_title}\">&gt;</a></li>";
+                }
+            }
+            
+            $pagination_html = "<ul class=\"page_numbers\">{$page_count_html}{$first_page_html}{$previous_page_html}{$page_numbers_html}{$next_page_html}{$last_page_html}</ul>";
+            
+            if($render_container) {
+                $pagination_html = "<div class=\"pagination\">{$pagination_html}</div>";
+            }
         }
         
         return $pagination_html;
@@ -910,9 +917,13 @@ extends Table {
         
         $table_menu_items = array();
         
+        $show_submit = false;
+        
         $filter_fields = $this->table_form->getFieldsByGroup('table_filters');
         
         if(!empty($filter_fields)) {
+            $show_submit = true;
+        
             foreach($filter_fields as $filter_field) {
                 $label_html = $filter_field->getLabelHtml();
                 
@@ -920,12 +931,14 @@ extends Table {
                     $label_html .= ':&nbsp;';
                 }
             
-                $table_menu_items[] = "{$label_html}{$filter_field->getFieldHtml()}&nbsp;{$form_template["submit"]}&nbsp;";
+                $table_menu_items[] = "{$label_html}{$filter_field->getFieldHtml()}&nbsp;{$form_template["submit"]}";
             }
         }
         
         if(isset($form_template["r"])) {
-            $table_menu_items[] = "{$form_template["r"]} per page {$form_template["submit"]}";
+            $show_submit = true;
+        
+            $table_menu_items[] = "&nbsp;{$form_template["r"]} per page {$form_template["submit"]}";
         }
         
         if(!empty($pagination_html)) {
@@ -952,7 +965,7 @@ extends Table {
         $table_menu_html = $this->getMenuHtml();
 
         $data_table_html = "
-            <div class=\"data_table\">
+            <div id=\"{$this->name}_dt\" class=\"data_table\">
                 {$table_menu_html}
                 {$table_html}
                 </form>

@@ -35,6 +35,7 @@ namespace Modules\Resume\Admin\Controllers\Portfolio\Images;
 
 use \Framework\Html\Table\EditTable;
 use \Framework\Utilities\Http;
+use \Framework\Data\ResultSet\SQL;
 
 class Manage
 extends Home {
@@ -52,9 +53,26 @@ extends Home {
         $this->page_links['Manage'] = Http::getCurrentLevelPageUrl('manage', array(), 'resume');
     }
     
-    protected function constructRightContent() {
+    protected function getDataTable() {
+        $image_path = "{$this->managed_module->getImagesHttpPath()}/portfolio_images";
+    
+        $resultset = new SQL('portfolio_project_images');
+        
+        $resultset->setBaseQuery("
+            SELECT
+                thumbnail_name,
+                title,
+                description,
+                portfolio_project_image_id,
+                ? AS image_path
+            FROM resume_portfolio_project_images
+            {{WHERE_CRITERIA}}
+        ", array($image_path));
+        
+        $resultset->setSortCriteria('sort_order', 'ASC');
+    
         $page_filter = array();
-        $filter_dropdown = array();
+        $portfolio_project_options = array();
     
         if(!empty(request()->get->portfolio_project_id)) {
             $page_filter = array('portfolio_project_id');
@@ -69,15 +87,9 @@ extends Home {
             ");
             
             if(!empty($portfolio_projects)) {
-                $dropdown_options = array();
-            
-                foreach($portfolio_projects as $portfolio_project) {
-                    $dropdown_options[$portfolio_project['project_name']] = array(
-                        'portfolio_project_id' => $portfolio_project['portfolio_project_id']
-                    ); 
+                foreach($portfolio_projects as $portfolio_project) {                    
+                    $portfolio_project_options["{$portfolio_project['project_name']}"] = "portfolio_project_id = {$portfolio_project['portfolio_project_id']}"; 
                 }
-                
-                $filter_dropdown = array('Select a Portfolio Project' => $dropdown_options);
             }
         }
     
@@ -87,30 +99,24 @@ extends Home {
             'add',
             'portfolio_project_image_id',
             'sort_order',
-            $page_filter,
-            $filter_dropdown
+            $page_filter
         );
         
         $portfolio_images_table->setNumberOfColumns(3);
         
-        $portfolio_images_table->addHeader(array(
+        $portfolio_images_table->setHeader(array(
             'Image',
             'title' => 'Title',
             'description' => 'Description'
         ));
         
-        $image_path = "{$this->managed_module->getImagesHttpPath()}/portfolio_images";
+        if(!empty($portfolio_project_options)) {
+            $portfolio_images_table->addFilterDropdown('portfolio_projects', $portfolio_project_options, 'Select a Portfolio Project');
+        
+            $portfolio_images_table->setPrimaryDropdown('portfolio_projects');
+        }
 
-        $portfolio_images_table->useQuery("
-            SELECT
-                thumbnail_name,
-                title,
-                description,
-                portfolio_project_image_id,
-                ? AS image_path
-            FROM resume_portfolio_project_images
-            ORDER BY sort_order ASC
-        ", array($image_path), function($results_data) {
+        $portfolio_images_table->process($resultset, function($results_data) {
             if(!empty($results_data)) {            
                 foreach($results_data as $index => $row) {        
                     if(!empty($row['thumbnail_name'])) {
@@ -136,6 +142,10 @@ extends Home {
             return $results_data;
         });
         
-        $this->page->body->addChild($portfolio_images_table, 'current_menu_content');
+        return $portfolio_images_table;
+    }
+    
+    protected function constructRightContent() {        
+        $this->page->body->addChild($this->getDataTable(), 'current_menu_content');
     }
 }

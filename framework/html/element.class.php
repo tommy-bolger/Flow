@@ -419,10 +419,16 @@ class Element {
      * Adds inline javascript to be included with this element.
      *
      * @param string $inline_javascript The inline javascript.
+     * @param string (optional) $inline_name The name of the inline block for overriding purposes. Defaults to an empty string.
      * @return void
      */
-    protected function addInlineJavascript($inline_javascript) {
-        $this->inline_javascript[] = $inline_javascript;
+    protected function addInlineJavascript($inline_javascript, $inline_name = '') {
+        if(empty($inline_name)) {    
+            $this->inline_javascript[] = $inline_javascript;
+        }
+        else {
+            $this->inline_javascript[$inline_name] = $inline_javascript;        
+        }                        
     }
     
     /**

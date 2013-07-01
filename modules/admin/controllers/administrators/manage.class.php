@@ -35,6 +35,7 @@ namespace Modules\Admin\Controllers\Administrators;
 
 use \Framework\Html\Table\EditTable;
 use \Framework\Utilities\Http;
+use \Framework\Data\ResultSet\SQL;
 
 class Manage
 extends Home {
@@ -52,25 +53,10 @@ extends Home {
         $this->page_links['Manage'] = Http::getInternalUrl('', array('administrators'), 'manage');
     }
     
-    protected function constructRightContent() {            
-        $admin_table = new EditTable(
-            'administrators',
-            'cms_users',
-            'add',
-            'user_id'
-        );
+    protected function getDataTable() {
+        $resultset = new SQL('administrators');
         
-        $admin_table->disableMoveRecord();
-
-        $admin_table->addHeader(array(
-            'id' => 'User ID',
-            'user_name' => 'User Name',
-            'email_address' => 'Email Address',
-        ));
-        
-        $admin_table->setNumberOfColumns(3);
-        
-        $admin_table->useQuery("
+        $resultset->setBaseQuery("
             SELECT
                 user_id AS id,
                 user_name,
@@ -80,6 +66,29 @@ extends Home {
             WHERE is_site_admin = 1
         ");
         
-        $this->page->body->addChild($admin_table, 'current_menu_content');
+        $admin_table = new EditTable(
+            'administrators',
+            'cms_users',
+            'add',
+            'user_id'
+        );
+        
+        $admin_table->disableMoveRecord();
+
+        $admin_table->setHeader(array(
+            'id' => 'User ID',
+            'user_name' => 'User Name',
+            'email_address' => 'Email Address',
+        ));
+        
+        $admin_table->setNumberOfColumns(3);
+        
+        $admin_table->process($resultset);
+        
+        return $admin_table;
+    }
+    
+    protected function constructRightContent() {
+        $this->page->body->addChild($this->getDataTable(), 'current_menu_content');
     }
 }

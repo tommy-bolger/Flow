@@ -69,10 +69,10 @@ extends ResultSet {
      * Adds a sort column criteria to the existing criteria of the result set.
      * 
      * @param string|array $criteria The criteria to sort the result set by Can either be a single column name as a string or several in an array.     
-     * @param string $direction The sort direction. Can only be either ASC or DESC. Defaults to ASC otherwise.
+     * @param string $direction (optional) The sort direction. Can only be either ASC or DESC. Defaults to ASC otherwise.
      * @return void
      */
-    public function addSortCriteria($criteria, $direction) {
+    public function addSortCriteria($criteria, $direction = 'ASC') {
         assert('is_string($criteria) && !empty($criteria)');
         
         $direction = strtoupper($direction);
@@ -97,10 +97,10 @@ extends ResultSet {
      * Sets sort column criteria that overrides any existing criteria of the result set.
      * 
      * @param string $criteria The criteria to sort the result set by.     
-     * @param string $direction The sort direction. Can only be either ASC or DESC. Defaults to ASC otherwise.
+     * @param string $direction (optional) The sort direction. Can only be either ASC or DESC. Defaults to ASC otherwise.
      * @return void
      */
-    public function setSortCriteria($criteria, $direction) {        
+    public function setSortCriteria($criteria, $direction = 'ASC') {        
         $this->sort_criteria = array();
         
         $this->addSortCriteria($criteria, $direction);

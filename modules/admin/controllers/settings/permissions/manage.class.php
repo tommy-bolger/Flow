@@ -35,6 +35,7 @@ namespace Modules\Admin\Controllers\Settings\Permissions;
 
 use \Framework\Html\Table\EditTable;
 use \Framework\Utilities\Http;
+use \Framework\Data\ResultSet\SQL;
 
 class Manage
 extends Home {
@@ -52,7 +53,20 @@ extends Home {
         $this->page_links['Manage'] = Http::getCurrentLevelPageUrl('manage', array('module_id' => $this->managed_module->getId()));
     }
     
-    protected function constructRightContent() {        
+    protected function getDataTable() {
+        $resultset = new SQL('permissions');
+        
+        $resultset->setBaseQuery("
+            SELECT
+                display_name,
+                description,
+                permission_id
+            FROM cms_permissions
+            {{WHERE_CRITERIA}}
+        ");
+        
+        $resultset->setSortCriteria('sort_order', 'ASC'); 
+    
         $permissions_table = new EditTable(
             'permissions',
             'cms_permissions',
@@ -68,32 +82,31 @@ extends Home {
         
         $permissions_table->setNumberOfColumns(2);
     
-        $permissions_table->addHeader(array(
+        $permissions_table->setHeader(array(
             'display_name' => 'Permission Name',
             'description' => 'Description'
         ));
         
-        $permissions_table->useQuery("
-            SELECT
-                display_name,
-                description,
-                permission_id
-            FROM cms_permissions
-            ORDER BY sort_order
-        ", array(), function($results_data) {
+        $permissions_table->process($resultset, function($results_data) {
             if(!empty($results_data)) {
-                foreach($results_data as &$results_row) {
+                foreach($results_data as $index => $results_row) {
                     $description = $results_row['description'];
                 
                     if(strlen($description) > 50) {
                         $results_row['description'] = substr($description, 0, 50) . '...';
                     }
+                    
+                    $results_data[$index] = $results_row;
                 }
             }
             
             return $results_data;
         });
         
-        $this->page->body->addChild($permissions_table, 'current_menu_content');
+        return $permissions_table;
+    }
+    
+    protected function constructRightContent() {
+        $this->page->body->addChild($this->getDataTable(), 'current_menu_content');
     }
 }

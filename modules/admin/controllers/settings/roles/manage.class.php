@@ -35,6 +35,7 @@ namespace Modules\Admin\Controllers\Settings\Roles;
 
 use \Framework\Html\Table\EditTable;
 use \Framework\Utilities\Http;
+use \Framework\Data\ResultSet\SQL;
 
 class Manage
 extends Home {
@@ -52,7 +53,21 @@ extends Home {
         $this->page_links['Manage'] = Http::getCurrentLevelPageUrl('manage', array('module_id' => $this->managed_module->getId()));
     }
     
-    protected function constructRightContent() {
+    protected function getDataTable() {
+        $resultset = new SQL('roles');
+        
+        $resultset->setBaseQuery("
+            SELECT
+                display_name,
+                NULL AS permissions,
+                role_id,
+                module_id
+            FROM cms_roles
+            {{WHERE_CRITERIA}}
+        ");
+        
+        $resultset->setSortCriteria('sort_order', 'ASC'); 
+    
         $roles_table = new EditTable(
             'roles',
             'cms_roles',
@@ -66,22 +81,14 @@ extends Home {
         
         $roles_table->setNumberOfColumns(2);
     
-        $roles_table->addHeader(array(
+        $roles_table->setHeader(array(
             'display_name' => 'Role Name',
-            'Permissions'
+            'permissions' => 'Permissions'
         ));
         
-        $roles_table->useQuery("
-            SELECT
-                display_name,
-                NULL AS permissions,
-                role_id,
-                module_id
-            FROM cms_roles
-            ORDER BY sort_order
-        ", array(), function($results_data) {
+        $roles_table->process($resultset, function($results_data) {
             if(!empty($results_data)) {
-                foreach($results_data as &$results_row) {                
+                foreach($results_data as $index => $results_row) {                
                     $results_row['permissions'] = '
                         <a href="' . 
                             Http::getCurrentLevelPageUrl('permissions', array(
@@ -92,12 +99,18 @@ extends Home {
                             Manage Permissions
                         </a>
                     ';
+                    
+                    $results_data[$index] = $results_row;
                 }
             }
             
             return $results_data;
         });
         
-        $this->page->body->addChild($roles_table, 'current_menu_content');
+        return $roles_table;
+    }
+    
+    protected function constructRightContent() {        
+        $this->page->body->addChild($this->getDataTable(), 'current_menu_content');
     }
 }

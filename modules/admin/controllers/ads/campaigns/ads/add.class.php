@@ -60,7 +60,11 @@ extends Home {
         $module_id = $this->managed_module->getId();
         
         //The education history table
-        $campaign_ads_form = new EditTableForm('campaign_ads', 'cms_ad_campaign_affiliation', 'ad_campaign_affiliation_id');
+        $campaign_ads_form = new EditTableForm(
+            'campaign_ads', 
+            'cms_ad_campaign_affiliation', 
+            'ad_campaign_affiliation_id'
+        );
         
         $campaign_ads_form->setTitle('Add a New Campaign Ad');
         

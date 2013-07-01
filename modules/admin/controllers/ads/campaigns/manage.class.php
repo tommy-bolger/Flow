@@ -35,6 +35,7 @@ namespace Modules\Admin\Controllers\Ads\Campaigns;
 
 use \Framework\Html\Table\EditTable;
 use \Framework\Utilities\Http;
+use \Framework\Data\ResultSet\SQL;
 
 class Manage
 extends Home {
@@ -52,27 +53,10 @@ extends Home {
         $this->page_links['Manage'] = Http::getCurrentLevelPageUrl('manage');
     }
     
-    protected function constructRightContent() {
-        $ad_campaigns_table = new EditTable(
-            'ad_campaigns',
-            'cms_ad_campaigns',
-            'edit',
-            'ad_campaign_id'
-        );
+    protected function getDataTable() {
+        $resultset = new SQL('ad_campaigns');
         
-        $ad_campaigns_table->disableAddRecord();
-        $ad_campaigns_table->disableMoveRecord();
-        $ad_campaigns_table->disableDeleteRecord();
-
-        $ad_campaigns_table->addHeader(array(
-            'ad_campaign_name' => 'Name',
-            'Description' => 'Description',
-            'is_active' => 'Active'
-        ));
-        
-        $ad_campaigns_table->setNumberOfColumns(4);
-        
-        $ad_campaigns_table->useQuery("
+        $resultset->setBaseQuery("
             SELECT
                 ad_campaign_name,
                 description,
@@ -80,7 +64,30 @@ extends Home {
                 ad_campaign_id
             FROM cms_ad_campaigns
             WHERE module_id = ?
-        ", array($this->managed_module->getId()), function($query_rows) {
+        ", array(
+            $this->managed_module->getId()
+        ));
+        
+         $ad_campaigns_table = new EditTable(
+            'ad_campaigns',
+            'cms_ad_campaigns',
+            'edit',
+            'ad_campaign_id',
+            NULL,
+            array('module_id')
+        );
+
+        $ad_campaigns_table->disableMoveRecord();
+
+        $ad_campaigns_table->setHeader(array(
+            'ad_campaign_name' => 'Name',
+            'Description' => 'Description',
+            'is_active' => 'Active'
+        ));
+        
+        $ad_campaigns_table->setNumberOfColumns(4);
+        
+        $ad_campaigns_table->process($resultset, function($query_rows) {
             if(!empty($query_rows)) {
                 foreach($query_rows as &$query_row) {
                     if(!empty($query_row['is_active'])) {
@@ -95,6 +102,10 @@ extends Home {
             return $query_rows;
         });
         
-        $this->page->body->addChild($ad_campaigns_table, 'current_menu_content');
+        return $ad_campaigns_table;
+    }
+    
+    protected function constructRightContent() {
+        $this->page->body->addChild($this->getDataTable(), 'current_menu_content');
     }
 }

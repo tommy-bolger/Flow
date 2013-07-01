@@ -35,6 +35,7 @@ namespace Modules\Resume\Admin\Controllers\Portfolio\Skills;
 
 use \Framework\Html\Table\EditTable;
 use \Framework\Utilities\Http;
+use \Framework\Data\ResultSet\SQL;
 
 class Manage
 extends Home {
@@ -52,9 +53,22 @@ extends Home {
         $this->page_links['Manage'] = Http::getCurrentLevelPageUrl('manage', array(), 'resume');
     }
     
-    protected function constructRightContent() {
+    protected function getDataTable() {
+        $resultset = new SQL('portfolio_project_skills');
+        
+        $resultset->setBaseQuery("
+            SELECT
+                pps.portfolio_project_skill_id,
+                s.skill_name
+            FROM resume_portfolio_project_skills pps
+            JOIN resume_skills s USING (skill_id)
+            {{WHERE_CRITERIA}}
+        ");
+        
+        $resultset->setSortCriteria('pps.sort_order', 'ASC');
+    
         $page_filter = array();
-        $filter_dropdown = array();
+        $portfolio_project_options = array();
     
         if(!empty(request()->get->portfolio_project_id)) {
             $page_filter = array('portfolio_project_id');
@@ -69,15 +83,9 @@ extends Home {
             ");
             
             if(!empty($portfolio_projects)) {
-                $dropdown_options = array();
-            
-                foreach($portfolio_projects as $portfolio_project) {
-                    $dropdown_options[$portfolio_project['project_name']] = array(
-                        'portfolio_project_id' => $portfolio_project['portfolio_project_id']
-                    ); 
+                foreach($portfolio_projects as $portfolio_project) {                    
+                    $portfolio_project_options["{$portfolio_project['project_name']}"] = "pps.portfolio_project_id = {$portfolio_project['portfolio_project_id']}"; 
                 }
-                
-                $filter_dropdown = array('Select a Portfolio Project' => $dropdown_options);
             }
         }
     
@@ -87,28 +95,27 @@ extends Home {
             'add',
             'portfolio_project_skill_id',
             'sort_order',
-            $page_filter,
-            $filter_dropdown
+            $page_filter
         );
         
         $portfolio_skills_table->setNumberOfColumns(1);
         
-        $portfolio_skills_table->addHeader(array(
+        $portfolio_skills_table->setHeader(array(
             'skill_id' => 'Used Skills'
         ));
+
+        if(!empty($portfolio_project_options)) {
+            $portfolio_skills_table->addFilterDropdown('portfolio_projects', $portfolio_project_options, 'Select a Portfolio Project');
         
-        $portfolio_skills_table->useQuery("
-            SELECT
-                pps.portfolio_project_skill_id,
-                s.skill_name
-            FROM resume_portfolio_project_skills pps
-            JOIN resume_skills s USING (skill_id)
-            ORDER BY pps.sort_order ASC
-        ");
+            $portfolio_skills_table->setPrimaryDropdown('portfolio_projects');
+        }
         
-        //Get the project name these skills are linked to.
-        $portfolio_project_id = request()->get->portfolio_project_id;
+        $portfolio_skills_table->process($resultset);
         
-        $this->page->body->addChild($portfolio_skills_table, 'current_menu_content');
+        return $portfolio_skills_table;
+    }
+    
+    protected function constructRightContent() {        
+        $this->page->body->addChild($this->getDataTable(), 'current_menu_content');
     }
 }

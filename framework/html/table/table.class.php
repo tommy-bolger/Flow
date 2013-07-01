@@ -72,9 +72,9 @@ extends Element {
      * @return void
      */
     public function __construct($table_name, $rows = array(), $header = array(), $footer = array()) {
-        parent::__construct("table", array('id' => $table_name));
-        
         $this->name = $table_name;
+    
+        parent::__construct("table", array('id' => $table_name));
         
         $this->addHeaderRows($header);
         

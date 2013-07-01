@@ -35,6 +35,7 @@ namespace Modules\Resume\Admin\Controllers\Portfolio;
 
 use \Framework\Html\Table\EditTable;
 use \Framework\Utilities\Http;
+use \Framework\Data\ResultSet\SQL;
 
 class Manage
 extends Home {
@@ -52,28 +53,10 @@ extends Home {
         $this->page_links['Manage'] = Http::getCurrentLevelPageUrl('manage', array(), 'resume');
     }
     
-    protected function constructRightContent() {    
-        $portfolio_table = new EditTable(
-            'portfolio',
-            'resume_portfolio_projects',
-            'add',
-            'portfolio_project_id',
-            'sort_order'
-        );
+    protected function getDataTable() {
+        $resultset = new SQL('portfolio_projects');
         
-        $portfolio_table->setNumberOfColumns(7);
-        
-        $portfolio_table->addHeader(array(
-            'project_name' => 'Project Name',
-            'work_history_id' => 'Organization',
-            'Images',
-            'Skills Used',
-            'site_url' => 'Site URL',
-            'description' => 'Description',
-            'involvement_description' => 'Involvement'
-        ));
-        
-        $portfolio_projects = db()->getAll("
+        $resultset->setBaseQuery("
             SELECT
                 pp.portfolio_project_id,
                 pp.project_name,
@@ -85,51 +68,81 @@ extends Home {
                 pp.involvement_description
             FROM resume_portfolio_projects pp
             LEFT JOIN resume_work_history wh USING (work_history_id)
-            ORDER BY pp.sort_order ASC
+            {{WHERE_CRITERIA}}
         ");
         
-        $portfolio_project_skills = db()->getGroupedColumn("
-            SELECT
-                pps.portfolio_project_id, 
-                s.skill_name
-            FROM resume_portfolio_project_skills pps
-            JOIN resume_skills s USING (skill_id)
-            ORDER BY pps.sort_order ASC
-        ");
+        $resultset->setSortCriteria('pp.sort_order', 'ASC');
+    
+        $portfolio_table = new EditTable(
+            'portfolio',
+            'resume_portfolio_projects',
+            'add',
+            'portfolio_project_id',
+            'sort_order'
+        );
         
-        if(!empty($portfolio_projects)) {        
-            foreach($portfolio_projects as $portfolio_project) {
-                $portfolio_project_id = $portfolio_project['portfolio_project_id'];
-                
-                $screenshot_edit_url = Http::getLowerLevelPageUrl(array('images'), 'manage', array(
-                    'portfolio_project_id' => $portfolio_project_id
-                ), 'resume');
-                
-                $screenshot_edit_link = "<a href=\"{$screenshot_edit_url}\">Edit Images</a>";
+        $portfolio_table->setNumberOfColumns(7);
+        
+        $portfolio_table->setHeader(array(
+            'project_name' => 'Project Name',
+            'work_history_id' => 'Organization',
+            'Images',
+            'Skills Used',
+            'site_url' => 'Site URL',
+            'description' => 'Description',
+            'involvement_description' => 'Involvement'
+        ));
+        
+        $portfolio_table->process($resultset, function($query_rows) {
+            if(!empty($query_rows)) {
+                $portfolio_project_skills = db()->getGroupedColumn("
+                    SELECT
+                        pps.portfolio_project_id, 
+                        s.skill_name
+                    FROM resume_portfolio_project_skills pps
+                    JOIN resume_skills s USING (skill_id)
+                    ORDER BY pps.sort_order ASC
+                ");
             
-                $portfolio_project['images'] = $screenshot_edit_link;
+                foreach($query_rows as $index => $query_row) {
+                    $portfolio_project_id = $query_row['portfolio_project_id'];
+                    
+                    $screenshot_edit_url = Http::getLowerLevelPageUrl(array('images'), 'manage', array(
+                        'portfolio_project_id' => $portfolio_project_id
+                    ), 'resume');
+                    
+                    $screenshot_edit_link = "<a href=\"{$screenshot_edit_url}\">Edit Images</a>";
                 
-                $skills_used_edit_url = Http::getLowerLevelPageUrl(array('skills'), 'manage', array(
-                    'portfolio_project_id' => $portfolio_project_id
-                ), 'resume');
+                    $query_row['images'] = $screenshot_edit_link;
+                    
+                    $skills_used_edit_url = Http::getLowerLevelPageUrl(array('skills'), 'manage', array(
+                        'portfolio_project_id' => $portfolio_project_id
+                    ), 'resume');
+                    
+                    $skills_used_edit_link = "<a href=\"{$skills_used_edit_url}\">Edit Skills Used</a>";
                 
-                $skills_used_edit_link = "<a href=\"{$skills_used_edit_url}\">Edit Skills Used</a>";
-            
-                if(!empty($portfolio_project_skills[$portfolio_project_id])) {
-                    $portfolio_project['skills_used'] = implode('<br />', $portfolio_project_skills[$portfolio_project_id]) . "<br /><br />{$skills_used_edit_link}";
+                    if(!empty($portfolio_project_skills[$portfolio_project_id])) {
+                        $query_row['skills_used'] = implode('<br />', $portfolio_project_skills[$portfolio_project_id]) . "<br /><br />{$skills_used_edit_link}";
+                    }
+                    else {
+                        $query_row['skills_used'] = $skills_used_edit_link;
+                    }
+                    
+                    $query_row['description'] = substr($query_row['description'], 0, 100) . '...';
+                    
+                    $query_row['involvement_description'] = substr($query_row['involvement_description'], 0, 100) . '...';
+                    
+                    $query_rows[$index] = $query_row;
                 }
-                else {
-                    $portfolio_project['skills_used'] = $skills_used_edit_link;
-                }
-                
-                $portfolio_project['description'] = substr($portfolio_project['description'], 0, 100) . '...';
-                
-                $portfolio_project['involvement_description'] = substr($portfolio_project['involvement_description'], 0, 100) . '...';
-                
-                $portfolio_table->addRow($portfolio_project);
             }
-        }
+            
+            return $query_rows;
+        });       
         
-        $this->page->body->addChild($portfolio_table, 'current_menu_content');
+        return $portfolio_table;
+    }
+    
+    protected function constructRightContent() {            
+        $this->page->body->addChild($this->getDataTable(), 'current_menu_content');
     }
 }

@@ -35,6 +35,7 @@ namespace Modules\Admin\Controllers\Ads\Campaigns\Ads;
 
 use \Framework\Html\Table\EditTable;
 use \Framework\Utilities\Http;
+use \Framework\Data\ResultSet\SQL;
 
 class Manage
 extends Home {
@@ -52,14 +53,14 @@ extends Home {
         $this->page_links['Manage'] = Http::getInternalUrl('', array('ads'), 'manage');
     }
     
-    protected function constructRightContent() {
+    protected function getDataTable() {
         $module_id = $this->managed_module->getId();
-    
-        $page_filter = array();
-        $filter_dropdown = array();
+        
+        $page_filter = array('module_id');
+        $campaign_options = array();
         
         if(!empty(request()->get->ad_campaign_id)) {
-            $page_filter = array('ad_campaign_id');
+            $page_filter += array('ad_campaign_id');
         }
         else {
             $ad_campaigns = db()->getAll("
@@ -71,40 +72,15 @@ extends Home {
             ", array($module_id));
             
             if(!empty($ad_campaigns)) {
-                $dropdown_options = array();
-            
                 foreach($ad_campaigns as $ad_campaign) {
-                    $dropdown_options[$ad_campaign['ad_campaign_name']] = array(
-                        'ad_campaign_id' => $ad_campaign['ad_campaign_id']
-                    ); 
+                    $campaign_options[$ad_campaign['ad_campaign_name']] = "ad_campaign_id = '{$ad_campaign['ad_campaign_id']}'";
                 }
-                
-                $filter_dropdown = array('Select a Campaign' => $dropdown_options);
             }
         }
-                
-        $ads_campaigns_affiliation_table = new EditTable(
-            'campaign_ads',
-            'cms_ad_campaign_affiliation',
-            'add',
-            'ad_campaign_affiliation_id',
-            NULL,
-            $page_filter,
-            $filter_dropdown
-        );
-
-        $ads_campaigns_affiliation_table->addHeader(array(
-            'Campaign',
-            'Ad',
-            'Active',
-            'Start Date',
-            'End Date',
-            'Show Chance'
-        ));
+    
+        $resultset = new SQL('skills');
         
-        $ads_campaigns_affiliation_table->setNumberOfColumns(6);
-        
-        $ads_campaigns_affiliation_table->useQuery("
+        $resultset->setBaseQuery("
             SELECT
                 ac.ad_campaign_name,
                 a.description AS ad_description,
@@ -116,8 +92,36 @@ extends Home {
             FROM cms_ad_campaigns ac
             JOIN cms_ad_campaign_affiliation aca USING (ad_campaign_id)
             JOIN cms_ads a USING (ad_id, module_id)
-            WHERE module_id = ?
-        ", array($module_id), function($query_rows) {
+            {{WHERE_CRITERIA}}
+        ");
+        
+        $ads_campaigns_affiliation_table = new EditTable(
+            'campaign_ads',
+            'cms_ad_campaign_affiliation',
+            'add',
+            'ad_campaign_affiliation_id',
+            NULL,
+            $page_filter
+        );
+
+        $ads_campaigns_affiliation_table->setHeader(array(
+            'Campaign',
+            'Ad',
+            'Active',
+            'Start Date',
+            'End Date',
+            'Show Chance'
+        ));
+        
+        $ads_campaigns_affiliation_table->setNumberOfColumns(6);
+        
+        if(!empty($campaign_options)) {
+            $ads_campaigns_affiliation_table->addFilterDropdown('campaign', $campaign_options, 'Campaign');                    
+        }
+        
+        $ads_campaigns_affiliation_table->setPrimaryDropdown('campaign');
+        
+        $ads_campaigns_affiliation_table->process($resultset, function($query_rows) {
             if(!empty($query_rows)) {
                 foreach($query_rows as &$query_row) {                
                     if(!empty($query_row['is_active'])) {
@@ -140,6 +144,10 @@ extends Home {
             return $query_rows;
         });
         
-        $this->page->body->addChild($ads_campaigns_affiliation_table, 'current_menu_content');
+        return $ads_campaigns_affiliation_table;
+    }
+    
+    protected function constructRightContent() {
+        $this->page->body->addChild($this->getDataTable(), 'current_menu_content');
     }
 }

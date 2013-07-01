@@ -35,6 +35,7 @@ namespace Modules\Resume\Admin\Controllers\WorkHistory\Tasks;
 
 use \Framework\Html\Table\EditTable;
 use \Framework\Utilities\Http;
+use \Framework\Data\ResultSet\SQL;
 
 class Manage
 extends Home {
@@ -52,9 +53,9 @@ extends Home {
         $this->page_links['Manage'] = Http::getCurrentLevelPageUrl('manage', array(), 'resume');
     }
     
-    protected function constructRightContent() {
+    protected function getDataTable() {
         $page_filter = array();
-        $filter_dropdown = array();
+        $organization_options = array();
         
         if(!empty(request()->get->work_history_id)) {
             $page_filter = array('work_history_id');
@@ -68,19 +69,25 @@ extends Home {
                 FROM resume_work_history
                 ORDER BY sort_order
             ");
-            
+
             if(!empty($organizations)) {
-                $dropdown_options = array();
-            
                 foreach($organizations as $organization) {
-                    $dropdown_options["{$organization['job_title']}, {$organization['organization_name']}"] = array(
-                        'work_history_id' => $organization['work_history_id']
-                    ); 
+                    $organization_options["{$organization['job_title']}, {$organization['organization_name']}"] = "work_history_id = {$organization['work_history_id']}"; 
                 }
-                
-                $filter_dropdown = array('Select an Organization' => $dropdown_options);
             }
         }
+        
+        $resultset = new SQL('work_history_tasks');
+        
+        $resultset->setBaseQuery("
+            SELECT
+                description,
+                work_history_task_id
+            FROM resume_work_history_tasks
+            {{WHERE_CRITERIA}}
+        ");
+        
+        $resultset->setSortCriteria('sort_order', 'ASC');  
     
         $work_history_tasks_table = new EditTable(
             'work_history_tasks',
@@ -88,24 +95,27 @@ extends Home {
             'add',
             'work_history_task_id',
             'sort_order',
-            $page_filter,
-            $filter_dropdown
+            $page_filter
         );
         
         $work_history_tasks_table->setNumberOfColumns(1);
         
-        $work_history_tasks_table->addHeader(array(
+        $work_history_tasks_table->setHeader(array(
             'description' => 'Task Description'
         ));
         
-        $work_history_tasks_table->useQuery("
-            SELECT
-                description,
-                work_history_task_id
-            FROM resume_work_history_tasks
-            ORDER BY sort_order ASC
-        ");
+        if(!empty($organization_options)) {
+            $work_history_tasks_table->addFilterDropdown('organization', $organization_options, 'Select an Organization');
         
-        $this->page->body->addChild($work_history_tasks_table, 'current_menu_content');
+            $work_history_tasks_table->setPrimaryDropdown('organization');
+        }
+        
+        $work_history_tasks_table->process($resultset);
+        
+        return $work_history_tasks_table;
+    }
+    
+    protected function constructRightContent() {        
+        $this->page->body->addChild($this->getDataTable(), 'current_menu_content');
     }
 }

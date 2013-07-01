@@ -35,6 +35,7 @@ namespace Modules\Resume\Admin\Controllers\CodeExamples\Skills;
 
 use \Framework\Html\Table\EditTable;
 use \Framework\Utilities\Http;
+use \Framework\Data\ResultSet\SQL;
 
 class Manage
 extends Home {
@@ -52,9 +53,22 @@ extends Home {
         $this->page_links["Manage"] = Http::getCurrentLevelPageUrl('manage', array(), 'resume');
     }
     
-    protected function constructRightContent() {
+    protected function getDataTable() {
+        $resultset = new SQL('code_example_skills');
+        
+        $resultset->setBaseQuery("
+            SELECT
+                ces.code_example_skill_id,
+                s.skill_name
+            FROM resume_code_example_skills ces
+            JOIN resume_skills s USING (skill_id)
+            {{WHERE_CRITERIA}}
+        ");
+        
+        $resultset->setSortCriteria('ces.sort_order', 'ASC');
+    
         $page_filter = array();
-        $filter_dropdown = array();
+        $code_example_options = array();
     
         if(!empty(request()->get->code_example_id)) {
             $page_filter = array('code_example_id');
@@ -69,15 +83,9 @@ extends Home {
             ");
             
             if(!empty($code_examples)) {
-                $dropdown_options = array();
-            
-                foreach($code_examples as $code_example) {
-                    $dropdown_options[$code_example['code_example_name']] = array(
-                        'code_example_id' => $code_example['code_example_id']
-                    ); 
+                foreach($code_examples as $code_example) {                    
+                    $code_example_options[$code_example['code_example_name']] = "code_example_id = {$code_example['code_example_id']}";
                 }
-                
-                $filter_dropdown = array('Select a Code Example' => $dropdown_options);
             }
         }
     
@@ -87,28 +95,27 @@ extends Home {
             'add',
             'code_example_skill_id',
             'sort_order',
-            $page_filter,
-            $filter_dropdown
+            $page_filter
         );
         
         $code_example_skills_table->setNumberOfColumns(1);
         
-        $code_example_skills_table->addHeader(array(
+        $code_example_skills_table->setHeader(array(
             'skill_id' => 'Skills Used'
         ));
         
-        $code_example_skills_table->useQuery("
-            SELECT
-                ces.code_example_skill_id,
-                s.skill_name
-            FROM resume_code_example_skills ces
-            JOIN resume_skills s USING (skill_id)
-            ORDER BY ces.sort_order ASC
-        ");
+        if(!empty($code_example_options)) {
+            $code_example_skills_table->addFilterDropdown('code_examples', $code_example_options, 'Select a Code Example');
         
-        //Get the project name these skills are linked to.
-        $code_example_id = request()->get->code_example_id;
+            $code_example_skills_table->setPrimaryDropdown('code_examples');
+        }
         
-        $this->page->body->addChild($code_example_skills_table, 'current_menu_content');
+        $code_example_skills_table->process($resultset);
+        
+        return $code_example_skills_table;
+    }
+    
+    protected function constructRightContent() {        
+        $this->page->body->addChild($this->getDataTable(), 'current_menu_content');
     }
 }

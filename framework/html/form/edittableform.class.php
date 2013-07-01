@@ -71,7 +71,7 @@ extends EditTable {
         
         $this->page_filter_columns = $page_filter_columns;
         
-        $request_table_name = request()->get->table;
+        $request_table_name = request()->get->t;
         
         if($this->request_table_name != $this->name) {        
             $this->edit_form->setAction(Http::getPageUrl(array(
@@ -119,7 +119,11 @@ extends EditTable {
      *
      * @return void
      */
-    public function processForm() {    
+    public function processForm() {
+        $this->processToken();
+        
+        $this->processAction();
+    
         if($this->edit_form->wasSubmitted()) {
             if($this->edit_form->isValid()) {
                 $this->setPageFilter($this->page_filter_columns);
@@ -226,5 +230,14 @@ extends EditTable {
      */
     public function toHtml() {
         return $this->edit_form->toHtml();
+    }
+    
+    /**
+     * Retrieves the DataTable as an array suitable for json encoding.
+     *      
+     * @return array
+     */
+    public function toJsonArray() {
+        return $this->edit_form->toJsonArray();
     }
 }

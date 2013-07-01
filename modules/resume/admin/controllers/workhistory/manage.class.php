@@ -35,6 +35,7 @@ namespace Modules\Resume\Admin\Controllers\WorkHistory;
 
 use \Framework\Html\Table\EditTable;
 use \Framework\Utilities\Http;
+use \Framework\Data\ResultSet\SQL;
 
 class Manage
 extends Home {
@@ -52,7 +53,19 @@ extends Home {
         $this->page_links['Manage'] = Http::getCurrentLevelPageUrl('manage', array(), 'resume');
     }
     
-    protected function constructRightContent() {            
+    protected function getDataTable() {
+        $resultset = new SQL('work_history');
+        
+        $resultset->setBaseQuery("
+            SELECT
+                work_history_id,
+                organization_name,
+                job_title
+            FROM resume_work_history
+        ");
+        
+        $resultset->setSortCriteria('sort_order', 'ASC');
+    
         $work_history_table = new EditTable(
             'work_history',
             'resume_work_history',
@@ -61,74 +74,73 @@ extends Home {
             'sort_order'
         );
         
-        $work_history_table->setNumberOfColumns(3);
+        $work_history_table->setNumberOfColumns(4);
         
-        $work_history_table->addHeader(array(
+        $work_history_table->setHeader(array(
             'organization_name' => 'Organization Name',
             'job_title' => 'Job Title',
             'Duration',
             'Tasks'
         ));
         
-        $work_history_data = db()->getAll("
-            SELECT
-                wh.work_history_id,
-                wh.organization_name,
-                wh.job_title
-            FROM resume_work_history wh
-            ORDER BY wh.sort_order
-        ");
-        
-        $work_history_durations = db()->getAssoc("
-            SELECT 
-                work_history_id,
-                start_date,
-                end_date
-            FROM resume_work_history_durations
-            ORDER BY sort_order ASC
-        ");
-        
-        if(!empty($work_history_data)) {                
-            foreach($work_history_data as $work_history_row) {
-                $work_history_id = $work_history_row['work_history_id'];
-                
-                $work_history_id_array = array('work_history_id' => $work_history_id);
-                
-                $durations_page_url = Http::getLowerLevelPageUrl(array('durations'), 'manage', $work_history_id_array, 'resume');
-                $tasks_page_url = Http::getLowerLevelPageUrl(array('tasks'), 'manage', $work_history_id_array, 'resume');
+        $work_history_table->process($resultset, function($query_rows) {        
+            if(!empty($query_rows)) {
+                $work_history_durations = db()->getAssoc("
+                    SELECT 
+                        work_history_id,
+                        start_date,
+                        end_date
+                    FROM resume_work_history_durations
+                    ORDER BY sort_order ASC
+                ");
             
-                $durations_edit_url = "<a href=\"{$durations_page_url}\">Edit Durations</a>";
-            
-                if(!empty($work_history_durations[$work_history_id])) {
-                    $row_durations = $work_history_durations[$work_history_id];
-
-                    $durations = '';
+                foreach($query_rows as $index => $query_row) {
+                    $work_history_id = $query_row['work_history_id'];
                     
-                    foreach($row_durations as $row_duration) {
-                        $start_date = date('m/Y', strtotime($row_duration['start_date']));
+                    $work_history_id_array = array('work_history_id' => $work_history_id);
+                    
+                    $durations_page_url = Http::getLowerLevelPageUrl(array('durations'), 'manage', $work_history_id_array, 'resume');
+                    $tasks_page_url = Http::getLowerLevelPageUrl(array('tasks'), 'manage', $work_history_id_array, 'resume');
+                
+                    $durations_edit_url = "<a href=\"{$durations_page_url}\">Edit Durations</a>";
+                
+                    if(!empty($work_history_durations[$work_history_id])) {
+                        $row_durations = $work_history_durations[$work_history_id];
+    
+                        $durations = '';
                         
-                        $end_date = 'Present';
-                    
-                        if(!empty($row_duration['end_date'])) {
-                            $end_date = date(date('m/Y', strtotime($row_duration['end_date'])));
+                        foreach($row_durations as $row_duration) {
+                            $start_date = date('m/Y', strtotime($row_duration['start_date']));
+                            
+                            $end_date = 'Present';
+                        
+                            if(!empty($row_duration['end_date'])) {
+                                $end_date = date(date('m/Y', strtotime($row_duration['end_date'])));
+                            }
+                        
+                            $durations .= "{$start_date} - {$end_date}<br />";
                         }
-                    
-                        $durations .= "{$start_date} - {$end_date}<br />";
+                        
+                        $query_row['durations'] = "{$durations}<br />{$durations_edit_url}";
+                    }
+                    else {
+                        $query_row['durations'] = $durations_edit_url;
                     }
                     
-                    $work_history_row['durations'] = "{$durations}<br />{$durations_edit_url}";
+                    $tasks_edit_url = "<a href=\"{$tasks_page_url}\">Edit Tasks</a>";
+                    $query_row['tasks'] = $tasks_edit_url;
+                    
+                    $query_rows[$index] = $query_row;
                 }
-                else {
-                    $work_history_row['durations'] = $durations_edit_url;
-                }
-                
-                $tasks_edit_url = "<a href=\"{$tasks_page_url}\">Edit Tasks</a>";
-                $work_history_row['tasks'] = $tasks_edit_url;
-                
-                $work_history_table->addRow($work_history_row);
             }
-        }
-        
-        $this->page->body->addChild($work_history_table, 'current_menu_content');
+            
+            return $query_rows;
+        });
+
+        return $work_history_table;
+    }
+    
+    protected function constructRightContent() {                    
+        $this->page->body->addChild($this->getDataTable(), 'current_menu_content');
     }
 }

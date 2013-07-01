@@ -35,6 +35,7 @@ namespace Modules\Resume\Admin\Controllers\WorkHistory\Durations;
 
 use \Framework\Html\Table\EditTable;
 use \Framework\Utilities\Http;
+use \Framework\Data\ResultSet\SQL;
 
 class Manage
 extends Home {
@@ -52,9 +53,9 @@ extends Home {
         $this->page_links['Manage'] = Http::getCurrentLevelPageUrl('manage', array(), 'resume');
     }
     
-    protected function constructRightContent() {
+    protected function getDataTable() {
         $page_filter = array();
-        $filter_dropdown = array();
+        $organization_options = array();
         
         if(!empty(request()->get->work_history_id)) {
             $page_filter = array('work_history_id');
@@ -68,19 +69,26 @@ extends Home {
                 FROM resume_work_history
                 ORDER BY sort_order
             ");
-            
+
             if(!empty($organizations)) {
-                $dropdown_options = array();
-            
                 foreach($organizations as $organization) {
-                    $dropdown_options["{$organization['job_title']}, {$organization['organization_name']}"] = array(
-                        'work_history_id' => $organization['work_history_id']
-                    ); 
+                    $organization_options["{$organization['job_title']}, {$organization['organization_name']}"] = "work_history_id = {$organization['work_history_id']}"; 
                 }
-                
-                $filter_dropdown = array('Select an Organization' => $dropdown_options);
             }
         }
+        
+        $resultset = new SQL('work_history_durations');
+        
+        $resultset->setBaseQuery("
+            SELECT
+                start_date,
+                end_date,
+                work_history_duration_id
+            FROM resume_work_history_durations
+            {{WHERE_CRITERIA}}
+        ");
+        
+        $resultset->setSortCriteria('sort_order', 'ASC');                
     
         $work_history_durations_table = new EditTable(
             'work_history_durations',
@@ -88,25 +96,23 @@ extends Home {
             'add',
             'work_history_duration_id',
             'sort_order',
-            $page_filter,
-            $filter_dropdown
+            $page_filter
         );
         
         $work_history_durations_table->setNumberOfColumns(2);
         
-        $work_history_durations_table->addHeader(array(
+        $work_history_durations_table->setHeader(array(
             'start_date' => 'Start Date',
             'end_date' => 'End Date'
         ));
+
+        if(!empty($organization_options)) {
+            $work_history_durations_table->addFilterDropdown('organization', $organization_options, 'Select an Organization');
         
-        $work_history_durations_table->useQuery("
-            SELECT
-                start_date,
-                end_date,
-                work_history_duration_id
-            FROM resume_work_history_durations
-            ORDER BY sort_order ASC
-        ", array(), function($query_rows) {
+            $work_history_durations_table->setPrimaryDropdown('organization');
+        }
+        
+        $work_history_durations_table->process($resultset, function($query_rows) {
             if(!empty($query_rows)) {
                 foreach($query_rows as $row_index => $query_row) {
                     $query_row['start_date'] = date('m/Y', strtotime($query_row['start_date']));
@@ -126,7 +132,11 @@ extends Home {
                 return $query_rows;
             }
         });
-        
-        $this->page->body->addChild($work_history_durations_table, 'current_menu_content');
+    
+        return $work_history_durations_table;
+    }
+    
+    protected function constructRightContent() {        
+        $this->page->body->addChild($this->getDataTable(), 'current_menu_content');
     }
 }

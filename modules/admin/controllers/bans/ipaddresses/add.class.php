@@ -65,7 +65,7 @@ extends Home {
         $ip_addresses_form->setTitle('Add a New Banned IP Address');
         
         $ip_addresses_form->addIPAddress('ip_address', 'IP Address');
-        $ip_addresses_form->addDate('expiration_date', 'Expiration Date');        
+        $ip_addresses_form->addDate('expiration_time', 'Expiration Date');        
         $ip_addresses_form->addSubmit('save', 'Save');
         
         $ip_addresses_form->setRequiredFields(array('ip_address'));

@@ -34,6 +34,7 @@
 namespace Modules\Resume\Admin\Controllers\Education;
 
 use \Framework\Html\Table\EditTable;
+use \Framework\Data\ResultSet\SQL;
 use \Framework\Utilities\Http;
 
 class Manage
@@ -52,29 +53,10 @@ extends Home {
         $this->page_links['Manage'] = Http::getCurrentLevelPageUrl('manage', array(), 'resume');
     }
     
-    protected function constructRightContent() {            
-        //The education history table
-        $education_history_edit_table = new EditTable(
-            'education_history',
-            'resume_education',
-            'add',
-            'education_id',
-            'sort_order'
-        );
-
-        $education_history_edit_table->addHeader(array(
-            'institution_name' => 'Institution',
-            'institution_city' => 'City',
-            'state_id' => 'State',
-            'degree_level_id' => 'Degree Level',
-            'degree_name' => 'Degree Name',
-            'date_graduated' => 'Graduated',
-            'cumulative_gpa' => 'GPA'
-        ));
+    protected function getDataTable() {
+        $resultset = new SQL('education');
         
-        $education_history_edit_table->setNumberOfColumns(7);
-        
-        $education_history_edit_table->useQuery("
+        $resultset->setBaseQuery("
             SELECT
                 institution_name,
                 institution_city,
@@ -91,7 +73,33 @@ extends Home {
             FROM resume_education
             JOIN resume_degree_levels dl USING (degree_level_id)
             JOIN cms_us_states us USING (state_id)
-        ", array(), function($query_rows) {
+            {{WHERE_CRITERIA}}
+        ");
+        
+        $resultset->setSortCriteria('sort_order', 'ASC');
+    
+        //The education history table
+        $education_history_edit_table = new EditTable(
+            'education_history',
+            'resume_education',
+            'add',
+            'education_id',
+            'sort_order'
+        );
+
+        $education_history_edit_table->setHeader(array(
+            'institution_name' => 'Institution',
+            'institution_city' => 'City',
+            'state_id' => 'State',
+            'degree_level_id' => 'Degree Level',
+            'degree_name' => 'Degree Name',
+            'date_graduated' => 'Graduated',
+            'cumulative_gpa' => 'GPA'
+        ));
+        
+        $education_history_edit_table->setNumberOfColumns(7);
+        
+        $education_history_edit_table->process($resultset, function($query_rows) {
             if(!empty($query_rows)) {
                 foreach($query_rows as $row_index => $query_row) {
                     $query_row['state_id'] = "{$query_row['state_abbreviation']} - {$query_row['state_name']}";
@@ -105,6 +113,10 @@ extends Home {
             return $query_rows;
         });
         
-        $this->page->body->addChild($education_history_edit_table, 'current_menu_content');
+        return $education_history_edit_table;
+    }
+    
+    protected function constructRightContent() {        
+        $this->page->body->addChild($this->getDataTable(), 'current_menu_content');
     }
 }

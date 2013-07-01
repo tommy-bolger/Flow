@@ -35,6 +35,7 @@ namespace Modules\Resume\Admin\Controllers\CodeExamples;
 
 use \Framework\Html\Table\EditTable;
 use \Framework\Utilities\Http;
+use \Framework\Data\ResultSet\SQL;
 
 class Manage
 extends Home {
@@ -52,28 +53,10 @@ extends Home {
         $this->page_links['Manage'] = Http::getCurrentLevelPageUrl('manage', array(), 'resume');
     }
     
-    protected function constructRightContent() {    
-        $code_examples_table = new EditTable(
-            'code_examples',
-            'resume_code_examples',
-            'add',
-            'code_example_id',
-            'sort_order'
-        );
+    protected function getDataTable() {
+        $resultset = new SQL('code_examples');
         
-        $code_examples_table->setNumberOfColumns(6);
-        
-        $code_examples_table->addHeader(array(
-            'code_example_name' => 'Name',
-            'Source File',
-            'work_history_id' => 'Organization',
-            'portfolio_project_id' => 'Portfolio Project',
-            'Skills Used',
-            'purpose' => 'Purpose',
-            'description' => 'Description',
-        ));
-        
-        $code_examples = db()->getAll("
+        $resultset->setBaseQuery("
             SELECT
                 ce.code_example_id,
                 ce.code_example_name,
@@ -86,46 +69,76 @@ extends Home {
             FROM resume_code_examples ce
             LEFT JOIN resume_work_history wh ON wh.work_history_id = ce.work_history_id
             LEFT JOIN resume_portfolio_projects pp ON pp.portfolio_project_id = ce.portfolio_project_id
-            ORDER BY ce.sort_order ASC
+            {{WHERE_CRITERIA}}
         ");
         
-        $code_example_skills = db()->getGroupedColumn("
-            SELECT
-                ces.code_example_id, 
-                s.skill_name
-            FROM resume_code_example_skills ces
-            JOIN resume_skills s USING (skill_id)
-            ORDER BY ces.sort_order ASC
-        ");
+        $resultset->setSortCriteria('ce.sort_order', 'ASC');
+    
+        $code_examples_table = new EditTable(
+            'code_examples',
+            'resume_code_examples',
+            'add',
+            'code_example_id',
+            'sort_order'
+        );
         
-        if(!empty($code_examples)) {        
-            foreach($code_examples as $code_example) {
-                $code_example_id = $code_example['code_example_id'];
+        $code_examples_table->setNumberOfColumns(7);
+        
+        $code_examples_table->setHeader(array(
+            'code_example_name' => 'Name',
+            'Source File',
+            'work_history_id' => 'Organization',
+            'portfolio_project_id' => 'Portfolio Project',
+            'Skills Used',
+            'purpose' => 'Purpose',
+            'description' => 'Description',
+        ));
+        
+        $code_examples_table->process($resultset, function($query_rows) {
+            if(!empty($query_rows)) {
+                $code_example_skills = db()->getGroupedColumn("
+                    SELECT
+                        ces.code_example_id, 
+                        s.skill_name
+                    FROM resume_code_example_skills ces
+                    JOIN resume_skills s USING (skill_id)
+                    ORDER BY ces.sort_order ASC
+                ");
+            
+                foreach($query_rows as $index => $query_row) {
+                    $code_example_id = $query_row['code_example_id'];
                 
-                $source_file_edit_url = Http::getCurrentLevelPageUrl('change-source-code', array('code_example_id' => $code_example_id));
-                $skills_used_edit_url = Http::getLowerLevelPageUrl(array('skills'), 'manage', array('code_example_id' => $code_example_id));                                
-            
-                $source_file_edit_link = "<a href=\"{$source_file_edit_url}\">Edit Source File</a>";
-            
-                $code_example['source_file'] = $source_file_edit_link;
+                    $source_file_edit_url = Http::getCurrentLevelPageUrl('change-source-code', array('code_example_id' => $code_example_id));
+                    $skills_used_edit_url = Http::getLowerLevelPageUrl(array('skills'), 'manage', array('code_example_id' => $code_example_id));                                
                 
-                $skills_used_edit_link = "<a href=\"{$skills_used_edit_url}\">Edit Skills Used</a>";
-            
-                if(!empty($code_example_skills[$code_example_id])) {
-                    $code_example['skills_used'] = implode('<br />', $code_example_skills[$code_example_id]) . "<br /><br />{$skills_used_edit_link}";
+                    $source_file_edit_link = "<a href=\"{$source_file_edit_url}\">Edit Source File</a>";
+                
+                    $query_row['source_file'] = $source_file_edit_link;
+                    
+                    $skills_used_edit_link = "<a href=\"{$skills_used_edit_url}\">Edit Skills Used</a>";
+                
+                    if(!empty($code_example_skills[$code_example_id])) {
+                        $query_row['skills_used'] = implode('<br />', $code_example_skills[$code_example_id]) . "<br /><br />{$skills_used_edit_link}";
+                    }
+                    else {
+                        $query_row['skills_used'] = $skills_used_edit_link;
+                    }
+                    
+                    $query_row['purpose'] = substr($query_row['purpose'], 0, 100) . '...';
+                    
+                    $query_row['description'] = substr($query_row['description'], 0, 100) . '...';
+                
+                    $query_rows[$index] = $query_row;
                 }
-                else {
-                    $code_example['skills_used'] = $skills_used_edit_link;
-                }
-                
-                $code_example['purpose'] = substr($code_example['purpose'], 0, 100) . '...';
-                
-                $code_example['description'] = substr($code_example['description'], 0, 100) . '...';
-                
-                $code_examples_table->addRow($code_example);
             }
-        }
+            
+            return $query_rows;
+        });
         
-        $this->page->body->addChild($code_examples_table, 'current_menu_content');
+        return $code_examples_table;
+    }
+    
+    protected function constructRightContent() {        
+        $this->page->body->addChild($this->getDataTable(), 'current_menu_content');
     }
 }
