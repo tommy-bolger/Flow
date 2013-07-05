@@ -232,7 +232,7 @@ extends Table {
             $this->current_sort_direction = request()->d;
             $this->current_rows_per_page = request()->get->getVariable("r", 'integer');
             
-            if($this->table_form->wasSubmitted() && $this->table_form->isValid()) {                
+            if($this->table_form->wasSubmitted() && $this->table_form->isValid()) {          
                 $form_rows_per_page = request()->post->getVariable("r", 'integer');
                 
                 if(!empty($form_rows_per_page) && $form_rows_per_page != $this->current_rows_per_page) {
@@ -249,7 +249,7 @@ extends Table {
                     }
                 }
             }
-            
+
             if($this->resume_from_session) {
                 session()->$page_session_name = $this->current_page;
                 session()->$sort_column_session_name = $this->current_sort_column;
@@ -258,7 +258,7 @@ extends Table {
                 session()->$selected_filter_session_name = $this->current_selected_filters;
             }
         }
-        
+
         if(empty($this->current_page)) {
             $this->current_page = 1;
         }
@@ -332,7 +332,7 @@ extends Table {
         }
     
         assert('is_array($filter_options) && !empty($filter_options)');
-        
+
         $filter_option_labels = array_keys($filter_options);
         
         if(!empty($filter_label)) {
@@ -350,25 +350,25 @@ extends Table {
             $selected_dropdown_index = $this->current_selected_filters[$filter_field_name];
         }
 
-        $filter_dropdown->setDefaultValue($selected_dropdown_index);        
         $filter_dropdown->addBlankOption($filter_label);
-
-        //If this field was submitted then retrieve the criteria option at the submitted index.
-        $filter_option_values = array_values($filter_options);
-
-        if(isset($filter_option_values[$selected_dropdown_index])) {
-            $this->selected_filter_criteria[$filter_field_name] = array(
-                'criteria' => $filter_option_values[$selected_dropdown_index],
-                'placeholder_values' => array()
-            );
-        }
-
+        $filter_dropdown->setDefaultValueByIndex($selected_dropdown_index);    
+        
         //If the field isn't attached to a column then give it the group name for table filters.
         if(empty($column_name)) {
             $column_name = 'table_filters';
         }
         
-        $this->table_form->addField($filter_dropdown, $column_name);
+        $this->table_form->addField($filter_dropdown, $column_name);    
+
+        //If this field was submitted then retrieve the criteria option at the submitted index.
+        $filter_option_values = array_values($filter_options);
+
+        if(isset($filter_option_values[$filter_dropdown->getValue()])) {
+            $this->selected_filter_criteria[$filter_field_name] = array(
+                'criteria' => $filter_option_values[$filter_dropdown->getValue()],
+                'placeholder_values' => array()
+            );
+        }
     }
     
     /**

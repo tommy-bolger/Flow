@@ -115,6 +115,19 @@ extends EditTable {
     }
     
     /**
+     * Sets the name of the primary dropdown of the form so it is auto-selected on the form page.
+     *
+     * @param string $dropdown_field_name The name of the primary dropdown.
+     * @return void
+     */
+    public function setPrimaryDropdown($dropdown_field_name) {        
+        parent::setPrimaryDropdown($dropdown_field_name);
+        
+        $primary_dropdown_field = $this->edit_form->getField($dropdown_field_name);
+        $primary_dropdown_field->setDefaultValue(request()->get->f);
+    }
+    
+    /**
      * Setups up a form for editing a record and processes its submission.
      *
      * @return void

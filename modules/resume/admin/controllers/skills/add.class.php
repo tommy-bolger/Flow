@@ -98,6 +98,8 @@ extends Home {
         $skills_form->addDropdown('proficiency_level_id', 'Proficiency Level', $proficiency_levels)->addBlankOption();
         $skills_form->addSubmit('save', 'Save');
         
+        $skills_form->setPrimaryDropdown('skill_category_id');
+        
         $skills_form->setRequiredFields(array(
             'skill_name',
             'skill_category_id',

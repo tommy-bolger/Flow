@@ -48,7 +48,7 @@ extends Field {
     /**
     * @var array A list of the selectable option values for this select.
     */
-    protected $option_values = array();
+    protected $option_values = array();      
     
     /**
      * Instantiates a new instance of this SelectField.
@@ -121,30 +121,94 @@ extends Field {
     /**
      * Sets the submitted field value.
      *      
-     * @param string $field_value The submitted value.
+     * @param array|string $field_index The submitted index of the option. Can also act as the direct field value when setting a default value.
      * @return void
      */
-    public function setValue($field_value) {
+    public function setValue($field_index) {
+        $field_value = NULL;
+    
         if(!$this->is_multi) {
-            //If the submitted value for the dropdown is empty, not 0, and not in the list of available options then set it to NULL.
-            if((empty($field_value) && (string)$field_value != '0') || !isset($this->option_values[$field_value])) {
-                $field_value = NULL;
+            if(isset($this->option_values[$field_index])) {
+                $field_value = $this->option_values[$field_index];
             }
         }
         else {
             //If the selected value for the listbox contains an option that is not in the list of available options then discard all submitted values for this field.
-            if(!empty($field_value)) {
-                foreach($field_value as $selected_option) {
-                    if(!isset($this->option_values[$selected_option])) {
-                        $field_value = NULL;
-                        
-                        break;
+            if(!empty($field_index)) {
+                $field_value = array();
+            
+                foreach($field_index as $selected_index) {
+                    if(isset($this->option_values[$selected_index])) {
+                        $option_value = $this->option_values[$selected_index];
+                    
+                        $field_value[$option_value] = $option_value;
                     }
                 }
             }
         }
 
         $this->value = $field_value;
+    }
+    
+    /**
+     * Sets the field's default value.
+     *      
+     * @param mixed $default_value The default value.
+     * @return void
+     */
+    public function setDefaultValue($default_value) {
+        $this->default_value = $default_value;
+
+        if(!$this->submitted) {
+            $option_indexes = array_flip($this->option_values);
+
+            $field_index = NULL;
+        
+            if(!$this->is_multi) {
+                if(isset($option_indexes[$default_value])) {
+                    $field_index = $option_indexes[$default_value];
+                }
+            }
+            else {
+                $field_index = array();
+            
+                foreach($default_value as $value) {
+                    if(isset($option_indexes[$value])) {
+                        $field_index[] = $option_indexes[$value];
+                    }
+                }
+            }
+            
+            $this->setValue($field_index);
+        }
+    }
+    
+    /**
+     * Sets the field's default by its corresponding index.
+     *      
+     * @param array|string $field_index The index(es) of the option to make default.
+     * @return void
+     */
+    public function setDefaultValueByIndex($field_index) {
+
+        if(!$this->is_multi) {
+            $this->default_value = $this->option_values[$field_index];
+        }
+        else {
+            assert('is_array($field_index)');
+        
+            if(!empty($field_index)) {
+                foreach($field_index as $index) {
+                    if(isset($this->option_values[$index])) {
+                        $this->default_value[] = $this->option_values[$index];
+                    }
+                }
+            }
+        }
+
+        if(!$this->submitted) {
+            $this->setValue($field_index);
+        }
     }
     
     /**
@@ -156,21 +220,15 @@ extends Field {
      * @param boolean $prepend (optional) A flag to tell this function to prepend this option to the beginning of the options list. Defaults to false.
      * @return void
      */
-    public function addOption($option_value, $option_text = "", $option_group_name = NULL, $prepend = false) {            
-        if(!$prepend) {              
-            $this->child_elements[$option_group_name][$option_value] = $option_text;
-        }
-        else {
-            if(!isset($this->child_elements[NULL])) {
-                $this->child_elements = array(NULL => array()) + $this->child_elements;
-          
-                $this->child_elements[NULL] = array();
-            }
-          
-            $this->child_elements[NULL] = array($option_value => $option_text) + $this->child_elements[NULL];
-        }
-        
-        $this->option_values[$option_value] = $option_value;
+    public function addOption($option_value, $option_text = "", $option_group_name = NULL) {
+        $option_index = count($this->option_values) + 1;
+         
+        $this->child_elements[$option_group_name][$option_value] = array(
+            'index' => $option_index,
+            'display_text' => $option_text
+        );
+            
+        $this->option_values[$option_index] = $option_value;
     }
     
     /**
@@ -209,8 +267,15 @@ extends Field {
         if(empty($blank_option_text)) {
             $blank_option_text = '&nbsp;';
         }
-    
-        $this->addOption('', $blank_option_text, NULL, true);
+        
+        $this->child_elements[NULL] = array(
+            '' => array(
+                'index' => 0,
+                'display_text' => $blank_option_text
+            )
+        ) + $this->child_elements[NULL];
+            
+        $this->option_values[0] = '';
     }
     
     /**
@@ -226,7 +291,7 @@ extends Field {
                 $option_html = '';
             
                 if(!empty($option_group)) {
-                    foreach($option_group as $option_value => $option_text) {
+                    foreach($option_group as $option_value => $option_attributes) {
                         $selected_attribute = '';
 
                         if($this->valueNotEmpty()) {                        
@@ -236,13 +301,13 @@ extends Field {
                                 }
                             }
                             else {
-                                if(in_array($option_value, $this->value)) {
+                                if(isset($this->value[$option_value])) {
                                     $selected_attribute = ' selected="selected"';
                                 }
                             }
                         }
                         
-                        $option_html .= "<option value=\"{$option_value}\"{$selected_attribute}>{$option_text}</option>";
+                        $option_html .= "<option value=\"{$option_attributes['index']}\"{$selected_attribute}>{$option_attributes['display_text']}</option>";
                     }
                 }
                 

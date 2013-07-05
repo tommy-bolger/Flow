@@ -566,6 +566,8 @@ extends DataTable {
      * @return string
      */
     protected function generateUrl($query_string_parameters) {
+        assert('is_array($query_string_parameters)');
+    
         $query_string_parameters = array_merge($this->table_state_request, $query_string_parameters);
         
         $query_string_parameters['tk'] = $this->request_token;
@@ -579,8 +581,8 @@ extends DataTable {
             
             unset($query_string_parameters['action']);
         }
-        
-        if(isset($this->current_selected_filters[$this->primary_dropdown_name]) && strlen($this->current_selected_filters[$this->primary_dropdown_name])) {
+
+        if(!empty($this->current_selected_filters[$this->primary_dropdown_name])) {
             $query_string_parameters['f'] = $this->current_selected_filters[$this->primary_dropdown_name];
         }
 
@@ -674,7 +676,7 @@ extends DataTable {
             $record_links[] = "<a href=\"{$edit_link}\">Edit</a>";
         }
         
-        if($this->allow_delete_record && (empty($this->primary_dropdown_name) || (isset($this->current_selected_filters[$this->primary_dropdown_name]) && strlen($this->current_selected_filters[$this->primary_dropdown_name])))) {
+        if($this->allow_delete_record && (empty($this->primary_dropdown_name) || (!empty($this->current_selected_filters[$this->primary_dropdown_name])))) {
             $delete_link = $this->generateUrl(array(
                 'action' => 'delete',
                 'id' => $edit_id_value
@@ -683,7 +685,7 @@ extends DataTable {
             $record_links[] = "<a class=\"delete\" href=\"{$delete_link}\">Delete</a>";
         }
         
-        if($this->allow_move_record && (empty($this->primary_dropdown_name) || (isset($this->current_selected_filters[$this->primary_dropdown_name]) && strlen($this->current_selected_filters[$this->primary_dropdown_name])))) {
+        if($this->allow_move_record && (empty($this->primary_dropdown_name) || (!empty($this->current_selected_filters[$this->primary_dropdown_name])))) {
             $move_up_link = $this->generateUrl(array(
                 'action' => 'move_up',
                 'id' => $edit_id_value
@@ -737,7 +739,7 @@ extends DataTable {
         if($this->allow_add_record) {
             $link_html = '<div class="add_link">';
             
-            if(empty($this->primary_dropdown_name) || (isset($this->current_selected_filters[$this->primary_dropdown_name]) && strlen($this->current_selected_filters[$this->primary_dropdown_name]))) {
+            if(empty($this->primary_dropdown_name) || (!empty($this->current_selected_filters[$this->primary_dropdown_name]))) {
                 $link_html .= $this->getAddLink();
             }
             
@@ -778,7 +780,7 @@ extends DataTable {
     public function toTemplateArray() {
         $template_array = parent::getTemplateArray();
         
-        if($this->allow_add_record && (empty($this->primary_dropdown_name) || (isset($this->current_selected_filters[$this->primary_dropdown_name]) && strlen($this->current_selected_filters[$this->primary_dropdown_name])))) {
+        if($this->allow_add_record && (empty($this->primary_dropdown_name) || (!empty($this->current_selected_filters[$this->primary_dropdown_name])))) {
             $add_link = $this->generateUrl(array(
                 'action' => 'add'
             ));
@@ -798,7 +800,7 @@ extends DataTable {
         $json_array = parent::toJsonArray();
         
         if($this->allow_add_record) {
-            if((empty($this->primary_dropdown_name) || (isset($this->current_selected_filters[$this->primary_dropdown_name]) && strlen($this->current_selected_filters[$this->primary_dropdown_name])))) {
+            if((empty($this->primary_dropdown_name) || (!empty($this->current_selected_filters[$this->primary_dropdown_name])))) {
                 $json_array['add_link'] = $this->getAddLink();
             }
             else {
