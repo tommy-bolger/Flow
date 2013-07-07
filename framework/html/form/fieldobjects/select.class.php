@@ -192,7 +192,9 @@ extends Field {
     public function setDefaultValueByIndex($field_index) {
 
         if(!$this->is_multi) {
-            $this->default_value = $this->option_values[$field_index];
+            if(isset($this->option_values[$field_index])) {
+                $this->default_value = $this->option_values[$field_index];
+            }
         }
         else {
             assert('is_array($field_index)');
