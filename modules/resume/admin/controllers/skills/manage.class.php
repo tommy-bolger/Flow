@@ -68,18 +68,18 @@ extends Home {
         
         $resultset->setBaseQuery("
             SELECT
-                s.skill_id,
-                s.skill_name,
-                sc.skill_category_name,
-                s.years_proficient,
-                pl.proficiency_level_name
-            FROM resume_skills s
-            JOIN resume_skill_categories sc USING (skill_category_id)
-            JOIN resume_proficiency_levels pl USING (proficiency_level_id)
+                resume_skills.skill_id,
+                resume_skills.skill_name,
+                resume_skill_categories.skill_category_name,
+                resume_skills.years_proficient,
+                resume_proficiency_levels.proficiency_level_name
+            FROM resume_skills
+            JOIN resume_skill_categories USING (skill_category_id)
+            JOIN resume_proficiency_levels USING (proficiency_level_id)
             {{WHERE_CRITERIA}}
         ");
         
-        $resultset->setSortCriteria('s.sort_order', 'ASC');
+        $resultset->setSortCriteria('resume_skills.sort_order', 'ASC');
                     
         //The education history table
         $skills_edit_table = new EditTable(
@@ -90,12 +90,10 @@ extends Home {
             'sort_order'
         );
         
-        $skills_edit_table->setEditTableAlias('s');
-        
         $categories_options = array();
         
         foreach($this->skill_categories as $category_name => $category_id) {
-            $categories_options[$category_name] = "s.skill_category_id = {$category_id}";
+            $categories_options[$category_name] = "resume_skills.skill_category_id = {$category_id}";
         }
         
         $skills_edit_table->addFilterDropdown('categories', $categories_options, 'Category');
