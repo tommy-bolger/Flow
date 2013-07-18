@@ -121,8 +121,9 @@ final class Http {
             self::$base_url .= $_SERVER["SERVER_NAME"];
             
             $port = $_SERVER["SERVER_PORT"];
+            $port_numbers_in_urls = Framework::getInstance()->configuration->port_numbers_in_urls;
             
-            if($port != 80 && $port != 443) {
+            if($port != 80 && $port != 443 && $port_numbers_in_urls) {
                 self::$base_url .= ":{$port}";
             }
 

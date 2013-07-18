@@ -106,6 +106,7 @@ INSERT INTO cms_configuration_parameters VALUES (15, NULL, 'recaptcha_private_ke
 INSERT INTO cms_configuration_parameters VALUES (16, NULL, 'recaptcha_public_key', NULL, NULL, 15, 1, NULL, 'reCaptcha Public Key', 0);
 INSERT INTO cms_configuration_parameters VALUES (17, NULL, 'attempts_form_max_attempts', NULL, 5, 16, 2, NULL, 'Limited Attempts Form Max Attempts', 0);
 INSERT INTO cms_configuration_parameters VALUES (18, NULL, 'attempts_form_timeout_duration', NULL, 600, 17, 2, NULL, 'Limited Attempts Form Timeout Duration', 0);
+INSERT INTO cms_configuration_parameters VALUES (19, NULL, 'port_numbers_in_urls', NULL, 1, 18, 4, NULL, 'Insert Port Numbers in URLs', 0);
 
 -- ----------------------------
 -- Table structure for cms_errors
