@@ -5,7 +5,6 @@
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
         <?php echo $this->meta_tags; ?>
         <?php echo $this->css; ?>
-        <?php echo $this->javascript; ?>
     </head>
     <body>
         <div id="canvas">
@@ -55,5 +54,6 @@
                 </div>
         	</div>
         </div>
+        <?php echo $this->javascript; ?>
     </body>
 </html>
