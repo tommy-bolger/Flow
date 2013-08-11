@@ -58,7 +58,7 @@ print("Initializing the framework...");
 
 error_reporting(-1);
 
-require_once('../../framework/core/framework.class.php');
+require_once(dirname(dirname(__DIR__)) . '/framework/core/framework.class.php');
 
 $framework = new Framework();
 
