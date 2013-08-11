@@ -34,6 +34,7 @@ namespace Framework\Modules;
 
 use \Framework\Core\Framework;
 use \Framework\Core\Configuration;
+use \Framework\Core\Loader;
 
 class Module {
     /**
@@ -45,10 +46,16 @@ class Module {
     * @var integer The ID of the module.
     */
     protected $id;
+    
     /**
     * @var string The name of the module.
     */
     protected $name;
+    
+    /**
+    * @var string The file path to the module.
+    */
+    protected $file_path;
     
     /**
     * @var array All descriptive data about the module.
@@ -70,6 +77,10 @@ class Module {
         $this->framework = Framework::getInstance();
     
         $this->name = $module_name;
+        
+        $this->file_path = "{$this->framework->installation_path}/modules/{$module_name}/external";
+        
+        Loader::addBasePath($this->file_path);
         
         $this->loadData($module_name);
         

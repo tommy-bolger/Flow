@@ -134,6 +134,9 @@ class Framework {
                     $this->error_handler->initializeProduction();
                     break;
             }
+            
+            //Add the root external directory to the loader
+            Loader::addBasePath($this->installation_path . '/external');
         }
     }
     

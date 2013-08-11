@@ -74,14 +74,12 @@ extends BaseFramework {
     protected function setArguments($argument_list) {
         $arguments = getopt($argument_list);
         
-        if(empty($arguments)) {
-            throw new \Exception("No arguments were found.");
-        }
-        
         $this->arguments = new \stdClass();
         
-        foreach($arguments as $argument_name => $argument_value) {
-            $this->arguments->$argument_name = trim($argument_value);
+        if(!empty($arguments)) {
+            foreach($arguments as $argument_name => $argument_value) {
+                $this->arguments->$argument_name = trim($argument_value);
+            }
         }
     }
     
