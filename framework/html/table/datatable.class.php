@@ -276,8 +276,10 @@ extends Table {
      */
     public function setRowsPerPageOptions($rows_per_page_options) {
         assert('(is_array($rows_per_page_options) && !empty($rows_per_page_options))');
-        
-        $this->rows_per_page_options = array_combine($rows_per_page_options, $rows_per_page_options);
+
+        foreach($rows_per_page_options as $index => $option) {
+            $this->rows_per_page_options[$index + 1] = $option;
+        }
         
         $this->addRequestVariable('r', $this->current_rows_per_page, false);
     }
@@ -439,9 +441,9 @@ extends Table {
         }
         
         $rows_per_page = $this->current_rows_per_page;
-        
+
         if(!empty($rows_per_page) && !empty($this->rows_per_page_options[$rows_per_page])) {
-            $resultset->setRowsPerPage($rows_per_page);
+            $resultset->setRowsPerPage($this->rows_per_page_options[$rows_per_page]);
         }
         
         $resultset->setPageNumber($this->current_page);
@@ -481,7 +483,11 @@ extends Table {
             $rows_per_page_options = array_combine($this->rows_per_page_options, $this->rows_per_page_options);
             
             $rows_per_page_dropdown = new Dropdown("r", '', $rows_per_page_options, array('data_table_rows'));
-            $rows_per_page_dropdown->setDefaultValue($this->current_rows_per_page);
+            
+            if(isset($this->current_rows_per_page)) {
+                $rows_per_page_dropdown->setDefaultValueByIndex($this->current_rows_per_page);
+            }
+            
             $rows_per_page_dropdown->removeAttribute('id');
             
             $this->table_form->addField($rows_per_page_dropdown);
@@ -881,7 +887,7 @@ extends Table {
                                 if(!empty($column_link_parameters)) {
                                     $column_values = ArrayFunctions::extractKeys($row, $column_link_parameters);
                                     
-                                    $url_parameters = Http::generateQueryString(array_combine(array_keys($column_link_parameters), $column_values));
+                                    $url_parameters = Http::generateQueryString(array_combine($column_link_parameters, $column_values));
 
                                     $column_link_url = Http::generateUrl($column_link_url, $url_parameters);
                                 }

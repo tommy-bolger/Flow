@@ -34,7 +34,7 @@
 use \Framework\Core\Framework;
 use \Framework\Modules\Module;
 
-require_once('../../framework/core/framework.class.php');
+require_once(dirname(dirname(__DIR__)) . '/framework/core/framework.class.php');
 
 function display_help() {
     die(
@@ -273,6 +273,9 @@ foreach($version_directories as $version_directory) {
                                 }
                             }
                         }
+                        else {
+                            echo "Path '{$update_type_path}' is not a directory or not readable. Skipping. \n";
+                        }
                     }
                 }
                 
@@ -300,14 +303,13 @@ if(empty($module_name)) {
 }
 else {
     db()->query("
-        UPDATE cms_configuration_parameters cp
-        JOIN cms_modules m USING (module_id)
+        UPDATE cms_configuration_parameters
         SET value = ?
-        WHERE m.module_name = ?
+        WHERE module_id = ?
             AND parameter_name = 'version'
     ", array(
         $update_to,
-        $module_name
+        $module_id
     ));
 }
 

@@ -190,7 +190,6 @@ extends Field {
      * @return void
      */
     public function setDefaultValueByIndex($field_index) {
-
         if(!$this->is_multi) {
             if(isset($this->option_values[$field_index])) {
                 $this->default_value = $this->option_values[$field_index];
