@@ -73,7 +73,7 @@ extends ResultSet {
      * @return void
      */
     public function addSortCriteria($criteria, $direction = 'ASC') {
-        assert('is_string($criteria) && !empty($criteria)');
+        assert('!empty($criteria)');
         
         $direction = strtoupper($direction);
     

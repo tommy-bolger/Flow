@@ -222,7 +222,7 @@ class Database {
      * @param string $query_name (optional) The cache name of the query. This enables caching of the prepared statement.
      * @return object The PDO statement object.
      */
-    private function prepareExecuteQuery($sql_statement, $placeholder_values = array(), $query_name = '') {    
+    public function prepareExecuteQuery($sql_statement, $placeholder_values = array(), $query_name = '') {    
         assert('is_array($placeholder_values)');
     
         $query_object = NULL;

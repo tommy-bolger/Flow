@@ -43,6 +43,7 @@ function display_help() {
         "\nOptions:\n" . 
         "\n-m <module_name> (optional) The name of the module to update. If left blank then framework updates (located under <installation_path>/scripts/update) will be run." . 
         "\n-t <version> The version to update to." . 
+        "\n-c Tells this script to wrap individual updates in a transaction and commit them when finished." . 
         "\n-h Outputs this help menu." . 
         "\n================================================================================\n"
     );
@@ -79,7 +80,7 @@ $framework = new Framework('cli');
 
 $installation_path = $framework->installation_path;
 
-$arguments = getopt('m:t:h');
+$arguments = getopt('m:t:ch');
 
 $module_name = NULL;
 $module_id = NULL;
@@ -105,6 +106,12 @@ if(!empty($arguments['t'])) {
 
 if(empty($update_to)) {
     display_help();
+}
+
+$use_transactions = false;
+
+if(isset($arguments['c'])) {
+    $use_transactions = true;
 }
 
 echo "Initializing...\n";
@@ -244,7 +251,9 @@ foreach($version_directories as $version_directory) {
                                         }
                                     
                                         if(empty($update_data['run'])) {
-                                            db()->beginTransaction();
+                                            if($use_transactions) {
+                                                db()->beginTransaction();
+                                            }
                                                                                 
                                             if(strpos($update_file, '.php') !== false) {
                                                 echo "Running PHP file '{$update_file}'.\n";
@@ -264,7 +273,9 @@ foreach($version_directories as $version_directory) {
                                             
                                             db()->update('cms_updates', array('run' => 1), array('update_id' => $update_id));
                                             
-                                            db()->commit();
+                                            if($use_transactions) {
+                                                db()->commit();
+                                            }
                                         }
                                         else {
                                             echo "Update '{$update_file}' has already been run. Skipping.\n";
