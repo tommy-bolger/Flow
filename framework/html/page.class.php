@@ -343,9 +343,25 @@ class page {
     }
     
     /**
+     * Prepends css directories to the current list.
+     *
+     * @param array $css_directory_paths The list of paths css files can reside in.
+     * @return void
+     */
+    public function prependCssDirectories($css_directory_paths) {
+        assert('is_array($css_directory_paths) && !empty($css_directory_paths)');
+        
+        foreach($css_directory_paths as $css_directory_path) {
+            $css_base_path = $this->setDirectory($css_directory_path);
+        
+            array_unshift($this->css_base_paths, $css_base_path);
+        }
+    }       
+    
+    /**
      * Sets the default css directories.
      *
-     * @param array $css_directory_path The list of paths css files can reside in.
+     * @param array $css_directory_paths The list of paths css files can reside in.
      * @return void
      */
     public function setCssDirectories($css_directory_paths) {
@@ -355,6 +371,22 @@ class page {
             $this->css_base_paths[] = $this->setDirectory($css_directory_path);
         }
     }
+    
+    /**
+     * Prepends javascript directories to the current list.
+     *
+     * @param array $javascript_directory_paths The list of paths javascript files can reside in.
+     * @return void
+     */
+    public function prependJavascriptDirectories($javascript_directory_paths) {
+        assert('is_array($javascript_directory_paths) && !empty($javascript_directory_paths)');
+        
+        foreach($javascript_directory_paths as $javascript_directory_path) {
+            $javascript_base_path = $this->setDirectory($javascript_directory_path);
+        
+            array_unshift($this->javascript_base_paths, $javascript_base_path);
+        }
+    }        
     
     /**
      * Sets the default javascript directories.

@@ -63,9 +63,24 @@ extends Module {
     protected $templates_path;
     
     /**
+    * @var string The file path to the module's theme css.
+    */
+    protected $css_theme_path;
+    
+    /**
     * @var string The http path to the module's css.
     */            
     protected $css_http_path;
+    
+    /**
+    * @var string The file path to the module's javascript.
+    */        
+    protected $javascript_path;    
+    
+    /**
+    * @var string The file path to the module's theme javascript.
+    */     
+    protected $javascript_theme_path;
     
     /**
     * @var string The http path to the module's javascript.
@@ -112,10 +127,16 @@ extends Module {
         
         $this->css_http_path = "{$this->assets_http_path}/css/modules/{$module_name}";
         
+        $this->javascript_path = "{$this->assets_path}/javascript";
+        
         $this->javascript_http_path = "{$this->assets_http_path}/javascript/modules/{$module_name}";
         
         //Set the module's style path
         $this->theme_path = "{$this->assets_path}/styles/{$this->theme}";
+        
+        $this->css_theme_path = "{$this->theme_path}/css";
+        
+        $this->javascript_theme_path = "{$this->theme_path}/javascript";
         
         $this->templates_path = "{$this->theme_path}/templates";
             
@@ -147,12 +168,39 @@ extends Module {
     }
     
     /**
+     * Retrieves the module's css theme file path.
+     *     
+     * @return string
+     */
+    public function getCssThemePath() {
+        return $this->css_theme_path;
+    }        
+    
+    /**
      * Retrieves the module's css http path.
      *     
      * @return string
      */
     public function getCssHttpPath() {
         return $this->css_http_path;
+    }
+    
+    /**
+     * Retrieves the module's javascript file path.
+     *     
+     * @return string
+     */
+    public function getJavascriptPath() {
+        return $this->javascript_path;
+    }
+    
+    /**
+     * Retrieves the module's theme javascript file path.
+     *     
+     * @return string
+     */
+    public function getJavascriptThemePath() {
+        return $this->javascript_theme_path;
     }
     
     /**

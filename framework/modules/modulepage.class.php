@@ -95,7 +95,7 @@ extends Page {
         $this->javascript_http_path = $this->getJavascriptHttpPath();
         
         //Set the theme css path
-        $theme_css_path =  "{$module_theme_path}/css";
+        $theme_css_path = $this->module->getCssThemePath();
         
         //Set the root css path
         $root_css_path = "{$this->assets_path}/css";
@@ -106,11 +106,11 @@ extends Page {
         ));
         
         //Set the module's javascript theme path
-        $theme_javascript_path = "{$module_theme_path}/javascript";
+        $theme_javascript_path = $this->module->getJavascriptThemePath();
         
         //Set the module's javascript path
-        $module_javascript_path = "{$this->module->getAssetsPath()}/javascript";
-        
+        $module_javascript_path = $this->module->getJavascriptPath();
+
         //Set the root javascript path
         $root_javascript_path = "{$this->assets_path}/javascript";
         

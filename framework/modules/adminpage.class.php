@@ -32,6 +32,7 @@
 */
 namespace Framework\Modules;
 
+use \Framework\Core\Framework;
 use \Framework\Html\Table\EditTable;
 use \Framework\Display\Template;
 
@@ -55,5 +56,31 @@ extends ModulePage {
         $admin_templates_path = str_replace('admin', "{$module_name}/admin", $this->module->getTemplatesPath());
 
         Template::addBasePath($admin_templates_path);
+        
+        $framework = Framework::getInstance();
+        
+        $module_path = "{$framework->installation_path}/modules/{$module_name}";
+        
+        $module_javascript_path = "{$module_path}/assets/javascript";
+        
+        $module_admin_assets_path = "{$module_path}/admin/assets";
+        
+        $module_admin_javascript_path = "{$module_admin_assets_path}/javascript";
+        
+        $module_admin_theme_path = "{$module_admin_assets_path}/styles/{$this->module->configuration->theme}";
+        
+        $module_admin_css_theme_path = "{$module_admin_theme_path}/css";
+        
+        $module_admin_javascript_theme_path = "{$module_admin_theme_path}/javascript";
+        
+        $this->prependCssDirectories(array(
+            $module_admin_css_theme_path
+        ));
+
+        $this->prependJavascriptDirectories(array(
+            $module_javascript_path,
+            $module_admin_javascript_path,
+            $module_admin_javascript_theme_path,
+        ));
     }
 }

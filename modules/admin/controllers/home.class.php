@@ -343,7 +343,7 @@ extends Controller {
         session()->current_module = $module_name;
     }
     
-    private function constructHeader() {
+    protected function constructHeader() {
         $this->page->setTitle($this->title);
     
         $this->page->setTemplate('layout.php');
