@@ -762,10 +762,8 @@ extends DataTable {
                     <div class=\"clear\"></div>
                 </div>
         ";
-        
-        if(!empty($this->child_elements)) {
-            $edit_table_html .= parent::getTableHtml();
-        }
+
+        $edit_table_html .= parent::getTableHtml();
         
         $edit_table_html .= '</div>';
         

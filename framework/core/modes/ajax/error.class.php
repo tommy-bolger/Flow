@@ -60,6 +60,14 @@ extends BaseError {
         
         parent::handleError($error_code, $error_message, $error_file, $error_line, $error_trace);
     }
+    
+    /**
+     * Dummy function to allow WebModule to run in Ajax mode.
+     *
+     * @param string $template_path The path to the error template.                          
+     * @return void
+     */
+    public function setTemplatePath($template_path) {}
 
     /**
      * Retrieves the html output of an error when running in web mode.

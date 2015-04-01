@@ -53,6 +53,11 @@ extends Table {
     protected $table_form;
     
     /**
+    * @var integer The index of the header row that is used for DataTable columns.
+    */
+    protected $active_header_index;
+    
+    /**
     * @var object The resultset used to populate the table.
     */
     protected $resultset;
@@ -185,15 +190,14 @@ extends Table {
      */
     public function setHeader($header) {
         parent::addHeader($header);
+        
+        //Get the index of the row used by DataTable columns.
+        end($this->header);
+        
+        $this->active_header_index = key($this->header);
+        
+        reset($this->header);
     }
-    
-    /**
-     * Not used in this object.
-     *      
-     * @param array|string $header
-     * @return void
-     */
-    public function addHeader($header) {}
     
     /**
      * Not used in this object.
@@ -681,8 +685,9 @@ extends Table {
                 
                     $last_page_html = "&nbsp;<li class=\"page_number\"><a href=\"{$last_page_url}\" title=\"{$last_page_title}\">Last&raquo;</a></li>";
                 }
-            }
-            else {            
+            }            
+        }
+        else {            
                 //Generate the previous page link if not on the first page
                 if($this->current_page > 1) {
                     $previous_page_number = $this->current_page - 1;
@@ -703,12 +708,11 @@ extends Table {
                     $next_page_html = "<li class=\"page_number\"><a href=\"{$next_page_url}\" title=\"{$next_page_title}\">&gt;</a></li>";
                 }
             }
+        
+        $pagination_html = "<ul class=\"page_numbers\">{$page_count_html}{$first_page_html}{$previous_page_html}{$page_numbers_html}{$next_page_html}{$last_page_html}</ul>";
             
-            $pagination_html = "<ul class=\"page_numbers\">{$page_count_html}{$first_page_html}{$previous_page_html}{$page_numbers_html}{$next_page_html}{$last_page_html}</ul>";
-            
-            if($render_container) {
-                $pagination_html = "<div class=\"pagination\">{$pagination_html}</div>";
-            }
+        if($render_container) {
+            $pagination_html = "<div class=\"pagination\">{$pagination_html}</div>";
         }
         
         return $pagination_html;
@@ -727,102 +731,109 @@ extends Table {
         }
     
         $header_html = "";
-    
-        if(isset($this->header[0])) {
-            $table_header = $this->header[0];
-            $table_filter_header = array();
-            
-            if(!empty($table_header)) {
-                $header_index = 0;
-            
-                foreach($table_header as $column_name => $column_display_name) {
-                    //If a filter field is attached to this column then add it to the table header array
-                    $column_filter_fields = $this->table_form->getFieldsByGroup($column_name);
-                
-                    if(!empty($column_filter_fields)) {
-                        $table_filter_header[$header_index] = current($column_filter_fields);
-                    }
-                
-                    $sort_direction_indicator = '';
-                    $link_sort_direction = 'asc';
-                    $sorted_column_class = '';
-
-                    //Determine which sort direction to pass in the column's url and the visual sort indicator.
-                    if($column_name == $this->current_sort_column) {
-                        $sorted_column_class = ' sorted_column';
+        
+        if(!empty($this->header)) {
+            foreach($this->header as $header_index => $header_row) {
+                if($header_index == $this->active_header_index) {
+                    $table_header = $header_row;
+                    $table_filter_header = array();
                     
-                        switch($this->current_sort_direction) {
-                            case 'asc':
-                                $sort_direction_indicator = '&uarr;';
-                                $link_sort_direction = 'desc';
-                                break;
-                            case 'desc':
-                                $sort_direction_indicator = '&darr;';
-                                $link_sort_direction = 'asc';
-                                break;
-                        }
-                    }
+                    if(!empty($table_header)) {
+                        $header_index = 0;
                     
-                    $sort_direction_indicator = "<span class=\"sort_indicator {$link_sort_direction}\">{$sort_direction_indicator}</span>";
-                    
-                    $sort_link_title = "Sort by {$column_display_name} ";
-                    
-                    switch($link_sort_direction) {
-                        case 'asc':
-                            $sort_link_title .= 'ascending';
-                            break;
-                        case 'desc':
-                            $sort_link_title .= 'descending';
-                            break;
-                    }
-                    
-                    $sort_link_url = $this->generateUrl(array(
-                        's' => $column_name,
-                        'd' => $link_sort_direction
-                    ));
-
-                    $header_html .= "<th class=\"table_header{$sorted_column_class}\"><a href=\"{$sort_link_url}\" title=\"{$sort_link_title}\">{$column_display_name}</a>{$sort_direction_indicator}</th>";
-                    
-                    $header_index++; 
-                }
-                
-                if($columns_only) {
-                    return $header_html;
-                }
-                
-                $header_html = "<tr class=\"columns\">{$header_html}</tr>";
-
-                //If the filter header has fields then render it.
-                if(!empty($table_filter_header)) {
-                    $header_html .= '<tr class="filters">';
-                
-                    for($filter_header_index = 0; $filter_header_index < $header_index; $filter_header_index++) {
-                        $header_html .= '<th>';
-                    
-                        if(!empty($table_filter_header[$filter_header_index])) {
-                            $filter_field = $table_filter_header[$filter_header_index];
+                        foreach($table_header as $column_name => $column_display_name) {
+                            //If a filter field is attached to this column then add it to the table header array
+                            $column_filter_fields = $this->table_form->getFieldsByGroup($column_name);
                         
-                            $label_html = $filter_field->getLabelHtml();
-                
-                            if(!empty($label_html)) {
-                                $label_html .= ':&nbsp;&nbsp;';
+                            if(!empty($column_filter_fields)) {
+                                $table_filter_header[$header_index] = current($column_filter_fields);
                             }
                         
-                            $header_html .= $label_html . $filter_field->getFieldHtml();
-                        }
-                        else {
-                            $header_html .= '&nbsp;';
+                            $sort_direction_indicator = '';
+                            $link_sort_direction = 'asc';
+                            $sorted_column_class = '';
+        
+                            //Determine which sort direction to pass in the column's url and the visual sort indicator.
+                            if($column_name == $this->current_sort_column) {
+                                $sorted_column_class = ' sorted_column';
+                            
+                                switch($this->current_sort_direction) {
+                                    case 'asc':
+                                        $sort_direction_indicator = '&uarr;';
+                                        $link_sort_direction = 'desc';
+                                        break;
+                                    case 'desc':
+                                        $sort_direction_indicator = '&darr;';
+                                        $link_sort_direction = 'asc';
+                                        break;
+                                }
+                            }
+                            
+                            $sort_direction_indicator = "<span class=\"sort_indicator {$link_sort_direction}\">{$sort_direction_indicator}</span>";
+                            
+                            $sort_link_title = "Sort by {$column_display_name} ";
+                            
+                            switch($link_sort_direction) {
+                                case 'asc':
+                                    $sort_link_title .= 'ascending';
+                                    break;
+                                case 'desc':
+                                    $sort_link_title .= 'descending';
+                                    break;
+                            }
+                            
+                            $sort_link_url = $this->generateUrl(array(
+                                's' => $column_name,
+                                'd' => $link_sort_direction
+                            ));
+        
+                            $header_html .= "<th class=\"table_header{$sorted_column_class}\"><a href=\"{$sort_link_url}\" title=\"{$sort_link_title}\">{$column_display_name}</a>{$sort_direction_indicator}</th>";
+                            
+                            $header_index++; 
                         }
                         
-                        $header_html .= '</th>';
+                        if($columns_only) {
+                            return $header_html;
+                        }
+                        
+                        $header_html = "<tr class=\"columns\">{$header_html}</tr>";
+        
+                        //If the filter header has fields then render it.
+                        if(!empty($table_filter_header)) {
+                            $header_html .= '<tr class="filters">';
+                        
+                            for($filter_header_index = 0; $filter_header_index < $header_index; $filter_header_index++) {
+                                $header_html .= '<th>';
+                            
+                                if(!empty($table_filter_header[$filter_header_index])) {
+                                    $filter_field = $table_filter_header[$filter_header_index];
+                                
+                                    $label_html = $filter_field->getLabelHtml();
+                        
+                                    if(!empty($label_html)) {
+                                        $label_html .= ':&nbsp;&nbsp;';
+                                    }
+                                
+                                    $header_html .= $label_html . $filter_field->getFieldHtml();
+                                }
+                                else {
+                                    $header_html .= '&nbsp;';
+                                }
+                                
+                                $header_html .= '</th>';
+                            }
+                            
+                            $header_html .= '</tr>';
+                        }
                     }
-                    
-                    $header_html .= '</tr>';
                 }
-                
-                if($render_container) {
-                    $header_html = "<thead>{$header_html}</thead>";
+                else {
+                    $header_html .= $this->getColumnsHtml($header_row);
                 }
+            }
+            
+            if($render_container) {
+                $header_html = "<thead>{$header_html}</thead>";
             }
         }
         
