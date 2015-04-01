@@ -150,7 +150,7 @@ final class Http {
     * @return string The page url.
     */
     public static function getPageUrl($query_string_parameters = array(), $module_name = '') {
-        return Http::getCurrentLevelPageUrl(Framework::getInstance()->getPageClassName(), $query_string_parameters, $module_name);
+        return Http::getCurrentLevelPageUrl(strtolower(Framework::getInstance()->getPageClassName()), $query_string_parameters, $module_name);
     }
     
     /**
@@ -231,6 +231,10 @@ final class Http {
     * @return string
     */
     public static function getInternalUrl($module_name = '', $subdirectory_path = array(), $page = '', $query_string_parameters = array()) {
+        if(empty($subdirectory_path)) {
+            $subdirectory_path = array();
+        }
+    
         assert('is_array($subdirectory_path) && is_array($query_string_parameters)');
         
         if(!isset(self::$default_module)) {
@@ -256,7 +260,7 @@ final class Http {
             $module_name = '';
         }
 
-        if(!empty($module_name)) {            
+        if(!empty($module_name) && !empty($subdirectory_path)) {            
             array_unshift($subdirectory_path, $module_name);
         }                
            
