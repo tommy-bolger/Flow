@@ -40,14 +40,15 @@ class Cache {
         'default_cache_time' => 2592000,
         'cache_object_names' => array(
             'apc' => '\Framework\Caching\Modules\APC',
-            'memcached' => '\Framework\Caching\Modules\Memcached'
+            'memcached' => '\Framework\Caching\Modules\Memcached',
+            'redis' => '\Framework\Caching\Modules\Redis',
         )
     );
     
     /**
     * @var string The key of the cache module to utilize in the configuration.
     */
-    private static $cache_object_name = 'apc';
+    private static $cache_object_name = 'redis';
 
     /**
     * @var object The instance of this object.
