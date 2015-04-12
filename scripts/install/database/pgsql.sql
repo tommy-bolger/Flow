@@ -123,7 +123,7 @@ CREATE SEQUENCE cms_configuration_parameters_seq
 
 ALTER SEQUENCE cms_configuration_parameters_seq OWNED BY cms_configuration_parameters.configuration_parameter_id;
 
-SELECT pg_catalog.setval('cms_configuration_parameters_seq', 14, true);
+SELECT pg_catalog.setval('cms_configuration_parameters_seq', 19, true);
 
 
 CREATE TABLE cms_errors (
@@ -530,7 +530,7 @@ ALTER TABLE ONLY cms_ads
 ALTER TABLE ONLY cms_banned_ip_addresses
     ADD CONSTRAINT cbia_banned_ip_address_id_pk PRIMARY KEY (banned_ip_address_id);
     
-ALTER TABLE ONLY cms_censored_word
+ALTER TABLE ONLY cms_censored_words
     ADD CONSTRAINT ccw_censored_word_id_pk PRIMARY KEY (censored_word_id);
 
 ALTER TABLE ONLY cms_configuration_parameters

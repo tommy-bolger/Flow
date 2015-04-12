@@ -273,7 +273,17 @@ if($database_engine != 'sqlite') {
         goto database_password;
     }
     
-    $database_dsn = "{$database_engine}:dbname={$database_name};host={$database_host}";
+    database_additional_dsn:
+    $database_additional_dsn = '';
+    print("Any additional DSN options (format: option1=value1;option2=value2): ");
+    
+    $database_additional_dsn = trim(fgets(STDIN));
+    
+    if(!empty($database_host)) {
+        $database_additional_dsn = ";{$database_additional_dsn}";
+    }
+    
+    $database_dsn = "{$database_engine}:dbname={$database_name};host={$database_host}{$database_additional_dsn}";
 }
 else {
     database_path:
