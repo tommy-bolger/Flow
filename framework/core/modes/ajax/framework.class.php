@@ -98,7 +98,7 @@ extends BaseFramework {
     public function getParsedUri() {
         $parsed_uri = parent::getParsedUri();
         
-        //Remove 'ajax' as the first element
+        //Remove the framework mode as the first element
         array_shift($parsed_uri);
 
         return $parsed_uri;
@@ -113,7 +113,7 @@ extends BaseFramework {
         header('HTTP/1.0 404 Not Found');
         
         if($type == 'class') {
-            $this->error_handler->logMessage("Ajax class '{$this->qualified_page_path}' could not be found.");
+            $this->error_handler->logMessage("Class '{$this->qualified_page_path}' could not be found.");
         }
         else {
             $this->error_handler->logMessage("Method '{$this->qualified_page_path}->{$this->method}()' could not be found.");

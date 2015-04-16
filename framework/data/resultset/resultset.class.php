@@ -225,4 +225,25 @@ class ResultSet {
     public function getRowsPerPage() {
         return $this->rows_per_page;
     }
+    
+    /**
+     * Retrieves the number of pages possible in the processed resultset
+     * 
+     * @return integer
+     */
+    public function getTotalPages() {
+        $total_number_of_pages = 1;
+
+        if($this->has_total_record_count && !empty($this->rows_per_page)) {
+            $total_number_of_pages = (int)($this->total_number_of_records / $this->rows_per_page);
+
+            $remainder = $this->has_total_record_count % $this->rows_per_page;
+            
+            if($remainder > 0) {
+                $total_number_of_pages += 1;
+            }
+        }
+        
+        return $total_number_of_pages;
+    }
 }

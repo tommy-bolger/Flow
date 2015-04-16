@@ -5,6 +5,8 @@ RewriteRule ^assets/((?!/)[a-zA-Z]+)/((?!(index\.php))(.*).(.*))$ assets/$1/inde
 
 RewriteRule ^ajax/((?!(index\.php))(.*).(.*))$ ajax/index.php/$1 [QSA,L,NC]
 
+RewriteRule ^api/((?!(index\.php))(.*).(.*))$ api/index.php/$1 [QSA,L,NC]
+
 RewriteRule !(index\.php) /index.php/$1 [QSA,NC]
 
 RewriteRule ^/index.php/$ /index.php [L]
