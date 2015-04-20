@@ -59,15 +59,7 @@ extends Button {
      * @param string $path_to_image The file path to the image relative to the document root.
      * @return void
      */
-    public function setImageSource($path_to_image) {
-        $path_to_image = rtrim($path_to_image, '/');
-    
-        $path_to_image = $this->getThemeDirectoryPath() . "images/{$path_to_image}";
-            
-        if(!is_readable($path_to_image)) {
-            throw new \Exception("Image '{$path_to_image}' does not exist or is not accessible.");
-        }
-        
+    public function setImageSource($path_to_image) {        
         $this->setAttribute('src', $path_to_image);
     }
     
