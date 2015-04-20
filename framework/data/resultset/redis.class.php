@@ -78,8 +78,16 @@ extends Memory {
         
         $raw_data = array();
         
+        $transaction = $this->cache->multi();
+        
         foreach($keys_to_retrieve as &$key_to_retrieve) {
-            $raw_data[] = $this->cache->hGetAll($key_to_retrieve);
+            $transaction->hGetAll($key_to_retrieve);
+        }
+        
+        $transaction_data = $transaction->exec();
+        
+        if(!empty($transaction_data)) {
+            $raw_data = $transaction_data;
         }
 
         return $raw_data;
