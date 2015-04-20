@@ -58,7 +58,7 @@ class Redis {
         
         $this->redis_object->pconnect(self::$server['host'], self::$server['port']);
         
-        $this->redis_object->setOption(RedisClient::OPT_SCAN, RedisClient::SCAN_NORETRY);
+        $this->redis_object->setOption(RedisClient::OPT_SCAN, RedisClient::SCAN_RETRY);
         
         if(extension_loaded("igbinary")) {
             $this->redis_object->setOption(RedisClient::OPT_SERIALIZER, RedisClient::SERIALIZER_IGBINARY);

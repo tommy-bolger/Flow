@@ -34,7 +34,22 @@
 namespace Framework\Data\ResultSet;
 
 class Redis 
-extends Memory {        
+extends Memory {       
+    /**
+     * Adds a filter criteria to the result set.
+     * 
+     * @param string $criteria The criteria to sort the result set by.
+     * @param array $placeholder_values The values of corresponding placeholders in the criteria.     
+     * @return void
+     */
+    public function addFilterCriteria($criteria, array $placeholder_values = array()) {
+        if(!empty($placeholder_values)) {
+            throw new \Exception('$placeholder_values is not used by this function for this instance and must be empty.');
+        }
+        
+        $this->filter_criteria[] = $criteria;
+    }
+ 
     /**
      * Retrieves the unprocessed result set.
      * 
@@ -52,15 +67,13 @@ extends Memory {
         if(empty($this->rows_per_page)) {
             throw new \Exception("Rows per page is required.");
         }
+
+        $index_page_number = $this->page_number - 1;
+
+        $start_range = $this->rows_per_page * $index_page_number;
         
-        $start_range = 0;
-        
-        if($this->page_number > 1) {
-            $start_range = $this->page_number * $this->rows_per_page;
-        }
-        
-        $end_range = ($start_range + $this->rows_per_page) - 1;
-        
+        $end_range = $start_range + ($this->rows_per_page - 1);
+
         $keys_to_retrieve = $this->cache->lRange($this->name, $start_range, $end_range);
         
         $raw_data = array();
