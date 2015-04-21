@@ -60,6 +60,11 @@ class ResultSet {
     protected $filter_criteria = array();
     
     /**
+    * @var array The filter criteria placeholder values to apply to the result set.
+    */
+    protected $filter_placeholder_values = array();
+    
+    /**
     * @var array The criteria to sort the result set by.
     */
     protected $sort_criteria = array();

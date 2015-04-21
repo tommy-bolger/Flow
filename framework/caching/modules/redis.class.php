@@ -80,6 +80,16 @@ class Redis {
     }
     
     /**
+     * Returns the object used to directly interact with redis.
+     * This is for operations that require references to be passed to RedisClient functions, such as scan.     
+     *
+     * @return RedisClient the RedisClient instance.
+     */
+    public function getRedisObject() {
+        return $this->redis_object;
+    }
+    
+    /**
      * Clears all stored values in  redis.
      *
      * @return void

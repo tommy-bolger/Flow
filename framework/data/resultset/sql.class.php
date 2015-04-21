@@ -46,11 +46,6 @@ extends ResultSet {
     protected $base_query_placeholders;
     
     /**
-    * @var array The placeholder values for the filter criteria.
-    */
-    protected $filter_placeholder_values = array();
-    
-    /**
      * Adds a filter criteria to the result set.
      * 
      * @param array $criteria The criteria to sort the result set by.

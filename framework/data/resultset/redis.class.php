@@ -42,12 +42,14 @@ extends Memory {
      * @param array $placeholder_values The values of corresponding placeholders in the criteria.     
      * @return void
      */
-    public function addFilterCriteria($criteria, array $placeholder_values = array()) {
-        if(!empty($placeholder_values)) {
-            throw new \Exception('$placeholder_values is not used by this function for this instance and must be empty.');
-        }
+    public function addFilterCriteria($criteria, array $placeholder_values = array()) {        
+        assert('!empty($criteria)');
+        assert('empty($this->filter_criteria)');
+        assert('empty($placeholder_values) || count($placeholder_values) == 1');
         
         $this->filter_criteria[] = $criteria;
+        
+        $this->filter_placeholder_values += $placeholder_values;
     }
  
     /**
@@ -67,25 +69,96 @@ extends Memory {
         if(empty($this->rows_per_page)) {
             throw new \Exception("Rows per page is required.");
         }
+        
+        $redis_client = $this->cache->getRedisObject();
 
         $index_page_number = $this->page_number - 1;
 
         $start_range = $this->rows_per_page * $index_page_number;
         
         $end_range = $start_range + ($this->rows_per_page - 1);
+        
+        $keys_to_retrieve = array();
 
-        $keys_to_retrieve = $this->cache->lRange($this->name, $start_range, $end_range);
+        if(empty($this->filter_criteria) || empty($this->filter_placeholder_values[0])) {
+            $keys_to_retrieve = $redis_client->lRange($this->name, $start_range, $end_range);
+        }
+        else {
+            $iterator = NULL;
+            
+            $current_offset = 0;
+            
+            $criteria_value_letters = str_split($this->filter_placeholder_values[0]);
+            
+            //Create the search pattern string
+            $criteria_placeholder_value = '';
+            
+            foreach($criteria_value_letters as $criteria_value_letter) {
+                if(ctype_alpha($criteria_value_letter)) {
+                    $upper_case_letter = strtoupper($criteria_value_letter);
+                    $lower_case_letter = strtolower($criteria_value_letter);
+                    
+                    $criteria_placeholder_value .= "[{$upper_case_letter}{$lower_case_letter}]";
+                }
+                else {
+                    $criteria_placeholder_value .= $criteria_value_letter;
+                }
+            }
+
+            $criteria = str_replace('?', $criteria_placeholder_value, $this->filter_criteria[0]);
+            
+            $total_number_of_records = 0;
+
+            //Scan the sorted set containing the filter keys matching the criteria pattern
+            while($matches = $redis_client->zscan("{$this->name}_filter", $iterator, $criteria, $this->rows_per_page)) {
+                foreach($matches as $search_field => $key) {
+                    if($current_offset >= $start_range && $current_offset <= $end_range) {
+                        $keys_to_retrieve[] = "{$this->name}:{$key}";
+                    }
+                
+                    $total_number_of_records += 1;
+                    $current_offset += 1;
+                }
+            }
+            
+            $this->total_number_of_records = $total_number_of_records;
+            
+            //Set the default sorting
+            if(!empty($keys_to_retrieve)) {
+                $key_order_values = array();
+            
+                $transaction = $redis_client->multi();
+            
+                foreach($keys_to_retrieve as &$key_to_retrieve) {
+                    $transaction->zScore("{$this->name}_default_sort", $key_to_retrieve);
+                }
+                
+                $key_default_order_values = $transaction->exec();
+
+                if(!empty($key_default_order_values)) {
+                    $default_sorted_keys = array_combine($keys_to_retrieve, $key_default_order_values);
+                    
+                    asort($default_sorted_keys);
+                    
+                    $keys_to_retrieve = array_keys($default_sorted_keys);
+                }
+            }
+        }  
         
         $raw_data = array();
         
-        $transaction = $this->cache->multi();
+        $transaction_data = array();
+
+        $transaction = $redis_client->multi();
         
-        foreach($keys_to_retrieve as &$key_to_retrieve) {
-            $transaction->hGetAll($key_to_retrieve);
+        if(!empty($keys_to_retrieve)) {                
+            foreach($keys_to_retrieve as &$key_to_retrieve) {
+                $transaction->hGetAll($key_to_retrieve);
+            }
         }
         
         $transaction_data = $transaction->exec();
-        
+
         if(!empty($transaction_data)) {
             $raw_data = $transaction_data;
         }
