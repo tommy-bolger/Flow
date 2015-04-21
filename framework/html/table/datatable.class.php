@@ -949,6 +949,8 @@ extends Table {
         
         if(!empty($filter_fields)) {
             $show_submit = true;
+            
+            $rendered_filter_fields = array();
         
             foreach($filter_fields as $filter_field) {
                 $label_html = $filter_field->getLabelHtml();
@@ -957,8 +959,14 @@ extends Table {
                     $label_html .= ':&nbsp;';
                 }
             
-                $table_menu_items[] = "{$label_html}{$filter_field->getFieldHtml()}&nbsp;{$form_template["submit"]}";
+                $rendered_filter_fields[] = "{$label_html}{$filter_field->getFieldHtml()}&nbsp;{$form_template["submit"]}";
             }
+            
+            $table_menu_items[] = '
+                <div class="table_menu_filters">
+                    ' . implode('', $rendered_filter_fields) . '
+                </div>
+            ';
         }
         
         if(isset($form_template["r"])) {
