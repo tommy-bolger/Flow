@@ -83,7 +83,7 @@ extends Web {
      *
      * @return void
      */
-    public function run() {        
+    public function run() {            
         $page_class_name = $this->getPageClass();
         
         $current_page_class = new $page_class_name();
@@ -91,6 +91,15 @@ extends Web {
         $current_page_class->setup();
         
         echo $current_page_class->render();
+    }
+    
+    /**
+     * Executes the maintenance mode for the current mode. 
+     *
+     * @return void
+     */
+    protected function runMaintenance() {    
+        require_once("{$this->installation_path}/protected/maintenance_mode.php");
     }
     
     /**

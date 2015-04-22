@@ -63,6 +63,15 @@ extends BaseFramework {
     }
     
     /**
+     * Executes the maintenance mode for the current mode. 
+     *
+     * @return void
+     */
+    protected function runMaintenance() {
+        echo "The site is down for maintenance.";
+    }
+    
+    /**
      * Executes the runtime after initialization.
      *
      * @return void

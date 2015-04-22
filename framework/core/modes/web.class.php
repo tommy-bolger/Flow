@@ -48,7 +48,33 @@ extends Framework {
         header('X-Powered-By: Flow CMS by Tommy Bolger');
         
         parent::__construct($mode);
+        
+        if($this->configuration->environment == 'maintenance') {
+            /*
+                Send a 503 error code to tell clients that the request cannot be completed due to maintenance.
+                The below header code was adapted from here: https://yoast.com/http-503-site-maintenance-seo/
+            */
+            $protocol = "HTTP/1.0";
+        
+            if("HTTP/1.1" == $_SERVER["SERVER_PROTOCOL"]) {
+                $protocol = "HTTP/1.1";
+            }
+            
+            header("{$protocol} 503 Service Unavailable", true, 503);
+            header("Retry-After: 7200");
+        
+            $this->runMaintenance();
+            
+            exit;
+        }
     }
+    
+    /**
+     * Executes the maintenance mode for the current mode. 
+     *
+     * @return void
+     */
+    protected function runMaintenance() {}
     
     /**
      * Retrieves the parsed request uri.
