@@ -32,11 +32,93 @@
 */
 namespace Framework\Data;
 
+use \SimpleXMLElement;
+use \stdClass;
+
 class XMLWrite {
     /**
     * @var object The XMLWriter object.
     */
     protected $xml_data;
+    
+    public static function convertXmlToObject(SimpleXMLElement $xml_object, $namespace = '') {
+        $object_structure = new stdClass();
+        
+        //Add any XML attributes as properties of the current object structure
+        $xml_attributes = $xml_object->attributes();
+    
+        if(!empty($xml_attributes)) {
+            foreach($xml_attributes as $attribute_name => $attribute_value) {
+                $object_structure->$attribute_name = (string)$attribute_value;
+            }
+        }
+        
+        $children = NULL;
+        
+        if(!empty($namespace)) {
+            $children = $xml_object->children($namespace, true);
+        }
+        else {
+            $children = $xml_object->children();
+        }
+    
+        if(!empty($children)) {
+            //If there are any children of this xml element then add those as properties of the current object structure
+            foreach($children as $child_name => $child) {
+                //Convert this child element into an object structure via recursive call to this function
+                $child_object = self::convertXmlToObject($child, $namespace);
+                
+                /*
+                    If the processed child only has 1 property and that property is 'value' 
+                    (a value set for scalar vaules by this function) then set the value of this
+                    child as that directly.
+                */ 
+                if(count($child_object) <= 1 && isset($child_object->value)) {
+                    $child_object = $child_object->value;
+                }
+                
+                /*
+                    Convert the child object into an array. If the array version of the object has no
+                    elements, indicating an empty object, then set the child object to NULL.
+                */
+                $child_object_array = (array)$child_object;
+                
+                if(count($child_object_array) == 0) {
+                    $child_object = NULL;
+                }
+    
+                if(!isset($object_structure->$child_name)) {
+                    $object_structure->$child_name = $child_object;
+                }
+                /*
+                    If the child name already exists then the property is an array. Convert the
+                    child property into an array and append additional child elements of this name
+                    as new array elements.
+                */
+                else {
+                    if(!is_array($object_structure->$child_name)) {
+                        $current_child = $object_structure->$child_name;
+                        
+                        $object_structure->$child_name = array(
+                            $current_child
+                        );
+                    }
+                    
+                    $object_structure->{$child_name}[] = $child_object;
+                }
+            }
+        }
+        //If the current object structure has no children but has a value then set that as a property
+        else {
+            $value = (string)$xml_object;
+        
+            if(strlen($value) > 0) {
+                $object_structure->value = $value;
+            }
+        }
+        
+        return $object_structure;
+    }
     
     /**
      * Instantiates a new instance of XmlWrite.

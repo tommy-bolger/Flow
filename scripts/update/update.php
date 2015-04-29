@@ -43,7 +43,8 @@ function display_help() {
         "\nOptions:\n" . 
         "\n-m <module_name> (optional) The name of the module to update. If left blank then framework updates (located under <installation_path>/scripts/update) will be run." . 
         "\n-t <version> The version to update to." . 
-        "\n-c Tells this script to wrap individual updates in a transaction and commit them when finished." . 
+        "\n-c Tells this script to wrap individual updates in a transaction and commit them when finished." .
+        "\n-r Tells this script to clear the memory cache." . 
         "\n-h Outputs this help menu." . 
         "\n================================================================================\n"
     );
@@ -80,7 +81,7 @@ $framework = new Framework('cli');
 
 $installation_path = $framework->installation_path;
 
-$arguments = getopt('m:t:ch');
+$arguments = getopt('m:t:crh');
 
 $module_name = NULL;
 $module_id = NULL;
@@ -112,6 +113,12 @@ $use_transactions = false;
 
 if(isset($arguments['c'])) {
     $use_transactions = true;
+}
+
+$clear_cache = false;
+
+if(isset($arguments['r'])) {
+    $clear_cache = true;
 }
 
 echo "Initializing...\n";
@@ -325,7 +332,7 @@ else {
 }
 
 //Clear memory cache if enabled
-if($framework->enable_cache) {
+if($framework->enable_cache && $clear_cache) {
     echo "Clearing memory cache.\n";
     
     cache()->clear();
