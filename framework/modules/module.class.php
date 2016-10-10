@@ -32,11 +32,17 @@
 */
 namespace Framework\Modules;
 
+use \Exception;
 use \Framework\Core\Framework;
 use \Framework\Core\Configuration;
 use \Framework\Core\Loader;
 
 class Module {
+    /**
+    * @var array All initialized module instances
+    */
+    protected static $instances = array();
+
     /**
     * @var object The instance of the framework.
     */
@@ -63,9 +69,29 @@ class Module {
     protected $data = array();
     
     /**
+    * @var string The base file path to this module.
+    */
+    
+    protected $script_file_path;
+    
+    /**
     * @var array The module's configuration.
     */
     public $configuration;
+    
+    /**
+     * Retrieves an instance of the module by its name.
+     *
+     * @param string $module_name The name of the module.     
+     * @return Module The instance of the specified module.
+     */
+    public static function getInstance($module_name) {
+        if(!isset(self::$instances[$module_name])) {
+            self::$instances[$module_name] = new self($module_name);
+        }
+        
+        return self::$instances[$module_name];
+    }
 
     /**
      * Initializes the current module.
@@ -80,6 +106,8 @@ class Module {
         
         $this->file_path = "{$this->framework->installation_path}/modules/{$module_name}/external";
         
+        $this->script_file_path = "{$this->framework->installation_path}/modules/{$module_name}/scripts";
+        
         Loader::addBasePath($this->file_path);
         
         $this->loadData($module_name);
@@ -87,6 +115,10 @@ class Module {
         $this->loadConfiguration();
         
         $this->framework->error_handler->setModuleId($this->id);
+        
+        if(empty(self::$instances[$module_name])) {
+            self::$instances[$module_name] = $this;
+        }
     }
     
     /**
@@ -115,8 +147,11 @@ class Module {
             }
             
             if($this->framework->enable_cache) {
-                cache()->set($this->name, $this->data, 'modules');
+                cache()->set($this->name, serialize($this->data), 'modules');
             }
+        }
+        else {
+            $this->data = unserialize($this->data);
         }
         
         if(empty($this->data['enabled'])) {
@@ -132,7 +167,7 @@ class Module {
      * @return void
      */
     private function loadConfiguration() {
-        $this->configuration = new Configuration($this->name);
+        $this->configuration = Configuration::getInstance($this->name);
         
         $this->configuration->load();
     }
@@ -153,6 +188,15 @@ class Module {
      */
     public function getName() {
         return $this->name;
+    }
+    
+    /**
+     * Retrieves the module's script file path.
+     *   
+     * @return string
+     */
+    public function getScriptFilePath() {
+        return $this->script_file_path;
     }
     
     /**
@@ -186,8 +230,11 @@ class Module {
             closedir($modules_directory);
             
             if($framework->enable_cache) {
-                cache()->set('installed_modules', $modules);
+                cache()->set('installed_modules', serialize($modules));
             }
+        }
+        else {
+            $modules = unserialize($modules);
         }
         
         return $modules;

@@ -234,25 +234,40 @@ extends Element {
         $closing_tag = '';
         
         if(!$is_header_row) {
-            $opening_tag = '<td class="table_body"';
+            $opening_tag = '<td';
             $closing_tag = '</td>';
         }
         else {
-            $opening_tag = '<th class="table_header"';
+            $opening_tag = '<th';
             $closing_tag = '</th>';
         }
         
         $columns_html = '';
     
-        if(!empty($row)) {
+        if(!empty($row)) {        
             foreach($row as $column) {
+                $classes = 'table_body';
+            
+                if($is_header_row) {
+                    $classes = 'table_header';
+                }
+            
                 $span_attributes = '';
                 $column_contents = '';
             
                 if(!is_array($column)) {
                     $column_contents = $column;
                 }
-                else {
+                else {                    
+                    if(!empty($column['classes'])) {
+                        if(is_array($column['classes'])) {
+                            $classes .= " " . implode(' ', $column['classes']);
+                        }
+                        else {
+                            $classes .= " {$column['classes']}";
+                        }
+                    }
+                
                     if(!empty($column['colspan'])) {
                         $span_attributes .= " colspan=\"{$column['colspan']}\"";
                     }
@@ -262,10 +277,10 @@ extends Element {
                     }
                     
                     $column_contents = $column['contents'];
-                }
+                }   
                 
                 $columns_html .= "
-                    {$opening_tag}{$span_attributes}>
+                    {$opening_tag} class=\"{$classes}\"{$span_attributes}>
                         {$column_contents}
                     {$closing_tag}
                 ";

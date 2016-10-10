@@ -32,7 +32,28 @@
 */
 namespace Framework\Caching\Modules;
 
-class APC {        
+use \Exception();
+
+class APC
+extends Module {     
+    /**
+     * Catches all function calls not present in this class and passes them to the connection object. Not used for this module.
+     *
+     * @param string The function name.
+     * @param array the function arguments.
+     * @return mixed
+     */
+    public function __call($function_name, $arguments) {
+        throw new Exception("Function '{$function_name}' is not a valid function in this module.");
+    }
+
+    /**
+     * Connects the module to the remote caching resource. Not used for this module. 
+     *
+     * @return void
+     */
+    public function connect(array $configuration = array()) {}
+   
     /**
      * Sets a variable value in APC.
      *

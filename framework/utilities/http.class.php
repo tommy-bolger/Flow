@@ -230,13 +230,7 @@ final class Http {
     * @param array $query_string_parameters (optional) The query string parameters to add to url. Format is parameter_name => parameter_value.
     * @return string
     */
-    public static function getInternalUrl($module_name = '', $subdirectory_path = array(), $page = '', $query_string_parameters = array()) {
-        if(empty($subdirectory_path)) {
-            $subdirectory_path = array();
-        }
-    
-        assert('is_array($subdirectory_path) && is_array($query_string_parameters)');
-        
+    public static function getInternalUrl($module_name = '', array $subdirectory_path = array(), $page = '', array $query_string_parameters = array()) {            
         if(!isset(self::$default_module)) {
             self::$default_module = Framework::getInstance()->configuration->default_module;
         }
@@ -253,14 +247,21 @@ final class Http {
 
         $page_path = array();
 
-        if(!empty($subdirectory_path[0]) && $subdirectory_path[0] == $module_name) {        
-            $module_name = '';
+        if(!empty($subdirectory_path)) {
+            if(!empty($subdirectory_path[0]) && $subdirectory_path[0] == $module_name) {        
+                $module_name = '';
+            }
+            elseif(!empty($subdirectory_path[1]) && $subdirectory_path[1] == 'admin') {
+                $module_name = '';
+            }
         }
-        elseif(!empty($subdirectory_path[1]) && $subdirectory_path[1] == 'admin') {
-            $module_name = '';
+        else {
+            if($module_name == self::$default_module) {
+                $module_name = '';
+            }
         }
 
-        if(!empty($module_name) && !empty($subdirectory_path)) {            
+        if(!empty($module_name)) {            
             array_unshift($subdirectory_path, $module_name);
         }                
            
@@ -334,7 +335,13 @@ final class Http {
     * @return string
     */
     public static function getCurrentLevelPageUrl($page_name = '', $query_string_parameters = array(), $module_name = '') {
-        return self::getInternalUrl($module_name, Framework::getInstance()->getHttpSubPath(), $page_name, $query_string_parameters);
+        $current_page_path = Framework::getInstance()->getHttpSubPath();
+        
+        if(empty($current_page_path)) {
+            $current_page_path = array();
+        }
+    
+        return self::getInternalUrl($module_name, $current_page_path, $page_name, $query_string_parameters);
     }
     
     /**

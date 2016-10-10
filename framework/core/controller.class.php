@@ -53,11 +53,18 @@ abstract class Controller {
     }
     
     /**
+     * Executes code before page setup.
+     *
+     * @return void
+     */
+    public function action() {}
+    
+    /**
      * Sets up the page request.
      *
      * @return void
      */
-    abstract public function setup();
+    public function setup() {}
     
     /**
      * Renders the current page and returns its output.

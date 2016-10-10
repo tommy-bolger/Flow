@@ -42,17 +42,27 @@ extends EditTable {
     /**
     * @var object The form object used to manipulate records in the edit table.
     */
-    private $edit_form;
+    protected $edit_form;
     
     /**
     * @var array The criteria to enforce on the record when adding or updating.
     */
-    private $page_filter_columns;
+    protected $page_filter_columns;
     
     /**
     * @var array Fields with constant values to be inserted/updated with the current record.
     */
-    private $constant_fields;
+    protected $constant_fields;
+    
+    /**
+    * @var array The list of callback functions executed in the order they were added after a record is added.
+    */
+    protected $add_callback_functions = array();
+    
+    /**
+    * @var array The list of callback functions executed in the order they were added after a record is edited.
+    */
+    protected $edit_callback_functions = array();
     
     /**
      * Initializes a new instance of EditTableForm.
@@ -128,6 +138,30 @@ extends EditTable {
     }
     
     /**
+     * Adds a callback function to execute after an add action is executed.
+     *      
+     * @param callable $callback_function The callback function to execute.
+     * @return void
+     */
+    public function addAddCallbackFunction($callback_function) {
+        assert('is_callable($callback_function)');
+        
+        $this->add_callback_functions[] = $callback_function;
+    }
+    
+    /**
+     * Adds a callback function to execute after an edit action is executed.
+     *      
+     * @param callable $callback_function The callback function to execute.
+     * @return void
+     */
+    public function addEditCallbackFunction($callback_function) {
+        assert('is_callable($callback_function)');
+        
+        $this->edit_callback_functions[] = $callback_function;
+    }
+    
+    /**
      * Setups up a form for editing a record and processes its submission.
      *
      * @return void
@@ -152,9 +186,39 @@ extends EditTable {
                 }
                 
                 if($this->action == 'edit') {
+                    $old_record = array();
+                    
+                    if(!empty($this->edit_callback_functions)) {
+                        $old_record = db()->getRow("
+                            SELECT *
+                            FROM {$this->edit_table_name}
+                            WHERE {$this->table_id_field} = ?
+                        ", array(
+                            $this->record_id
+                        ));
+                    }
+                
                     db()->update($this->edit_table_name, $form_data, array($this->table_id_field => $this->record_id));
                     
                     $this->edit_form->addConfirmation('This record has been successfully updated.');
+                    
+                    if(!empty($this->edit_callback_functions)) {
+                        $updated_record = db()->getRow("
+                            SELECT *
+                            FROM {$this->edit_table_name}
+                            WHERE {$this->table_id_field} = ?
+                        ", array(
+                            $this->record_id
+                        ));
+                    
+                        foreach($this->edit_callback_functions as $edit_callback_functions) {
+                            call_user_func_array($edit_callback_functions, array(
+                                $this->record_id,
+                                $old_record,
+                                $updated_record
+                            ));
+                        }
+                    }
                 }
                 else {
                     $filter_where_clause = '';
@@ -193,11 +257,28 @@ extends EditTable {
                         $form_data[$this->table_sort_field] = $latest_sort_order;
                     }
     
-                    db()->insert($this->edit_table_name, $form_data);
+                    $new_record_id = db()->insert($this->edit_table_name, $form_data);
                     
                     $this->edit_form->addConfirmation('This record has been successfully added.');
                     
                     $this->edit_form->reset();
+                    
+                    if(!empty($this->add_callback_functions)) {
+                        $new_record = db()->getRow("
+                            SELECT *
+                            FROM {$this->edit_table_name}
+                            WHERE {$this->table_id_field} = ?
+                        ", array(
+                            $new_record_id
+                        ));
+                    
+                        foreach($this->add_callback_functions as $add_callback_function) {
+                            call_user_func_array($add_callback_function, array(
+                                $new_record_id,
+                                $new_record
+                            ));
+                        }
+                    }
                 }
             }
         }

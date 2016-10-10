@@ -110,6 +110,22 @@ class Database {
     }
     
     /**
+     * Destroys an instantiated database object of the specified database connection.
+     *
+     * @param string $database_connection (optional) The name of the database connection.
+     * @return object The database connection object.
+     */
+    public static function destroyInstance($database_connection = NULL) {
+        if(empty($database_connection)) {
+            $database_connection = 'default';            
+        }
+        
+        if(isset(self::$database_connections[$database_connection])) {
+            unset(self::$database_connections[$database_connection]);
+        }
+    }
+    
+    /**
      * Sets which database connection will be the default that db() returns.
      *
      * @param string $connection_name The name of the connection.
@@ -288,7 +304,9 @@ class Database {
         $grouped_rows = array();
         
         while($grouped_row = $get_grouped_rows_object->fetch(PDO::FETCH_ASSOC)) {
-            $grouped_rows[array_shift($grouped_row)] = $grouped_row;
+            $first_column_value = current($grouped_row);
+        
+            $grouped_rows[$first_column_value] = $grouped_row;
         }
 
         return $grouped_rows;

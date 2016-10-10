@@ -43,13 +43,18 @@ extends ResultSet {
     /**
      * Initializes a new instance of a ResultSet.
      *
-     * @param string $name The name of the resultset.    
+     * @param string $name The name of the resultset.  
+     * @param string (optional) $cache_object The instance of the cache object to pull data from. Defaults to NULL, which will load the default cache instance in the cache_connections configuration.
      * @return void
      */
-    public function __construct($name) {
+    public function __construct($name, $cache_object = NULL) {
         parent::__construct($name);
         
-        $this->cache = cache();
+        if(empty($cache_object)) {
+            $cache_object = cache();
+        }
+        
+        $this->cache = $cache_object;
     }
     
     /**

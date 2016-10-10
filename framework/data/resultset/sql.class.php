@@ -33,6 +33,8 @@
 
 namespace Framework\Data\ResultSet;
 
+use \Exception;
+
 class SQL 
 extends ResultSet {
     /**
@@ -44,6 +46,28 @@ extends ResultSet {
     * @var array The placeholder values for the base SQL dataset.
     */
     protected $base_query_placeholders;
+    
+    /**
+     * Catches all get function calls not present in this class and passes them to the database abstraction object using this resultset's finalized query.
+     *
+     * @param string $function_name The function name.
+     * @param array $arguments The function arguments This is a dummy parameter that is ignored.
+     * @return mixed
+     */
+    public function __call($function_name, $arguments = array()) {
+        $return_value = NULL;
+    
+        if(strpos($function_name, 'get') !== false || strpos($function_name, 'prepareExecuteQuery') !== false) {
+            $finalized_query = $this->getFinalizedQuery();
+        
+            $return_value = call_user_func_array(array(db(), $function_name), $finalized_query);
+        }
+        else {
+            throw new Exception("Method '{$function_name}' does not exist in this object");
+        }
+        
+        return $return_value;
+    }
     
     /**
      * Adds a filter criteria to the result set.
@@ -102,11 +126,11 @@ extends ResultSet {
     }
     
     /**
-     * Retrieves the unprocessed result set.
+     * Retrieves the finalized query and its placeholder values.
      * 
-     * @return array
+     * @return array.
      */
-    protected function getRawData() {
+    protected function getFinalizedQuery() {
         $query = $this->base_query;
         $query_placeholders = $this->base_query_placeholders;
 
@@ -130,16 +154,7 @@ extends ResultSet {
             
             $query_placeholders += $this->filter_placeholder_values;
         }
-
-        if($this->has_total_record_count) {
-            $this->total_number_of_records = db()->getOne("
-                SELECT COUNT(*)
-                FROM (
-                    {$query}
-                ) AS query_record_count
-            ", $query_placeholders);
-        }
-
+    
         if(!empty($this->sort_criteria)) {
             $order_by_criteria = '';
         
@@ -168,6 +183,32 @@ extends ResultSet {
             }
 
             $query .= "\nLIMIT {$this->rows_per_page}{$offset_criteria}";
+        }
+        
+        return array(
+            'query' => $query,
+            'query_placeholders' => $query_placeholders
+        );
+    }
+    
+    /**
+     * Retrieves the unprocessed result set.
+     * 
+     * @return array
+     */
+    protected function getRawData() {
+        $finalized_query = $this->getFinalizedQuery();
+        
+        $query = $finalized_query['query'];
+        $query_placeholders = $finalized_query['query_placeholders'];
+
+        if($this->has_total_record_count) {
+            $this->total_number_of_records = db()->getOne("
+                SELECT COUNT(*)
+                FROM (
+                    {$query}
+                ) AS query_record_count
+            ", $query_placeholders);
         }
 
         return db()->getAll($query, $query_placeholders);

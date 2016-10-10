@@ -66,8 +66,8 @@ function session() {
 *
 * @return object
 */
-function cache() {
-    return \Framework\Caching\Cache::getInstance();
+function cache($connection_name = '', $new_connection = false) {
+    return \Framework\Caching\Cache::getInstance($connection_name, $new_connection);
 }
 
 /**

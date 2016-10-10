@@ -314,8 +314,11 @@ extends Controller {
             ");
             
             if($this->framework->enable_cache) {
-                cache()->set('modules', $modules, 'module_links');
+                cache()->set('modules', serialize($modules), 'module_links');
             }
+        }
+        else {
+            $modules = unserialize($modules);
         }
         
         $this->module_links = $this->getErrorsLinks();

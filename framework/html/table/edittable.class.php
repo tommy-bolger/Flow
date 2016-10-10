@@ -126,6 +126,16 @@ extends DataTable {
     protected $request_table_name;
     
     /**
+    * @var array The list of callback functions executed in the order they were added after a record is moved.
+    */
+    protected $move_callback_functions = array();
+    
+    /**
+    * @var array The list of callback functions executed in the order they were added after a record is deleted.
+    */
+    protected $delete_callback_functions = array();
+    
+    /**
     * @var string The name of the action to execute on the bound database table such as add, delete, edit, etc.
     */
     protected $action;
@@ -374,6 +384,30 @@ extends DataTable {
     }
     
     /**
+     * Adds a callback function to execute after a move action is executed.
+     *      
+     * @param callable $callback_function The callback function to execute.
+     * @return void
+     */
+    public function addMoveCallbackFunction($callback_function) {
+        assert('is_callable($callback_function)');
+        
+        $this->move_callback_functions[] = $callback_function;
+    }
+    
+    /**
+     * Adds a callback function to execute after a delete action is executed.
+     *      
+     * @param callable $callback_function The callback function to execute.
+     * @return void
+     */
+    public function addDeleteCallbackFunction($callback_function) {
+        assert('is_callable($callback_function)');
+        
+        $this->delete_callback_functions[] = $callback_function;
+    }
+    
+    /**
      * Adds a token or validates the token to a session token to prevent CSRF attacks.
      *      
      * @return void
@@ -491,7 +525,26 @@ extends DataTable {
                         }
                         
                         if($record_exists) {
+                            $record_being_deleted = array();
+                        
+                            if(!empty($this->delete_callback_functions)) {
+                                $record_being_deleted = db()->getRow("
+                                    SELECT *
+                                    FROM {$this->edit_table_name}
+                                    WHERE {$this->table_id_field} = ?
+                                ", array($this->record_id));
+                            }
+                        
                             db()->delete($this->edit_table_name, array($this->table_id_field => $this->record_id));
+                            
+                            if(!empty($this->delete_callback_functions)) {
+                                foreach($this->delete_callback_functions as $delete_callback_functions) {
+                                    call_user_func_array($delete_callback_functions, array(
+                                        $this->record_id,
+                                        $record_being_deleted
+                                    ));
+                                }
+                            }
                         }
                     }
                     break;
@@ -554,6 +607,17 @@ extends DataTable {
                     ), array(
                         $this->table_id_field => $record_id
                     ));
+                }
+                
+                if(!empty($this->move_callback_functions)) {
+                    foreach($this->move_callback_functions as $move_callback_function) {
+                        call_user_func_array($move_callback_function, array(
+                            $record_id,
+                            $direction,
+                            $current_sort_order,
+                            $target_sort_order
+                        ));
+                    }
                 }
             }
         }

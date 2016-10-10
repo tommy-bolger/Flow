@@ -46,7 +46,7 @@ class Framework {
     /**
     * @var boolean A flag telling the framework to enable caching.
     */
-    protected $enable_cache = false;
+    protected $enable_cache = true;
     
     /**
     * @var object The framework configuration.
@@ -67,6 +67,11 @@ class Framework {
     * @var object The framework error handler class name.
     */
     protected $error_handler_class = '\\Framework\\Core\\Error';
+    
+    /**
+    * @var object The legacy framework error handler class name for PHP versions less than 7.
+    */
+    protected $legacy_error_handler_class = '\\Framework\\Core\\ErrorLegacy';
     
     /**
     * @var object The framework error handler.
@@ -109,11 +114,34 @@ class Framework {
         //Set the framework autoloader.
         set_include_path(get_include_path() . PATH_SEPARATOR . $this->installation_path);
         spl_autoload_extensions('.class.php');
-        spl_autoload_register();
+        
+        $error_handler_class = NULL;
+        
+        if(PHP_MAJOR_VERSION < 7) {
+            spl_autoload_register();
+            
+            $error_handler_class = $this->legacy_error_handler_class;
+        }
+        else {
+            /*
+                In PHP 7 the default spl_autoload_register throws the ParseError throwable that circumvents any exception handler
+                regardless of if one has been set. This in turn causes a fatal error. In order to prevent this any classes loaded
+                via spl_autoload now need to be wrapped in a try/catch block and sent over to the handleThrowable() function of the
+                error handler object manually.
+            */
+            spl_autoload_register(function($class_name) {
+                try {
+                    spl_autoload($class_name);
+                }
+                catch(Throwable $throwable) {
+                    $this->error_handler->handleThrowable($throwable);
+                }
+            });
+            
+            $error_handler_class = $this->error_handler_class;
+        }
         
         //Initialize error handling
-        $error_handler_class = $this->error_handler_class;
-
         $this->error_handler = new $error_handler_class();
         
         //When not in safe mode initialize the rest of the framework.

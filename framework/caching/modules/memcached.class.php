@@ -32,49 +32,35 @@
 */
 namespace Framework\Caching\Modules;
 
-class Memcached {
-    /**
-    * @var array The memcache servers this module connects to.
-    */ 
-    private static $servers = array(
-        'web_server' => array(
-            'host' => 'localhost',
-            'port' => 11211
-        )
-    );
-    
-    /**
-    * @var object The instance of the memcached library this module utilizes.
-    */ 
-    private $memcached_object;
-    
+class Memcached
+extends Module {    
     /**
      * Initializes this instance of MemcachedModule.
      *
      * @return void
      */
     public function __construct() {
-        $this->memcached_object = new Memcached();
-        
-        $this->memcached_object->setOption(Memcached::OPT_LIBKETAMA_COMPATIBLE, true);
-        $this->memcached_object->setOption(Memcached::OPT_COMPRESSION, true);
-        
-        if(extension_loaded("igbinary")) {
-            $this->memcached_object->setOption(Memcached::OPT_SERIALIZER, Memcached::SERIALIZER_IGBINARY);
-        }
-        
-        $this->memcached_object->addServers(self::$servers);
+        $this->connection_object = new Memcached();
     }
     
     /**
-     * Catches all function calls not present in this class and passes them to the memcached library object.
+     * Connects the module to the remote caching resource.     
      *
-     * @param string The function name.
-     * @param array the function arguments.
-     * @return mixed
+     * @return object The connection object instance.
      */
-    public function __call($function_name, $arguments) {
-        return call_user_func_array(array($this->memcached_object, $function_name), $arguments);
+    public function connect(array $configuration = array()) {
+        parent::connect($configuration);
+        
+        $this->connection_object = new Memcached();
+        
+        $this->connection_object->setOption(Memcached::OPT_LIBKETAMA_COMPATIBLE, true);
+        $this->connection_object->setOption(Memcached::OPT_COMPRESSION, true);
+        
+        if(extension_loaded("igbinary")) {
+            $this->connection_object->setOption(Memcached::OPT_SERIALIZER, Memcached::SERIALIZER_IGBINARY);
+        }
+        
+        $this->connection_object->addServer($configuration['host'], $configuration['port']);
     }
     
     /**
@@ -83,6 +69,6 @@ class Memcached {
      * @return void
      */
     public function clear() {
-        $this->memcached_object->flush();
+        $this->connection_object->flush();
     }
 }

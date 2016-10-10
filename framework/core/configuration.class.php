@@ -249,12 +249,16 @@ final class Configuration {
                 $this->full_configuration = array_merge($this->full_configuration, $database_configuration);
             
                 if($this->framework->enable_cache) {
-                    cache()->set($this->name, $this->full_configuration, 'configurations');
+                    cache()->set($this->name, serialize($this->full_configuration), 'configurations');
                 }
                 
                 $this->loaded = true;
             }
         }
+        else {
+            $this->full_configuration = unserialize($this->full_configuration);
+        }
+        
     }
     
     /**

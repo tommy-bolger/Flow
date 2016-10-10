@@ -113,7 +113,7 @@ class Element {
      * @return void
      */
     public function addChild($child_object, $child_name = NULL, $append = false) {
-        assert('empty($child_object) || is_object($child_object) || is_scalar($child_object)');
+        assert('empty($child_object) || is_object($child_object) || is_scalar($child_object) || is_array($child_object)');
         
         if(empty($child_name) && is_object($child_object)) {
             $child_name = $child_object->getId();
@@ -508,9 +508,16 @@ class Element {
                     
                     $child_html = $child_element->toHtml();
                 }
-                elseif(is_array($child_element)) {                
-                    foreach($child_element as $sub_element) {
-                        $child_html .= $sub_element->toHtml();
+                elseif(is_array($child_element)) {
+                    $first_element = current($child_element);
+                
+                    if(is_object($first_element)) {
+                        foreach($child_element as $sub_element) {
+                            $child_html .= $sub_element->toHtml();
+                        }
+                    }
+                    else {
+                        $child_html = $child_element;
                     }
                 }
                 else {

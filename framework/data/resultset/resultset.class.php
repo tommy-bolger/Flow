@@ -173,12 +173,16 @@ class ResultSet {
      * Adds a processor function.
      * 
      * @param function $processor_function The function that will perform post-processing of the resultset.   
+     * @param array $arguments Additional arguments to pass into the function. Defaults to an empty array for none.
      * @return void
      */
-    public function addProcessorFunction($processor_function) {
+    public function addProcessorFunction($processor_function, array $arguments = array()) {
         assert('is_callable($processor_function)');
         
-        $this->processor_functions[] = $processor_function;
+        $this->processor_functions[] = array(
+            'function' => $processor_function,
+            'arguments' => $arguments
+        );
     }
     
     /**
@@ -192,7 +196,11 @@ class ResultSet {
         //Execute all added processor functions
         if(!empty($this->processor_functions)) {
             foreach($this->processor_functions as $processor_function) {
-                $this->data = $processor_function($this->data);
+                $arguments = array_values($processor_function['arguments']);
+                
+                array_unshift($arguments, $this->data);
+            
+                $this->data = call_user_func_array($processor_function['function'], $arguments);
             }
         }
     }
