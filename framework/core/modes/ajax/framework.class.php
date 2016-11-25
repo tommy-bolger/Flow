@@ -1,7 +1,7 @@
 <?php
 /**
 * The conductor class for the ajax mode of the framework.
-* Copyright (c) 2011, Tommy Bolger
+* Copyright (c) 2016, Tommy Bolger
 * All rights reserved.
 * 
 * Redistribution and use in source and binary forms, with or without 
@@ -49,11 +49,6 @@ extends BaseFramework {
     protected $not_found_class = '';
     
     /**
-    * @var string The ajax method to perform.
-    */
-    protected $method;
-    
-    /**
      * Initializes an instance of the framework in web mode and processes a page.
      *
      * @return void
@@ -82,21 +77,12 @@ extends BaseFramework {
         if(empty($page_class_name)) {
             $this->initializeNotFound('class');
         }
-        
-        $method = $this->getMethod();
 
-        //Instantiate the page class
         $current_page_class = new $page_class_name();
+
+        $current_page_class->init();
         
-        if(!is_callable(array($current_page_class, $method))) {
-            $this->initializeNotFound('method');
-        }
-        else {
-            //Render the page
-            $response = $current_page_class->$method();
-            
-            echo json_encode($response);
-        }
+        $current_page_class->action();
     }
     
     /**
@@ -121,27 +107,11 @@ extends BaseFramework {
     protected function initializeNotFound($type) {
         header('HTTP/1.0 404 Not Found');
         
-        if($type == 'class') {
-            $this->error_handler->logMessage("Class '{$this->qualified_page_path}' could not be found.");
-        }
-        else {
-            $this->error_handler->logMessage("Method '{$this->qualified_page_path}->{$this->method}()' could not be found.");
-        }
+        $this->error_handler->logMessage("Class '{$this->qualified_page_path}' could not be found.");
         
         echo "The method you requested could not be performed at this time. Please try again later.";
         
         exit;
-    }
-    
-    /**
-     * Retrieves the method from the request.
-     *
-     * @return string
-     */
-    protected function getMethod() {
-        $this->method = request()->method;
-        
-        return $this->method; 
     }
     
     /**

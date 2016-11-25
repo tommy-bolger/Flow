@@ -88,9 +88,13 @@ extends Web {
         
         $current_page_class = new $page_class_name();
         
+        $current_page_class->init();
+        
         $current_page_class->setup();
         
-        echo $current_page_class->render();
+        $current_page_class->action();
+        
+        $current_page_class->render();
     }
     
     /**
@@ -170,18 +174,18 @@ extends Web {
         
         //If the second subdirectory is admin then append the controllers namespace to it
         if($second_subdirectory == 'admin') {
-            $this->subdirectory_path[1] = "{$second_subdirectory}\\ controllers";
+            $this->subdirectory_path[1] = "{$second_subdirectory}\\ controllers\\ {$this->mode}";
         }
         //If the module name is the admin append the controllers namespace to the first subdirectory
         else {
-            $this->subdirectory_path[0] = "{$first_subdirectory}\\ controllers";
+            $this->subdirectory_path[0] = "{$first_subdirectory}\\ controllers\\ {$this->mode}";
         }
 
         $sub_path = implode('\\ ', $this->subdirectory_path) . '\\ ';
 
         $this->page_class_name = $page_class_name;
 
-        $page_class_path = "\\Modules\\ {$sub_path}{$page_class_name}";
+        $page_class_path = "\\Modules\\{$sub_path}{$page_class_name}";
 
         $page_class_path = $this->formatNamespace($page_class_path);
 
@@ -216,29 +220,6 @@ extends Web {
         $formatted_namespace = str_replace(' ', '', $formatted_namespace);
         
         return $formatted_namespace;
-    }
-    
-    /**
-     * Indicates if a class exists at the fully qualified namespace.
-     *
-     * @param string $page_class_path The fully qualified namespace path to the class.     
-     * @return boolean
-     */
-    protected function classExists($page_class_path) {
-        /*
-         * Need to call class_exists() in a try/catch block because of PHP bug #52339 found at: 
-         * https://bugs.php.net/bug.php?id=52339&edit=1
-         */
-        $class_exists = false; 
-        
-        try {
-            $class_exists = class_exists($page_class_path);
-        }
-        catch(\Exception $e) {
-            $class_exists = false;
-        }
-        
-        return $class_exists;
     }
     
     /**

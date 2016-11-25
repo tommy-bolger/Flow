@@ -1,7 +1,7 @@
 <?php
 /**
 * Allows the rendering of an html page and its child elements dynamically.
-* Copyright (c) 2011, Tommy Bolger
+* Copyright (c) 2016, Tommy Bolger
 * All rights reserved.
 * 
 * Redistribution and use in source and binary forms, with or without 
@@ -33,6 +33,7 @@
 
 namespace Framework\Html;
 
+use \Exception;
 use \Framework\Core\Framework;
 use \Framework\Minification\Html;
 use \Framework\Minification\Css;
@@ -43,82 +44,88 @@ use \Framework\Html\Body;
 
 class page {
     /**
+    * @var array A list of all instances of this object.
+    */
+    protected static $instances = array();
+
+    /**
     * @var array A list of valid html doctype tags and their html.
     */
-    private static $html_doctypes = array(
+    protected static $html_doctypes = array(
         'html_401_strict' => '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">',
         'html_401_transitional' => '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">',
         'html_401_frameset' =>  '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Frameset//EN" "http://www.w3.org/TR/html4/frameset.dtd">',
         'xhtml_1_strict' => '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">',
         'xhtml_1_transitional' => '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">',
         'xhtml_1_frameset' => '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Frameset//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-frameset.dtd">',
-        'xhtml_1_1' => '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">'
+        'xhtml_1_1' => '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">',
+        'html_5' => '<!DOCTYPE html>'
     );
     
     /**
     * @var object The instance of the framework.
     */
-    private $framework;
+    protected $framework;
     
     /**
     * @var object The template for the page.
     */
-    private $template;
+    protected $template;
     
     /**
     * @var string The selected doctype for the page.
     */
-    private $doctype;
+    protected $doctype;
     
     /**
     * @var array A list of specified meta tags for the page.
     */
-    private $meta_tags = array();
+    protected $meta_tags = array();
 
     /**
     * @var string The file path to the page style including templates, images, and css.
     */
-    private $theme_directory_path;
+    protected $theme_directory_path;
     
     /**
     * @var array The file path list to the css files.
     */
-    private $css_base_paths = array();
+    protected $css_base_paths = array();
     
     /**
     * @var array The file path list to the javascript files.
     */
-    private $javascript_base_paths = array();
+    protected $javascript_base_paths = array();
     
     /**
     * @var array A list of all inline css to be output on the page.
     */
-    private $inline_css = array();
+    protected $inline_css = array();
     
     /**
     * @var array A list of the css files included by the page that are located on the same server as the current page.
     */
-    private $internal_css_files = array();
+    protected $internal_css_files = array();
     
     /**
     * @var array A list of the css files included by the page that are located on an external server.
     */
-    private $external_css_files = array();
+    protected $external_css_files = array();
     
     /**
     * @var array A list of all inline javascript to be output on the page.
     */
-    private $inline_javascript = array();
+    protected $inline_javascript = array();
     
     /**
     * @var array A list of the javascript files included by the page that are located on the same server as the current page.
     */
-    private $internal_javascript_files = array();
+    protected $internal_javascript_files = array();
     
     /**
     * @var array A list of the javascript files included by the page that are located on an external server.
     */
-    private $external_javascript_files = array();
+    protected $external_javascript_files = array();
     
     /**
     * @var string The file path to the assets utilized by the page.
@@ -168,16 +175,34 @@ class page {
     /**
     * @var object The page body and its child elements.
     */
-    private $body;
+    protected $body;
+    
+    /**
+     * Retrieves an instance of Page.
+     *
+     * @param string $page_name (optional) The name of the page. Defaults to an empty string.
+     * @return void
+     */
+    public static function getInstance($page_name = '') {
+        if(!isset(static::$instances[$page_name])) {
+            throw new Exception("Page '{$page_name}' has not been initialized.");
+        }
+        
+        return static::$instances[$page_name];
+    }
 
     /**
      * Initializes a new instance of Page.
      *
-     * @param string $page_name (optional) The name of the called function. Defaults to an empty string. The name of the requested page is used if an empty string is specified.
-     * @param boolean $enable_cache The arguments of the called function. Defaults to false.
+     * @param string $page_name (optional) The name of the page. Defaults to an empty string. The name of the requested page is used if an empty string is specified.
+     * @param boolean $enable_cache Indicates if this page should be cached. Defaults to false.
      * @return void
      */
     public function __construct($page_name = '', $enable_cache = false) {
+        if(isset(static::$instances[$page_name])) {
+            throw new Exception("Page '{$page_name}' has already been initialized.");
+        }
+    
         $this->framework = Framework::getInstance();
 
         if(empty($page_name)) {
@@ -243,33 +268,18 @@ class page {
      * @param string $mode (optional) The version mode. Can either be 'transitional', 'frameset', or 'strict'.     
      * @return void
      */
-    public function setDoctype($html_type, $mode = NULL) {        
-        switch($html_type) {
-            case 'xhtml_1.0':
-                $this->doctype = 'xhtml_1';
-                break;
-            case 'html_4.01':
-                $this->doctype = 'xhtml_401';
-                break;
-            case 'xhtml_1.1':
-                $this->doctype = 'xhtml_1_1';
-                return;
-                break;
-            default:
-                throw new \Exception("The specified html_type '{$html_type}' is not valid.");
-                break;
+    public function setDoctype($html_type, $mode = NULL) {     
+        $doctype = $html_type;
+        
+        if(!empty($mode)) {
+            $doctype .= "_{$mode}";
         }
         
-        switch($mode) {
-            case 'transitional':
-            case 'frameset':
-            case 'strict':
-                $this->doctype .= "_{$mode}";
-                break;
-            default:
-                throw new \Exception("The specified html doctype mode '{$mode}' is not valid.");
-                break;
+        if(!isset(static::$html_doctypes[$doctype])) {
+            throw new Exception("Doc type '{$doctype}' is not valid.");
         }
+        
+        $this->doctype = $doctype;
     }
     
     /**
@@ -306,7 +316,7 @@ class page {
      * @param string $directory_path The directory path.
      * @return string
      */
-    private function setDirectory($directory_path) {
+    protected function setDirectory($directory_path) {
         assert('is_readable($directory_path)');
 
         //Make the directory path have a trailing slash        
@@ -538,7 +548,7 @@ class page {
      *
      * @return string The rendered page meta tags.
      */
-    private function renderMetaTags() {
+    protected function renderMetaTags() {
         $meta_tag_html = '';
         
         if($this->framework->enable_cache) {
@@ -573,7 +583,7 @@ class page {
      *
      * @return string The rendered css.
      */
-    private function renderCss() {
+    protected function renderCss() {
         $css_html = "";
         
         if(!empty($this->external_css_files)) {
@@ -625,7 +635,7 @@ class page {
      *
      * @return string The rendered javascript.
      */
-    private function renderJavascript() {
+    protected function renderJavascript() {
         if(!$this->enable_javascript) {
             return false;
         }
@@ -685,7 +695,7 @@ class page {
      *
      * @return string The rendered title tag.
      */
-    private function renderTitle() {
+    protected function renderTitle() {
         return "<title>{$this->title}</title>";
     }
     
@@ -694,7 +704,7 @@ class page {
      *
      * @return string The rendered head tag.
      */
-    private function renderHeader() {    
+    protected function renderHeader() {    
         $header_html = '<head>';
 
         //Render the title
@@ -761,7 +771,9 @@ class page {
             $template_values['javascript'] = $this->renderJavascript();
         }
         
-        $template_values = array_merge($template_values, $this->body->toTemplateArray());
+        if(isset($this->body)) {
+            $template_values = array_merge($template_values, $this->body->toTemplateArray());
+        }
         
         return $template_values;
     }
@@ -772,7 +784,9 @@ class page {
      * @return string
      */
     public function toHtml() {
-        $page_html = "<?xml version=\"1.0\" encoding=\"UTF-8\"?" . ">";
+        if($this->doctype != 'html_5') {
+            $page_html = "<?xml version=\"1.0\" encoding=\"UTF-8\"?" . ">";
+        }
         
         //Add the html doctype to this page
         if(!empty($this->doctype)) {
@@ -780,14 +794,18 @@ class page {
         }
         //Otherwise add the default HTML 4.01 Strict doctype
         else {
-            $page_html .= self::$html_doctypes['html_401_strict'];
+            $page_html .= self::$html_doctypes['html_5'];
         }
         
-        $page_html .= "<html xmlns=\"http://www.w3.org/1999/xhtml\">";
+        if($this->doctype != 'html_5') {
+            $page_html .= "<html xmlns=\"http://www.w3.org/1999/xhtml\">";
+        }
         
         $page_html .= $this->renderHeader();
         
-        $page_html .= $this->body->toHtml();
+        if(isset($this->body)) {
+            $page_html .= $this->body->toHtml();
+        }
         
         $page_html .= "</html>";
         

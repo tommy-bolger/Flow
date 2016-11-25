@@ -61,7 +61,12 @@ class Module {
     /**
     * @var string The file path to the module.
     */
-    protected $file_path;
+    protected $external_path;
+    
+    /**
+    * @var string The vendor path of the module.
+    */
+    protected $vendor_path;
     
     /**
     * @var array All descriptive data about the module.
@@ -77,7 +82,7 @@ class Module {
     /**
     * @var array The module's configuration.
     */
-    public $configuration;
+    protected $configuration;
     
     /**
      * Retrieves an instance of the module by its name.
@@ -104,11 +109,13 @@ class Module {
     
         $this->name = $module_name;
         
-        $this->file_path = "{$this->framework->installation_path}/modules/{$module_name}/external";
+        $this->external_path = "{$this->framework->installation_path}/modules/{$module_name}/external";
+        $this->vendor_path = "{$this->framework->installation_path}/modules/{$module_name}/vendor";
         
         $this->script_file_path = "{$this->framework->installation_path}/modules/{$module_name}/scripts";
         
-        Loader::addBasePath($this->file_path);
+        Loader::addBasePath($this->external_path);
+        Loader::addBasePath($this->vendor_path);
         
         $this->loadData($module_name);
         
@@ -119,6 +126,14 @@ class Module {
         if(empty(self::$instances[$module_name])) {
             self::$instances[$module_name] = $this;
         }
+    }
+    
+    public function __get($variable_name) {
+        if($variable_name == 'configuration') {
+            return $this->configuration;
+        }
+        
+        throw new Exception("Property '{$variable_name}' is not valid.");
     }
     
     /**
@@ -197,6 +212,24 @@ class Module {
      */
     public function getScriptFilePath() {
         return $this->script_file_path;
+    }
+    
+    /**
+     * Retrieves the module's external file path.
+     *   
+     * @return string
+     */
+    public function getExternalPath() {
+        return $this->external_path;
+    }
+    
+    /**
+     * Retrieves the module's external file path.
+     *   
+     * @return string
+     */
+    public function getVendorPath() {
+        return $this->vendor_path;
     }
     
     /**

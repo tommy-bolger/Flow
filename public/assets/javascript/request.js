@@ -41,7 +41,7 @@ Request.submit = function(page_url, request_type, request_parameters, success_ca
         return false;
     }
 
-    if(request_parameters == undefined || request_parameters == null) {
+    if(request_parameters == null) {
         request_parameters = new Object();
     }
     

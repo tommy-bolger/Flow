@@ -106,6 +106,20 @@ extends Module {
     * @var string The http path to the downloadable files of the current module.
     */
     protected $files_http_path;
+    
+    /**
+     * Retrieves an instance of the web module by its name.
+     *
+     * @param string $module_name The name of the module.     
+     * @return Module The instance of the specified module.
+     */
+    public static function getInstance($module_name) {
+        if(!isset(self::$instances[$module_name])) {
+            self::$instances[$module_name] = new self($module_name);
+        }
+        
+        return self::$instances[$module_name];
+    }
 
     /**
      * Initializes the current module.

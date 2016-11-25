@@ -1,6 +1,6 @@
 <?php
 /**
-* The conductor class for the api mode of the framework.
+* The base class that all page controllers extend from.
 * Copyright (c) 2016, Tommy Bolger
 * All rights reserved.
 * 
@@ -30,37 +30,28 @@
 * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE 
 * POSSIBILITY OF SUCH DAMAGE.
 */
-namespace Framework\Core\Modes\Api;
+namespace Framework\Core\Controllers;
 
-use \Framework\Core\Modes\Ajax\Framework as BaseFramework;
-
-require_once(dirname(__DIR__) . '/ajax/framework.class.php');
-
-class Framework
-extends BaseFramework {  
+abstract class PageController 
+extends Controller {
     /**
-    * @var object The framework error handler class name.
+    * @var object The instance of the current page.
     */
-    protected $error_handler_class = '\\Framework\\Core\\Modes\\Api\\Error';
+    protected $page;
     
     /**
-     * Initializes an instance of the framework in web mode and processes a page.
+     * Sets up the page request.
      *
      * @return void
      */
-    public function __construct() {
-        parent::__construct('api');
-    }
+    public function setup() {}
     
     /**
-     * Executes the maintenance mode for the current mode. 
+     * Renders the current page and returns its output.
      *
-     * @return void
+     * @return string
      */
-    protected function runMaintenance() {
-        echo json_encode(array(
-            'error_code' => 503,
-            'error_message' => 'The site is down for maintenance.' 
-        ));
+    public function render() {
+        echo $this->page->render();
     }
 }

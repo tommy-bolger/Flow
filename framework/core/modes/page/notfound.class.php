@@ -32,11 +32,11 @@
 */
 namespace Framework\Core\Modes\Page;
 
-use \Framework\Core\Controller;
+use \Framework\Core\Controllers\PageController;
 use \Framework\Html\Page;
 
 class NotFound
-extends Controller {
+extends PageController {
     protected $framework;
     
     public function __construct() {

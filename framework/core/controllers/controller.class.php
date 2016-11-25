@@ -1,7 +1,7 @@
 <?php
 /**
 * The base class that all controllers extend from.
-* Copyright (c) 2011, Tommy Bolger
+* Copyright (c) 2016, Tommy Bolger
 * All rights reserved.
 * 
 * Redistribution and use in source and binary forms, with or without 
@@ -30,48 +30,43 @@
 * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE 
 * POSSIBILITY OF SUCH DAMAGE.
 */
-namespace Framework\Core;
+namespace Framework\Core\Controllers;
+
+use \Framework\Core\Framework;
+use \Framework\Modules\WebModule;
 
 abstract class Controller {
     /**
     * @var object The instance of the framework.
     */
     protected $framework;
-
+    
     /**
-    * @var object The instance of the current page.
+    * @var object The instance of the current module.
     */
-    protected $page;
+    protected $module;
     
     /**
      * Initializes a new instance of Controller.
      *
      * @return void
      */
-    public function __construct() {
+    public function __construct($module_name) {
         $this->framework = Framework::getInstance();
+        $this->module = WebModule::getInstance($module_name);
     }
     
     /**
-     * Executes code before page setup.
+     * Executes code before any other code is executed.
+     *
+     * @return void
+     */
+    public function init() {}
+    
+    /**
+     * Executes code before page render.
      *
      * @return void
      */
     public function action() {}
-    
-    /**
-     * Sets up the page request.
-     *
-     * @return void
-     */
-    public function setup() {}
-    
-    /**
-     * Renders the current page and returns its output.
-     *
-     * @return string
-     */
-    public function render() {
-        return $this->page->render();
-    }
 }

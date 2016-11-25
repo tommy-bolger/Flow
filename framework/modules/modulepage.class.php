@@ -75,7 +75,7 @@ extends Page {
     
         parent::__construct($page_name, $cache_page);
         
-        $this->module = new WebModule($module_name);
+        $this->module = WebModule::getInstance($module_name);
         
         //Set the default configuration name to this module's name
         Configuration::setDefault($module_name);
@@ -139,5 +139,14 @@ extends Page {
      */
     public function __call($function_name, $arguments) {
         return call_user_func_array(array($this->module, $function_name), $arguments);
+    }
+    
+    /**
+     * Returns the module for this page.
+     *
+     * @return object
+     */
+    public function getModule() {
+        return $this->module;
     }
 }

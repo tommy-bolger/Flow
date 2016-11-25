@@ -46,7 +46,7 @@ class Framework {
     /**
     * @var boolean A flag telling the framework to enable caching.
     */
-    protected $enable_cache = true;
+    protected $enable_cache = false;
     
     /**
     * @var object The framework configuration.
@@ -165,6 +165,7 @@ class Framework {
             
             //Add the root external directory to the loader
             Loader::addBasePath($this->installation_path . '/external');
+            Loader::addBasePath($this->installation_path . '/vendor');
         }
     }
     
@@ -186,6 +187,29 @@ class Framework {
      */
     public function __isset($property_name) {
         return isset($this->$property_name);
+    }
+    
+    /**
+     * Indicates if a class exists at the fully qualified namespace.
+     *
+     * @param string $page_class_path The fully qualified namespace path to the class.     
+     * @return boolean
+     */
+    protected function classExists($page_class_path) {
+        /*
+         * Need to call class_exists() in a try/catch block because of PHP bug #52339 found at: 
+         * https://bugs.php.net/bug.php?id=52339&edit=1
+         */
+        $class_exists = false; 
+        
+        try {
+            $class_exists = class_exists($page_class_path);
+        }
+        catch(\Exception $e) {
+            $class_exists = false;
+        }
+        
+        return $class_exists;
     }
     
     /**
@@ -215,5 +239,14 @@ class Framework {
         if($this->environment != 'production') {
             echo $this->getDebugOutput($data);
         }
+    }
+    
+    /**
+     * Retrieves the installation path of the framework.
+     *
+     * @return void
+     */
+    public function getInstallationPath() {
+        return $this->installation_path;
     }
 }

@@ -61,6 +61,11 @@ class Encryption {
     const CRYPT_ITERATIONS = '15';
     
     /**
+    * @var integer The number of bytes to use when generating cryptographically secure strings.
+    */
+    const NUMBER_OF_BYTES = 64;
+    
+    /**
     * @var boolean Indicates if this object has been initialized.
     */
     private static $initialized = false;
@@ -74,14 +79,23 @@ class Encryption {
     * @var string The salt for all passwords stored in the configuration.
     */
     private static $password_salt;
+    
+    /**
+    * Generates and returns random bytes.
+    * 
+    * @return mixed
+    */
+    protected static function generateBytes() {
+        return random_bytes(self::NUMBER_OF_BYTES);
+    }
 
     /**
     * Generates and retrieves a sha1 hash based on a random value.
     * 
     * @return string
     */
-    public static function generateShortHash() {
-        return sha1(uniqid(mt_rand(), true));
+    public static function generateShortHash() {    
+        return sha1(bin2hex(self::generateBytes()));
     }
     
     /**
@@ -89,8 +103,8 @@ class Encryption {
     * 
     * @return string
     */
-    public static function generateMediumHash() {
-        return hash('sha256', uniqid(mt_rand(), true));
+    public static function generateMediumHash() {    
+        return hash('sha256', bin2hex(self::generateBytes()));
     }
     
     /**
@@ -99,7 +113,7 @@ class Encryption {
     * @return string
     */
     public static function generateLongHash() {
-        return hash(self::HMAC_ALGORITHM, uniqid(mt_rand(), true));
+        return hash(self::HMAC_ALGORITHM, bin2hex(self::generateBytes()));
     }
     
     /**
@@ -107,7 +121,7 @@ class Encryption {
     * 
     * @return void
     */
-    private static function initialize() {
+    protected static function initialize() {
         if(!self::$initialized) {
             $configuration = Configuration::getInstance('framework');
     
@@ -126,7 +140,7 @@ class Encryption {
     * @param string $password_salt (optional) An override for the framework password salt. Defaults to NULL.   
     * @return string
     */
-    private static function generateEncryptionKey($plain_keys, $site_key = NULL, $password_salt = NULL) {
+    protected static function generateEncryptionKey($plain_keys, $site_key = NULL, $password_salt = NULL) {
         assert('is_array($plain_keys) && !empty($plain_keys)');
         
         self::initialize();
@@ -154,7 +168,7 @@ class Encryption {
     * @param string $encryption_key The generated encryption key to base the iv off of.    
     * @return string
     */
-    private static function generateIV($encryption_key) {
+    protected static function generateIV($encryption_key) {
         assert('is_string($encryption_key) && !empty($encryption_key)');
     
         return mhash_keygen_s2k(self::MHASH_ALGORITHM, $encryption_key, strlen($encryption_key), mcrypt_get_iv_size(self::MCRYPT_ALGORITHM, self::MCRYPT_MODE));
@@ -168,7 +182,7 @@ class Encryption {
     * @param string $password_salt (optional) An override for the framework password salt. Defaults to NULL.
     * @return string
     */
-    private static function generateNonceSalt($sensitive_data, $site_key, $password_salt) {
+    protected static function generateNonceSalt($sensitive_data, $site_key, $password_salt) {
         self::initialize();
     
         if(!isset($site_key)) {            
@@ -251,10 +265,27 @@ class Encryption {
     public static function slowHash($sensitive_data, $plain_keys, $site_key = NULL, $password_salt = NULL) {            
         $first_pass = self::hash($sensitive_data, $plain_keys, $site_key, $password_salt);
         
-        $salt = substr(self::generateNonceSalt($sensitive_data, $site_key, $password_salt), 0, 22);
+        $salt = self::generateNonceSalt($sensitive_data, $site_key, $password_salt);
         
-        $algorithm_iterations = '$2a$' . self::CRYPT_ITERATIONS . '$';
+        return password_hash($first_pass . $salt, PASSWORD_DEFAULT, array(
+            'cost' => self::CRYPT_ITERATIONS
+        ));
+    }
+    
+    /**
+    * Verifies that a hash matches a given plantext value.
+    * 
+    * @param string $sensitive_data The encrypted data to generate a has from.
+    * @param array $plain_keys The plain keys to use to generate the encryption key.
+    * @param string $site_key (optional) An override for the framework site key. Defaults to NULL.
+    * @param string $password_salt (optional) An override for the framework password salt. Defaults to NULL.
+    * @return string The hash of the sensitive data.
+    */
+    public static function slowHashVerify($sensitive_data, $slow_hash, $plain_keys, $site_key = NULL, $password_salt = NULL) {            
+        $first_pass = self::hash($sensitive_data, $plain_keys, $site_key, $password_salt);
         
-        return str_replace($algorithm_iterations, '', crypt($first_pass, "{$algorithm_iterations}{$salt}\$"));
+        $salt = self::generateNonceSalt($sensitive_data, $site_key, $password_salt);
+        
+        return password_verify($first_pass . $salt, $slow_hash);
     }
 }

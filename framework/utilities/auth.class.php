@@ -65,8 +65,6 @@ final class Auth {
     */
     public static function userLogin($user_name, $password, $admin_login = false) {
         $second_encryption_key = strlen($user_name) * strlen($password);
-    
-        $encrypted_password = Encryption::slowHash($password, array($user_name, $second_encryption_key));
         
         $admin_login_criteria = '';
         
@@ -77,13 +75,22 @@ final class Auth {
         $user_information = db()->getRow("
             SELECT
                 user_id,
+                password,
                 email_address,
                 is_site_admin
             FROM cms_users
             WHERE user_name = ?
-              AND password = ?
               {$admin_login_criteria}
-        ", array($user_name, $encrypted_password));
+        ", array($user_name));
+        
+        $is_authenticated = false;
+        
+        if(!empty($user_information)) {
+            $is_authenticated = Encryption::slowHashVerify($password, $user_information['password'], array(
+                $user_name, 
+                $second_encryption_key
+            ));
+        }
         
         //If properly authenticated load user information into the session
         if(!empty($user_information)) {

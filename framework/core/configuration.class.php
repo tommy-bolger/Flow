@@ -256,7 +256,9 @@ final class Configuration {
             }
         }
         else {
-            $this->full_configuration = unserialize($this->full_configuration);
+            if(!is_array($this->full_configuration)) {
+                $this->full_configuration = unserialize($this->full_configuration);
+            }
         }
         
     }

@@ -168,6 +168,15 @@ class Session {
     }
     
     /**
+     * Returns all session variables.
+     *
+     * @return array
+     */
+    public function getAll() {
+        return $_SESSION;
+    }
+    
+    /**
      * Ends the session and destroys all data in it.
      *
      * @return void
