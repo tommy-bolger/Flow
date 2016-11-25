@@ -32,7 +32,7 @@
 */
 namespace Framework\Core\Controllers;
 
-abstract class PageController 
+class Page 
 extends Controller {
     /**
     * @var object The instance of the current page.

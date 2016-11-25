@@ -37,7 +37,7 @@ use \ReflectionClass;
 use \Framework\Core\Framework;
 use \Framework\Modules\Module;
 
-abstract class CliController {
+class Cli {
     /**
     * @var object The instance of the framework.
     */
