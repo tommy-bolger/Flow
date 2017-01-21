@@ -1,7 +1,7 @@
 <?php
 /**
-* The base class that all controllers extend from.
-* Copyright (c) 2016, Tommy Bolger
+* The base class that all web controllers extend from.
+* Copyright (c) 2017, Tommy Bolger
 * All rights reserved.
 * 
 * Redistribution and use in source and binary forms, with or without 
@@ -32,41 +32,33 @@
 */
 namespace Framework\Core\Controllers;
 
-use \Framework\Core\Framework;
-use \Framework\Modules\WebModule;
-
-abstract class Controller {
+class Web 
+extends Controller {    
     /**
-    * @var object The instance of the framework.
-    */
-    protected $framework;
-    
-    /**
-    * @var object The instance of the current module.
-    */
-    protected $module;
-    
-    /**
-     * Initializes a new instance of Controller.
+     * Executes a GET action.
      *
      * @return void
      */
-    public function __construct($module_name) {
-        $this->framework = Framework::getInstance();
-        $this->module = WebModule::getInstance($module_name);
-    }
+    public function actionGet() {}
     
     /**
-     * Executes code before any other code is executed.
+     * Executes a POST action.
      *
      * @return void
      */
-    public function init() {}
+    public function actionPost() {}
     
     /**
-     * Executes the controller action.
+     * Executes a DELETE action.
      *
      * @return void
      */
-    public function action() {}
+    public function actionDelete() {}
+    
+    /**
+     * Executes a PUT action.
+     *
+     * @return void
+     */
+    public function actionPut() {}
 }

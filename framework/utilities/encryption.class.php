@@ -36,12 +36,12 @@ use \Framework\Core\Configuration;
 
 class Encryption {
     /**
-    * @var integer The encryption algorithm to use for mcrypt.
+    * @var integer The encryption algorithm to use for openssl.
     */  
     const MCRYPT_ALGORITHM = MCRYPT_RIJNDAEL_128;
     
     /**
-    * @var integer The encryption mode to use for mcrypt.
+    * @var integer The encryption mode to use for openssl.
     */  
     const MCRYPT_MODE = MCRYPT_MODE_CBC;
     
@@ -133,7 +133,7 @@ class Encryption {
     }
     
     /**
-    * Generates and retrieves a key for encryption with mcrypt based on or more plain keys.
+    * Generates and retrieves a key for encryption with openssl based on or more plain keys.
     * 
     * @param array $plain_keys The plain keys to use to generate an encryption key.
     * @param string $site_key (optional) An override for the framework site key. Defaults to NULL.

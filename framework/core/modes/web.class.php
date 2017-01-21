@@ -37,7 +37,9 @@ use \Framework\Core\Framework;
 require_once(dirname(__DIR__) . '/framework.class.php');
 
 class Web
-extends Framework {    
+extends Framework {
+    protected $request_method;
+
     /**
      * Initializes an instance of the framework in web mode.
      *
@@ -48,6 +50,8 @@ extends Framework {
         header('X-Powered-By: Flow CMS by Tommy Bolger');
         
         parent::__construct($mode);
+        
+        $this->request_method = $_SERVER['REQUEST_METHOD'];
         
         if($this->configuration->environment == 'maintenance') {
             /*
@@ -111,5 +115,43 @@ extends Framework {
         ), $unparsed_uri);
         
         return $unparsed_uri;
+    }
+    
+    /**
+     * Retrieves the action name based on the request method.
+     *
+     * @return string
+     */
+    protected function getActionName() {
+        $action = 'action';
+    
+        switch($this->request_method) {
+            case 'GET':
+                $action .= 'Get';
+                break;
+            case 'POST':
+                $action .= 'Post';
+                break;
+            case 'DELETE':
+                $action .= 'Delete';
+                break;
+            case 'PUT':
+                $action .= 'Put';
+                break;
+            default:
+                throw new Exception("Request method '{$this->request_method}' is invalid. Valid values are GET, POST, DELETE, and PUT.");
+                break;
+        }
+        
+        return $action;
+    }
+    
+    /**
+     * Retrieves the request method.
+     *
+     * @return string
+     */
+    public function getRequestMethod() {
+        return $this->request_method;
     }
 }

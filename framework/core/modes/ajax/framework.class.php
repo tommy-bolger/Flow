@@ -53,8 +53,8 @@ extends BaseFramework {
      *
      * @return void
      */
-    public function __construct() {
-        parent::__construct('ajax');
+    public function __construct($mode = 'ajax') {
+        parent::__construct($mode);
     }
     
     /**
@@ -73,16 +73,29 @@ extends BaseFramework {
      */
     public function run() {
         $page_class_name = $this->getPageClass();
-        
+
         if(empty($page_class_name)) {
             $this->initializeNotFound('class');
         }
 
         $current_page_class = new $page_class_name();
 
-        $current_page_class->init();
+        $current_page_class->init($current_page_class);
         
-        $current_page_class->action();
+        $action_name = $this->getActionName();
+        
+        $output_data = array();
+        
+        if(is_callable(array($current_page_class, $action_name))) {
+            $output_data = $current_page_class->$action_name();
+        }
+        else {
+            $this->initializeNotFound('');
+        }
+        
+        if(!empty($output_data)) {
+            echo json_encode($output_data, JSON_UNESCAPED_UNICODE);
+        }
     }
     
     /**

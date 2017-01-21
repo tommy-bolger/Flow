@@ -52,12 +52,12 @@ Request.submit = function(page_url, request_type, request_parameters, success_ca
     Request.in_progress[request_type][page_url] = 'running';
 
     $.ajax({
-    	type: request_type,
-    	cache: false,
-    	dataType: "json",
-    	url: page_url,
-    	data : request_parameters,
-    	success: function(response_data, text_status, jq_xhr) {
+        type: request_type,
+        cache: false,
+        dataType: "json",
+        url: page_url,
+        data : request_parameters,
+        success: function(response_data, text_status, jq_xhr) {
             if(typeof loading_display_element != 'undefined') {
                 loading_display_element.hideLoading();
             }
@@ -84,12 +84,12 @@ Request.submit = function(page_url, request_type, request_parameters, success_ca
             }
 
             delete Request.in_progress[request_type][page_url];
-    	},
-    	error: function (xhr, ajax_options, thrown_error) {                
+        },
+        error: function (xhr, ajax_options, thrown_error) {                
             if(typeof loading_display_element != 'undefined') {
                 loading_display_element.hideLoading();
             }
-    	
+        
             if(ajax_options == 'error') {                
                 alert(xhr.responseText);
             }

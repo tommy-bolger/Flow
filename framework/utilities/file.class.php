@@ -121,4 +121,33 @@ class File {
         
         return $archive_file_name;
     }
+    
+    /**
+    * Recursively deletes a directory.
+    * 
+    * @param string $directory_path The path to the directory to delete.
+    * @return void
+    */
+    public static function deleteDirectoryRecursive($directory_path) { 
+        if(is_dir($directory_path)) { 
+            $objects = scandir($directory_path); 
+            
+            if(!empty($objects)) {
+                foreach($objects as $object) { 
+                    if($object != "." && $object != "..") { 
+                        $file_path = "{$directory_path}/{$object}";
+                    
+                        if(is_dir($file_path)) {
+                            static::deleteDirectoryRecursive($file_path);
+                        }
+                        else {
+                            unlink($file_path); 
+                        }
+                    } 
+                }
+            }
+            
+            rmdir($directory_path); 
+        } 
+    }
 }

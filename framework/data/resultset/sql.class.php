@@ -1,7 +1,7 @@
 <?php
 /**
 * Configures, retrieves, and stores data from a result set based on a SQL query.
-* Copyright (c) 2011, Tommy Bolger
+* Copyright (c) 2017, Tommy Bolger
 * All rights reserved.
 * 
 * Redistribution and use in source and binary forms, with or without 
@@ -48,6 +48,16 @@ extends ResultSet {
     protected $base_query_placeholders;
     
     /**
+    * @var array The fields to retrieve in the SQL dataset.
+    */
+    protected $select_fields = array();
+    
+    /**
+    * @var array The tables used in a unioned query across partitioned tables.
+    */
+    protected $partition_table_names = array();
+    
+    /**
      * Catches all get function calls not present in this class and passes them to the database abstraction object using this resultset's finalized query.
      *
      * @param string $function_name The function name.
@@ -70,6 +80,82 @@ extends ResultSet {
     }
     
     /**
+     * Adds a select field to retrieve to the SQL query.
+     * 
+     * @param string $field The field to add.     
+     * @param string $alias (optional) The alias of the field.  
+     * @return void
+     */
+    public function addSelectField($field, $alias = NULL) {
+        if(empty($alias)) {
+            $alias = $field;
+        }
+    
+        $this->select_fields[$alias] = $field;
+    }
+    
+    /**
+     * Adds several select fields to retrieve to the SQL query.
+     * 
+     * @param string $field The field to add.     
+     * @param string $alias (optional) The alias of the field.  
+     * @return void
+     */
+    public function addSelectFields(array $fields) {
+        if(!empty($fields)) {
+            foreach($fields as $field) {
+                if(!isset($field['field'])) {
+                    throw new Exception("field must be an array key for all elements when adding select fields.");
+                }
+                
+                $alias = NULL;
+                
+                if(isset($field['alias'])) {
+                    $alias = $field['alias'];
+                }
+                
+                $this->addSelectField($field['field'], $alias);
+            }
+        }
+    }
+    
+    /**
+     * Adds a select field to retrieve to the SQL query that overrides any existing select fields of the result set.
+     * 
+     * @param string $field The field to add.     
+     * @param string $alias (optional) The alias of the field.  
+     * @return void
+     */
+    public function setSelectField($field, $alias = NULL) {
+        $this->select_fields = array();
+    
+        $this->addSelectField($field, $alias);
+    }
+    
+    /**
+     * Adds several select fields to retrieve to the SQL query that overrides any existing select fields of the result set.
+     * 
+     * @param string $field The field to add.     
+     * @param string $alias (optional) The alias of the field.  
+     * @return void
+     */
+    public function setSelectFields(array $fields) {
+        $this->select_fields = array();
+    
+        $this->addSelectFields($fields);
+    }
+    
+    /**
+     * Adds a partition table name that changes for each query in a unioned query.
+     * 
+     * @param string $partition_table_name The name of the partitioned table.     
+     * @return void
+     */
+    public function addPartitionTable($partition_table_name) {        
+        $this->partition_table_names[] = $partition_table_name;
+    }
+    
+    /**
      * Adds a filter criteria to the result set.
      * 
      * @param array $criteria The criteria to sort the result set by.
@@ -81,7 +167,7 @@ extends ResultSet {
         
         $this->filter_criteria[] = $criteria;
         
-        $this->filter_placeholder_values += $placeholder_values;
+        $this->filter_placeholder_values = array_merge($this->filter_placeholder_values, $placeholder_values);
     }
 
     /**
@@ -111,6 +197,27 @@ extends ResultSet {
         );
     }
     
+    /**
+     * Adds a column sort criteria based on its alias, and checks to make sure that the select field associated with it exists.
+     * 
+     * @param string $alias The select field alias.
+     * @param string $direction (optional) The sort direction. Can only be either ASC or DESC. Defaults to ASC.
+     * @return void
+     */
+    public function addSortCriteriaFromAlias($alias, $direction = 'ASC') {
+        if(empty($this->select_fields)) {
+            throw new Exception("Select fields must be added to set sort criteria by alias.");
+        }
+        
+        if(!isset($this->select_fields[$alias])) {
+            $aliases = "'" . implode("', '", array_keys($this->select_fields)) . "'";
+        
+            throw new Exception("Alias '{$alias}' is invalid. Valid aliases are {$aliases}.");
+        }
+        
+        $this->addSortCriteria($this->select_fields[$alias], $direction);
+    }
+    
     
     /**
      * Sets sort column criteria that overrides any existing criteria of the result set.
@@ -126,11 +233,24 @@ extends ResultSet {
     }
     
     /**
+     * Sets column sort criteria based on its alias that overrides any existing criteria of the result set.
+     * 
+     * @param string $alias The select field alias.
+     * @param string $direction (optional) The sort direction. Can only be either ASC or DESC. Defaults to ASC.
+     * @return void
+     */
+    public function setSortCriteriaFromAlias($alias, $direction = 'ASC') {
+        $this->sort_criteria = array();
+        
+        $this->addSortCriteriaFromAlias($alias, $direction);
+    }
+    
+    /**
      * Retrieves the finalized query and its placeholder values.
      * 
      * @return array.
      */
-    protected function getFinalizedQuery() {
+    public function getFinalizedQuery() {
         $query = $this->base_query;
         $query_placeholders = $this->base_query_placeholders;
 
@@ -154,6 +274,55 @@ extends ResultSet {
             
             $query_placeholders += $this->filter_placeholder_values;
         }
+        
+        if(isset($this->select_fields)) {
+            $select_fields = array();
+            
+            foreach($this->select_fields as $alias => $field) {
+                $select_fields[] = "{$field} AS {$alias}";
+            }
+            
+            $select_sql = implode(",\n", $select_fields);
+
+            if(strpos($query, '{{SELECT_FIELDS}}') !== false) {            
+                $query = str_replace('{{SELECT_FIELDS}}', $select_sql, $query);
+            }
+        }
+        
+        if(!empty($this->partition_table_names) && strpos($query, '{{PARTITION_TABLE}}') !== false) {
+            $partition_queries = array();
+            $partition_query_placeholders = array();
+            
+            foreach($this->partition_table_names as $index => $partition_table_name) {
+                $partition_queries[] = str_replace(array(
+                    '{{PARTITION_TABLE}}',
+                    ':'
+                ), array(
+                    $partition_table_name,
+                    ":{$index}_"
+                ), $query);
+
+                if(!empty($query_placeholders)) {
+                    foreach($query_placeholders as $placeholder_name => $placeholder_value) {
+                        if(!is_integer($placeholder_name)) {
+                            $partition_query_placeholders["{$index}_{$placeholder_name}"] = $placeholder_value;
+                        }
+                        else {
+                            $partition_query_placeholders[] = $placeholder_value;
+                        }
+                    }
+                }
+            }
+            
+            $query = "
+                SELECT *
+                FROM (" . implode("\nUNION ALL\n", $partition_queries) . ") unioned_query
+            ";
+            
+            $query_placeholders = $partition_query_placeholders;
+        }
+        
+        $non_sort_limit_query = $query;
     
         if(!empty($this->sort_criteria)) {
             $order_by_criteria = '';
@@ -181,11 +350,15 @@ extends ResultSet {
                 
                 $offset_criteria = " OFFSET {$offset}";
             }
+            elseif(isset($this->offset)) {
+                $offset_criteria = " OFFSET {$this->offset}";
+            }
 
             $query .= "\nLIMIT {$this->rows_per_page}{$offset_criteria}";
         }
         
         return array(
+            'non_sort_limit_query' => $non_sort_limit_query,
             'query' => $query,
             'query_placeholders' => $query_placeholders
         );
@@ -198,7 +371,8 @@ extends ResultSet {
      */
     protected function getRawData() {
         $finalized_query = $this->getFinalizedQuery();
-        
+
+        $non_sort_limit_query = $finalized_query['non_sort_limit_query'];
         $query = $finalized_query['query'];
         $query_placeholders = $finalized_query['query_placeholders'];
 
@@ -206,7 +380,7 @@ extends ResultSet {
             $this->total_number_of_records = db()->getOne("
                 SELECT COUNT(*)
                 FROM (
-                    {$query}
+                    {$non_sort_limit_query}
                 ) AS query_record_count
             ", $query_placeholders);
         }

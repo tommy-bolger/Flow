@@ -92,7 +92,9 @@ extends Web {
         
         $current_page_class->setup();
         
-        $current_page_class->action();
+        $action_name = $this->getActionName();
+        
+        $current_page_class->$action_name();
         
         $current_page_class->render();
     }

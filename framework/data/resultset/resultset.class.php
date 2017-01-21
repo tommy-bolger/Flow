@@ -55,6 +55,11 @@ class ResultSet {
     protected $rows_per_page;
     
     /**
+    * @var integer The 0-based index position to start the resultset at.
+    */
+    protected $offset;
+    
+    /**
     * @var array The filters to apply to the result set.
     */
     protected $filter_criteria = array();
@@ -134,6 +139,18 @@ class ResultSet {
         assert('!empty($rows_per_page) && is_integer($rows_per_page)');
     
         $this->rows_per_page = $rows_per_page;     
+    }
+    
+    /**
+     * Sets the 0-based offset to start at in the resultset.
+     *      
+     * @param integer $offset
+     * @return void
+     */
+    public function setOffset($offset) {
+        assert('!empty($offset) && is_integer($offset)');
+    
+        $this->offset = $offset;
     }
     
     /**

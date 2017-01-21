@@ -59,6 +59,11 @@ class Module {
     protected $name;
     
     /**
+    * @var string The base file path to this module.
+    */
+    protected $installation_path;
+    
+    /**
     * @var string The file path to the module.
     */
     protected $external_path;
@@ -109,10 +114,11 @@ class Module {
     
         $this->name = $module_name;
         
-        $this->external_path = "{$this->framework->installation_path}/modules/{$module_name}/external";
-        $this->vendor_path = "{$this->framework->installation_path}/modules/{$module_name}/vendor";
+        $this->installation_path = "{$this->framework->installation_path}/modules/{$module_name}";
+        $this->external_path = "{$this->installation_path}/external";
+        $this->vendor_path = "{$this->installation_path}/vendor";
         
-        $this->script_file_path = "{$this->framework->installation_path}/modules/{$module_name}/scripts";
+        $this->script_file_path = "{$this->installation_path}/scripts";
         
         Loader::addBasePath($this->external_path);
         Loader::addBasePath($this->vendor_path);
@@ -203,6 +209,15 @@ class Module {
      */
     public function getName() {
         return $this->name;
+    }
+    
+    /**
+     * Retrieves the module's installation path.
+     *   
+     * @return string
+     */
+    public function getInstallationPath() {
+        return $this->installation_path;
     }
     
     /**

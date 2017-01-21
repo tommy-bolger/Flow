@@ -138,7 +138,12 @@ class ParallelProcessQueue {
             $pid = pcntl_waitpid(-1, $status, WNOHANG);
         }
         
-        while($pid > 0) {
+        while($pid > 0) {            
+            if(is_array($pid)) {
+                $status = $pid['status'];
+                $pid = $pid['pid'];
+            }
+            
             if($pid && isset($this->active_processes[$pid])) {                
                 unset($this->active_processes[$pid]);
             }

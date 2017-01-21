@@ -209,7 +209,7 @@ extends Web {
             unset($unparsed_uri_segments[$module_segment_index]);
             unset($unparsed_uri_segments[$module_value_index]);
         
-            $theme_segment_index = array_search('theme', $unparsed_uri_segments);
+            $theme_segment_index = array_search('styles', $unparsed_uri_segments);
             
             if(!empty($theme_segment_index)) {
                 $theme_value_index = $theme_segment_index + 1;

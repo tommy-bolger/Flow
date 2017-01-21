@@ -32,20 +32,21 @@
 */
 namespace Framework\Data;
 
+use PDO;
+use \PDOStatement;
 use \Framework\Core\Framework;
 use \Framework\Utilities\Encryption;
-use PDO;
 
 class Database {
     /**
     * @var array A static list of all active database connection objects.
     */
-    private static $database_connections = array();
+    protected static $database_connections = array();
     
     /**
     * @var string The name of the database.
     */
-    private $database_name;
+    protected $database_name;
     
     /**
     * @var object The database connection object for this instance.
@@ -60,12 +61,27 @@ class Database {
     /**
     * @var boolean A flag to determine whether to use the error handler or exception handler.
     */
-    private $use_error_handler = true;
+    protected $use_error_handler = true;
     
     /**
     * @var array A list of all cached queries.
     */
-    private $cached_queries;
+    protected $cached_queries;
+    
+    /**
+    * @var PDOStatement The statement of the last executed query.
+    */
+    protected $last_executed_statement;
+    
+    /**
+    * @var boolean Indicates if stats should be collected on each query or not.
+    */
+    protected $log_query_stats = false;
+    
+    /**
+    * @var array The list of statistics of each query type that was run.
+    */
+    protected $query_stats = array();
 
     /**
      * Retrieves an instantiated database object of the specified database connection or instantiates a new database connection object.
@@ -73,12 +89,12 @@ class Database {
      * @param string $database_connection (optional) The name of the database connection.
      * @return object The database connection object.
      */
-    public static function getInstance($database_connection = NULL) {            
+    public static function getInstance($database_connection = NULL, $reconnect = false) {            
         if(empty($database_connection)) {
             $database_connection = 'default';            
         }
         
-        if(!isset(self::$database_connections[$database_connection])) {
+        if(!isset(self::$database_connections[$database_connection]) || $reconnect == true) {
             $new_database_connection = new database();
 
             if($database_connection == 'default') {
@@ -222,6 +238,39 @@ class Database {
     }
     
     /**
+     * Enables logging of query statistics.
+     *
+     * @return void
+     */
+    public function enableQueryStatLogging() {
+        $this->log_query_stats = true;
+    }
+    
+    /**
+     * Disables logging of query statistics.
+     *
+     * @return void
+     */
+    public function disableQueryStatLogging() {
+        $this->log_query_stats = false;
+    }
+    
+    /**
+     * Retrieves query stats
+     *
+     * @return array The stats on all executed queries.
+     */
+    public function getQueryStats() {
+        if(!empty($this->query_stats)) {
+            foreach($this->query_stats as $query_type => &$query_stat) {            
+                $query_stat['average_execution_time'] = $query_stat['total_execution_time'] / $query_stat['number_of_queries'];
+            }
+        }
+        
+        return $this->query_stats;
+    }
+    
+    /**
      * Gets the name of the current database.
      *
      * @return string The name of the current database.
@@ -256,11 +305,56 @@ class Database {
         else {
             $query_object = $this->database_connection->prepare($sql_statement);
         }
+        
+        $query_start_time = NULL;
+        
+        if($this->log_query_stats) {
+            $query_start_time = time();
+        }
 
         $query_object->execute($placeholder_values);
+        
+        if($this->log_query_stats) {
+            $query_end_time = time();
+            
+            $query_index = md5($sql_statement);
+            
+            if(empty($this->query_stats[$query_index])) {
+                $this->query_stats[$query_index] = array(
+                    'query' => $sql_statement,
+                    'number_of_queries' => 0,
+                    'total_execution_time' => 0
+                );
+            }
+
+            $this->query_stats[$query_index]['number_of_queries'] += 1;
+            $this->query_stats[$query_index]['total_execution_time'] += ($query_end_time - $query_start_time);
+        }
+        
+        $this->last_executed_statement = $query_object;
 
         return $query_object;
     }
+    
+    /**
+     * Retrieves the PDO statement object of the last query executed.
+     *
+     * @return PDOStatement
+     */
+     public function getLastExecutedStatement() {
+        return $this->last_executed_statement;
+     }
+    
+    /**
+     * Retrieves a single row from an executed PDO statement object.
+     *
+     * @param string $pdo_statement The PDO statement object to fetch for.
+     * @return array|boolean The result row of the PDO statement, or false when there are no more results.
+     */
+     
+     public function getStatementRow(PDOStatement $pdo_statement) {
+        return $pdo_statement->fetch(PDO::FETCH_ASSOC);
+     }
     
     /**
      * Gets all columns of all rows in a query result set.
@@ -503,6 +597,28 @@ class Database {
     }
     
     /**
+     * Constructs a multi insert query based on the parameters passed to it.
+     *
+     * @param string $table_name The name of the table to insert a new row into.
+     * @param mixed $fields The fields to be inserted.
+     * @param integer $number_of_records The number of records being inserted.
+     * @return string The completed insert query.
+     */
+    private function generateMultiInsertQuery($table_name, array $fields, $number_of_records) {
+        $insert_field_names = implode(", ", $fields);
+        
+        $record_placeholders = implode(', ', array_fill(0, count($fields), '?'));
+    
+        $multi_record_placeholders = array_fill(0, $number_of_records, $record_placeholders);
+            
+        $values = '(' . implode('), (', $multi_record_placeholders) . ')';
+
+        $insert_query = "INSERT INTO {$table_name} ({$insert_field_names})\nVALUES {$values};";
+
+        return $insert_query;
+    }
+    
+    /**
      * Constructs an update query based on the parameters passed to it.
      *
      * @param string $table_name The name of the target table to update.
@@ -644,20 +760,54 @@ class Database {
      * @param string $table_name The name of the target table to insert a new row into.
      * @param mixed $fields (optional) The fields to be inserted. An associative array is only accepted.
      * @param string $query_name (optional) The cache name of the query. This enables caching of the prepared statement.
+     * @param boolean $return_new_id (optional) Indicates if the new primary key value from this insertion should be returned. Defaults to true.
      * @return integer The primary key of the new record.
      */
-    public function insert($table_name, $fields = array(), $query_name = '') {
+    public function insert($table_name, $fields = array(), $query_name = '', $return_new_id = true) {
         assert('is_array($fields)');
     
         $this->generateQuery('insert', $table_name, $fields, NULL, NULL, $query_name);
+        
+        $new_id = NULL;
+        
+        if($return_new_id) {
+            $sequence_name = NULL;
           
-        $sequence_name = NULL;
-          
-        if($this->database_driver_name == 'pgsql') {
-            $sequence_name = "{$table_name}_seq";
+            if($this->database_driver_name == 'pgsql') {
+                $sequence_name = "{$table_name}_seq";
+            }
+        
+            $new_id = $this->database_connection->lastInsertId($sequence_name);
         }
 
-        return $this->database_connection->lastInsertId($sequence_name);
+        return $new_id;
+    }
+    
+    /**
+     * Constructs an update query based on the parameters passed to it, prepares the query, and then executes it.
+     *
+     * @param string $table_name The name of the target table to insert a new row into.
+     * @param array $records The records to be inserted. Must be a multidimensional array containing associative arrays for each record.
+     * @return void
+     */
+    public function insertMulti($table_name, array $records) {
+        $query_object = NULL;
+    
+        if(!empty($records)) {
+            $first_record = current($records);
+            
+            $query = $this->generateMultiInsertQuery($table_name, array_keys($first_record), count($records));
+            
+            $placeholder_values = array();
+            
+            array_walk_recursive($records, function($value, $key) use(&$placeholder_values){
+                $placeholder_values[] = $value;
+            });
+            
+            $query_object = $this->prepareExecuteQuery($query, array_values($placeholder_values));
+        }
+        
+        return $query_object;
     }
     
     /**

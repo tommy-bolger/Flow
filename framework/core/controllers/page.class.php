@@ -33,7 +33,7 @@
 namespace Framework\Core\Controllers;
 
 class Page 
-extends Controller {
+extends Web {
     /**
     * @var object The instance of the current page.
     */

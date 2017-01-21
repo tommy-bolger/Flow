@@ -1,5 +1,7 @@
 <?php
-namespace \Framework\Api;
+namespace Framework\Api;
+
+use \Exception;
 
 class Rest {    
     /**
@@ -68,7 +70,7 @@ class Rest {
     public function setApiKey($api_key, $api_key_name = '') {
         $this->api_key = $api_key;
         
-        if($empty($api_key_name)) {
+        if(!empty($api_key_name)) {
             $this->api_key_name = $api_key_name;
         }
     }
@@ -186,7 +188,9 @@ class Rest {
         
         curl_setopt($this->last_request, CURLOPT_RETURNTRANSFER, TRUE);
         
-        $http_header = $this->generateHeader();
+        $http_header = $this->generateHeader($request_type);
+        
+        $this->last_request_parameters = $request_parameters;
 
         switch($request_type) {
             case 'get':
@@ -194,12 +198,12 @@ class Rest {
                     $this->last_request_parameters[$this->api_key_name] = $this->api_key;
                 }
                 
-                $request_url .= '?' . http_build_query($request_parameters);
+                $request_url .= '?' . http_build_query($this->last_request_parameters);
                 break;
             case 'post':
                 curl_setopt($this->last_request, CURLOPT_POST, 1);
                 
-                $request_body = json_encode($request_parameters);
+                $request_body = json_encode($this->last_request_parameters);
 
                 curl_setopt($this->last_request, CURLOPT_POSTFIELDS, $request_body);
                 
@@ -224,7 +228,7 @@ class Rest {
         if(!empty($this->error_checking)) {
             $this->checkForErrors();
         }
-        
-        return json_decode($this->last_response);
+
+        return json_decode(utf8_encode($this->last_response));
     }
 }
