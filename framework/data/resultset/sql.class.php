@@ -69,6 +69,8 @@ extends ResultSet {
     
         if(strpos($function_name, 'get') !== false || strpos($function_name, 'prepareExecuteQuery') !== false) {
             $finalized_query = $this->getFinalizedQuery();
+            
+            unset($finalized_query['non_sort_limit_query']);
         
             $return_value = call_user_func_array(array(db(), $function_name), $finalized_query);
         }
