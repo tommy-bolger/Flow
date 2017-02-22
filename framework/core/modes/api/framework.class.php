@@ -51,16 +51,4 @@ extends BaseFramework {
     public function __construct() {
         parent::__construct('api');
     }
-    
-    /**
-     * Executes the maintenance mode for the current mode. 
-     *
-     * @return void
-     */
-    protected function runMaintenance() {
-        echo json_encode(array(
-            'error_code' => 503,
-            'error_message' => 'The site is down for maintenance.' 
-        ));
-    }
 }

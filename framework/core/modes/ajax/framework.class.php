@@ -54,6 +54,8 @@ extends BaseFramework {
      * @return void
      */
     public function __construct($mode = 'ajax') {
+        header('Content-Type: application/json');
+    
         parent::__construct($mode);
     }
     
@@ -63,7 +65,10 @@ extends BaseFramework {
      * @return void
      */
     protected function runMaintenance() {
-        echo "The site is down for maintenance.";
+        echo json_encode(array(
+            'error_code' => 503,
+            'error_message' => 'The site is down for maintenance.' 
+        ));
     }
     
     /**
@@ -96,6 +101,22 @@ extends BaseFramework {
         if(!empty($output_data)) {
             echo json_encode($output_data, JSON_UNESCAPED_UNICODE);
         }
+    }
+    
+    /**
+     * Outputs an error manually triggered during runtime.
+     *
+     * @return void
+     */
+    public function outputManualError($error_code, $error_message) {
+        http_response_code(400);
+    
+        echo json_encode(array(
+            'error_code' => $error_code,
+            'error_message' => $error_message
+        ), JSON_UNESCAPED_UNICODE);
+        
+        exit;
     }
     
     /**

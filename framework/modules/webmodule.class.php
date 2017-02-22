@@ -98,6 +98,11 @@ extends Module {
     protected $images_http_path;
     
     /**
+    * @var string The http path to the theme images of the current module.
+    */
+    protected $theme_images_http_path;
+    
+    /**
     * @var string The path to the downloadable files of the current module.
     */
     protected $files_path;
@@ -157,6 +162,8 @@ extends Module {
         $this->images_path = "{$this->assets_path}/images";
         
         $this->images_http_path = "{$this->assets_http_path}/images/modules/{$module_name}";
+        
+        $this->theme_images_http_path = "{$this->images_http_path}/styles/{$this->theme}";
         
         $this->files_path = "{$this->assets_path}/files";
         
@@ -260,6 +267,15 @@ extends Module {
      */
     public function getImagesHttpPath() {
         return $this->images_http_path;
+    }
+    
+    /**
+     * Retrieves the module's theme images http path.
+     *     
+     * @return string
+     */
+    public function getThemeImagesHttpPath() {
+        return $this->theme_images_http_path;
     }
     
     /**

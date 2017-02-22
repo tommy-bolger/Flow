@@ -45,7 +45,7 @@ extends ResultSet {
     /**
     * @var array The placeholder values for the base SQL dataset.
     */
-    protected $base_query_placeholders;
+    protected $base_query_placeholders = array();
     
     /**
     * @var array The fields to retrieve in the SQL dataset.
@@ -53,9 +53,53 @@ extends ResultSet {
     protected $select_fields = array();
     
     /**
+    * @var string The base table of the dataset.
+    */
+    protected $from_table;
+    
+    /**
     * @var array The tables used in a unioned query across partitioned tables.
     */
     protected $partition_table_names = array();
+    
+    /**
+    * @var array All of the joins in this sql dataset.
+    */
+    protected $join_criteria = array();
+    
+    /**
+    * @var array All of the placeholder values of the joins in this dataset.
+    */
+    protected $join_placeholder_values = array();
+    
+    /**
+    * @var array All of the left joins in this sql dataset.
+    */
+    protected $left_join_criteria = array();
+    
+    /**
+    * @var array All of the placeholder values for the left joins in this dataset.
+    */
+    protected $left_join_placeholder_values = array();
+    
+    /**
+     * Initializes a new instance of this class.
+     *
+     * @param string $name The name of the resultset.    
+     * @return void
+     */
+    public function __construct($name) {
+        parent::__construct($name);
+        
+        $this->base_query = "
+            {{SELECT_FIELDS}}
+            {{FROM_TABLE}}
+            {{JOIN_CRITERIA}}
+            {{WHERE_CRITERIA}}
+            {{ORDER_CRITERIA}}
+            {{LIMIT_CRITERIA}}
+        ";
+    }
     
     /**
      * Catches all get function calls not present in this class and passes them to the database abstraction object using this resultset's finalized query.
@@ -148,6 +192,33 @@ extends ResultSet {
     }
     
     /**
+     * Retrieves a select field definition.
+     * 
+     * @param string $field The field to add.     
+     * @param string $alias (optional) The alias of the field.  
+     * @return void
+     */
+    public function getSelectField($alias) {
+        $select_field = array();
+    
+        if(isset($this->select_fields[$alias])) {
+            $select_field = $this->select_fields[$alias];
+        }
+        
+        return $select_field;
+    }
+    
+    /**
+     * Sets the from table that the query is based on.
+     * 
+     * @param string $from_table The name of the from table.     
+     * @return void
+     */
+    public function setFromTable($from_table) {        
+        $this->from_table = $from_table;
+    }
+    
+    /**
      * Adds a partition table name that changes for each query in a unioned query.
      * 
      * @param string $partition_table_name The name of the partitioned table.     
@@ -158,15 +229,39 @@ extends ResultSet {
     }
     
     /**
+     * Adds a join criteria to the result set.
+     * 
+     * @param array $criteria The sql criteria to join with.
+     * @param array $placeholder_values The values of corresponding placeholders in the criteria.     
+     * @return void
+     */
+    public function addJoinCriteria($criteria, array $placeholder_values = array()) {        
+        $this->join_criteria[] = $criteria;
+        
+        $this->join_placeholder_values = array_merge($this->join_placeholder_values, $placeholder_values);
+    }
+    
+    /**
+     * Adds a left join criteria to the result set.
+     * 
+     * @param array $criteria The sql criteria to left join with.
+     * @param array $placeholder_values The values of corresponding placeholders in the criteria.     
+     * @return void
+     */
+    public function addLeftJoinCriteria($criteria, array $placeholder_values = array()) {        
+        $this->left_join_criteria[] = $criteria;
+        
+        $this->left_join_placeholder_values = array_merge($this->left_join_placeholder_values, $placeholder_values);
+    }
+    
+    /**
      * Adds a filter criteria to the result set.
      * 
      * @param array $criteria The criteria to sort the result set by.
      * @param array $placeholder_values The values of corresponding placeholders in the criteria.     
      * @return void
      */
-    public function addFilterCriteria($criteria, array $placeholder_values = array()) {
-        assert('!empty($criteria)');
-        
+    public function addFilterCriteria($criteria, array $placeholder_values = array()) {        
         $this->filter_criteria[] = $criteria;
         
         $this->filter_placeholder_values = array_merge($this->filter_placeholder_values, $placeholder_values);
@@ -179,9 +274,7 @@ extends ResultSet {
      * @param string $direction (optional) The sort direction. Can only be either ASC or DESC. Defaults to ASC otherwise.
      * @return void
      */
-    public function addSortCriteria($criteria, $direction = 'ASC') {
-        assert('!empty($criteria)');
-        
+    public function addSortCriteria($criteria, $direction = 'ASC') {        
         $direction = strtoupper($direction);
     
         switch($direction) {
@@ -255,53 +348,100 @@ extends ResultSet {
     public function getFinalizedQuery() {
         $query = $this->base_query;
         $query_placeholders = $this->base_query_placeholders;
-
-        if(isset($this->filter_criteria)) {
-            $where_criteria = implode(' AND ', $this->filter_criteria);
-
-            if(strpos($query, '{{WHERE_CRITERIA}}') !== false) {
-                if(!empty($where_criteria)) {
-                    $where_criteria = "WHERE {$where_criteria}";
-                }
-            
-                $query = str_replace('{{WHERE_CRITERIA}}', $where_criteria, $query);
-            }
-            elseif(strpos($query, '{{AND_CRITERIA}}') !== false) {
-                if(!empty($where_criteria)) {
-                    $where_criteria = "WHERE {$where_criteria}";
-                }
-            
-                $query = str_replace('{{AND_CRITERIA}}', $where_criteria, $query);
-            }
-            
-            $query_placeholders += $this->filter_placeholder_values;
-        }
         
-        if(isset($this->select_fields)) {
+        /* ---------- SELECT ---------- */
+        
+        $select_sql = '';
+        
+        if(!empty($this->select_fields)) {            
             $select_fields = array();
             
             foreach($this->select_fields as $alias => $field) {
                 $select_fields[] = "{$field} AS {$alias}";
             }
             
-            $select_sql = implode(",\n", $select_fields);
-
-            if(strpos($query, '{{SELECT_FIELDS}}') !== false) {            
-                $query = str_replace('{{SELECT_FIELDS}}', $select_sql, $query);
-            }
+            $select_sql = "SELECT \n" . implode(",\n", $select_fields) . "\n";
         }
         
-        if(!empty($this->partition_table_names) && strpos($query, '{{PARTITION_TABLE}}') !== false) {
+        $query = str_replace('{{SELECT_FIELDS}}', $select_sql, $query);
+        
+        /* ---------- FROM ---------- */
+        
+        $from_sql = '';
+        
+        if(!empty($this->from_table)) {
+            $from_sql = "FROM {$this->from_table}\n";
+        }
+        
+        $query = str_replace('{{FROM_TABLE}}', $from_sql, $query);
+        
+        /* ---------- JOIN and LEFT JOIN ---------- */
+        
+        $join_criteria = '';
+        
+        if(!empty($this->join_criteria) || !empty($this->left_join_criteria)) {
+            $join_sql = implode("\nJOIN ", $this->join_criteria);
+            
+            if(!empty($join_sql)) {
+                $join_criteria = "\nJOIN {$join_sql}";
+            }
+            
+            $query_placeholders += $this->join_placeholder_values;
+            
+            $left_join_sql = implode("\nLEFT JOIN ", $this->left_join_criteria);
+            
+            if(!empty($left_join_sql)) {
+                $join_criteria .= "\nLEFT JOIN {$left_join_sql}";
+            }
+            
+            $query_placeholders += $this->left_join_placeholder_values;
+        }
+        
+        $query = str_replace('{{JOIN_CRITERIA}}', $join_criteria, $query);
+
+        /* ---------- WHERE/AND ---------- */
+        $where_criteria = '';
+        $and_criteria = '';
+        
+        if(!empty($this->filter_criteria)) {
+            $where_criteria = implode(' AND ', $this->filter_criteria);
+
+            if(strpos($query, '{{WHERE_CRITERIA}}') !== false) {
+                if(!empty($where_criteria)) {
+                    $where_criteria = "WHERE {$where_criteria}";
+                }
+                
+            }
+            elseif(strpos($query, '{{AND_CRITERIA}}') !== false) {
+                if(!empty($where_criteria)) {
+                    $and_criteria = $where_criteria;
+                    $where_criteria = '';
+                }
+            }
+            
+            $query_placeholders += $this->filter_placeholder_values;
+        }
+        
+        $query = str_replace('{{WHERE_CRITERIA}}', $where_criteria, $query);
+        $query = str_replace('{{AND_CRITERIA}}', $and_criteria, $query);
+        
+        /* ---------- Partition tables ---------- */
+        
+        if(!empty($this->partition_table_names)) {
             $partition_queries = array();
             $partition_query_placeholders = array();
             
             foreach($this->partition_table_names as $index => $partition_table_name) {
                 $partition_queries[] = str_replace(array(
                     '{{PARTITION_TABLE}}',
-                    ':'
+                    ':',
+                    '{{ORDER_CRITERIA}}',
+                    '{{LIMIT_CRITERIA}}'
                 ), array(
-                    $partition_table_name,
-                    ":{$index}_"
+                    "{$partition_table_name}",
+                    ":{$index}_",
+                    '',
+                    ''
                 ), $query);
 
                 if(!empty($query_placeholders)) {
@@ -317,14 +457,21 @@ extends ResultSet {
             }
             
             $query = "
-                SELECT *
-                FROM (" . implode("\nUNION ALL\n", $partition_queries) . ") unioned_query
+                SELECT DISTINCT *
+                FROM (" . implode("\nUNION\n", $partition_queries) . ") unioned_query
+                {{ORDER_CRITERIA}}
+                {{LIMIT_CRITERIA}}
             ";
             
             $query_placeholders = $partition_query_placeholders;
         }
         
-        $non_sort_limit_query = $query;
+        $non_sort_limit_query = str_replace(array(
+            '{{ORDER_CRITERIA}}',
+            '{{LIMIT_CRITERIA}}'
+        ), '', $query);
+        
+        $order_by_criteria = '';
     
         if(!empty($this->sort_criteria)) {
             $order_by_criteria = '';
@@ -332,17 +479,21 @@ extends ResultSet {
             foreach($this->sort_criteria as $sort_criteria) {
                 $criteria = $sort_criteria['criteria'];
                 
-                if(is_array($criteria)) {
-                    $criteria = implode(', ', $criteria);
+                if(!empty($this->partition_table_names) && strpos($criteria, '.') !== false) {
+                    $criteria_split = explode('.', $criteria);
+                    
+                    $criteria = $criteria_split[1];
                 }
             
-                $order_by_criteria .= "{$sort_criteria['criteria']} {$sort_criteria['direction']}, ";
+                $order_by_criteria .= "{$criteria} {$sort_criteria['direction']}, ";
             }
             
-            $order_by_criteria = rtrim($order_by_criteria, ', ');
-            
-            $query .= "\nORDER BY {$order_by_criteria}";
+            $order_by_criteria = "ORDER BY " . rtrim($order_by_criteria, ', ');
         }
+        
+        $query = str_replace('{{ORDER_CRITERIA}}', $order_by_criteria, $query);
+    
+        $limit_criteria = '';
     
         if(!empty($this->rows_per_page)) {
             $offset_criteria = '';
@@ -355,10 +506,12 @@ extends ResultSet {
             elseif(isset($this->offset)) {
                 $offset_criteria = " OFFSET {$this->offset}";
             }
-
-            $query .= "\nLIMIT {$this->rows_per_page}{$offset_criteria}";
+            
+            $limit_criteria = "\nLIMIT {$this->rows_per_page}{$offset_criteria}";
         }
         
+        $query = str_replace('{{LIMIT_CRITERIA}}', $limit_criteria, $query);
+
         return array(
             'non_sort_limit_query' => $non_sort_limit_query,
             'query' => $query,

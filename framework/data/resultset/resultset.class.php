@@ -96,7 +96,36 @@ class ResultSet {
      * @return void
      */
     public function __construct($name) {
+        $this->setName($name);
+    }
+    
+    /**
+     * Sets the name of this resultset.
+     *
+     * @param string $name The name of the resultset.    
+     * @return void
+     */
+    public function setName($name) {
         $this->name = $name;
+    }
+    
+    /**
+     * Appends additional text to the resultset's name
+     *
+     * @param string $text The text to append.    
+     * @return void
+     */
+    public function appendToName($text) {
+        $this->name .= ":{text}";
+    }
+    
+    /**
+     * Retrieve's the resultset's name.
+     *  
+     * @return string The resultset's name.
+     */
+    public function getName() {
+        return $this->name;
     }
     
     /**

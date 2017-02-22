@@ -192,15 +192,26 @@ extends Web {
         $page_class_path = $this->formatNamespace($page_class_path);
 
         $class_exists = $this->classExists($page_class_path);
-        
+
         //Check to see if the page class exists
         if(empty($class_exists)) {
-            $this->qualified_page_path = $page_class_path;  
-        
-            //If the current page class doesn't exist get the not found page   
-            $page_class_path = '\\Framework\\Core\\Modes\\Page\\NotFound';
+            $home_page_class_path = "{$page_class_path}\\Home";
             
-            $this->page_class_name = $page_class_path;
+            $home_page_class_exists = $this->classExists($home_page_class_path);
+        
+            if(empty($home_page_class_exists)) {
+                $this->qualified_page_path = $page_class_path;  
+        
+                //If the current page class doesn't exist get the not found page   
+                $page_class_path = '\\Framework\\Core\\Modes\\Page\\NotFound';
+                
+                $this->page_class_name = $page_class_path;
+            }
+            else {
+                $page_class_path = $home_page_class_path;
+            
+                $this->qualified_page_path = $page_class_path; 
+            }
         }
         else {
             $this->qualified_page_path = $page_class_path;        

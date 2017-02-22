@@ -36,8 +36,10 @@ Request.in_progress = {
     GET: {}
 };
 
-Request.submit = function(page_url, request_type, request_parameters, success_callback, loading_display_element) {
-    if(Request.in_progress[request_type].hasOwnProperty(page_url)) {
+Request.submit = function(page_url, request_type, request_parameters, success_callback, loading_display_element) {        
+    if(Request.in_progress[request_type][page_url] != null) {
+        Request.in_progress[request_type][page_url].success_callbacks.push(success_callback);
+        
         return false;
     }
 
@@ -49,7 +51,9 @@ Request.submit = function(page_url, request_type, request_parameters, success_ca
         loading_display_element.showLoading();
     }
 
-    Request.in_progress[request_type][page_url] = 'running';
+    Request.in_progress[request_type][page_url] = {
+        success_callbacks: [success_callback]
+    };
 
     $.ajax({
         type: request_type,
@@ -74,13 +78,21 @@ Request.submit = function(page_url, request_type, request_parameters, success_ca
                 return false;
             }
             
-            switch(typeof success_callback) {
-                case 'string':
-                    window[success_callback](request_parameters, response_data);
-                    break;
-                case 'object':
-                    success_callback.context[success_callback.method](request_parameters, response_data);
-                    break;
+            var callback_length = Request.in_progress[request_type][page_url].success_callbacks.length;
+            
+            if(callback_length > 0) {
+                for(var index = 0; index < callback_length; index++) {
+                    var success_callback = Request.in_progress[request_type][page_url].success_callbacks[index];
+                    
+                    switch(typeof success_callback) {
+                        case 'string':
+                            window[success_callback](request_parameters, response_data);
+                            break;
+                        case 'object':
+                            success_callback.context[success_callback.method](request_parameters, response_data);
+                            break;
+                    }
+                }
             }
 
             delete Request.in_progress[request_type][page_url];
