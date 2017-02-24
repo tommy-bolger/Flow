@@ -32,6 +32,7 @@
 */
 namespace Framework\Utilities;
 
+use \Exception;
 use \ZipArchive;
 
 class File {
@@ -67,11 +68,11 @@ class File {
             $success = move_uploaded_file($upload_file_data['tmp_name'], $upload_file_path);
             
             if(!$success) {
-                throw new \Exception("Moving file '{$file_name}' to '{$file_directory_path}' failed.");
+                throw new Exception("Moving file '{$file_name}' to '{$file_directory_path}' failed.");
             }
         }
         else {
-            throw new \Exception("Directory '{$file_directory_path}' is not writable.");
+            throw new Exception("Directory '{$file_directory_path}' is not writable.");
         }
     }
     
@@ -86,7 +87,7 @@ class File {
         $original_file = pathinfo($original_file_path);
     
         if(!is_readable($original_file_path)) {
-            throw new \Exception("File '{$original_file_path}' does not exist or is not readable.");
+            throw new Exception("File '{$original_file_path}' does not exist or is not readable.");
         }
         
         $original_file_name = $original_file['filename'];
@@ -103,10 +104,6 @@ class File {
         }
         
         $archive_file_path = "{$archive_directory_path}/{$archive_file_name}";
-        
-        if(!is_writeable($archive_directory_path)) {
-            throw new \Exception("Directory '{$archive_directory_path}' does not exist or is not writeable.");
-        }
 
         //Zip the file
         $archive_file = new ZipArchive();
@@ -116,7 +113,7 @@ class File {
             $archive_file->close();
         }
         else {
-            throw new \Exception("Archive file '{$archive_file_path}' could not be created.");
+            throw new Exception("Archive file '{$archive_file_path}' could not be created.");
         }
         
         return $archive_file_name;

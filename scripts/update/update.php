@@ -361,4 +361,15 @@ if(in_array('apc', $loaded_extensions)) {
     compile_files($installation_path);
 }
 
+//If OPCache is enabled that clear that
+if(function_exists('opcache_get_configuration')) {
+    $opcache_configuration = opcache_get_configuration();
+    
+    if(!empty($opcache_configuration['directives'])) {
+        if(!empty($opcache_configuration['directives']['opcache.enable'])) {
+            opcache_reset();
+        }
+    }
+}
+
 echo "Update successful!\n";
