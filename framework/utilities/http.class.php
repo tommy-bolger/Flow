@@ -215,7 +215,7 @@ final class Http {
         $query_string = http_build_query($query_string_parameters);
             
         if(self::$encrypt_urls) {
-            $query_string = 'e=' . rtrim(strtr(Encryption::encrypt($query_string, array('encrypted_url')), '+/', '-_'), '=');
+            $query_string = 'e=' . rtrim(strtr(Encryption::encrypt($query_string), '+/', '-_'), '=');
         }
     
         return $query_string;

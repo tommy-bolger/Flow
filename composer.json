@@ -1,0 +1,13 @@
+{
+    "name": "tommy-bolger/flow-cms",
+    "description": "Flow CMS and framework",
+    "authors": [
+        {
+            "name": "Tommy Bolger",
+            "email": "tommy.bolger@gmail.com"
+        }
+    ],
+    "require": {
+        "paragonie/halite": "^3.2"
+    }
+}

@@ -77,7 +77,23 @@ extends BaseFramework {
      * @return void
      */
     public function __construct($output_on_production = true) {
-        parent::__construct('cli');    
+        $mode = 'cli';
+
+        /* 
+            A small hack to initialize the framework in a limited safe mode. 
+            TODO: Need to integrate this into a separate function for framework only flags when time permits.
+        */
+        if(!empty($_SERVER['argv'])) {
+            $safe_mode_index = array_search('--safe_mode', $_SERVER['argv'], true);
+            
+            if($safe_mode_index !== false) {
+                $mode = 'safe';
+                
+                unset($_SERVER['argv'][$safe_mode_index]);
+            }
+        }
+
+        parent::__construct($mode);    
         
         if($this->environment == 'production' && !$output_on_production) {
             $this->output_enabled = false;
@@ -231,6 +247,35 @@ extends BaseFramework {
         $current_command_class->init();
         
         $current_command_class->action($this->method_name, $this->controller_arguments);
+    }
+    
+    /**
+     * Prompts and waits for data input by the user.
+     *
+     * @param string $prompt The display prompt to the user.  
+     * @param boolean $required Indicates if this method should wait until the user as specified input (true) or returns blank input (false). Defaults to true.
+     * @return string
+     */
+    public function getInput($prompt, $required = true) {
+        $input_received = false;
+        $input = '';
+    
+        while(!$input_received) {
+            print("{$prompt}: ");
+        
+            $input = trim(fgets(STDIN));
+            
+            if(!empty($required)) {
+                if(!empty($input)) {
+                    $input_received = true;
+                }
+            }
+            else {
+                $input_received = true;
+            }
+        }
+        
+        return $input;
     }
     
     /**

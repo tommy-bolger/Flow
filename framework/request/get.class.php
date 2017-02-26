@@ -51,7 +51,7 @@ extends RequestData {
         
             $encrypted_query_string = str_pad(strtr($encoded_request_string, '-_', '+/'), strlen($encoded_request_string) % 4, '=', STR_PAD_RIGHT);
         
-            $request_string = Encryption::decrypt($encrypted_query_string, array('encrypted_url'));
+            $request_string = Encryption::decrypt($encrypted_query_string);
             
             $request_parameters = array();
             

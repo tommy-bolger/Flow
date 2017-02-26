@@ -1,7 +1,7 @@
 <?php
 /**
 * The command-line installation script for the framework.
-* Copyright (c) 2011, Tommy Bolger
+* Copyright (c) 2017, Tommy Bolger
 * All rights reserved.
 * 
 * Redistribution and use in source and binary forms, with or without 
@@ -170,18 +170,6 @@ $site_key = Encryption::generateLongHash();
 print("done.\n");
 
 /*
-* ----- Password salt -----
-*/
-password_salt:
-print("Please input a password salt: ");
-
-$password_salt = trim(fgets(STDIN));
-
-if(empty($password_salt)) {
-    goto password_salt;
-}
-
-/*
 * ----- Initial configuration set -----
 */
 print("Setting the configuration...");
@@ -189,8 +177,7 @@ print("Setting the configuration...");
 $configuration = new Configuration('framework');
 
 $configuration->set(array(
-    'site_key' => $site_key,
-    'password_salt' => $password_salt
+    'site_key' => $site_key
 ));
 
 print("done.\n");
@@ -335,7 +322,7 @@ print("Encrypting database password...");
 $encrypted_database_password = '';
 
 if(!empty($database_password)) {
-    $encrypted_database_password = Encryption::encrypt($database_password, array($database_dsn, $database_user));
+    $encrypted_database_password = Encryption::encrypt($database_password);
 }
 
 print("done.\n");
@@ -347,7 +334,6 @@ print("Encrypting the new configuration and writing it to disk...");
 
 $new_configuration = 
     "site_key = \"{$site_key}\"\n" . 
-    "password_salt = \"{$password_salt}\"\n" . 
     "database_dsn = \"{$database_dsn}\"\n" . 
     "database_user = \"{$database_user}\"\n" . 
     "database_password = \"{$encrypted_database_password}\""

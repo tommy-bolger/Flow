@@ -32,6 +32,8 @@
 */
 namespace Framework\Core;
 
+use \Exception;
+
 class Loader {
     /**
     * @var array The list of available base paths to search in.
@@ -58,12 +60,13 @@ class Loader {
      *    
      * @param string $file_path The path to the file.
      * @param boolean $relative Indicates if the file path is relative inside of one of the base paths.     
+     * @param boolean $load_all_verions Indicates if only the first matched file should be loaded (true), or if all matched files should be loaded (false). Defaults to true.
      * @return void
      */
-    public static function load($file_path, $relative = true) {
+    public static function load($file_path, $relative = true, $load_first_match = true) {
         if($relative) {
             if(empty(self::$base_paths)) {
-                throw new \Exception("No external base paths are set.");
+                throw new Exception("No external base paths are set.");
             }
             
             $file_path = ltrim($file_path, '/');
@@ -81,12 +84,14 @@ class Loader {
                         
                         self::$loaded[$file_path] = $full_file_path;
                         
-                        break;
+                        if(!empty($load_first_match)) {
+                            break;
+                        }
                     }
                 }
                 
                 if(!$file_exists) {
-                    throw new \Exception("Relative file path '{$file_path}' cannot be read or doesn't exist in any registered base paths.");
+                    throw new Exception("Relative file path '{$file_path}' cannot be read or doesn't exist in any registered base paths.");
                 }
             }
         }
@@ -98,7 +103,7 @@ class Loader {
                     self::$loaded[$file_path] = $file_path;
                 }
                 else {
-                    throw new \Exception("Absolute file path '{$file_path}' is not readable or does not exist.");
+                    throw new Exception("Absolute file path '{$file_path}' is not readable or does not exist.");
                 }
             }
         }

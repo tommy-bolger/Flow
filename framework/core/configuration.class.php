@@ -32,38 +32,39 @@
 */
 namespace Framework\Core;
 
+use \Exception;
 use \Framework\Core\Framework;
 
 final class Configuration {
     /**
     * @var string The default configuration name when calling getInstance with a blank parameter.
     */
-    private static $default_configuration_name;
+    protected static $default_configuration_name;
 
     /**
     * @var array A static list of all application configurations.
     */
-    private static $instances = array();
+    protected static $instances = array();
     
     /**
     * @var object The instance of the framework.
     */
-    private $framework;
+    protected $framework;
     
     /**
     * @var string The name of the configuration.
     */
-    private $name;
+    protected $name;
     
     /**
     * @var boolean A flag to determine if the current configuration is loaded.
     */
-    private $loaded = false;
+    protected $loaded = false;
     
     /**
     * @var array The combined configuration for read-only purposes.
     */
-    private $full_configuration = array();
+    protected $full_configuration = array();
     
     /**
      * Retrieves an instantiated configuration object of the specified configuration.
@@ -101,7 +102,7 @@ final class Configuration {
      */
     public function __construct($configuration_name) {
         if(!empty(self::$instances[$configuration_name])) {
-            throw new \Exception("Configuration '{$configuration_name}' has already been instantiated. Use Configuration::getInstance(configuration_name) to retrieve it.");
+            throw new Exception("Configuration '{$configuration_name}' has already been instantiated. Use Configuration::getInstance(configuration_name) to retrieve it.");
         }
         else {
             self::$instances[$configuration_name] = $this;
@@ -129,10 +130,37 @@ final class Configuration {
      */
     public function set($parameters) {
         if(!is_array($parameters)) {
-            throw new \Exception('$parameters is not a valid array.');
+            throw new Exception('$parameters is not a valid array.');
         }
         
         $this->full_configuration = $parameters;
+    }
+    
+    /**
+     * Sets a configuration parameter.
+     *
+     * @param string $parameter_name The configuration parameter name.
+     * @param string $parameter_value The configuration parameter value.
+     * @return mixed
+     */
+    public function __set($parameter_name, $parameter_value) {
+        $this->full_configuration[$parameter_name] = $parameter_value;
+    }
+    
+    /**
+     * Writes the base configuration settings to the framework's protected folder.
+     *
+     * @return void
+     */
+    public function writeBaseFile() {
+        $new_configuration = 
+            "site_key = \"{$this->site_key}\"\n" . 
+            "database_dsn = \"{$this->database_dsn}\"\n" . 
+            "database_user = \"{$this->database_user}\"\n" . 
+            "database_password = \"{$this->database_password}\""
+        ;
+        
+        file_put_contents("{$this->framework->getInstallationPath()}/protected/configuration.ini", $new_configuration);
     }
     
     /**
@@ -140,18 +168,32 @@ final class Configuration {
      *
      * @return void
      */
-    private function loadFrameworkBaseFile() {
+    public function loadFrameworkBaseFile() {
         $config_full_path = $this->framework->installation_path . "/protected/configuration.ini";
-
-        //Return false if the configuration file is not available
-        if(!is_readable($config_full_path)) {
-            throw new \Exception("Configuration file '{$config_full_path}' is missing or not readable.");
+        
+        $config_is_readable = is_readable($config_full_path);
+        
+        $base_configuration = array();
+        
+        if($this->framework->mode != 'safe') {
+            if(!$config_is_readable) {
+                throw new Exception("Configuration file '{$config_full_path}' is missing or not readable.");
+            }
+            
+            $base_configuration = parse_ini_file($config_full_path);
+            
+            if(empty($base_configuration)) {
+                throw new Exception("The base configuration file '{$config_full_path}' could not be loaded or is empty.");
+            }
         }
-        
-        $base_configuration = parse_ini_file($config_full_path);
-        
-        if(empty($base_configuration)) {
-            throw new \Exception("The base configuration file could not be loaded or is empty.");
+        else {
+            if($config_is_readable) {
+                $base_configuration = parse_ini_file($config_full_path);
+                
+                if(empty($base_configuration)) {
+                    $base_configuration = array();
+                }
+            }
         }
         
         $this->full_configuration = $base_configuration;
@@ -163,7 +205,7 @@ final class Configuration {
      * @param array $parameters The configuration parameters to cast. Each row must contain the parameter name, parameter value, and data type.
      * @return array The casted configuration parameters.
      */
-    private function castConfigurationParameters($parameters) {
+    protected function castConfigurationParameters($parameters) {
         assert('is_array($parameters)');
         
         $casted_parameters = array();
@@ -189,7 +231,7 @@ final class Configuration {
                         $casted_value = explode(',', $uncasted_value);
                         
                         if(!empty($casted_value) && !is_array($casted_value)) {
-                            throw new \Exception("Configuration parameter '{$parameter_name}' is not a valid array.");
+                            throw new Exception("Configuration parameter '{$parameter_name}' is not a valid array.");
                         }
                         break;
                     default:
@@ -210,13 +252,13 @@ final class Configuration {
      * @return void
      */
     public function load() {    
+        $full_configuration = array();
+    
         if($this->framework->enable_cache) {
-            $this->full_configuration = cache()->get($this->name, 'configurations');
+            $full_configuration = cache()->get($this->name, 'configurations');
         }
         
-        if(empty($this->full_configuration)) {
-            $this->full_configuration = array();
-        
+        if(empty($full_configuration)) {        
             $where_clause = '';
             $placeholder_values = array();
         
@@ -224,10 +266,7 @@ final class Configuration {
                 $where_clause = 'm.module_name = ?';
                 $placeholder_values[] = $this->name;
             }
-            else {
-                //Load the configuration containing the means to connect to the database for the rest of the config.
-                $this->loadFrameworkBaseFile();
-            
+            else {            
                 $where_clause = 'module_id IS NULL';
             }
         
@@ -256,8 +295,8 @@ final class Configuration {
             }
         }
         else {
-            if(!is_array($this->full_configuration)) {
-                $this->full_configuration = unserialize($this->full_configuration);
+            if(!is_array($full_configuration)) {
+                $this->full_configuration = unserialize($full_configuration);
             }
         }
         
@@ -293,7 +332,7 @@ final class Configuration {
             return $this->full_configuration[$parameter_name];
         }
         else {
-            throw new \Exception("Item '{$parameter_name}' was not found in the configuration.");
+            throw new Exception("Item '{$parameter_name}' was not found in the configuration.");
         }
     }
     
@@ -319,7 +358,7 @@ final class Configuration {
             
             $missing_parameters_list = implode(', ', array_keys($missing_parameters));
             
-            throw new \Exception("Parameters '{$missing_parameters_list}' could not be found in the configuration.");
+            throw new Exception("Parameters '{$missing_parameters_list}' could not be found in the configuration.");
         }
         
         return $parameter_values;

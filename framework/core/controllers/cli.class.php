@@ -61,6 +61,7 @@ class Cli {
      */
     public function __construct($module_name) {
         $this->framework = Framework::getInstance();
+        
         $this->module = Module::getInstance($module_name);
     }
     

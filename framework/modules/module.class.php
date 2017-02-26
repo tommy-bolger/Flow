@@ -123,11 +123,13 @@ class Module {
         Loader::addBasePath($this->external_path);
         Loader::addBasePath($this->vendor_path);
         
-        $this->loadData($module_name);
-        
-        $this->loadConfiguration();
-        
-        $this->framework->error_handler->setModuleId($this->id);
+        if($this->framework->mode != 'safe') {
+            $this->loadData($module_name);
+            
+            $this->loadConfiguration();
+            
+            $this->framework->error_handler->setModuleId($this->id);
+        }
         
         if(empty(self::$instances[$module_name])) {
             self::$instances[$module_name] = $this;

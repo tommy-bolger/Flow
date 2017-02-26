@@ -32,6 +32,8 @@
 */
 namespace Framework\Core;
 
+use \Framework\Utilities\Encryption;
+
 class Framework {
     /**
     * @var object The instance of this object for retrieval via getInstance.
@@ -144,9 +146,21 @@ class Framework {
         //Initialize error handling
         $this->error_handler = new $error_handler_class();
         
+        //Add the root external directory to the loader
+        Loader::addBasePath("{$this->installation_path}/external");
+        Loader::addBasePath("{$this->installation_path}/vendor");
+        Loader::load('autoload.php', true, false);
+        
+        $this->configuration = new Configuration('framework');
+        
+        $this->configuration->loadFrameworkBaseFile();
+        
         //When not in safe mode initialize the rest of the framework.
-        if($mode != 'safe') {
-            $this->configuration = new Configuration('framework');
+        if($mode != 'safe') {            
+            //Add the base salt to the encryption object
+            Encryption::setBaseSalt($this->configuration->site_key);
+            
+            //Load the database config
             $this->configuration->load();
 
             //Retrieve the current environment
@@ -162,10 +176,6 @@ class Framework {
                     $this->error_handler->initializeProduction();
                     break;
             }
-            
-            //Add the root external directory to the loader
-            Loader::addBasePath($this->installation_path . '/external');
-            Loader::addBasePath($this->installation_path . '/vendor');
         }
     }
     
@@ -244,7 +254,7 @@ class Framework {
     /**
      * Retrieves the installation path of the framework.
      *
-     * @return void
+     * @return string
      */
     public function getInstallationPath() {
         return $this->installation_path;
