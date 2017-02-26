@@ -126,9 +126,11 @@ extends BaseFramework {
      */
     public function getParsedUri() {
         $parsed_uri = parent::getParsedUri();
-        
-        //Remove the framework mode as the first element
-        array_shift($parsed_uri);
+
+        //Remove the framework mode as the first element if it's in the uri
+        if(!empty($parsed_uri[0]) && $parsed_uri[0] == $this->mode) {
+            array_shift($parsed_uri);
+        }
 
         return $parsed_uri;
     }
