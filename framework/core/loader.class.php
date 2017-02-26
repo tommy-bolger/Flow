@@ -73,7 +73,7 @@ class Loader {
             
             $file_exists = false;
 
-            if(empty(self::$loaded[$file_path])) {
+            if(empty(self::$loaded[$file_path]) || empty($load_first_match)) {
                 foreach(self::$base_paths as $base_path) {
                     $full_file_path = "{$base_path}/{$file_path}";
 
