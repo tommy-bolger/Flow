@@ -108,7 +108,7 @@ extends BaseFramework {
                 $output = "{$callback}({$output})";
             }
         
-            echo json_encode($output_data, JSON_UNESCAPED_UNICODE);
+            echo $output;
         }
     }
     
