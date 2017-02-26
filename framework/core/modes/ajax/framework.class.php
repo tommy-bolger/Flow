@@ -99,6 +99,15 @@ extends BaseFramework {
         }
         
         if(!empty($output_data)) {
+            $output = json_encode($output_data, JSON_UNESCAPED_UNICODE);
+            
+            //Add jsonp request format if a callback is specified in the request
+            $callback = request()->callback;
+            
+            if(!empty($callback)) {            
+                $output = "{$callback}({$output})";
+            }
+        
             echo json_encode($output_data, JSON_UNESCAPED_UNICODE);
         }
     }

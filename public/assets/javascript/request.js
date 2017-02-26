@@ -36,7 +36,7 @@ Request.in_progress = {
     GET: {}
 };
 
-Request.submit = function(page_url, request_type, request_parameters, success_callback, loading_display_element) {        
+Request.submit = function(page_url, request_type, request_parameters, success_callback, cross_domain, loading_display_element) {        
     if(Request.in_progress[request_type][page_url] != null) {
         Request.in_progress[request_type][page_url].success_callbacks.push(success_callback);
         
@@ -54,11 +54,17 @@ Request.submit = function(page_url, request_type, request_parameters, success_ca
     Request.in_progress[request_type][page_url] = {
         success_callbacks: [success_callback]
     };
+    
+    var data_type = 'json';
+    
+    if(cross_domain != null) {
+        data_type = 'jsonp';
+    }
 
     $.ajax({
         type: request_type,
         cache: false,
-        dataType: "json",
+        dataType: data_type,
         url: page_url,
         data : request_parameters,
         success: function(response_data, text_status, jq_xhr) {
