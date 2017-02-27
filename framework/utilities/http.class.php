@@ -99,7 +99,7 @@ final class Http {
     * @return boolean The boolean value indicating SSL status.
     */
     public static function usingSSL() {
-        return !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on';
+        return ((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on') || (!empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https'));
     }
     
     /**
