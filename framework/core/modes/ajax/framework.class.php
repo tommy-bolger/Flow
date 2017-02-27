@@ -53,10 +53,17 @@ extends BaseFramework {
      *
      * @return void
      */
-    public function __construct($mode = 'ajax') {
-        header('Content-Type: application/json');
-    
+    public function __construct($mode = 'ajax') {    
         parent::__construct($mode);
+        
+        $callback = request()->callback;
+        
+        if(empty($callback)) {
+            header('Content-Type: application/json;charset=UTF-8');
+        }
+        else {
+            header('Content-Type: application/javascript;charset=UTF-8');
+        }
     }
     
     /**
