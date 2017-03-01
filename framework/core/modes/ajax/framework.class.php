@@ -59,10 +59,10 @@ extends BaseFramework {
         $callback = request()->callback;
         
         if(empty($callback)) {
-            header('Content-Type: application/json');
+            header('Content-Type: application/json;charset=UTF-8');
         }
         else {
-            header('Content-Type: application/javascript');
+            header('Content-Type: application/javascript;charset=UTF-8');
         }
     }
     
@@ -107,6 +107,8 @@ extends BaseFramework {
         
         if(!empty($output_data)) {
             $output = json_encode($output_data, JSON_UNESCAPED_UNICODE);
+            
+            $output = utf8_encode($output);
             
             //Add jsonp request format if a callback is specified in the request
             $callback = request()->callback;
