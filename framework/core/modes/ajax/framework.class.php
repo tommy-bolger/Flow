@@ -112,8 +112,6 @@ extends BaseFramework {
             $callback = request()->callback;
             
             if(!empty($callback)) {    
-                $output = utf8_encode($output);
-                
                 $output = "{$callback}({$output})";
             }
         
