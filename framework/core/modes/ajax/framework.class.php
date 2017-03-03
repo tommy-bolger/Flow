@@ -59,10 +59,10 @@ extends BaseFramework {
         $callback = request()->callback;
         
         if(empty($callback)) {
-            header('Content-Type: application/json; charset=ISO-8859-1');
+            header('Content-Type: application/json');
         }
         else {
-            header('Content-Type: application/javascript; charset=ISO-8859-1');
+            header('Content-Type: application/javascript');
         }
     }
     
