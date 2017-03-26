@@ -83,6 +83,11 @@ extends ResultSet {
     protected $left_join_placeholder_values = array();
     
     /**
+    * @var array All of the GROUP BY criteria for this query dataset.
+    */
+    protected $group_by_criteria = array();
+    
+    /**
      * Initializes a new instance of this class.
      *
      * @param string $name The name of the resultset.    
@@ -96,6 +101,7 @@ extends ResultSet {
             {{FROM_TABLE}}
             {{JOIN_CRITERIA}}
             {{WHERE_CRITERIA}}
+            {{GROUP_BY_CRITERIA}}
             {{ORDER_CRITERIA}}
             {{LIMIT_CRITERIA}}
         ";
@@ -266,6 +272,23 @@ extends ResultSet {
         
         $this->filter_placeholder_values = array_merge($this->filter_placeholder_values, $placeholder_values);
     }
+    
+    /**
+     * Adds a group by criteria to the query dataset.
+     * 
+     * @param string $criteria The individual criteria to group the dataset by.
+     * @param string $having (optional) The criteria for the HAVING keyword.
+     * @return void
+     */
+    public function addGroupByCriteria($criteria, $having = NULL) {        
+        $group_by_criteria = $criteria;
+        
+        if(!empty($having)) {
+            $group_by_criteria .= " HAVING {$having}";
+        }
+        
+        $this->group_by_criteria[] = $group_by_criteria;
+    }
 
     /**
      * Adds a sort column criteria to the existing criteria of the result set.
@@ -424,6 +447,14 @@ extends ResultSet {
         
         $query = str_replace('{{WHERE_CRITERIA}}', $where_criteria, $query);
         $query = str_replace('{{AND_CRITERIA}}', $and_criteria, $query);
+        
+        $group_by_criteria = '';
+        
+        if(!empty($this->group_by_criteria)) {
+            $group_by_criteria = 'GROUP BY ' . implode(', ', $this->group_by_criteria);
+        }
+        
+        $query = str_replace('{{GROUP_BY_CRITERIA}}', $group_by_criteria, $query);
         
         /* ---------- Partition tables ---------- */
         

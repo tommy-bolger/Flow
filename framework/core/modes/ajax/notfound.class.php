@@ -1,6 +1,6 @@
 <?php
 /**
-* Handles cases where page classes cannot be found.
+* Handles cases where ajax classes cannot be found.
 * Copyright (c) 2017, Tommy Bolger
 * All rights reserved.
 * 
@@ -30,13 +30,13 @@
 * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE 
 * POSSIBILITY OF SUCH DAMAGE.
 */
-namespace Framework\Core\Modes\Page;
+namespace Framework\Core\Modes\Ajax;
 
-use \Framework\Core\Controllers\Page as PageController;
+use \Framework\Core\Controllers\Web;
 
 class NotFound
-extends PageController {    
-    public function __construct($module_name) { 
+extends Web {    
+    public function __construct($module_name) {   
         http_response_code(404);
     
         parent::__construct($module_name);
@@ -45,5 +45,25 @@ extends PageController {
         $page_class_path = $this->framework->getQualifiedPagePath();
         
         $this->framework->error_handler->logMessage("Page class '{$page_class_path}' could not be found.");
+    }
+    
+    public function action() {
+        return "The endpoint you've requested is invalid. Please contact this site's administator for assistance.";
+    }
+    
+    public function actionGet() {
+        return $this->action();
+    }
+    
+    public function actionPost() {
+        return $this->action();
+    }
+    
+    public function actionDelete() {
+        return $this->action();
+    }
+    
+    public function actionPut() {
+        return $this->action();
     }
 }

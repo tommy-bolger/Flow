@@ -69,6 +69,11 @@ extends BaseFramework {
     * @var string The name of the method to call.
     */
     protected $method_name;
+    
+    /**
+    * @var boolean Indicates if database logging should be enabled for the duration of this process.
+    */
+    protected $database_query_logging = false;
 
     /**
      * Initializes an instance of the framework in cli mode.
@@ -77,8 +82,23 @@ extends BaseFramework {
      * @return void
      */
     public function __construct($output_on_production = true) {
-        $mode = 'cli';
+        $mode = $this->setFrameworkArguments();
 
+        parent::__construct($mode);    
+        
+        if($this->environment == 'production' && !$output_on_production) {
+            $this->output_enabled = false;
+        }
+    }
+    
+    /**
+     * Sets command line arguments that are specific to the framework from the command being executed.
+     *
+     * @return string The mode that the framework should run in.
+     */
+    protected function setFrameworkArguments() {
+        $mode = 'cli';
+    
         /* 
             A small hack to initialize the framework in a limited safe mode. 
             TODO: Need to integrate this into a separate function for framework only flags when time permits.
@@ -91,13 +111,17 @@ extends BaseFramework {
                 
                 unset($_SERVER['argv'][$safe_mode_index]);
             }
+            
+            $database_query_logging_index = array_search('--database_query_logging', $_SERVER['argv'], true);
+            
+            if($database_query_logging_index !== false) {   
+                $this->database_query_logging = true;
+            
+                unset($_SERVER['argv'][$database_query_logging_index]);
+            }
         }
-
-        parent::__construct($mode);    
         
-        if($this->environment == 'production' && !$output_on_production) {
-            $this->output_enabled = false;
-        }
+        return $mode;
     }
     
     /**

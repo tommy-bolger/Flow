@@ -86,10 +86,6 @@ extends BaseFramework {
     public function run() {
         $page_class_name = $this->getPageClass();
 
-        if(empty($page_class_name)) {
-            $this->initializeNotFound('class');
-        }
-
         $current_page_class = new $page_class_name();
 
         $current_page_class->init($current_page_class);
@@ -102,7 +98,7 @@ extends BaseFramework {
             $output_data = $current_page_class->$action_name();
         }
         else {
-            $this->initializeNotFound('');
+            $this->initializeNotFound();
         }
         
         if(!empty($output_data)) {
@@ -156,8 +152,8 @@ extends BaseFramework {
      *
      * @return void
      */
-    protected function initializeNotFound($type) {
-        header('HTTP/1.0 404 Not Found');
+    protected function initializeNotFound() {
+        http_response_code(404);
         
         $this->error_handler->logMessage("Class '{$this->qualified_page_path}' could not be found.");
         

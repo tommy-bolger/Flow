@@ -32,6 +32,7 @@
 */
 namespace Framework\Core\Modes\Page;
 
+use \Exception;
 use \Framework\Core\Modes\Web;
 use \Framework\Modules\Module;
 
@@ -186,8 +187,10 @@ extends Web {
         $sub_path = implode('\\ ', $this->subdirectory_path) . '\\ ';
 
         $this->page_class_name = $page_class_name;
+        
+        $page_base_class_path = "\\Modules\\{$sub_path}";
 
-        $page_class_path = "\\Modules\\{$sub_path}{$page_class_name}";
+        $page_class_path = "{$page_base_class_path}{$page_class_name}";
 
         $page_class_path = $this->formatNamespace($page_class_path);
 
@@ -199,11 +202,19 @@ extends Web {
             
             $home_page_class_exists = $this->classExists($home_page_class_path);
         
+            //If the current page class doesn't exist get the not found page  
             if(empty($home_page_class_exists)) {
-                $this->qualified_page_path = $page_class_path;  
-        
-                //If the current page class doesn't exist get the not found page   
-                $page_class_path = '\\Framework\\Core\\Modes\\Page\\NotFound';
+                $this->qualified_page_path = $page_class_path;
+                
+                $not_found_page_class_path = $this->formatNamespace("{$page_base_class_path}NotFound");
+                $not_found_page_class_exists = $this->classExists($not_found_page_class_path);
+
+                if($not_found_page_class_exists) {
+                    $page_class_path = $not_found_page_class_path;
+                }
+                else {
+                    throw new Exception("Class '{$not_found_page_class_path}' doesn't exist. Please create this page in your module's /controllers/{$this->mode} folder.");
+                }
                 
                 $this->page_class_name = $page_class_path;
             }
