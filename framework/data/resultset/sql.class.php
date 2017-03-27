@@ -586,4 +586,13 @@ extends ResultSet {
         
         $this->base_query_placeholders = $query_placeholders;
     }
+    
+    /**
+     * Retrieves the base query.
+     * 
+     * @return string The base query of this resultset.
+     */
+    public function getBaseQuery() {
+        return $this->base_query;
+    }
 }
