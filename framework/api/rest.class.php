@@ -229,6 +229,6 @@ class Rest {
             $this->checkForErrors();
         }
 
-        return json_decode(utf8_encode($this->last_response));
+        return json_decode(mb_convert_encoding($this->last_response, 'UTF-8', 'auto'));
     }
 }
