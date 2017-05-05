@@ -9,10 +9,7 @@ extends BaseSteam {
     /**
     * Retrieves the subscriptions for the specified channel.
     *
-    * @param string $channel The channel name.
-    * @param integer $limit Maximum number of objects in array. Default is 25. Maximum is 100.
-    * @param string $offset The offset for pagination. Defaults to 0.
-    * @param string $direction The direction to sort results by. Valid values are 'desc' and 'asc'. Default is 'desc'.
+    * @param array $request_ids The steamids to request summaries for.
     * @return json
     */
     public function getPlayerSummaries(array $request_ids) {       

@@ -40,7 +40,7 @@ use \Framework\Core\Framework;
 * @return object
 */
 function db($database_connection_name = NULL) {
-    return \Framework\Data\Database::getInstance($database_connection_name);
+    return \Framework\Data\Database\Database::getInstance($database_connection_name);
 }
 
 /**

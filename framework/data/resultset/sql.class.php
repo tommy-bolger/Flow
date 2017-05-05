@@ -48,6 +48,11 @@ extends ResultSet {
     protected $base_query_placeholders = array();
     
     /**
+    * @var integer The number of records to retrieve from a cursor of this resultset if it has been set to one.
+    */
+    protected $cursor_retrieval_chunk_size;
+    
+    /**
     * @var array The fields to retrieve in the SQL dataset.
     */
     protected $select_fields = array();
@@ -129,6 +134,21 @@ extends ResultSet {
         }
         
         return $return_value;
+    }
+    
+    /**
+     * Sets the resultset as a cursor to retrieve chunks of data from.
+     * 
+     * @param integer $cursor_retrieval_chunk_size The number of records to retrieve of each chunk in this cursor.
+     * @return void
+     */
+    public function setAsCursor($cursor_retrieval_chunk_size) {
+        $this->base_query = "
+            DECLARE {$this->name} CURSOR FOR
+            {$this->base_query}
+        ";
+        
+        $this->cursor_retrieval_chunk_size = $cursor_retrieval_chunk_size;
     }
     
     /**
@@ -594,5 +614,21 @@ extends ResultSet {
      */
     public function getBaseQuery() {
         return $this->base_query;
+    }
+    
+    /**
+     * Retrieves the next chunk of data from this resultset's cursor if it is set to one.
+     * 
+     * @return string The base query of this resultset.
+     */
+    public function getNextCursorChunk() {
+        if(!isset($this->cursor_retrieval_chunk_size)) {
+            throw new Exception("This resultset is not set to a cursor. Please do so via setAsCursor().");
+        }
+        
+        return db()->getAll("
+            FETCH {$this->cursor_retrieval_chunk_size}
+            FROM {$this->name}
+        ");
     }
 }

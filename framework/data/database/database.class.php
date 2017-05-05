@@ -30,7 +30,7 @@
 * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE 
 * POSSIBILITY OF SUCH DAMAGE.
 */
-namespace Framework\Data;
+namespace Framework\Data\Database;
 
 use PDO;
 use \PDOStatement;
