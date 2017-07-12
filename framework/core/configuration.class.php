@@ -253,12 +253,14 @@ final class Configuration {
      */
     public function load() {    
         $full_configuration = array();
-    
-        if($this->framework->enable_cache) {
-            $full_configuration = cache()->get($this->name, 'configurations');
+        
+        $cache = $this->framework->cache;
+
+        if($cache->initialized()) {
+            $full_configuration = $cache->get($this->name, 'configurations');
         }
         
-        if(empty($full_configuration)) {        
+        if(empty($full_configuration)) {     
             $where_clause = '';
             $placeholder_values = array();
         
@@ -268,7 +270,7 @@ final class Configuration {
             }
             else {            
                 $where_clause = 'module_id IS NULL';
-            }
+            }          
         
             $database_configuration = db()->getAll("
                 SELECT 
@@ -286,9 +288,9 @@ final class Configuration {
             if(!empty($database_configuration)) {
                 //Merge the two configurations into one
                 $this->full_configuration = array_merge($this->full_configuration, $database_configuration);
-            
-                if($this->framework->enable_cache) {
-                    cache()->set($this->name, serialize($this->full_configuration), 'configurations');
+
+                if($cache->initialized()) {
+                    $cache->set($this->name, json_encode($this->full_configuration, JSON_UNESCAPED_UNICODE), 'configurations');
                 }
                 
                 $this->loaded = true;
@@ -296,7 +298,7 @@ final class Configuration {
         }
         else {
             if(!is_array($full_configuration)) {
-                $this->full_configuration = unserialize($full_configuration);
+                $this->full_configuration = json_decode($full_configuration, JSON_OBJECT_AS_ARRAY);
             }
         }
         

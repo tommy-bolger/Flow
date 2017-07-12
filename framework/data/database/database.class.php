@@ -34,8 +34,10 @@ namespace Framework\Data\Database;
 
 use PDO;
 use \PDOStatement;
+use \Exception;
 use \Framework\Core\Framework;
 use \Framework\Utilities\Encryption;
+use \Framework\Data\Database\QueryGenerator;
 
 class Database {
     /**
@@ -144,7 +146,7 @@ class Database {
             unset(self::$database_connections[$connection_name]);
         }
         else {
-            throw new \Exception("Connection '{$connection_name}' does not exist.");
+            throw new Exception("Connection '{$connection_name}' does not exist.");
         }
     }
     
@@ -220,7 +222,7 @@ class Database {
      */
     private function throwException($exception_message, $exception_code = 0) {
         if(!$this->use_error_handler) {
-            throw new \Exception($exception_message, $exception_code);
+            throw new Exception($exception_message, $exception_code);
         }
         else {
             trigger_error($exception_message);
@@ -267,6 +269,15 @@ class Database {
      */
     public function getDatabaseName() {
         return $this->database_name;
+    }
+    
+    /**
+     * Gets the name of the driver for this connection.
+     *
+     * @return string
+     */
+    public function getDriverName() {
+        return $this->database_driver_name;
     }
     
     /**
@@ -496,168 +507,6 @@ class Database {
     }
     
     /**
-     * Generates a where clause for use in a query.
-     *
-     * @param mixed $where_clause The fields that go in the where clause. An associative array or a valid string are accepted.
-     * @param array $case_insensitive_columns (optional) A list of columns in the where clause that are matched to a case insensitive value.     
-     * @return string The completed where clause.
-     */
-    public function generateWhereClause($where_clause, $case_insensitive_columns = array()) {
-        assert('is_array($case_insensitive_columns)');
-    
-        $query_where_clause = "";
-    
-        if(!empty($where_clause)) {
-            if(is_array($where_clause)) {
-                $where_clause_columns = array_keys($where_clause);
-                
-                $where_column_row = 0;
-                
-                foreach($where_clause as $where_clause_column => $where_clause_value) {                    
-                    $column_equivalency = "=";
-                    $value_placeholder = "?";
-                    
-                    if(!is_null($where_clause_value)) {
-                        if(!empty($case_insensitive_columns)) {
-                            if(in_array($where_clause_column, $case_insensitive_columns)) {
-                                $column_equivalency = "ILIKE";
-                            }
-                        }
-                    }
-                    else {
-                        $column_equivalency = "IS";
-                        $value_placeholder = 'NULL';
-                    }
-                
-                    if($where_column_row == 0) {
-                        $query_where_clause .= "\nWHERE\t{$where_clause_column} {$column_equivalency} {$value_placeholder}";
-                    }
-                    else {
-                        $query_where_clause .= "\nAND\t{$where_clause_column} {$column_equivalency} {$value_placeholder}";
-                    }
-                    
-                    ++$where_column_row;
-                }
-            }
-            else {
-                $query_where_clause .= "\nWHERE\n\t{$where_clause}";
-            }
-        }
-        
-        return $query_where_clause;
-    }
-    
-    /**
-     * Constructs a select query based on the parameters passed to it.
-     *
-     * @param string $table_name The name of the table to retrieve data from.
-     * @param mixed $fields The fields to retrieve from the query. An associative array or a valid string are accepted.
-     * @param mixed $where_clause The fields that go to the where clause. An associative array or a valid string are accepted.
-     * @param array $case_insensitive_columns A list of columns in the where clause that are matched to a case insensitive value.     
-     * @return string The completed update query
-     */
-    private function generateSelectQuery($table_name, $fields, $where_clause, $case_insensitive_columns) {
-        //Set the beginning of the query        
-        if(is_array($fields)) {
-            $fields = implode(",\n", $fields);
-        }
-    
-        $select_query = "SELECT\n{$fields}\nFROM {$table_name}";
-        
-        $select_query .= $this->generateWhereClause($where_clause, $case_insensitive_columns);
-
-        return $select_query;
-    }
-    
-    /**
-     * Constructs an insert query based on the parameters passed to it.
-     *
-     * @param string $table_name The name of the table to insert a new row into.
-     * @param mixed $fields The fields to be inserted. An associative array is only accepted.
-     * @return string The completed update query.
-     */
-    private function generateInsertQuery($table_name, $fields) {
-        $insert_field_names = implode(", ", array_keys($fields));
-
-        //Set the beginning of the query
-        $insert_query = "INSERT INTO {$table_name} ({$insert_field_names})\nVALUES (" . 
-            implode(', ', array_fill(0, count($fields), '?')) . ")";
-
-        return $insert_query;
-    }
-    
-    /**
-     * Constructs a multi insert query based on the parameters passed to it.
-     *
-     * @param string $table_name The name of the table to insert a new row into.
-     * @param mixed $fields The fields to be inserted.
-     * @param integer $number_of_records The number of records being inserted.
-     * @return string The completed insert query.
-     */
-    private function generateMultiInsertQuery($table_name, array $fields, $number_of_records) {
-        $insert_field_names = implode(", ", $fields);
-        
-        $record_placeholders = implode(', ', array_fill(0, count($fields), '?'));
-    
-        $multi_record_placeholders = array_fill(0, $number_of_records, $record_placeholders);
-            
-        $values = '(' . implode('), (', $multi_record_placeholders) . ')';
-
-        $insert_query = "INSERT INTO {$table_name} ({$insert_field_names})\nVALUES {$values};";
-
-        return $insert_query;
-    }
-    
-    /**
-     * Constructs an update query based on the parameters passed to it.
-     *
-     * @param string $table_name The name of the target table to update.
-     * @param mixed $fields The fields with values to update. An associative array or a valid string are accepted.
-     * @param mixed $where_clause The fields that go to the where clause. An associative array or a valid string are accepted.
-     * @param array $case_insensitive_columns A list of columns in the where clause that are matched to a case insensitive value.          
-     * @return string The completed update query.
-     */
-    private function generateUpdateQuery($table_name, $fields, $where_clause, $case_insensitive_columns) {
-        //Set the beginning of the query        
-        $update_query = "UPDATE\n\t{$table_name}\nSET";
-        
-        if(is_array($fields)) {
-            $update_query_columns = array_keys($fields);
-            
-            //Generate the fields to be updated            
-            foreach($update_query_columns as $update_query_column) {
-                $update_query .= "\n\t{$update_query_column} = ?,";
-            }
-            
-            $update_query = rtrim($update_query, ",");
-        }
-        else {
-            $update_query .= "\n\t{$fields}";
-        }
-        
-        $update_query .= $this->generateWhereClause($where_clause, $case_insensitive_columns);
-
-        return $update_query;
-    }
-    
-    /**
-     * Constructs a delete query based on the parameters passed to it
-     *
-     * @param string $table_name The name of the target table to delete from.
-     * @param mixed $where_clause The fields that go to the where clause. An associative array or a valid string are accepted.
-     * @param array $case_insensitive_columns A list of columns in the where clause that are matched to a case insensitive value.     
-     * @return string The generated delete query.
-     */
-    private function generateDeleteQuery($table_name, $where_clause, $case_insensitive_columns) {
-        //Set the beginning of the query
-        $delete_query = "DELETE FROM\n\t{$table_name}";
-        
-        $delete_query .= $this->generateWhereClause($where_clause, $case_insensitive_columns);
-        
-        return $delete_query;
-    }
-    
-    /**
      * Performs the common functionality of the getData(), update(), insert(), and delete() functions.
      *
      * @param string $query_type The type of query that this function will execute.     
@@ -679,19 +528,19 @@ class Database {
         if(empty($query)) {
             switch($query_type) {
                 case 'insert':
-                    $query = $this->generateInsertQuery($table_name, $fields);
+                    $query = QueryGenerator::getInsertQuery($table_name, array_keys($fields));
                     break;
                 case 'update':
-                    $query = $this->generateUpdateQuery($table_name, $fields, $where_clause, $case_insensitive_columns);
+                    $query = QueryGenerator::getUpdateQuery($table_name, $fields, $where_clause, $case_insensitive_columns);
                     break;
                 case 'delete':
-                    $query = $this->generateDeleteQuery($table_name, $where_clause, $case_insensitive_columns);
+                    $query = QueryGenerator::getDeleteQuery($table_name, $where_clause, $case_insensitive_columns);
                     break;
                 case 'select':
-                    $query = $this->generateSelectQuery($table_name, $fields, $where_clause, $case_insensitive_columns);
+                    $query = QueryGenerator::getSelectQuery($table_name, $fields, $where_clause, $case_insensitive_columns);
                     break;
                 default:
-                    throw new \Exception("Specified query type '{$query_type}' is not valid.");
+                    throw new Exception("Specified query type '{$query_type}' is not valid.");
                     break;
             }
               
@@ -726,22 +575,6 @@ class Database {
         $query_object = $this->prepareExecuteQuery($query, array_values($placeholder_values), $query_name);
 
         return $query_object;
-    }
-    
-    /**
-     * Constructs a select query with a where clause based on the parameters passed to it, caches the query, executes it, and returns the resulting dataset.
-     *
-     * @param string $table_name The name of the table to retrieve data from.
-     * @param mixed $fields (optional) The fields to retrieve from the query. An associative array or a valid string are accepted. Defaults to '*'.
-     * @param array $where_clause (optional) The where clause. An associative array or a valid string are accepted.
-     * @param array $case_insensitive_columns (optional) A list of columns in the where clause that are matched to a case insensitive value.
-     * @param string $query_name (optional) The cache name of the query. This enables caching of the prepared statement.
-     * @return array
-     */
-    public function getData($table_name, $fields = "*", $where_clause = "", $case_insensitive_columns = array(), $query_name = '') {
-        $select_object = $this->generateQuery('select', $table_name, $fields, $where_clause, $case_insensitive_columns, $query_name);
-        
-        return $select_object->fetchAll(PDO::FETCH_ASSOC);
     }
     
     /**
@@ -786,7 +619,7 @@ class Database {
         if(!empty($records)) {
             $first_record = current($records);
             
-            $query = $this->generateMultiInsertQuery($table_name, array_keys($first_record), count($records));
+            $query = QueryGenerator::getMultiInsertQuery($table_name, array_keys($first_record), count($records));
             
             $placeholder_values = array();
             
@@ -843,5 +676,16 @@ class Database {
         $query_object = $this->prepareExecuteQuery($sql_statement, $placeholder_values, $query_name);
         
         return $query_object->rowCount();
+    }
+    
+    /**
+     * Commits a transaction only if one is in progress.
+     *      
+     * @return void
+     */
+    public function commit() {
+        if($this->database_connection->inTransaction()) {
+            $this->database_connection->commit();
+        }
     }
 }

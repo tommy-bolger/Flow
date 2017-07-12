@@ -64,15 +64,13 @@ extends BaseFramework {
         if($this->environment == 'production') {
             $output = '';
         
-            if($this->enable_cache) {
-                $cache = cache();
-                
-                $output = $cache->get($this->full_path, $this->type);
+            if($this->cache->initialized()) {                
+                $output = $this->cache->get($this->full_path, $this->type);
 
                 if(empty($output)) {
                     $output = file_get_contents($this->full_path);
                     
-                    $cache->set($this->full_path, $output, $this->type);
+                    $this->cache->set($this->full_path, $output, $this->type);
                 }
 
                 echo $output;

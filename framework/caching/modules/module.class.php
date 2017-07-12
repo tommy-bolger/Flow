@@ -104,6 +104,23 @@ class Module {
     }
     
     /**
+     * Gets the full key from the base key and category name.
+     *
+     * @param string $key The name of the variable to cache.
+     * @param string $value_category (optional) The category that this key falls under.
+     * @return string
+     */
+    protected function getFullKeyName($key, $value_category) {
+        $full_key = $key;
+        
+        if(!empty($value_category)) {
+            $full_key = "{$value_category}:{$key}";
+        }
+        
+        return $full_key;
+    }
+    
+    /**
      * Sets a variable value in the cache.
      *
      * @param string $value_key The name of the variable to cache.
@@ -113,7 +130,7 @@ class Module {
      * @return void
      */
     public function set($value_key, $value, $value_category = '', $cache_time = NULL) {                           
-        return $this->connection_object->set("{$value_category}_{$value_key}", $value, $cache_time);
+        return $this->connection_object->set($this->getFullKeyName($value_key, $value_category), $value, $cache_time);
     }
     
     /**
@@ -139,14 +156,8 @@ class Module {
      * @param string $value_category (optional) The category group name this variable belongs to.
      * @return mixed
      */
-    public function get($value_key, $value_category = '') {
-        $cache_entry_name = $value_key;
-        
-        if(!empty($value_category)) {
-            $cache_entry_name = "{$value_category}_{$value_key}";
-        }
-    
-        return $this->connection_object->get($cache_entry_name);
+    public function get($value_key, $value_category = '') {    
+        return $this->connection_object->get($this->getFullKeyName($value_key, $value_category));
     }
     
     /**
@@ -156,13 +167,7 @@ class Module {
      * @param string $value_category (optional) The category group name these variables belong to.
      * @return mixed
      */
-    public function getMultiple(array $keys, $value_category = '') {    
-        $cache_entry_name = $value_key;
-        
-        if(!empty($value_category)) {
-            $cache_entry_name = "{$value_category}_{$value_key}";
-        }
-        
+    public function getMultiple(array $keys, $value_category = '') {            
         $retrieved_values = array();
         
         if(!empty($keys)) {
@@ -173,6 +178,13 @@ class Module {
     
         return $retrieved_values;
     }
+    
+    /**
+     * Initializes a new transaction.
+     *
+     * @return void
+     */
+    public function transaction() {}
     
     /**
      * Clears all stored values via the connection object.

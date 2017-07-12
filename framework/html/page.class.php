@@ -217,7 +217,7 @@ class page {
         //Add this header to help prevent clickjacking attacks in modern browsers
         header('X-Frame-Options: DENY');
 
-        if($this->framework->enable_cache && $this->cache_page) {
+        if($this->framework->cache->initialized() && $this->cache_page) {
             header('Content-Encoding: gzip');
 
             //Immediately call the displayCache function
@@ -551,8 +551,8 @@ class page {
     protected function renderMetaTags() {
         $meta_tag_html = '';
         
-        if($this->framework->enable_cache) {
-            $meta_tag_html = cache()->get($this->name, 'meta');
+        if($this->framework->cache->initialized()) {
+            $meta_tag_html = $this->framework->cache->get($this->name, 'meta');
             
             if(!empty($meta_tag_html)) {
                 return $meta_tag_html;
@@ -570,8 +570,8 @@ class page {
                 $meta_tag_html .= " />";
             }
             
-            if($this->framework->enable_cache) {
-                cache()->set($this->name, $meta_tag_html, 'meta');
+            if($this->framework->cache->initialized()) {
+                $this->framework->cache->set($this->name, $meta_tag_html, 'meta');
             }
         }
         
@@ -726,7 +726,7 @@ class page {
      */
     public function displayCache() {
         //If the current page html is already cached then output it and exit
-        $page_cache = cache()->get($this->name, 'html');
+        $page_cache = $this->framework->cache->get($this->name, 'html');
     
         if(!empty($page_cache)) {
             echo $page_cache;
@@ -738,7 +738,7 @@ class page {
             $page_cache = file_cache()->get($this->name, 'html/', 'gz');
             
             if(!empty($page_cache)) {            
-                cache()->set($this->name, $page_cache, 'html');
+                $this->framework->cache->set($this->name, $page_cache, 'html');
 
                 echo $page_cache;
 
@@ -853,7 +853,7 @@ class page {
         }
 
         //If caching is enabled and this page html is not cached then do so
-        if($this->framework->enable_cache && $this->cache_page) {
+        if($this->framework->cache->initialized() && $this->cache_page) {
             $html_minifier = new Html();
             $html_minifier->setUnminifiedData($page_html);
             $html_minifier->clean();
@@ -863,7 +863,7 @@ class page {
             
             file_cache()->set($this->name, $page_html, 'html/', 'gz');
         
-            cache()->set($this->name, $page_html, 'html');
+            $this->framework->cache->set($this->name, $page_html, 'html');
         }
         else {
             ob_end_flush();

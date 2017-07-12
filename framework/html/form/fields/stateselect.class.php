@@ -50,8 +50,8 @@ extends Dropdown {
         
         $framework = Framework::getInstance();
     
-        if($framework->enable_cache) {
-            $options = cache()->get('options', 'state_select');
+        if($framework->cache->initialized()) {
+            $options = $framework->cache->get('options', 'state_select');
         }
     
         if(empty($options)) {
@@ -64,8 +64,8 @@ extends Dropdown {
                 ORDER BY abbreviation
             ", ' - ');
             
-            if($framework->enable_cache) {
-                cache()->set('options', $options, 'state_select');
+            if($framework->cache->initialized()) {
+                $framework->cache->set('options', $options, 'state_select');
             }
         }
     

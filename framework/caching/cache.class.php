@@ -47,6 +47,7 @@ class Cache {
         'apc' => '\Framework\Caching\Modules\APC',
         'memcached' => '\Framework\Caching\Modules\Memcached',
         'redis' => '\Framework\Caching\Modules\Redis\Redis',
+        'sql' => '\Framework\Caching\Modules\SQL'
     );
     
     /**
@@ -58,6 +59,11 @@ class Cache {
     * @var object The instance of this object.
     */
     protected static $instances = array();
+    
+    /**
+    * @var boolean Indicates if the instance is initalized with a correct connection to the cache source.
+    */
+    protected $initialized = false;
     
     /**
     * @var string The name of the connection available in the cache_connections configuration file in protected/.
@@ -86,12 +92,32 @@ class Cache {
                 self::$connections = (require_once(dirname(dirname(__DIR__)) . '/protected/cache_connections.php'));
             }
             
-            $instance = new Cache($connection_name);
-            $instance->connect();
-        
-            if(!isset(self::$instances[$connection_name])) {
-                self::$instances[$connection_name] = $instance;
-            }                         
+            if(!empty(self::$connections[$connection_name])) {
+                $connection_configuration = self::$connections[$connection_name];
+
+                if(is_array($connection_configuration)) {
+                    $instance = new Cache($connection_name);
+                    $instance->connect();
+                
+                    if(!isset(self::$instances[$connection_name])) {
+                        self::$instances[$connection_name] = $instance;
+                    }
+                }
+                else {
+                    if(!isset(self::$instances[$connection_name])) {
+                        $instance = self::getInstance($connection_configuration, $new_connection);
+                    
+                        self::$instances[$connection_name] = $instance;
+                    }
+                }
+            }
+            else {                
+                $instance = new Cache($connection_name);
+            
+                if(!isset(self::$instances[$connection_name])) {
+                    self::$instances[$connection_name] = $instance;
+                }
+            }
         }
         else {
             $instance = self::$instances[$connection_name];
@@ -121,6 +147,11 @@ class Cache {
         return call_user_func_array(array($this->cache_module, $function_name), $arguments);
     }
     
+    /**
+     * Connects to this instance's module.
+     * 
+     * @return void
+     */
     public function connect() {
         if(empty(self::$connections[$this->connection_name])) {
             throw new Exception("Specified connection name '{$this->connection_name}' does not exist in cache_connections.php.");
@@ -138,79 +169,28 @@ class Cache {
             throw new Exception("Specified module '{$module_name}' for connection name '{$this->connection_name}' in cache_connections.php is not valid.");
         }
         
-        if(empty($connection_configuration['options'])) {
-            throw new Exception("Specified connection name '{$this->connection_name}' does not specify connection options in cache_connections.php.");
+        $connection_configuration_options = array();
+        
+        if(!empty($connection_configuration['options'])) {
+            $connection_configuration_options = $connection_configuration['options'];
         }
         
         $cache_module = self::$cache_modules[$module_name];
         
         $this->cache_module = new $cache_module();
         
-        $this->cache_module->connect($connection_configuration['options']);
-    }
-    
-    /**
-     * Sets a variable value in the cache.
-     *
-     * @param string $value_key The name of the variable to cache.
-     * @param mixed $value The value of the variable to cache.
-     * @param string $value_category (optional) The category group name this variable belongs to.
-     * @param integer $cache_time (optional) The lifetime of the cached variable.     
-     * @return void
-     */
-    public function set($value_key, $value, $value_category = '', $cache_time = NULL) {                   
-        if(empty($cache_time)) {
-            $cache_time = self::DEFAULT_CACHE_TIME;
-        }
+        $this->cache_module->connect($connection_configuration_options);
         
-        $set_success = $this->cache_module->set($value_key, $value, $value_category, $cache_time);
-
-        if($set_success === false) {
-            throw new \Exception("Could not set variable '{$value_key}' in the cache.");
-        }
+        $this->initialized = true;
     }
     
     /**
-     * Sets multiple variable values in the cache.
-     *
-     * @param array $values The values to cache. Format is value_name => value.
-     * @param string $value_category (optional) The category group name the variables belong to.
-     * @param integer $cache_time (optional) The lifetime of the cached variables.     
-     * @return void
+     * Indicates if the current instance is intialized with a connection.
+     * 
+     * @return boolean
      */
-    public function setMultiple($values, $value_category = '', $cache_time = NULL) {
-        $this->cache_module->setMultiple($values, $value_category, $cache_time);
-    }
-    
-    /**
-     * Retrieves a cached variable value from the cache.
-     *
-     * @param string $key The name of the variable in the cache.
-     * @param string $value_category (optional) The category group name this variable belongs to.
-     * @return mixed
-     */
-    public function get($value_key, $value_category = '') {    
-        return $this->cache_module->get($value_key, $value_category);
-    }
-    
-    /**
-     * Retrieves several cached variable values from the cache instance.
-     *
-     * @param string $keys The names of the variables in the cache.
-     * @param string $value_category (optional) The category group name these variables belong to.
-     * @return mixed
-     */
-    public function getMultiple(array $keys, $value_category = '') {    
-        return $this->getMultiple($keys, $value_category);
-    }
-    
-    /**
-     * Clears all stored values in cache.
-     *
-     * @return void
-     */
-    public function clear() {
-        $this->cache_module->clear();
+    public function initialized() {
+        return $this->initialized;
     }
 
     /**

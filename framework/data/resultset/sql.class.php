@@ -38,6 +38,11 @@ use \Exception;
 class SQL 
 extends ResultSet {
     /**
+    * @var Database An instance of the database connection.
+    */
+    protected $database;
+
+    /**
     * @var string The query for the base SQL dataset.
     */
     protected $base_query;
@@ -46,6 +51,11 @@ extends ResultSet {
     * @var array The placeholder values for the base SQL dataset.
     */
     protected $base_query_placeholders = array();
+    
+    /**
+    * @var object The resultset of the count query to get the count of the base query.
+    */
+    protected $count_resultset;
     
     /**
     * @var integer The number of records to retrieve from a cursor of this resultset if it has been set to one.
@@ -101,6 +111,8 @@ extends ResultSet {
     public function __construct($name) {
         parent::__construct($name);
         
+        $this->database = db();
+        
         $this->base_query = "
             {{SELECT_FIELDS}}
             {{FROM_TABLE}}
@@ -124,10 +136,8 @@ extends ResultSet {
     
         if(strpos($function_name, 'get') !== false || strpos($function_name, 'prepareExecuteQuery') !== false) {
             $finalized_query = $this->getFinalizedQuery();
-            
-            unset($finalized_query['non_sort_limit_query']);
         
-            $return_value = call_user_func_array(array(db(), $function_name), $finalized_query);
+            $return_value = call_user_func_array(array($this->database, $function_name), $finalized_query);
         }
         else {
             throw new Exception("Method '{$function_name}' does not exist in this object");
@@ -257,8 +267,8 @@ extends ResultSet {
     /**
      * Adds a join criteria to the result set.
      * 
-     * @param array $criteria The sql criteria to join with.
-     * @param array $placeholder_values The values of corresponding placeholders in the criteria.     
+     * @param string $criteria The sql criteria to join with.
+     * @param array $placeholder_values The values of corresponding placeholders in the criteria.  
      * @return void
      */
     public function addJoinCriteria($criteria, array $placeholder_values = array()) {        
@@ -268,10 +278,21 @@ extends ResultSet {
     }
     
     /**
+     * Clears all left join criteria from this resultset.
+     *  
+     * @return void
+     */
+    public function clearLeftJoinCriteria() {
+        $this->left_join_criteria = array();
+        
+        $this->left_join_placeholder_values = array();
+    }
+    
+    /**
      * Adds a left join criteria to the result set.
      * 
      * @param array $criteria The sql criteria to left join with.
-     * @param array $placeholder_values The values of corresponding placeholders in the criteria.     
+     * @param array $placeholder_values The values of corresponding placeholders in the criteria.   
      * @return void
      */
     public function addLeftJoinCriteria($criteria, array $placeholder_values = array()) {        
@@ -284,7 +305,7 @@ extends ResultSet {
      * Adds a filter criteria to the result set.
      * 
      * @param array $criteria The criteria to sort the result set by.
-     * @param array $placeholder_values The values of corresponding placeholders in the criteria.     
+     * @param array $placeholder_values The values of corresponding placeholders in the criteria. 
      * @return void
      */
     public function addFilterCriteria($criteria, array $placeholder_values = array()) {        
@@ -356,6 +377,14 @@ extends ResultSet {
         $this->addSortCriteria($this->select_fields[$alias], $direction);
     }
     
+    /**
+     * Clears all sort criteria for the current resultset.
+
+     * @return void
+     */
+    public function clearSortCriteria() {        
+        $this->sort_criteria = array();
+    }
     
     /**
      * Sets sort column criteria that overrides any existing criteria of the result set.
@@ -365,7 +394,7 @@ extends ResultSet {
      * @return void
      */
     public function setSortCriteria($criteria, $direction = 'ASC') {        
-        $this->sort_criteria = array();
+        $this->clearSortCriteria();
         
         $this->addSortCriteria($criteria, $direction);
     }
@@ -378,7 +407,7 @@ extends ResultSet {
      * @return void
      */
     public function setSortCriteriaFromAlias($alias, $direction = 'ASC') {
-        $this->sort_criteria = array();
+        $this->clearSortCriteria();
         
         $this->addSortCriteriaFromAlias($alias, $direction);
     }
@@ -406,8 +435,6 @@ extends ResultSet {
             $select_sql = "SELECT \n" . implode(",\n", $select_fields) . "\n";
         }
         
-        $query = str_replace('{{SELECT_FIELDS}}', $select_sql, $query);
-        
         /* ---------- FROM ---------- */
         
         $from_sql = '';
@@ -415,8 +442,6 @@ extends ResultSet {
         if(!empty($this->from_table)) {
             $from_sql = "FROM {$this->from_table}\n";
         }
-        
-        $query = str_replace('{{FROM_TABLE}}', $from_sql, $query);
         
         /* ---------- JOIN and LEFT JOIN ---------- */
         
@@ -438,9 +463,7 @@ extends ResultSet {
             }
             
             $query_placeholders += $this->left_join_placeholder_values;
-        }
-        
-        $query = str_replace('{{JOIN_CRITERIA}}', $join_criteria, $query);
+        }        
 
         /* ---------- WHERE/AND ---------- */
         $where_criteria = '';
@@ -465,16 +488,27 @@ extends ResultSet {
             $query_placeholders += $this->filter_placeholder_values;
         }
         
-        $query = str_replace('{{WHERE_CRITERIA}}', $where_criteria, $query);
-        $query = str_replace('{{AND_CRITERIA}}', $and_criteria, $query);
-        
         $group_by_criteria = '';
         
         if(!empty($this->group_by_criteria)) {
             $group_by_criteria = 'GROUP BY ' . implode(', ', $this->group_by_criteria);
         }
         
-        $query = str_replace('{{GROUP_BY_CRITERIA}}', $group_by_criteria, $query);
+        $query = str_replace(array(
+            '{{SELECT_FIELDS}}',
+            '{{FROM_TABLE}}',
+            '{{JOIN_CRITERIA}}',
+            '{{WHERE_CRITERIA}}',
+            '{{AND_CRITERIA}}',
+            '{{GROUP_BY_CRITERIA}}'
+        ), array(
+            $select_sql,
+            $from_sql,
+            $join_criteria,
+            $where_criteria,
+            $and_criteria,
+            $group_by_criteria
+        ), $query);
         
         /* ---------- Partition tables ---------- */
         
@@ -485,42 +519,30 @@ extends ResultSet {
             foreach($this->partition_table_names as $index => $partition_table_name) {
                 $partition_queries[] = str_replace(array(
                     '{{PARTITION_TABLE}}',
-                    ':',
                     '{{ORDER_CRITERIA}}',
                     '{{LIMIT_CRITERIA}}'
                 ), array(
                     "{$partition_table_name}",
-                    ":{$index}_",
                     '',
                     ''
                 ), $query);
 
                 if(!empty($query_placeholders)) {
                     foreach($query_placeholders as $placeholder_name => $placeholder_value) {
-                        if(!is_integer($placeholder_name)) {
-                            $partition_query_placeholders["{$index}_{$placeholder_name}"] = $placeholder_value;
-                        }
-                        else {
-                            $partition_query_placeholders[] = $placeholder_value;
-                        }
+                        $partition_query_placeholders[] = $placeholder_value;
                     }
                 }
             }
             
             $query = "
-                SELECT DISTINCT *
-                FROM (" . implode("\nUNION\n", $partition_queries) . ") unioned_query
+                SELECT *
+                FROM (" . implode("\nUNION ALL\n", $partition_queries) . ") unioned_query
                 {{ORDER_CRITERIA}}
                 {{LIMIT_CRITERIA}}
             ";
             
             $query_placeholders = $partition_query_placeholders;
         }
-        
-        $non_sort_limit_query = str_replace(array(
-            '{{ORDER_CRITERIA}}',
-            '{{LIMIT_CRITERIA}}'
-        ), '', $query);
         
         $order_by_criteria = '';
     
@@ -541,8 +563,6 @@ extends ResultSet {
             
             $order_by_criteria = "ORDER BY " . rtrim($order_by_criteria, ', ');
         }
-        
-        $query = str_replace('{{ORDER_CRITERIA}}', $order_by_criteria, $query);
     
         $limit_criteria = '';
     
@@ -561,10 +581,15 @@ extends ResultSet {
             $limit_criteria = "\nLIMIT {$this->rows_per_page}{$offset_criteria}";
         }
         
-        $query = str_replace('{{LIMIT_CRITERIA}}', $limit_criteria, $query);
+        $query = str_replace(array(
+            '{{ORDER_CRITERIA}}',
+            '{{LIMIT_CRITERIA}}'
+        ), array(
+            $order_by_criteria,
+            $limit_criteria
+        ), $query);
 
         return array(
-            'non_sort_limit_query' => $non_sort_limit_query,
             'query' => $query,
             'query_placeholders' => $query_placeholders
         );
@@ -578,20 +603,26 @@ extends ResultSet {
     protected function getRawData() {
         $finalized_query = $this->getFinalizedQuery();
 
-        $non_sort_limit_query = $finalized_query['non_sort_limit_query'];
         $query = $finalized_query['query'];
         $query_placeholders = $finalized_query['query_placeholders'];
+        
+        $data = $this->database->getAll($query, $query_placeholders);
 
         if($this->has_total_record_count) {
-            $this->total_number_of_records = db()->getOne("
-                SELECT COUNT(*)
-                FROM (
-                    {$non_sort_limit_query}
-                ) AS query_record_count
-            ", $query_placeholders);
+            if(isset($this->count_resultset)) {         
+                $record_count = $this->count_resultset->getColumn();
+            
+                $this->total_number_of_records = array_sum($record_count);
+            }
+            else {
+                throw new Exception("A count query has not been set despite total record counts being enabled.");
+            }
         }
-
-        return db()->getAll($query, $query_placeholders);
+        else {
+            $this->total_number_of_records = count($data);
+        }
+        
+        return $data;
     }
     
     /**
@@ -617,6 +648,42 @@ extends ResultSet {
     }
     
     /**
+     * Clears the count resultset for this resultset.
+     * 
+     * @return void
+     */
+    public function clearCountResultset() {
+        $this->count_resultset = NULL;
+    }
+    
+    /**
+     * Sets the resultset that will be used to count the total number of rows in this resultset before any pagination is applied.
+     * 
+     * @param object $count_resultset An instance of this object.
+     * @return void
+     */
+    public function setCountResultset($count_resultset) {
+        $count_resultset->setSelectField('COUNT(*)', 'total_record_count');
+        
+        $count_resultset->disableTotalRecordCount();
+        
+        $count_resultset->clearCountResultset();
+        
+        $count_resultset->clearSortCriteria();
+    
+        $this->count_resultset = $count_resultset;
+    }
+    
+    /**
+     * Retrieves the count resultset.
+     * 
+     * @return object
+     */
+    public function getCountResultset() {
+        return $this->count_resultset;
+    }
+    
+    /**
      * Retrieves the next chunk of data from this resultset's cursor if it is set to one.
      * 
      * @return string The base query of this resultset.
@@ -626,7 +693,7 @@ extends ResultSet {
             throw new Exception("This resultset is not set to a cursor. Please do so via setAsCursor().");
         }
         
-        return db()->getAll("
+        return $this->database->getAll("
             FETCH {$this->cursor_retrieval_chunk_size}
             FROM {$this->name}
         ");

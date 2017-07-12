@@ -87,13 +87,11 @@ extends Module {
         if(!empty($value_category)) {
             $set_success = $this->connection_object->hSet($value_category, $value_key, $value);
         }
-        else {
-            $cache_key = "{$value_category}:{$value_key}";
-        
-            $set_success = $this->connection_object->set($cache_key, $value);
+        else {        
+            $set_success = $this->connection_object->set($value_key, $value);
             
             if(!empty($cache_time)) {
-                $this->connection_object->setTimeout($cache_key, $cache_time);
+                $this->connection_object->setTimeout($value_key, $cache_time);
             }
         }
     
@@ -133,7 +131,7 @@ extends Module {
             $value = $this->connection_object->hGet($value_category, $value_key);
         }
         else {
-            $value = $this->connection_object->get("{$value_category}:{$value_key}");
+            $value = $this->connection_object->get($value_key);
         }
     
         return $value;
@@ -150,10 +148,10 @@ extends Module {
         $retrieved_values = array();
     
         if(!empty($value_category)) {
-            $this->connection_object->hMGet($value_category, $keys);
+            $retrieved_values = $this->connection_object->hMGet($value_category, $keys);
         }
         else {
-            $this->connection_object->mGet($keys);
+            $retrieved_values = $this->connection_object->mGet($keys);
         }
     
         return $retrieved_values;

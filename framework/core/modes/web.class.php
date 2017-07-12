@@ -32,6 +32,7 @@
 */
 namespace Framework\Core\Modes;
 
+use \Exception;
 use \Framework\Core\Framework;
 
 require_once(dirname(__DIR__) . '/framework.class.php');

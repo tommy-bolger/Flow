@@ -32,7 +32,7 @@
 */
 namespace Framework\Caching\Modules;
 
-use \Exception();
+use \Exception;
 
 class APC
 extends Module {     
@@ -59,11 +59,12 @@ extends Module {
      *
      * @param string $key The name of the variable to cache.
      * @param mixed $value The value of the variable to cache.
+     * @param string $value_category (optional) The category that this key falls under.
      * @param integer $expire_time The lifetime of the cached variable.     
      * @return mixed
      */
-    public function set($key, $value, $expire_time) {
-        return apc_store($key, $value, $expire_time);
+    public function set($key, $value, $value_category = NULL, $expire_time = 0) {    
+        return apcu_store($this->getFullKeyName($key, $value_category), $value, $expire_time);
     }
     
     /**
@@ -72,8 +73,8 @@ extends Module {
      * @param string $key The name of the variable in the cache.
      * @return mixed
      */
-    public function get($key) {
-        return apc_fetch($key);
+    public function get($key, $value_category = '') {
+        return apcu_fetch($this->getFullKeyName($key, $value_category));
     }
     
     /**
@@ -82,6 +83,6 @@ extends Module {
      * @return void
      */
     public function clear() {
-        apc_clear_cache('user');
+        apcu_clear_cache('user');
     }
 }

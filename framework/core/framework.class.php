@@ -33,6 +33,7 @@
 namespace Framework\Core;
 
 use \Framework\Utilities\Encryption;
+use \Framework\Caching\Cache;
 
 class Framework {
     /**
@@ -46,9 +47,9 @@ class Framework {
     protected $installation_path;
     
     /**
-    * @var boolean A flag telling the framework to enable caching.
+    * @var object An instance of the framework's caching module.
     */
-    protected $enable_cache = false;
+    protected $cache;
     
     /**
     * @var object The framework configuration.
@@ -150,6 +151,8 @@ class Framework {
         Loader::addBasePath("{$this->installation_path}/external");
         Loader::addBasePath("{$this->installation_path}/vendor");
         Loader::load('autoload.php', true, false);
+        
+        $this->cache = Cache::getInstance('framework');
         
         $this->configuration = new Configuration('framework');
         

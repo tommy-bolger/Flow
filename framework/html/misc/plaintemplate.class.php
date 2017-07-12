@@ -61,16 +61,16 @@ class PlainTemplate {
         
         $framework = Framework::getInstance();
             
-        if($framework->enable_cache) {
-            $template_html = cache()->get($this->template_path);
+        if($framework->cache->initialized()) {
+            $template_html = $framework->cache->get($this->template_path);
         }
         else {
             assert('is_readable($this->template_path)');
             
             $template_html = file_get_contents($this->template_path);
             
-            if($framework->enable_cache) {
-                cache()->set($this->template_path, $template_html);
+            if($framework->cache->initialized()) {
+                $framework->cache->set($this->template_path, $template_html);
             }
         }
         

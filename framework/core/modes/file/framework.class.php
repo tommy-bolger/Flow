@@ -121,9 +121,9 @@ extends Web {
             $last_modified_time = NULL;
             $etag = NULL;
         
-            if($this->enable_cache) {
-                $last_modified_time = cache()->get($this->full_path, "last_modified_time");
-                $etag = cache()->get($this->full_path, "etag");
+            if($this->cache->initialized()) {
+                $last_modified_time = $this->cache->get($this->full_path, "last_modified_time");
+                $etag = $this->cache->get($this->full_path, "etag");
             }
             
             if(empty($last_modified_time)) {
@@ -134,9 +134,9 @@ extends Web {
                 $etag = md5_file($this->full_path);
             }
             
-            if($this->enable_cache) {                
-                cache()->set($this->full_path, $last_modified_time, "last_modified_time");
-                cache()->set($this->full_path, $etag, "etag");
+            if($this->cache->initialized()) {                
+                $this->cache->set($this->full_path, $last_modified_time, "last_modified_time");
+                $this->cache->set($this->full_path, $etag, "etag");
             }
 
             header("Etag: {$etag}");

@@ -150,8 +150,8 @@ class Module {
      * @return void
      */
     private function loadData() {
-        if($this->framework->enable_cache) {
-            $this->data = cache()->get($this->name, 'modules');
+        if($this->framework->cache->initialized()) {
+            $this->data = $this->framework->cache->get($this->name, 'modules');
         }
         
         if(empty($this->data)) {
@@ -169,12 +169,12 @@ class Module {
                 throw new \Exception("Module {$this->name} does not exist.");
             }
             
-            if($this->framework->enable_cache) {
-                cache()->set($this->name, serialize($this->data), 'modules');
+            if($this->framework->cache->initialized()) {
+                $this->framework->cache->set($this->name, json_encode($this->data), 'modules');
             }
         }
         else {
-            $this->data = unserialize($this->data);
+            $this->data = json_decode($this->data, JSON_OBJECT_AS_ARRAY);
         }
         
         if(empty($this->data['enabled'])) {
@@ -259,8 +259,8 @@ class Module {
         
         $framework = Framework::getInstance();
         
-        if($framework->enable_cache) {
-            $modules = cache()->get('installed_modules');
+        if($framework->cache->initialized()) {
+            $modules = $framework->cache->get('installed_modules');
         }
     
         if(empty($modules)) {
@@ -279,12 +279,12 @@ class Module {
             
             closedir($modules_directory);
             
-            if($framework->enable_cache) {
-                cache()->set('installed_modules', serialize($modules));
+            if($framework->cache->initialized()) {
+                $framework->cache->set('installed_modules', json_encode($modules));
             }
         }
         else {
-            $modules = unserialize($modules);
+            $modules = json_decode($modules, JSON_OBJECT_AS_ARRAY);
         }
         
         return $modules;

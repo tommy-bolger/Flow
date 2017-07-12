@@ -138,6 +138,15 @@ class ResultSet {
     }
     
     /**
+     * Disables the resultset to count the total number of rows in the base dataset.
+     *      
+     * @return void
+     */
+    public function disableTotalRecordCount() {
+        $this->has_total_record_count = false;
+    }
+    
+    /**
      * Indicates if the resultset will count the total number of records in the dataset.
      *      
      * @return boolean
