@@ -178,10 +178,6 @@ foreach($version_directories as $version_directory) {
                 ':module_id' => $module_id,
                 ':version' => $version_directory
             ));
-            
-            if(!empty($version_data[0])) {
-                $version_data = $version_data[0];
-            }
         
             if(empty($version_data['finished'])) {
                 $version_id = NULL;
@@ -248,10 +244,6 @@ foreach($version_directories as $version_directory) {
                                             ':update_type_id' => $update_type_id,
                                             ':update_file_id' => $update_file
                                         ));
-                                        
-                                        if(!empty($update_data[0])) {
-                                            $update_data = $update_data[0];
-                                        }
                                         
                                         $update_id = NULL;
                                         
