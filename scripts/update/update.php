@@ -334,10 +334,12 @@ else {
 }
 
 //Clear memory cache if enabled
-if($framework->enable_cache && $clear_cache) {
+$cache = cache('framework');
+
+if($cache->initialized() && $clear_cache) {
     echo "Clearing memory cache.\n";
     
-    cache()->clear();
+    $cache->clear();
 }
 
 echo "Clearing cached files.\n";
