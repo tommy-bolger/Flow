@@ -359,12 +359,6 @@ else {
 //If APC is installed then refresh the opcode cache
 $loaded_extensions = get_loaded_extensions();
 
-if(in_array('apc', $loaded_extensions)) {
-    apc_clear_cache();
-    
-    compile_files($installation_path);
-}
-
 //If OPCache is enabled that clear that
 if(function_exists('opcache_get_configuration')) {
     $opcache_configuration = opcache_get_configuration();
