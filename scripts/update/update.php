@@ -169,7 +169,7 @@ foreach($version_directories as $version_directory) {
             
             $version_data = db()->getRow("
                 SELECT
-                    version_id
+                    version_id,
                     finished
                 FROM cms_versions
                 WHERE module_id = :module_id
