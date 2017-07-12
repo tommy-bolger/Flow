@@ -167,12 +167,16 @@ foreach($version_directories as $version_directory) {
         if($in_update_range) {
             echo "Running updates for version '{$version_directory}'.\n";
             
-            $version_data = db()->getData('cms_versions', array(
-                'version_id',
-                'finished'
-            ), array(
-                'module_id' => $module_id,
-                'version' => $version_directory
+            $version_data = db()->getRow("
+                SELECT
+                    version_id
+                    finished
+                FROM cms_versions
+                WHERE module_id = :module_id
+                    AND version = :version
+            ", array(
+                ':module_id' => $module_id,
+                ':version' => $version_directory
             ));
             
             if(!empty($version_data[0])) {
@@ -228,15 +232,21 @@ foreach($version_directories as $version_directory) {
                                     
                                     if(is_file($update_file_path)) {
                                         echo "Running update '{$update_file}'.\n";
-                                    
-                                        $update_data = db()->getData('cms_updates', array(
-                                            'update_id',
-                                            'run'
-                                        ), array(
-                                            'module_id' => $module_id,
-                                            'version_id' => $version_id,
-                                            'update_type_id' => $update_type_id,
-                                            'update_file' => $update_file
+                                        
+                                        $update_data = db()->getRow("
+                                            SELECT 
+                                                update_id,
+                                                run
+                                            FROM cms_updates
+                                            WHERE module_id = :module_id
+                                                AND version_id = :version_id
+                                                AND update_type_id = :update_type_id
+                                                AND update_file = :update_file_id
+                                        ", array(
+                                            ':module_id' => $module_id,
+                                            ':version_id' => $version_id,
+                                            ':update_type_id' => $update_type_id,
+                                            ':update_file_id' => $update_file
                                         ));
                                         
                                         if(!empty($update_data[0])) {
