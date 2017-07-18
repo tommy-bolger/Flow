@@ -152,12 +152,7 @@ extends ResultSet {
      * @param integer $cursor_retrieval_chunk_size The number of records to retrieve of each chunk in this cursor.
      * @return void
      */
-    public function setAsCursor($cursor_retrieval_chunk_size) {
-        $this->base_query = "
-            DECLARE {$this->name} CURSOR FOR
-            {$this->base_query}
-        ";
-        
+    public function setAsCursor($cursor_retrieval_chunk_size) {        
         $this->cursor_retrieval_chunk_size = $cursor_retrieval_chunk_size;
     }
     
@@ -488,6 +483,8 @@ extends ResultSet {
             $query_placeholders += $this->filter_placeholder_values;
         }
         
+        /* ---------- GROUP BY ---------- */
+        
         $group_by_criteria = '';
         
         if(!empty($this->group_by_criteria)) {
@@ -544,6 +541,17 @@ extends ResultSet {
             $query_placeholders = $partition_query_placeholders;
         }
         
+        /* ---------- CURSOR Declaration ---------- */
+        
+        if(isset($this->cursor_retrieval_chunk_size)) {
+            $query = "
+                DECLARE {$this->name} CURSOR FOR
+                {$query}
+            ";
+        }
+        
+        /* ---------- ORDER BY ---------- */
+        
         $order_by_criteria = '';
     
         if(!empty($this->sort_criteria)) {
@@ -563,6 +571,8 @@ extends ResultSet {
             
             $order_by_criteria = "ORDER BY " . rtrim($order_by_criteria, ', ');
         }
+        
+        /* ---------- LIMIT ---------- */
     
         $limit_criteria = '';
     
