@@ -94,10 +94,10 @@ extends Twitch {
             $user_follows_channel = true;
         }
         else {
-            $response_code = $this->getLastResponseCode();
+            $response_code = $this->getResponseCode($this->last_request);
             
             if($response_code != 401) {
-                $this->checkForErrors();
+                $this->checkForErrors($this->last_request, $this->last_response);
             }
         }
         

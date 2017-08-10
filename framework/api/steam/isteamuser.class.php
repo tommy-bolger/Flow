@@ -17,7 +17,7 @@ extends BaseSteam {
             throw new Exception('No more than 100 request ids can be sent at a time.');
         }
     
-        return $this->makeRequest('get', "/ISteamUser/GetPlayerSummaries/v0002", array(
+        $this->createRequest('get', "/ISteamUser/GetPlayerSummaries/v0002", array(
             'steamids' => implode(',', $request_ids),
             'format' => 'json'
         ));

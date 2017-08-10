@@ -24,6 +24,6 @@ extends BaseSteam {
             $request_parameters[$steamid] = $steamid;
         }
     
-        return $this->makeRequest('get', "/ISteamRemoteStorage/GetUGCFileDetails/v1", $request_parameters);
+        $this->createRequest('get', "/ISteamRemoteStorage/GetUGCFileDetails/v1", $request_parameters);
     }
 }

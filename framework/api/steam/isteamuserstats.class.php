@@ -14,7 +14,7 @@ extends BaseSteam {
     * @return json
     */
     public function getUserStatsForGame($steamid, $app_id) {           
-        return $this->makeRequest('get', "/ISteamUserStats/GetUserStatsForGame/v0002", array(
+        $this->createRequest('get', "/ISteamUserStats/GetUserStatsForGame/v0002", array(
             'steamid' => $steamid,
             'appid' => $app_id,
             'format' => 'json'
@@ -28,7 +28,7 @@ extends BaseSteam {
     * @return json
     */
     public function getSchemaForGame($app_id) {
-        return $this->makeRequest('get', "/ISteamUserStats/GetSchemaForGame/v2", array(
+        $this->createRequest('get', "/ISteamUserStats/GetSchemaForGame/v2", array(
             'appid' => $app_id,
             'format' => 'json'
         ));
