@@ -16,11 +16,7 @@ extends BaseSteam {
     public static function responseIsValid($response) {
         $response_is_valid = false;
         
-        if(
-            !empty($response) && 
-            strpos($response, '<!DOCTYPE html>') === false && 
-            strpos($response, '<?xml version="1.0"') !== false
-        ) {
+        if(strpos($response, 'steamID64') !== false) {
             $response_is_valid = true;
         }
         

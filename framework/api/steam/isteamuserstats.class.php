@@ -33,4 +33,18 @@ extends BaseSteam {
             'format' => 'json'
         ));
     }
+    
+    /**
+    * Retrieves a user's achievements.
+    *
+    * @param integer $app_id The ID of the application.
+    * @return json
+    */
+    public function getPlayerAchievements($steamid, $app_id) {
+        $this->createRequest('get', "/ISteamUserStats/GetPlayerAchievements/v0001", array(
+            'steamid' => $steamid,
+            'appid' => $app_id,
+            'format' => 'json'
+        ));
+    }
 }
