@@ -1,7 +1,6 @@
 <?php
-namespace Framework\Api;
 /**
-* A queue used to submit several cURL requests from the rest api in parallel asynchronously.
+* The base class for all Rest API clients in ths framework.
 *
 * Copyright (c) 2017, Tommy Bolger
 * All rights reserved.
@@ -32,6 +31,8 @@ namespace Framework\Api;
 * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE 
 * POSSIBILITY OF SUCH DAMAGE.
 */
+
+namespace Framework\Api;
 
 use \Exception;
 
