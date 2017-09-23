@@ -32,6 +32,9 @@
 */
 namespace Framework\Request;
 
+use \Exception;
+use \Framework\Validation\Validation;
+
 class RequestData {
     /**
     * @var array A list of required request values.
@@ -42,6 +45,11 @@ class RequestData {
     * @var array All values for this request type.
     */
     protected $request_values;
+    
+    /**
+    * @var \Framework\Validation\Validation The validation object for this request.
+    */
+    protected $validation;
     
     /**
      * Initializes a new instance of RequestData.
@@ -83,9 +91,7 @@ class RequestData {
      * @param array $required_values The request values to make required.
      * @return void
      */
-    public function setRequired($required_values) {
-        assert('is_array($required_values)');
-    
+    public function setRequired(array $required_values) {    
         $this->required_values = array_combine($required_values, $required_values);
     }
     
@@ -96,9 +102,7 @@ class RequestData {
      * @param string $validation_type The type of validation to perform on the request value. Can either be 'integer' or 'float'.
      * @return mixed
      */
-    public function getVariable($variable_name, $validation_type) {
-        assert("\$validation_type == 'integer' || \$validation_type == 'float'");
-    
+    public function getVariable($variable_name, $validation_type) {    
         if($this->variableExists($variable_name)) {
             $variable_value = $this->request_values[$variable_name];
             
@@ -108,6 +112,9 @@ class RequestData {
                     break;
                 case 'float':
                     $variable_value = filter_var($variable_value, FILTER_VALIDATE_FLOAT);
+                    break;
+                default:
+                    throw new Exception('validation_type can only be either "integer" or "float".');
                     break;
             }
             
@@ -162,7 +169,7 @@ class RequestData {
         
         //If the variable doesn't exist and is required then throw an exception 
         if(isset($this->required_values[$variable_name])) {
-            throw new \Exception("Parameter '{$variable_name}' is required but not present in the request.");
+            throw new Exception("Parameter '{$variable_name}' is required but not present in the request.");
         }
         
         return false;
@@ -196,5 +203,21 @@ class RequestData {
      */
     public function __isset($variable_name) {
         return isset($this->request_values[$variable_name]);
+    }
+    
+    /**
+     * Returns an instance of the framework validation for the request.
+     *
+     * @param string $variable_name The name of the request variable.
+     * @return boolean
+     */
+    public function validation() {
+        if(!isset($this->validation)) {
+            $this->validation = new Validation();
+            
+            $this->validation->setFieldValues($this->request_values);
+        }
+        
+        return $this->validation;
     }
 }

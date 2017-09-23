@@ -1,7 +1,7 @@
 <?php
 /**
 * Allows the rendering of an html page and its child elements dynamically.
-* Copyright (c) 2016, Tommy Bolger
+* Copyright (c) 2017, Tommy Bolger
 * All rights reserved.
 * 
 * Redistribution and use in source and binary forms, with or without 
@@ -42,26 +42,7 @@ use \Framework\Utilities\Http;
 use \Framework\Display\Template;
 use \Framework\Html\Body;
 
-class page {
-    /**
-    * @var array A list of all instances of this object.
-    */
-    protected static $instances = array();
-
-    /**
-    * @var array A list of valid html doctype tags and their html.
-    */
-    protected static $html_doctypes = array(
-        'html_401_strict' => '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">',
-        'html_401_transitional' => '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">',
-        'html_401_frameset' =>  '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Frameset//EN" "http://www.w3.org/TR/html4/frameset.dtd">',
-        'xhtml_1_strict' => '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">',
-        'xhtml_1_transitional' => '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">',
-        'xhtml_1_frameset' => '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Frameset//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-frameset.dtd">',
-        'xhtml_1_1' => '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">',
-        'html_5' => '<!DOCTYPE html>'
-    );
-    
+class Page {    
     /**
     * @var object The instance of the framework.
     */
@@ -71,11 +52,6 @@ class page {
     * @var object The template for the page.
     */
     protected $template;
-    
-    /**
-    * @var string The selected doctype for the page.
-    */
-    protected $doctype;
     
     /**
     * @var array A list of specified meta tags for the page.
@@ -156,12 +132,7 @@ class page {
     * @var boolean A flag that sets the page load javascript.
     */
     protected $enable_javascript;
-    
-    /**
-    * @var boolean A flag that tells the page to automatically include analytics javascript.
-    */
-    protected $load_analytics = false;
-    
+
     /**
     * @var string The class name of the page.
     */
@@ -176,20 +147,6 @@ class page {
     * @var object The page body and its child elements.
     */
     protected $body;
-    
-    /**
-     * Retrieves an instance of Page.
-     *
-     * @param string $page_name (optional) The name of the page. Defaults to an empty string.
-     * @return void
-     */
-    public static function getInstance($page_name = '') {
-        if(!isset(static::$instances[$page_name])) {
-            throw new Exception("Page '{$page_name}' has not been initialized.");
-        }
-        
-        return static::$instances[$page_name];
-    }
 
     /**
      * Initializes a new instance of Page.
@@ -198,11 +155,7 @@ class page {
      * @param boolean $enable_cache Indicates if this page should be cached. Defaults to false.
      * @return void
      */
-    public function __construct($page_name = '', $enable_cache = false) {
-        if(isset(static::$instances[$page_name])) {
-            throw new Exception("Page '{$page_name}' has already been initialized.");
-        }
-    
+    public function __construct($page_name = '') {    
         $this->framework = Framework::getInstance();
 
         if(empty($page_name)) {
@@ -212,28 +165,9 @@ class page {
             $this->name = $page_name;
         }
         
-        $this->cache_page = $enable_cache;
-    
-        //Add this header to help prevent clickjacking attacks in modern browsers
-        header('X-Frame-Options: DENY');
-
-        if($this->framework->cache->initialized() && $this->cache_page) {
-            header('Content-Encoding: gzip');
-
-            //Immediately call the displayCache function
-            $this->displayCache();
-        }
-        else {
-            ini_set('zlib.output_compression', 1);
-
-            ini_set('zlib.output_compression_level', 9);
-            
-            ob_start();
-        }
+        $this->enable_javascript = $this->framework->getConfiguration()->enable_javascript;
         
-        $this->enable_javascript = $this->framework->configuration->enable_javascript;
-        
-        $this->assets_path = $this->framework->installation_path . '/public/assets';
+        $this->assets_path = $this->framework->getInstallationPath() . '/public/assets';
     }
     
     /**
@@ -242,11 +176,11 @@ class page {
      * @param $variable_name The name of the variable to retrieve. Should always be 'body'.       
      * @return object
      */
-    public function __get($variable_name) {
-        assert('$variable_name == "body"');
-
+    public function body() {
         if(!isset($this->body)) {
             $this->body = new Body();
+            
+            $this->body->setPage($this);
         }
     
         return $this->body;
@@ -259,27 +193,6 @@ class page {
      */
     public function getName() {
         return $this->name;
-    }
-    
-    /**
-     * Sets the page doctype.
-     *
-     * @param string $html_type The version of html to use for the page. Can either be 'xhtml_1.0', 'html_4.01', or 'xhtml_1.1'.
-     * @param string $mode (optional) The version mode. Can either be 'transitional', 'frameset', or 'strict'.     
-     * @return void
-     */
-    public function setDoctype($html_type, $mode = NULL) {     
-        $doctype = $html_type;
-        
-        if(!empty($mode)) {
-            $doctype .= "_{$mode}";
-        }
-        
-        if(!isset(static::$html_doctypes[$doctype])) {
-            throw new Exception("Doc type '{$doctype}' is not valid.");
-        }
-        
-        $this->doctype = $doctype;
     }
     
     /**
@@ -317,8 +230,6 @@ class page {
      * @return string
      */
     protected function setDirectory($directory_path) {
-        assert('is_readable($directory_path)');
-
         //Make the directory path have a trailing slash        
         return rtrim($directory_path, '/') . '/';
     }
@@ -358,9 +269,7 @@ class page {
      * @param array $css_directory_paths The list of paths css files can reside in.
      * @return void
      */
-    public function prependCssDirectories($css_directory_paths) {
-        assert('is_array($css_directory_paths) && !empty($css_directory_paths)');
-        
+    public function prependCssDirectories(array $css_directory_paths) {        
         foreach($css_directory_paths as $css_directory_path) {
             $css_base_path = $this->setDirectory($css_directory_path);
         
@@ -374,9 +283,7 @@ class page {
      * @param array $css_directory_paths The list of paths css files can reside in.
      * @return void
      */
-    public function setCssDirectories($css_directory_paths) {
-        assert('is_array($css_directory_paths) && !empty($css_directory_paths)');
-
+    public function setCssDirectories(array $css_directory_paths) {
         foreach($css_directory_paths as $css_directory_path) {        
             $this->css_base_paths[] = $this->setDirectory($css_directory_path);
         }
@@ -388,9 +295,7 @@ class page {
      * @param array $javascript_directory_paths The list of paths javascript files can reside in.
      * @return void
      */
-    public function prependJavascriptDirectories($javascript_directory_paths) {
-        assert('is_array($javascript_directory_paths) && !empty($javascript_directory_paths)');
-        
+    public function prependJavascriptDirectories(array $javascript_directory_paths) {        
         foreach($javascript_directory_paths as $javascript_directory_path) {
             $javascript_base_path = $this->setDirectory($javascript_directory_path);
         
@@ -404,21 +309,10 @@ class page {
      * @param array $javascript_directory_path The list of paths javascript files can reside in.
      * @return void
      */
-    public function setJavascriptDirectories($javascript_directory_paths) {
-        assert('is_array($javascript_directory_paths) && !empty($javascript_directory_paths)');
-
+    public function setJavascriptDirectories(array $javascript_directory_paths) {
         foreach($javascript_directory_paths as $javascript_directory_path) {        
             $this->javascript_base_paths[] = $this->setDirectory($javascript_directory_path);
         }
-    }
-    
-    /**
-     * Enables page analytics to be loaded as the last JS file in the page header.
-     *
-     * @return void
-     */
-    public function enableAnalytics() {
-        $this->load_analytics = true;
     }
     
     /**
@@ -465,9 +359,7 @@ class page {
      * @param boolean (optional) $internal A flag indicating if the css file path is an internal relative path. Defaults to true.
      * @return void
      */
-    public function addCssFiles($css_files, $internal = true) {
-        assert('is_array($css_files)');
-    
+    public function addCssFiles(array $css_files, $internal = true) {    
         if(!empty($css_files)) {
             foreach($css_files as $css_file) {
                 $this->addCssFile($css_file, $internal);
@@ -529,12 +421,10 @@ class page {
      * @param boolean (optional) $internal A flag indicating if the javascript file path is an internal relative path. Defaults to true.
      * @return void
      */
-    public function addJavascriptFiles($javascript_files, $internal = true) {
+    public function addJavascriptFiles(array $javascript_files, $internal = true) {
         if(!$this->enable_javascript) {
             return false;
         }
-    
-        assert('is_array($javascript_files)');
     
         if(!empty($javascript_files)) {
             foreach($javascript_files as $javascript_file) {
@@ -551,14 +441,6 @@ class page {
     protected function renderMetaTags() {
         $meta_tag_html = '';
         
-        if($this->framework->cache->initialized()) {
-            $meta_tag_html = $this->framework->cache->get($this->name, 'meta');
-            
-            if(!empty($meta_tag_html)) {
-                return $meta_tag_html;
-            }
-        }
-        
         if(!empty($this->meta_tags)) {        
             foreach($this->meta_tags as $meta_tag) {
                 $meta_tag_html .= '<meta';
@@ -568,10 +450,6 @@ class page {
                 }
                     
                 $meta_tag_html .= " />";
-            }
-            
-            if($this->framework->cache->initialized()) {
-                $this->framework->cache->set($this->name, $meta_tag_html, 'meta');
             }
         }
         
@@ -597,30 +475,26 @@ class page {
         }
     
         if(!empty($this->internal_css_files)) {
-            if($this->framework->environment == 'production') {
-                $css_file_cache_name = $this->name . implode('-', $this->internal_css_files);
-            
-                $css_hash_name = file_cache()->exists($css_file_cache_name, 'css/', 'gz');
+            $css_file_cache_name = $this->name . implode('-', $this->internal_css_files);
+        
+            $css_hash_name = file_cache()->exists($css_file_cache_name, 'css/', 'gz');
 
-                if($css_hash_name === false) {
-                    $css_minifier = new Css($this->internal_css_files);
-                
+            if($css_hash_name === false) {
+                $css_minifier = new Css($this->internal_css_files);
+            
+                $css_temp_hash_name = file_cache()->exists($css_file_cache_name, 'css/', 'tmp');
+            
+                if($css_temp_hash_name === false) {
                     $css_hash_name = file_cache()->set($css_file_cache_name, $css_minifier->getUnminifiedData(), 'css/', 'tmp');
                 }
-                
-                $css_http_path = "{$this->css_http_path}/{$css_hash_name}";
-                
-                $css_html .= "<link rel=\"stylesheet\" href=\"{$css_http_path}\" type=\"text/css\" />";
-            }
-            else {
-                $base_url = Http::getBaseUrl() . '/assets/css/index.php?file=';
-            
-                foreach($this->internal_css_files as $css_file) {
-                    $css_file = str_replace('./', '', $css_file);
-                
-                    $css_html .= "<link rel=\"stylesheet\" href=\"{$base_url}{$css_file}\" type=\"text/css\" />";
+                else {
+                    $css_hash_name = $css_temp_hash_name;
                 }
             }
+            
+            $css_http_path = "{$this->css_http_path}/{$css_hash_name}";
+            
+            $css_html .= "<link rel=\"stylesheet\" href=\"{$css_http_path}\" type=\"text/css\" />";
         }
         
         if(!empty($this->inline_css)) {
@@ -647,34 +521,28 @@ class page {
                 $javascript_html .= "<script type=\"text/javascript\" src=\"{$javascript_file}\"></script>";
             }
         }
-        
-        if($this->load_analytics) {
-            $this->addJavascriptFile('google_analytics.js');
-        }
 
         if(!empty($this->internal_javascript_files)) {
-            if($this->framework->environment == 'production') {
-                $javascript_file_cache_name = $this->name . implode('-', $this->internal_javascript_files);
+            $javascript_file_cache_name = $this->name . implode('-', $this->internal_javascript_files);
+        
+            $javascript_hash_name = file_cache()->exists($javascript_file_cache_name, 'javascript/', 'gz');
             
-                $javascript_hash_name = file_cache()->exists($javascript_file_cache_name, 'javascript/', 'gz');
+            if($javascript_hash_name === false) {
+                $javascript_minifier = new Javascript($this->internal_javascript_files);
                 
-                if($javascript_hash_name === false) {
-                    $javascript_minifier = new Javascript($this->internal_javascript_files);
+                $javascript_temp_hash_name = file_cache()->exists($javascript_file_cache_name, 'javascript/', 'tmp');
                 
+                if($javascript_temp_hash_name === false) {
                     $javascript_hash_name = file_cache()->set($javascript_file_cache_name, $javascript_minifier->getUnminifiedData(), 'javascript/', 'tmp');
                 }
-                
-                $javascript_http_path = "{$this->javascript_http_path}/{$javascript_hash_name}";
-                
-                $javascript_html .= "<script type=\"text/javascript\" src=\"{$javascript_http_path}\"></script>";
-            }
-            else {
-                $base_url = Http::getBaseUrl() . '/assets/javascript/index.php?file=';
-            
-                foreach($this->internal_javascript_files as $javascript_file) {
-                    $javascript_html .= "<script type=\"text/javascript\" src=\"{$base_url}{$javascript_file}\"></script>";
+                else {
+                    $javascript_hash_name = $javascript_temp_hash_name;
                 }
             }
+            
+            $javascript_http_path = "{$this->javascript_http_path}/{$javascript_hash_name}";
+            
+            $javascript_html .= "<script type=\"text/javascript\" src=\"{$javascript_http_path}\"></script>";
         }
         
         if(!empty($this->name)) {
@@ -697,54 +565,6 @@ class page {
      */
     protected function renderTitle() {
         return "<title>{$this->title}</title>";
-    }
-    
-    /**
-     * Renders the page head html tag.
-     *
-     * @return string The rendered head tag.
-     */
-    protected function renderHeader() {    
-        $header_html = '<head>';
-
-        //Render the title
-        $header_html .= "<title>{$this->title}</title>";
-        
-        $header_html .= $this->renderMetaTags();
-        $header_html .= $this->renderCss();
-        $header_html .= $this->renderJavascript();
-
-        $header_html .= '</head>';
-        
-        return $header_html;
-    }
-    
-    /**
-     * Attempts to display the cached html of this page from either the framework cache object or from the file cache.
-     *
-     * @return void
-     */
-    public function displayCache() {
-        //If the current page html is already cached then output it and exit
-        $page_cache = $this->framework->cache->get($this->name, 'html');
-    
-        if(!empty($page_cache)) {
-            echo $page_cache;
-
-            exit;
-        }
-        else {
-            //Attempt to retrieve the page from the file cache and subsequently store it in memory cache
-            $page_cache = file_cache()->get($this->name, 'html/', 'gz');
-            
-            if(!empty($page_cache)) {            
-                $this->framework->cache->set($this->name, $page_cache, 'html');
-
-                echo $page_cache;
-
-                exit;
-            }
-        }
     }
     
     /**
@@ -779,40 +599,6 @@ class page {
     }
     
     /**
-     * Renders the page and its elements to html.
-     *
-     * @return string
-     */
-    public function toHtml() {
-        if($this->doctype != 'html_5') {
-            $page_html = "<?xml version=\"1.0\" encoding=\"UTF-8\"?" . ">";
-        }
-        
-        //Add the html doctype to this page
-        if(!empty($this->doctype)) {
-            $page_html .= self::$html_doctypes[$this->doctype];
-        }
-        //Otherwise add the default HTML 4.01 Strict doctype
-        else {
-            $page_html .= self::$html_doctypes['html_5'];
-        }
-        
-        if($this->doctype != 'html_5') {
-            $page_html .= "<html xmlns=\"http://www.w3.org/1999/xhtml\">";
-        }
-        
-        $page_html .= $this->renderHeader();
-        
-        if(isset($this->body)) {
-            $page_html .= $this->body->toHtml();
-        }
-        
-        $page_html .= "</html>";
-        
-        return $page_html;
-    }
-    
-    /**
      * Renders the page into html and returns it.
      *
      * @return string
@@ -841,19 +627,19 @@ class page {
     
         $page_html = "";
 
-        if(isset($this->template)) {
-            if(isset($this->body)) {
-                $this->template->setPlaceholderValues($this->toTemplateArray());
-            }
+        if(isset($this->template)) {            
+            $this->template->setPlaceholderValues($this->toTemplateArray());
             
             $page_html = $this->template->parseTemplate();
         }
         else {
-            $page_html = $this->toHtml();
+            throw new Exception("This page does not have a template set.");
         }
+        
+        $framework_cache = $this->framework->getCache();
 
         //If caching is enabled and this page html is not cached then do so
-        if($this->framework->cache->initialized() && $this->cache_page) {
+        if($framework_cache->initialized() && $this->cache_page) {
             $html_minifier = new Html();
             $html_minifier->setUnminifiedData($page_html);
             $html_minifier->clean();
@@ -863,7 +649,7 @@ class page {
             
             file_cache()->set($this->name, $page_html, 'html/', 'gz');
         
-            $this->framework->cache->set($this->name, $page_html, 'html');
+            $framework_cache->set($this->name, $page_html, 'html');
         }
         else {
             ob_end_flush();

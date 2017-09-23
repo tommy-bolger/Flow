@@ -1,7 +1,7 @@
 <?php
 /**
-* Allows the rendering of a form field and perform validation on the field's submitted data dynamically.
-* Copyright (c) 2011, Tommy Bolger
+* Allows the rendering of a form field.
+* Copyright (c) 2017, Tommy Bolger
 * All rights reserved.
 * 
 * Redistribution and use in source and binary forms, with or without 
@@ -33,18 +33,10 @@
 
 namespace Framework\Html\Form\FieldObjects;
 
+use \Framework\Html\Element;
+
 class Field
-extends \Framework\Html\Element {
-    /**
-    * @var boolean A flag indicating that this object is a field form.
-    */
-    public $IS_FORM_FIELD = true;
-    
-    /**
-    * @var string The default group name of this field.
-    */
-    protected $default_group_name = 'input';
-    
+extends Element {    
     /**
     * @var boolean Flag indicating that the field can have a label.
     */
@@ -54,11 +46,6 @@ extends \Framework\Html\Element {
     * @var string The input type attribute of the field.
     */
     protected $input_type;
-    
-    /**
-    * @var string The name of the javascript object of this field.
-    */
-    protected $javascript_object_name = 'Field';
     
     /**
     * @var string The name attribute of the field.
@@ -71,29 +58,9 @@ extends \Framework\Html\Element {
     protected $label;
     
     /**
-    * @var string The field's description.
-    */
-    protected $description;
-    
-    /**
-    * @var boolean Flag indicating whether the form field has been submitted.
-    */
-    protected $submitted = false;
-    
-    /**
     * @var mixed The value of the field.
     */
     protected $value = NULL;
-    
-    /**
-    * @var mixed The default value of the field.
-    */
-    protected $default_value;
-    
-    /**
-    * @var boolean A flag indicating that the field's value is valid.
-    */
-    protected $valid;
     
     /**
     * @var boolean A flag indicating that the field requires a value to be submitted.
@@ -127,42 +94,7 @@ extends \Framework\Html\Element {
             $this->setId($field_name);
         }
         
-        $this->setLabel($field_label);
-        
-        $css_classes[] = 'form_field_element';
-        
-        $this->addClasses($css_classes);
-
-        if(!empty($this->javascript_object_name)) {
-            $this->setAttribute('data-object', $this->javascript_object_name);
-        }                
-    }
-    
-    /**
-     * Removes the data attribute that enables JS on this field.
-     *      
-     * @return void
-     */
-    public function removeDataAttribute() {
-        $this->removeAttribute('data-object');
-    }
-    
-    /**
-     * Adds the element's javascript and css to the page.
-     *      
-     * @return void
-     */
-    protected function addElementFiles() {
-        $this->addJavascriptFile('form/fields/Field.js');
-    }
-    
-    /**
-     * Retrieves the default group name of this field.
-     *      
-     * @return string
-     */
-    public function getDefaultGroupName() {
-        return $this->default_group_name;
+        $this->setLabel($field_label);    
     }
     
     /**
@@ -201,9 +133,7 @@ extends \Framework\Html\Element {
      * @param string $field_name The field name.
      * @return void
      */
-    public function setName($field_name) {
-        assert('!empty($field_name)');
-    
+    public function setName($field_name) {    
         $this->name = $field_name;
             
         $this->setAttribute('name', $field_name);
@@ -253,15 +183,6 @@ extends \Framework\Html\Element {
     }
     
     /**
-     * Enables the field.
-     *      
-     * @return void
-     */
-    public function enable() {                
-        $this->removeAttribute('disabled');
-    }
-    
-    /**
      * Sets the field to be read-only.
      *      
      * @return void
@@ -271,33 +192,13 @@ extends \Framework\Html\Element {
     }
     
     /**
-     * Sets the field to be writeable.
-     *      
-     * @return void
-     */
-    public function setWriteable() {                
-        $this->removeAttribute('readonly');
-    }
-    
-    /**
-     * Sets the field to be readable and writeable.
+     * Sets the width of the field.
      *      
      * @param int $field_width The new width of the field.
      * @return void
      */
-    public function setWidth($field_width) {
-        assert('is_int($field_width)');
-    
+    public function setWidth($field_width) {    
         $this->setAttribute("size", $field_width);
-    }
-    
-    /**
-     * Sets the field as having been submitted.
-     *      
-     * @return void
-     */
-    public function setSubmitted() {
-        $this->submitted = true;
     }
     
     /**
@@ -307,8 +208,6 @@ extends \Framework\Html\Element {
      */
     public function setRequired() {
         $this->required = true;
-        
-        $this->addClass('required');
     }
     
     /**
@@ -348,115 +247,15 @@ extends \Framework\Html\Element {
     }
     
     /**
-     * Sets the submitted field's value.
+     * Sets the field's value.
      *      
-     * @param string $field_value The submitted value.
+     * @param string $field_value The field's value.
      * @return void
      */
-    public function setValue($field_value) {
-        if(empty($field_value) && $field_value != '0') {
-            $field_value = NULL;
-        }
-    
+    public function setValue($field_value) {    
         $this->value = $field_value;
         
         $this->setAttribute('value', $field_value);
-    }
-    
-    /**
-     * Retrieves the field's submitted value.
-     *      
-     * @return mixed
-     */
-    public function getValue() {
-        return $this->value;
-    }
-    
-    /**
-     * Sets the field's default value.
-     *      
-     * @param mixed $default_value The default value.
-     * @return void
-     */
-    public function setDefaultValue($default_value) {
-        $this->default_value = $default_value;
-
-        if(!$this->submitted) {
-            $this->setValue($default_value);
-        }
-    }
-    
-    /**
-     * Retrieves the field's default value.
-     *      
-     * @return mixed
-     */
-    public function getDefaultValue() {
-        return $this->default_value;
-    }
-    
-    /**
-     * Resets the field's value to its default state.
-     *      
-     * @return void
-     */
-    public function resetValue() {
-        if(isset($this->default_value)) {            
-            $this->setValue($this->default_value);
-        }
-        else {
-            $this->value = NULL;
-            
-            $this->removeAttribute('value');
-        }
-    }
-    
-    /**
-     * Checks if the submitted value is not empty.
-     *      
-     * @return boolean
-     */
-    protected function valueNotEmpty() {
-        if(empty($this->value) && $this->value !== false && $this->value !== 0 && $this->value !== '0') {
-            return false;
-        }
-        
-        return true;
-    }
-    
-    /**
-     * Validates the field's submitted value.
-     *      
-     * @return boolean
-     */
-    protected function validate() {
-        if($this->required && !$this->valueNotEmpty()) {
-            $this->setRequiredError();
-            
-            return false;
-        }
-
-        return true;
-    }
-    
-    /**
-     * Retrieves's the field's validity status.
-     *      
-     * @return boolean
-     */
-    public function isValid() {
-        $this->valid = $this->validate();
-
-        return $this->valid;
-    }
-    
-    /**
-     * Retrieves the field's description.
-     *      
-     * @return string
-     */
-    public function getDescription() {   
-        return $this->description;
     }
     
     /**
@@ -477,8 +276,8 @@ extends \Framework\Html\Element {
         if(!empty($this->label)) {
             $label = $this->label;
         
-            if($this->required) {
-                $label = "<span class=\"required\">*{$label}</span>";
+            if($this->required) {                
+                $label = "*{$label}";
             }
         
             return "<label for=\"{$this->name}\">{$label}</label>";
@@ -494,19 +293,6 @@ extends \Framework\Html\Element {
      */
     public function getFieldHtml() {        
         return "<input{$this->renderAttributes()} />";
-    }
-    
-    /**
-     * Retrieves the field's error message html.
-     *      
-     * @return string
-     */
-    protected function getErrorMessageHtml() {
-        if(!$this->valid) {
-            return "<span class=\"field_error_message\">{$this->error_message}</span>";
-        }
-        
-        return "";
     }
     
     /**

@@ -132,11 +132,11 @@ extends BaseError {
     protected function getDisplay($error_code, $error_message, $error_file, $error_line, $error_trace) {
         $error_output = "";
     
-        $environment = $this->framework->environment;
+        $environment = $this->framework->getEnvironment();
         
         if(empty($environment) || $environment == 'production') {
             if(empty($this->template_path)) {
-                $this->template_path = $this->framework->installation_path . '/protected/framework_error.php';
+                $this->template_path = $this->framework->getInstallationPath() . '/protected/framework_error.php';
             }
             
             if(is_file($this->template_path)) {

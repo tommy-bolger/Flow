@@ -1,7 +1,7 @@
 <?php
 /**
 * Allows the rendering of a <form> tag with form fields and perform validation on submitted data dynamically.
-* Copyright (c) 2011, Tommy Bolger
+* Copyright (c) 2017, Tommy Bolger
 * All rights reserved.
 * 
 * Redistribution and use in source and binary forms, with or without 
@@ -32,6 +32,7 @@
 */
 namespace Framework\Html\Form;
 
+use \Exception;
 use \Framework\Core\Framework;
 use \Framework\Html\Element;
 use \Framework\Utilities\Http;
@@ -48,16 +49,6 @@ extends Element {
     * @var string The form name attribute.
     */
     protected $name;
-    
-    /**
-    * @var array The list of all logically grouped fields. 
-    */
-    protected $grouped_fields = array();
-    
-    /**
-    * @var array The submitted form data.
-    */
-    protected $submitted_data;
     
     /**
     * @var array The values of the form fields.
@@ -80,21 +71,6 @@ extends Element {
     protected $confirmations = array();
     
     /**
-    * @var boolean A flag indicating if the form was submitted.
-    */
-    protected $submitted = false;
-    
-    /**
-    * @var boolean A flag indicating if the submitted values of the form fields are valid.
-    */
-    protected $valid;
-    
-    /**
-    * @var boolean A flag indicating if the form's fields have been reset to their default value.
-    */
-    protected $reset = false;
-    
-    /**
      * Initializes a new instance of Form.
      *      
      * @param string $form_name The form name.
@@ -103,7 +79,7 @@ extends Element {
      * @param boolean $enable_token A flag to enable/disable the form token.     
      * @return void
      */
-    public function __construct($form_name, $form_action = NULL, $form_method = "post", $enable_token = true) {
+    public function __construct($form_name, $form_action, $form_method = "post", $enable_token = true) {
         parent::__construct('form');
         
         $this->framework = Framework::getInstance();
@@ -136,9 +112,7 @@ extends Element {
      * @param array $arguments The function arguments.
      * @return object The new form field.
      */
-    public function __call($function_name, $arguments) {
-        assert('strpos($function_name, "add") !== false');
-        
+    public function __call($function_name, $arguments) {        
         $class_name = ltrim($function_name, "add");
         
         $reflection_object = new \ReflectionClass("\\Framework\\Html\\Form\\Fields\\{$class_name}"); 
@@ -148,21 +122,6 @@ extends Element {
         $this->addField($form_field);
         
         return $form_field;
-    }
-    
-    /**
-     * Adds the element's javascript and css to the page.
-     *      
-     * @return void
-     */
-    protected function addElementFiles() {
-        $this->addCssFile('framework/Form.css');
-        $this->addCssFile('showLoading.css');
-
-        $this->addJavascriptFile('jquery.min.js');
-        $this->addJavascriptFile('jquery.showLoading.js');
-        $this->addJavascriptFile('request.js');
-        $this->addJavascriptFile('form/Form.js');
     }
     
     /**
@@ -197,45 +156,19 @@ extends Element {
     }
     
     /**
-     * Initializes the form's submitted data.
+     * Initializes the form's field data.
      *      
+     * @param array $field_values The field values to set. Must be an associative array of format "field_name => field_value".
      * @return void
      */
-    protected function setFormData($method) {
-        assert("\$method == 'post' || \$method == 'get'");
-        
-        //Set the field's method
-        $this->setAttribute('method', $method);
-        
-        $form_submitted_field = "{$this->name}_submitted";
-        
-        if(request()->$method->$form_submitted_field == 1) {
-            $submitted_data = request()->$method->getAll();
-            
-            foreach($submitted_data as $field_name => $field_value) {
-                //If the post variable is an array check to see if the array is associative and if it is then move each element into a field_name[element_name] name variable in submitted_data.
-                if(is_array($field_value)) {
-                    $first_element_key = key($field_value);
-                    
-                    if(filter_var($first_element_key, FILTER_VALIDATE_INT) === false) {
-                        foreach($field_value as $element_name => $element_value) {
-                            $this->submitted_data["{$field_name}[{$element_name}]"] = $element_value;
-                        }
-                    }
-                    else {
-                        $this->submitted_data[$field_name] = $field_value;
-                    }
-                }
-                else {
-                    $this->submitted_data[$field_name] = $field_value;
-                }                                            
-            }                                                
-
-            $this->submitted = true;
+    protected function setFieldValues(array $field_values) {
+        $this->field_data = $field_values;
+    
+        if(!empty($field_values)) {
+            foreach($field_values as $field_name => $field_value) {
+                $this->child_elements[$field_name]->setValue($field_value);
+            }
         }
-        
-        //Add a hidden field of the form's name to allow for multiple forms on a page
-        $this->addHidden($form_submitted_field, 1);
     }
     
     /**
@@ -243,7 +176,7 @@ extends Element {
      *      
      * @return void
      */
-    protected function processFormToken() {
+    /*protected function processFormToken() {
         $form_token_name = "{$this->name}_token";
         
         if(!$this->submitted) {
@@ -264,60 +197,36 @@ extends Element {
         }
         else {
             if(!isset(session()->$form_token_name)) {
-                throw new \Exception("Form token '{$form_token_name}' for form '{$this->name}' does not exist in the session.");
+                throw new Exception("Form token '{$form_token_name}' for form '{$this->name}' does not exist in the session.");
             }
             
             if(session()->$form_token_name != $this->submitted_data[$form_token_name]) {
-                throw new \Exception("Token '{$form_token_name}' for form '{$this->name}' does not match up with session form token. A possible CSRF attack was attempted.");
+                throw new Exception("Token '{$form_token_name}' for form '{$this->name}' does not match up with session form token. A possible CSRF attack was attempted.");
             }
             
             //Add the hidden token field
             $this->addHidden($form_token_name, session()->$form_token_name);
         }
-    }
+    }*/
     
     /**
      * Adds a field to the form.
      *      
      * @param object $form_field The form field object.
-     * @param string $group_name (optional) The name of the field's logical group. Defaults to an empty string.
      * @return void
      */
-    public function addField($form_field, $group_name = '') {        
-        assert('is_object($form_field)');
-        assert('property_exists($form_field, "IS_FORM_FIELD")');
-        
+    public function addField($form_field) {        
         $field_name = $form_field->getName();
         
-        assert('!isset($this->child_elements[$field_name])');
-    
-        if($this->submitted) {
-            $field_submitted_value = NULL;
-            
-            if(!empty($this->submitted_data)) {
-                if(isset($this->submitted_data[$field_name])) {
-                    $form_field->setSubmitted();
-                
-                    $field_submitted_value = $this->submitted_data[$field_name];
-                }
-            }
-
-            $form_field->setValue($field_submitted_value);
+        if(array_key_exists($field_name, $this->field_data)) {
+            $field_name->setValue($this->field_data[$field_name]);
         }
         
         if($form_field->getInputType() == 'file') {                
             $this->setAttribute('enctype', 'multipart/form-data');
-            $this->disableJavascript();
         }
         
         $this->child_elements[$field_name] = $form_field;
-        
-        if(!empty($group_name)) {
-            $this->grouped_fields[$group_name][] = $form_field;
-        }
-        
-        //Add the field to its default group
-        $this->grouped_fields[$form_field->getDefaultGroupName()][$field_name] = $form_field;
     }
     
     /**
@@ -331,59 +240,17 @@ extends Element {
     }
     
     /**
-     * Retrieves the fields of the specified group name.
-     *      
-     * @param string $group_name The name of the field group.     
-     * @return object|boolean Returns the field if the field group exists, false if it does not. 
-     */
-    public function getFieldsByGroup($group_name) {
-        if(isset($this->grouped_fields[$group_name])) {
-            return $this->grouped_fields[$group_name];
-        }
-        else {
-            return false;
-        }
-    }
-    
-    /**
-     * Sets the default values of all form fields specified by name.
-     *      
-     * @param array $field_values An array of field values in the following format: array(field_name => field_value).
-     * @return void
-     */
-    public function setDefaultValues($field_values) {
-        assert('is_array($field_values) && !empty($field_values)');
-        
-        foreach($field_values as $field_name => $field_value) {
-            if(isset($this->child_elements[$field_name])) {
-                $this->child_elements[$field_name]->setDefaultValue($field_value);
-            }
-        }
-    }
-    
-    /**
      * Sets specified form fields as required.
      *      
      * @param array $required_fields An array of field names to set as required.
      * @return void
      */
-    public function setRequiredFields($required_fields = array()) {
-        assert('is_array($required_fields) && !empty($required_fields)');
-    
+    public function setRequiredFields(array $required_fields) {    
         foreach($required_fields as $required_field) {
             if(isset($this->child_elements[$required_field])) {
                 $this->child_elements[$required_field]->setRequired();
             }
         }
-    }
-    
-    /**
-     * Returns the form submitted flag indicating if it has been submitted.
-     *      
-     * @return boolean
-     */
-    public function wasSubmitted() {
-        return $this->submitted;
     }
     
     /**
@@ -417,87 +284,21 @@ extends Element {
     }
     
     /**
-     * Checks for if all form fields are valid.
-     *
-     * @return boolean A flag indicating if the form fields are valid.
-     */
-    public function isValid() {
-        if($this->submitted) {
-            if(is_null($this->valid)) {
-                $fields_valid = true;
-                
-                foreach($this->child_elements as $form_field) {
-                    if(!$form_field->isValid()) {
-                        $fields_valid = false;
-                        
-                        $this->field_errors[] = $form_field->getErrorMessage();
-                    }
-                }
-                
-                $this->valid = $fields_valid;
-            }
-        }
-        else {
-            $this->valid = false;
-        }
-        
-        return $this->valid;
-    }
-    
-    /**
-     * Retrieves the form's field values.
-     *
-     * $param string $field_group_name (optional) The name of the group to retrieve from. Defaults to an empty string causing all field data to be returned.
-     * @return array
-     */
-    public function getData($field_group_name = '') {
-        if(empty($field_group_name)) {
-            if(!isset($this->field_data['all_fields'])) {
-                foreach($this->child_elements as $field_name => $field) {
-                    $this->field_data['all_fields'][$field_name] = $field->getValue();
-                }
-            }
-            
-            return $this->field_data['all_fields'];
-        }
-        else {
-            if(!isset($this->field_data[$field_group_name])) {
-                $group_fields = $this->getFieldsByGroup($field_group_name);
-            
-                foreach($group_fields as $field_name => $field) {
-                    $this->field_data[$field_group_name][$field_name] = $field->getValue();
-                }
-            }
-            
-            return $this->field_data[$field_group_name];
-        }
-    }
-    
-    /**
-     * Resets all field values in the form.
-     *      
-     * @return void
-     */
-    public function reset() {
-        if($this->framework->mode == 'web') {
-            if(!empty($this->child_elements)) {
-                foreach($this->child_elements as $child_element) {
-                    $child_element->resetValue();
-                }
-            }
-        }
-        
-        $this->reset = true;
-    }
-    
-    /**
      * Retrieves the form's messages of a specified type.
      * 
      * @param string $message_type The type of message to render. Valid values are field_errors, warnings, and confirmations.     
      * @return string
      */
     protected function getMessagesHtml($message_type) {
-        assert("\$message_type == 'field_errors' || \$message_type == 'warnings' || \$message_type == 'confirmations'");
+        switch($message_type) {
+            case 'field_errors':
+            case 'warnings':
+            case 'confirmations':
+                break;
+            default:
+                throw new Exception("message_type can only be 'field_errors', 'warnings', or 'confirmations'.");
+                break;
+        }
         
         if(!empty($this->$message_type)) {
             return '<p>' . implode('</p><p>', $this->$message_type) . '</p>';
@@ -586,21 +387,5 @@ extends Element {
         $form_html .= parent::toHtml();
         
         return $form_html;
-    }
-    
-    /**
-     * Retrieves the form as an array suitable for json encoding.
-     *      
-     * @return array
-     */
-    public function toJsonArray() {
-        $json_array = array(
-            'errors' => $this->getMessagesHtml('field_errors'),
-            'warnings' => $this->getMessagesHtml('warnings'),
-            'confirmations' => $this->getMessagesHtml('confirmations'),
-            'reset' => $this->reset
-        );
-        
-        return $json_array;
     }
 }

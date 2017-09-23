@@ -129,9 +129,7 @@ extends Element {
      * @param array $header_rows The header rows to add. Each row is an array of header columns.
      * @return void
      */
-    public function addHeaderRows($header_rows) {
-        assert('is_array($header_rows)');
-    
+    public function addHeaderRows(array $header_rows) {    
         if(!empty($header_rows)) {
             foreach($header_rows as $header_row) {
                 $this->addHeader($header_row);
@@ -157,9 +155,7 @@ extends Element {
      * @param array $footer_rows The footer rows to add. Each row is an array of footer columns.
      * @return void
      */
-    public function addFooterRows($footer_rows) {
-        assert('is_array($footer_rows)');
-    
+    public function addFooterRows(array $footer_rows) {    
         if(!empty($footer_rows)) {
             foreach($footer_rows as $footer_row) {
                 $this->addFooter($footer_row);
@@ -174,9 +170,7 @@ extends Element {
      * @param string $group_name (optional) The name of the table body this record belongs to.     
      * @return void
      */
-    public function addRow($row, $group_name = '') {
-        assert('is_array($row)');
-        
+    public function addRow(array $row, $group_name = '') {        
         if(!empty($row)) {
             if(empty($group_name)) {
                 $group_name = 'default_body';
@@ -193,10 +187,8 @@ extends Element {
      * @param string $group_name (optional) The name of the table body the specified records belong to.     
      * @return void
      */
-    public function addRows($rows, $group_name = '') { 
-        if(!empty($rows)) {
-            assert('is_array($rows)');
-        
+    public function addRows(array $rows, $group_name = '') { 
+        if(!empty($rows)) {        
             foreach($rows as $row) {
                 $this->addRow($row, $group_name);
             }
@@ -210,9 +202,7 @@ extends Element {
      * @param array $query_placeholders The placeholder values for the specified query.     
      * @return void
      */
-    public function useQuery($query, $query_placeholders = array(), $processor_function = NULL) {
-        assert('is_array($query_placeholders)');
-
+    public function useQuery($query, array $query_placeholders = array(), $processor_function = NULL) {
         $query_rows = db()->getAll($query, $query_placeholders);
         
         if(is_callable($processor_function)) {
@@ -291,6 +281,17 @@ extends Element {
     }
     
     /**
+     * Checks if the number_of_columns method has been set and throw an exception otherwise.
+     *      
+     * @return void
+     */
+    protected function checkIfNumberOfColumnsSet() {
+        if(!isset($this->number_of_columns)) {
+            throw new Exception("Number of columns for this table has not been set.");
+        }
+    }
+    
+    /**
      * Renders and retrieves the table's header html.
      *      
      * @return string
@@ -308,7 +309,7 @@ extends Element {
                     $header_html .= $this->getColumnsHtml($header_row, true);
                 }
                 else {
-                    assert('isset($this->number_of_columns)');
+                    $this->checkIfNumberOfColumnsSet();
                 
                     $header_html .= "<th class=\"table_header\" colspan=\"{$this->number_of_columns}\">{$header_row}</th>"; 
                 }
@@ -341,7 +342,7 @@ extends Element {
                     $footer_html .= '<th class="table_footer">' . implode('</th><th class="table_footer">', $footer_row) . '</th>';
                 }
                 else {
-                    assert('isset($this->number_of_columns) //Number of columns for this table has not been set.');
+                    $this->checkIfNumberOfColumnsSet();
                 
                     $footer_html .= "<th class=\"table_footer\" colspan=\"{$this->number_of_columns}\">{$footer_row}</th>";
                 }
@@ -370,7 +371,7 @@ extends Element {
                     
                     foreach($body_rows as $row) {
                         if($this->pad_rows) {
-                            assert('isset($this->number_of_columns)');
+                            $this->checkIfNumberOfColumnsSet();
 
                             $row = array_pad($row, $this->number_of_columns, '&nbsp;');
                         }

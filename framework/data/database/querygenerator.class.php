@@ -44,9 +44,7 @@ class QueryGenerator {
      * @param array $case_insensitive_columns (optional) A list of columns in the where clause that are matched to a case insensitive value.     
      * @return string The completed where clause.
      */
-    public static function getWhereClause($where_clause, $case_insensitive_columns = array()) {
-        assert('is_array($case_insensitive_columns)');
-    
+    public static function getWhereClause($where_clause, array $case_insensitive_columns = array()) {    
         $query_where_clause = "";
     
         if(!empty($where_clause)) {

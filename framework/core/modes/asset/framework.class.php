@@ -61,23 +61,18 @@ extends BaseFramework {
      * @return void
      */
     public function run() {
-        if($this->environment == 'production') {
-            $output = '';
-        
-            if($this->cache->initialized()) {                
-                $output = $this->cache->get($this->full_path, $this->type);
+        $output = '';
+    
+        if($this->cache->initialized()) { 
+            $output = $this->cache->get($this->full_path, $this->type);
 
-                if(empty($output)) {
-                    $output = file_get_contents($this->full_path);
-                    
-                    $this->cache->set($this->full_path, $output, $this->type);
-                }
+            if(empty($output)) {
+                $output = file_get_contents($this->full_path);
+                
+                $this->cache->set($this->full_path, $output, $this->type);
+            }
 
-                echo $output;
-            }
-            else {
-                readfile($this->full_path);
-            }
+            echo $output;
         }
         else {
             readfile($this->full_path);
@@ -91,10 +86,6 @@ extends BaseFramework {
      */
     public function getParsedUri() {
         $parsed_uri_segments = parent::getParsedUri();
-        
-        if($this->environment == 'development') {
-            $parsed_uri_segments['file'] = '';
-        }
 
         return $parsed_uri_segments;
     }
@@ -106,14 +97,6 @@ extends BaseFramework {
      */
     protected function sendInitialHeaders() {
         $type = $this->type;
-        
-        /*
-            Make a special exception for htc files to translate them to their correct content type.
-            This saves the overhead of extending this class just to modify the header content type.
-        */
-        if($type == 'htc') {
-            $type = 'x-component';                      
-        }
                 
         header("Content-Type: text/{$type}");
         header('X-Content-Type-Options: nosniff');
@@ -126,22 +109,7 @@ extends BaseFramework {
      *
      * @return void
      */
-    protected function validateExtension() {
-        if($this->environment == 'production') {
-            header('Content-Encoding: gzip');
-        }
-        else {
-            $extension = strtolower($this->extension);
-    
-            switch($extension) {
-                case 'php':
-                    throw new \Exception("Requested file '{$extension}' is forbidden.");
-                    break;
-                default:
-                    break;
-            }
-        }
-    }
+    protected function validateExtension() {}
     
     /**
      * Compiles the full path to the requested file.
@@ -151,37 +119,36 @@ extends BaseFramework {
     protected function constructFilePath() {
         $base_file_path = '';
         $file_path = '';
-    
-        if($this->environment == 'production') {        
-            if(empty($this->module_name)) {
-                $this->initializeNotFound(true);
-            }
+          
+        if(empty($this->module_name)) {
+            $this->initializeNotFound(true);
+        }
 
-            $base_file_path = "{$this->installation_path}/modules/{$this->module_name}/cache/{$this->type}/{$this->full_name}";
-            $file_path = "{$base_file_path}.gz";
-        }
-        else {
-            $file_path = request()->get->file;
-        }
+        $base_file_path = "{$this->installation_path}/modules/{$this->module_name}/cache/{$this->type}/{$this->full_name}";
+        $file_path = "{$base_file_path}.gz";
 
         if(is_file($file_path)) {
+            header('Content-Encoding: gzip');
+        
             $this->full_path = $file_path;
         }
         else {
-            $file_path = "{$base_file_path}.tmp";
+            $file_temp_path = "{$base_file_path}.tmp";
             $file_lock_path = "{$base_file_path}.lock";
             
-            if(is_file($file_path)) {
-                $this->full_path = $file_path;
-            
+            if(is_file($file_temp_path)) {                
                 ini_set('zlib.output_compression', 1);
 
                 ini_set('zlib.output_compression_level', 9);
                 
                 ob_start();
-            
-                if(!is_file($file_lock_path)) {
-                    passthru(PHP_BINDIR . "/php {$this->installation_path}/scripts/minify_assets.php -m {$this->module_name} -t {$this->type} -f {$this->full_name} >> {$this->installation_path}/logs/minification.log 2>&1 &");
+                
+                $this->full_path = $file_temp_path;
+                
+                if(!is_file($file_lock_path)) {   
+                    exec(
+                        PHP_BINDIR . "/php {$this->installation_path}/flow_cli.php admin assets Minify --module_name=" . escapeshellarg($this->module_name) . " --asset_type=" . escapeshellarg($this->type) . " --file_name=" . escapeshellarg($this->full_name) . " --no_output >> {$this->installation_path}/logs/minification.log 2>&1 &"
+                    );                     
                 }
             }
             else {
@@ -189,9 +156,7 @@ extends BaseFramework {
             }
         }
         
-        if($this->environment != 'production') {
-            //Sent the file's size
-            header("Content-Length: " . filesize($this->full_path));
-        }
+        //Send the file's size
+        header("Content-Length: " . filesize($this->full_path));
     }
 }

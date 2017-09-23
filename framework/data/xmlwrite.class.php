@@ -155,9 +155,7 @@ class XMLWrite {
      * @param array $element_attributes (optional) The element's attributes. This is optional.
      * @return void
      */
-    public function addElement($element_name, $element_value = NULL, $element_attributes = array()) {
-        assert('is_array($element_attributes)');
-    
+    public function addElement($element_name, $element_value = NULL, array $element_attributes = array()) {    
         $this->xml_data->startElement($element_name);
         
         if(!empty($element_attributes)) {
@@ -175,9 +173,7 @@ class XMLWrite {
      * @param array $element_attributes The element attributes to add to the current element.
      * @return void
      */
-    public function addElementAttributes($element_attributes) {
-        assert('is_array($element_attributes)');
-            
+    public function addElementAttributes(array $element_attributes) {            
         if(!empty($element_attributes)) {
             foreach($element_attributes as $element_attribute_name => $element_attribute_value) {
                 $this->xml_data->startAttribute($element_attribute_name);
@@ -195,9 +191,7 @@ class XMLWrite {
      * @param string $xslt_path The file path to the xsl document.
      * @return string The transformed XML.
      */
-    public function transform($xsl_path) {
-        assert('!empty($xslt_path)');
-        
+    public function transform($xsl_path) {        
         if(!is_readable($xsl_path)) {
             throw new \Exception("XSLT path '{$xsl_path}' is not readable.");
         }

@@ -1,7 +1,7 @@
 <?php
 /**
 * Allows the rendering of a form radio button or checkbox field and perform validation on the field's submitted data dynamically.
-* Copyright (c) 2011, Tommy Bolger
+* Copyright (c) 2017, Tommy Bolger
 * All rights reserved.
 * 
 * Redistribution and use in source and binary forms, with or without 
@@ -53,8 +53,6 @@ extends Field {
     public function __construct($input_type, $field_name, $field_label = NULL, $css_classes = array(), $field_value = '1', $is_checked = false) {
         parent::__construct($input_type, $field_name, $field_label, $css_classes);
 
-        $this->setDefaultValue($field_value);
-
         if($is_checked) {
             $this->setChecked();
         }
@@ -105,27 +103,6 @@ extends Field {
     }
     
     /**
-     * Validates the field's value.
-     *      
-     * @return boolean
-     */
-    protected function validate() {
-        if(!parent::validate()) {
-            return false;
-        }
-        
-        if($this->required) {
-            if(!$this->checked) {
-                $this->setRequiredError();
-                
-                return false;
-            }
-        }
-        
-        return true;
-    }
-    
-    /**
      * Sets the field to being either checked or not checked based on if its submitted data is empty or not.
      *      
      * @param string $submitted_value (optional) The field's submitted value.
@@ -140,18 +117,5 @@ extends Field {
             
             parent::setValue($submitted_value);
         }
-    }
-    
-    /**
-     * Gets the field's submitted value.
-     *      
-     * @return string
-     */
-    public function getValue() {
-        if($this->checked) {
-            return $this->value;
-        }
-        
-        return "";
     }
 }

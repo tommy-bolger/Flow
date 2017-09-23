@@ -85,7 +85,17 @@ extends Module {
     /**
     * @var string The http path to the module's javascript.
     */        
-    protected $javascript_http_path;                
+    protected $javascript_http_path;
+    
+    /**
+    * @var string The file path to the module's theme npm managed files.
+    */        
+    protected $npm_theme_path;
+    
+    /**
+    * @var string The file path to the module's npm managed files.
+    */        
+    protected $npm_path;
     
     /**
     * @var string The path to the images of the current module.
@@ -137,7 +147,7 @@ extends Module {
         
         $this->theme = $this->configuration->theme;
         
-        $page_assets_path = $this->framework->installation_path;
+        $page_assets_path = $this->framework->getInstallationPath();
         
         //Set the module's assets path
         $this->assets_path = "{$page_assets_path}/modules/{$module_name}/assets";
@@ -156,6 +166,10 @@ extends Module {
         $this->css_theme_path = "{$this->theme_path}/css";
         
         $this->javascript_theme_path = "{$this->theme_path}/javascript";
+        
+        $this->npm_theme_path = "{$this->theme_path}/node_modules";
+        
+        $this->npm_path = "{$this->assets_path}/node_modules";
         
         $this->templates_path = "{$this->theme_path}/templates";
             
@@ -231,6 +245,24 @@ extends Module {
      */
     public function getJavascriptHttpPath() {
         return $this->javascript_http_path;
+    }
+    
+    /**
+     * Retrieves the module's npm managed files path.
+     *     
+     * @return string
+     */
+    public function getNpmPath() {
+        return $this->npm_path;
+    }
+    
+    /**
+     * Retrieves the module's theme npm managed files.
+     *     
+     * @return string
+     */
+    public function getNpmThemePath() {
+        return $this->npm_theme_path;
     }
     
     /**

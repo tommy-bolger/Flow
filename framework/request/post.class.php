@@ -35,7 +35,7 @@ namespace Framework\Request;
 final class Post
 extends RequestData {
     /**
-     * Initializes a new instance of PostData.
+     * Initializes a new instance of this object.
      * 
      * @return void
      */

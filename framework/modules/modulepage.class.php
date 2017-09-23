@@ -94,6 +94,12 @@ extends Page {
         
         $this->javascript_http_path = $this->getJavascriptHttpPath();
         
+        //Set the theme npm path
+        $theme_npm_path = $this->module->getNpmThemePath();
+        
+        //Set the npm javascript path
+        $npm_path = $this->module->getNpmPath();
+        
         //Set the theme css path
         $theme_css_path = $this->module->getCssThemePath();
         
@@ -102,6 +108,8 @@ extends Page {
         
         $this->setCssDirectories(array(
             $theme_css_path,
+            $theme_npm_path,
+            $npm_path,
             $root_css_path
         ));
         
@@ -116,7 +124,9 @@ extends Page {
         
         $this->setJavascriptDirectories(array(
             $theme_javascript_path,
+            $theme_npm_path,
             $module_javascript_path,
+            $npm_path,
             $root_javascript_path
         ));
         
@@ -126,7 +136,7 @@ extends Page {
         
         //Add the current module style's error page template to display for errors if it exists.
         if($module_name != 'admin') {
-            Framework::getInstance()->error_handler->setTemplatePath("{$module_templates_path}/error_template.php");
+            Framework::getInstance()->getErrorHandler()->setTemplatePath("{$module_templates_path}/error_template.php");
         }
     }
     

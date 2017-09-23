@@ -114,7 +114,7 @@ class Module {
     
         $this->name = $module_name;
         
-        $this->installation_path = "{$this->framework->installation_path}/modules/{$module_name}";
+        $this->installation_path = "{$this->framework->getInstallationPath()}/modules/{$module_name}";
         $this->external_path = "{$this->installation_path}/external";
         $this->vendor_path = "{$this->installation_path}/vendor";
         
@@ -123,12 +123,12 @@ class Module {
         Loader::addBasePath($this->external_path);
         Loader::addBasePath($this->vendor_path);
         
-        if($this->framework->mode != 'safe') {
+        if($this->framework->getMode() != 'safe') {
             $this->loadData($module_name);
             
             $this->loadConfiguration();
             
-            $this->framework->error_handler->setModuleId($this->id);
+            $this->framework->getErrorHandler()->setModuleId($this->id);
         }
         
         if(empty(self::$instances[$module_name])) {
@@ -150,8 +150,10 @@ class Module {
      * @return void
      */
     private function loadData() {
-        if($this->framework->cache->initialized()) {
-            $this->data = $this->framework->cache->get($this->name, 'modules');
+        $framework_cache = $this->framework->getCache();
+    
+        if($framework_cache->initialized()) {
+            $this->data = $framework_cache->get($this->name, 'modules');
         }
         
         if(empty($this->data)) {
@@ -166,11 +168,11 @@ class Module {
             ", array($this->name));
 
             if(empty($this->data)) {
-                throw new \Exception("Module {$this->name} does not exist.");
+                throw new Exception("Module {$this->name} does not exist.");
             }
             
-            if($this->framework->cache->initialized()) {
-                $this->framework->cache->set($this->name, json_encode($this->data), 'modules');
+            if($framework_cache->initialized()) {
+                $framework_cache->set($this->name, json_encode($this->data), 'modules');
             }
         }
         else {
@@ -178,7 +180,7 @@ class Module {
         }
         
         if(empty($this->data['enabled'])) {
-            throw new \Exception("Module '{$this->name}' is not enabled.");
+            throw new Exception("Module '{$this->name}' is not enabled.");
         }
         
         $this->id = $this->data['module_id'];
@@ -259,12 +261,14 @@ class Module {
         
         $framework = Framework::getInstance();
         
-        if($framework->cache->initialized()) {
-            $modules = $framework->cache->get('installed_modules');
+        $framework_cache = $framework->getCache();
+        
+        if($framework_cache->initialized()) {
+            $modules = $framework_cache->get('installed_modules');
         }
     
         if(empty($modules)) {
-            $modules_directory = opendir($framework->installation_path . "/modules");
+            $modules_directory = opendir($framework->getInstallationPath() . "/modules");
     
             while($module_entry = readdir($modules_directory)) {
                 switch($module_entry) {
@@ -279,8 +283,8 @@ class Module {
             
             closedir($modules_directory);
             
-            if($framework->cache->initialized()) {
-                $framework->cache->set('installed_modules', json_encode($modules));
+            if($framework_cache->initialized()) {
+                $framework_cache->set('installed_modules', json_encode($modules));
             }
         }
         else {
@@ -288,5 +292,17 @@ class Module {
         }
         
         return $modules;
+    }
+    
+    public static function getNonAdminModules() {
+        return db()->getAll("
+            SELECT 
+                display_name,
+                module_name
+            FROM cms_modules
+            WHERE enabled = 1
+                AND module_name != 'admin'
+            ORDER BY sort_order
+        ");
     }
 }

@@ -115,9 +115,7 @@ class Template {
     * @param array $placeholder_values The placeholder values with the array key of each element as the placeholder.
     * @return void.
     */
-    public function setPlaceholderValues($placeholder_values) {
-        assert('is_array($placeholder_values)');
-        
+    public function setPlaceholderValues(array $placeholder_values) {        
         $this->placeholder_values = $placeholder_values;
     }
     

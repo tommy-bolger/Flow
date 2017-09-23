@@ -32,13 +32,22 @@
 */
 namespace Framework\Request;
 
-final class Request {
-    private static $instance;
-    
-    private $required_variables;
+use \Exception;
 
+final class Request {
+    /**
+    * @var object A stored instance of this object.
+    */
+    private static $instance;
+
+    /**
+    * @var object An instance of the Get object.
+    */
     public $get;
     
+    /**
+    * @var object An instance of the Post object.
+    */
     public $post;
     
     /**
@@ -60,21 +69,11 @@ final class Request {
      * @return void
      */
     public function __construct() {
-        $this->get = new get();
+        $this->get = new Get();
         
-        $this->post = new post();
-    }
-    
-    /**
-     * Sets the specified request variables as required in either $_GET or $_POST.
-     *
-     * @param array $required_variables A list of request variable names.
-     * @return void
-     */
-    public function setRequired($required_variables) {
-        assert('is_array($required_variables) && !empty($required_variables)');
+        $this->post = new Post();
         
-        $this->required_variables = array_flip($required_variables);
+        $this->files = new Files();
     }
     
     /**
@@ -91,10 +90,6 @@ final class Request {
         }
         elseif(!empty($this->get->$variable_name)) {
             $variable_value = $this->get->$variable_name;
-        }
-
-        if(isset($this->required_variables[$variable_name]) && empty($variable_value)) {
-            throw new \Exception("Variable '{$variable_name}' could not be found in \$_GET or \$_POST.");
         }
         
         return $variable_value;
@@ -116,5 +111,18 @@ final class Request {
         }
         
         return false;
+    }
+    
+    /**
+     * Retrieves the method used for this current request.
+     *
+     * @return string
+     */
+    public function getMethod() {
+        if(!isset($_SERVER['REQUEST_METHOD'])) {
+            throw new Exception("A call was made to Request::getMethod() when not running in web mode.");
+        }
+    
+        return $_SERVER['REQUEST_METHOD'];
     }
 }

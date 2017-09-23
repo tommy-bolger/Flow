@@ -31,7 +31,7 @@
 * POSSIBILITY OF SUCH DAMAGE.
 */
 
-namespace Modules\Admin\Controllers\Ads;
+namespace Modules\Admin\Controllers\Page\Ads;
 
 use \Framework\Html\Form\EditTableForm;
 use \Framework\Utilities\Http;

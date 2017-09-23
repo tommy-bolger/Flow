@@ -119,6 +119,14 @@ extends BaseFramework {
             
                 unset($_SERVER['argv'][$database_query_logging_index]);
             }
+            
+            $no_output_index = array_search('--no_output', $_SERVER['argv'], true);
+            
+            if($no_output_index !== false) {   
+                $this->output_enabled = false;
+            
+                unset($_SERVER['argv'][$no_output_index]);
+            }
         }
         
         return $mode;
@@ -277,17 +285,28 @@ extends BaseFramework {
      * Prompts and waits for data input by the user.
      *
      * @param string $prompt The display prompt to the user.  
-     * @param boolean $required Indicates if this method should wait until the user as specified input (true) or returns blank input (false). Defaults to true.
+     * @param boolean $required (optional) Indicates if this method should wait until the user as specified input (true) or returns blank input (false). Defaults to true.
+     * @param array $validate_callback (optional) The callback to use to validate the user's input. Defaults to an empty array.
+     * @param boolean $hide_input (optional) Indicates if input being entered by the user should be displayed. Defaults to false.
      * @return string
      */
-    public function getInput($prompt, $required = true) {
+    public function getInput($prompt, $required = true, array $validate_callback = array(), $hide_input = false) {
         $input_received = false;
         $input = '';
     
-        while(!$input_received) {
-            print("{$prompt}: ");
-        
-            $input = trim(fgets(STDIN));
+        while(!$input_received) {            
+            $input = NULL;
+            
+            if(!empty($hide_input)) {
+                $input = trim(shell_exec("/usr/bin/env bash -c 'read -s -p \"{$prompt} \" mypassword && echo \$mypassword'"));
+                
+                print("\n");
+            }
+            else {
+                print("{$prompt} ");
+                
+                $input = trim(fgets(STDIN));
+            }        
             
             if(!empty($required)) {
                 if(!empty($input)) {
@@ -296,6 +315,19 @@ extends BaseFramework {
             }
             else {
                 $input_received = true;
+            }
+            
+            if($input_received && !empty($validate_callback)) {
+                $valid = call_user_func_array($validate_callback, array(
+                    $input
+                ));
+                
+                if(!empty($valid)) {
+                    $input_received = true;
+                }
+                else {
+                    $input_received = false;
+                }
             }
         }
         

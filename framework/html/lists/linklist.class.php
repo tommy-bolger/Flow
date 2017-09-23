@@ -55,7 +55,7 @@ extends UnorderedList {
      * @param array $attributes (optional) The attributes of this list item. Format is attribute_name => attribute_value.
      * @return void
      */
-    public function addListItem($item_value, $item_name, $attributes = array()) {    
+    public function addListItem($item_value, $item_name, array $attributes = array()) {    
         $link_item = "<a href=\"{$item_value}\">{$item_name}</a>";
         
         parent::addListItem($link_item, $item_name, $attributes);
@@ -76,9 +76,7 @@ extends UnorderedList {
      *      
      * @return string
      */
-    protected function getItemHtml($item, $item_name) {
-        assert('is_array($item)');
-                
+    protected function getItemHtml(array $item, $item_name) {                
         if($item_name == $this->active_item_name) {            
             $item['attributes']['class'][] = 'active';
         }

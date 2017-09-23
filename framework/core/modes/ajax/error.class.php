@@ -80,7 +80,7 @@ extends BaseError {
      * @return string
      */
     protected function getDisplay($error_code, $error_message, $error_file, $error_line, $error_trace) {    
-        $environment = $this->framework->environment;
+        $environment = $this->framework->getEnvironment();
         $display_message = '';
         
         if(empty($environment) || $environment == 'production') {

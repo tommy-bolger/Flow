@@ -67,9 +67,7 @@ extends \Framework\Html\Element {
      * @param array $attributes (optional) The attributes of this list item. Format is attribute_name => attribute_value.     
      * @return void
      */
-    public function addListItem($item_value, $item_name, $attributes = array()) {
-        assert('is_array($attributes)');
-    
+    public function addListItem($item_value, $item_name, array $attributes = array()) {    
         $this->child_elements[$item_name] = array(
             'value' => $item_value,
             'attributes' => $attributes
@@ -82,9 +80,7 @@ extends \Framework\Html\Element {
      * @param array $items The list items to add. Format is item_name => item_value.
      * @return void
      */
-    public function addListItems($items) {
-        assert('is_array($items)');
-    
+    public function addListItems(array $items) {    
         if(!empty($items)) {
             foreach($items as $item_name => $item_value) {
                 $this->addListItem($item_value, $item_name);
@@ -99,9 +95,7 @@ extends \Framework\Html\Element {
      * @param string $item_name The name of the item.     
      * @return string
      */
-    protected function getItemHtml($item, $item_name) {
-        assert('is_array($item)');
-        
+    protected function getItemHtml(array $item, $item_name) {        
         $attributes_formatted = '';
         
         if(!empty($item['attributes'])) {

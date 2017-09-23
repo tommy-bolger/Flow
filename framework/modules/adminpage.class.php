@@ -59,7 +59,7 @@ extends ModulePage {
         
         $framework = Framework::getInstance();
         
-        $module_path = "{$framework->installation_path}/modules/{$module_name}";
+        $module_path = "{$framework->getInstllationPath()}/modules/{$module_name}";
         
         $module_javascript_path = "{$module_path}/assets/javascript";
         

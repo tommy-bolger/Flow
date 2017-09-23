@@ -31,8 +31,9 @@
 * POSSIBILITY OF SUCH DAMAGE.
 */
 
-namespace Modules\Admin\Controllers\Settings;
+namespace Modules\Admin\Controllers\Page\Settings;
 
+use \Exception;
 use \Framework\Utilities\Http;
 use \Framework\Html\Misc\Div;
 use \Framework\Html\Form\TableForm;
@@ -41,6 +42,7 @@ use \Framework\Html\Form\Fields\IntField;
 use \Framework\Html\Form\Fields\FloatField;
 use \Framework\Html\Form\Fields\Textbox;
 use \Framework\Html\Form\Fields\Dropdown;
+use \Framework\Data\Database\QueryGenerator;
 
 class General
 extends Home {
@@ -64,7 +66,7 @@ extends Home {
             $module_placeholder_values[] = $this->module_id;
         }
         
-        $module_where_clause = db()->generateWhereClause(array('module_id' => $this->module_id));
+        $module_where_clause = QueryGenerator::getWhereClause(array('module_id' => $this->module_id));
         
         $this->parameters = db()->getGroupedRows("
             SELECT 
@@ -98,7 +100,7 @@ extends Home {
             $this->page->body->addChild($this->getForm(), 'current_menu_content');
         }
         else {
-            throw new \Exception("Module ID '{$this->module_id}' is not valid.");
+            throw new Exception("Module ID '{$this->module_id}' is not valid.");
         }
     }
     

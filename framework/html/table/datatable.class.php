@@ -33,6 +33,7 @@
 
 namespace Framework\Html\Table;
 
+use \Exception;
 use \Framework\Utilities\Http;
 use \Framework\Utilities\ArrayFunctions;
 use \Framework\Html\Form\Form;
@@ -205,7 +206,7 @@ extends Table {
      * @param array $header_rows
      * @return void
      */
-    public function addHeaderRows($header_rows) {}
+    public function addHeaderRows(array $header_rows) {}
     
     /**
      * Retrieves the table's current view state either from a request or from the session. 
@@ -278,9 +279,7 @@ extends Table {
      * @param array $rows_per_page_options
      * @return void
      */
-    public function setRowsPerPageOptions($rows_per_page_options) {
-        assert('(is_array($rows_per_page_options) && !empty($rows_per_page_options))');
-
+    public function setRowsPerPageOptions(array $rows_per_page_options) {
         foreach($rows_per_page_options as $index => $option) {
             $this->rows_per_page_options[$index + 1] = $option;
         }
@@ -294,9 +293,7 @@ extends Table {
      * @param string|array $sort_columns The columns to sort the resultset by.
      * @return void
      */
-    public function setSortColumnOptions($sort_column_options) {
-        assert('is_array($sort_column_options)');
-        
+    public function setSortColumnOptions(array $sort_column_options) {        
         $this->sort_column_options = $sort_column_options;
         
         $this->addRequestVariable('s', $this->current_sort_column);
@@ -311,11 +308,7 @@ extends Table {
      * @param array $column_link_parameters (optional) The query string parameters for each column url.       
      * @return void
      */
-    public function setColumnsAsLink($columns_as_link, $column_link_urls, $column_link_parameters = array()) {
-        assert('is_array($columns_as_link)');
-        assert('is_array($column_link_urls) || is_string($column_link_urls)');
-        assert('is_array($column_link_parameters)');
-    
+    public function setColumnsAsLink(array $columns_as_link, $column_link_urls, array $column_link_parameters = array()) {
         $this->columns_as_link = $columns_as_link;
         
         $this->column_link_urls = $column_link_urls;
@@ -332,12 +325,10 @@ extends Table {
      * @param string $column_name (optional) The name of the column to attach the filter field to. Defaults to an empty string.
      * @return void
      */
-    public function addFilterDropdown($filter_field_name, $filter_options, $filter_label = '', $column_name = '') {
+    public function addFilterDropdown($filter_field_name, array $filter_options, $filter_label = '', $column_name = '') {
         if(!$this->resume_from_session) {
-            throw new \Exception("This feature is only supported when resume_from_session is enabled in the constructor.");
+            throw new Exception("This feature is only supported when resume_from_session is enabled in the constructor.");
         }
-    
-        assert('is_array($filter_options) && !empty($filter_options)');
 
         $filter_option_labels = array_keys($filter_options);
         
@@ -386,10 +377,7 @@ extends Table {
      * @param string $column_name (optional) The name of the column to attach the filter field to. Defaults to an empty string.
      * @return void
      */
-    public function addFilterTextbox($filter_field_name, $filter_criteria, $filter_label = '', $column_name = '') {
-        assert('is_string($filter_field_name) && !empty($filter_field_name)');
-        assert('is_string($filter_criteria) && !empty($filter_criteria)');
-    
+    public function addFilterTextbox($filter_field_name, $filter_criteria, $filter_label = '', $column_name = '') {    
         $filter_textbox = new Textbox("f[{$filter_field_name}]", $filter_label);
         
         $selected_value = NULL;
@@ -433,9 +421,7 @@ extends Table {
      * @param object $resultset An object of type ResultSet. Valid classes fall under \Framework\Data\ResultSet.
      * @return void
      */        
-    public function process($resultset, $processor_function = NULL) {
-        assert('is_object($resultset) && !empty($resultset)');
-        
+    public function process($resultset, $processor_function = NULL) {        
         if(!empty($this->selected_filter_criteria)) {
             foreach($this->selected_filter_criteria as $filter_criteria) {
                 $resultset->addFilterCriteria($filter_criteria['criteria'], $filter_criteria['placeholder_values']);
@@ -477,7 +463,7 @@ extends Table {
      * @param function $processor_function (optional) The function that will perform post-processing of the resultset.       
      * @return void
      */
-    public function useQuery($query, $query_placeholders = array(), $processor_function = NULL) {}
+    public function useQuery($query, array  $query_placeholders = array(), $processor_function = NULL) {}
     
     /**
      * Renders and retrieves the rows per page options as an html dropdown.
@@ -888,7 +874,7 @@ extends Table {
                                     $column_link_url = $this->column_link_urls[$column_as_link];
                                 }
                                 else {
-                                    throw new \Exception("No url was specified for column '{$column_as_link}'.");
+                                    throw new Exception("No url was specified for column '{$column_as_link}'.");
                                 }
                             }
                             

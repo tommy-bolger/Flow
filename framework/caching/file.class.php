@@ -87,12 +87,10 @@ class File {
      * @param string $base_path (optional) The base path to the file cache directory.
      * @return void
      */
-    public function __construct($module_name) {
-        assert('!empty($module_name) && is_string($module_name)');
-        
+    public function __construct($module_name) {        
         $framework = Framework::getInstance();
         
-        $this->directory_path = $framework->installation_path;
+        $this->directory_path = $framework->getInstallationPath();
     
         if($module_name != 'framework') {
             $this->directory_path .= "/modules/{$module_name}";
@@ -100,7 +98,7 @@ class File {
         
         $this->directory_path .= '/cache';
         
-        $this->framework_version = $framework->configuration->version;
+        $this->framework_version = $framework->getConfiguration()->version;
     }
 
     /**
@@ -204,6 +202,35 @@ class File {
         }
         
         return "";
+    }
+    
+    /**
+     * Deletes value in the cache.
+     *
+     * @param string $key The name of the cache file.     
+     * @param string $value The contents of the cache file.     
+     * @param string $file_path The directory path of the cache file within the cache directory path.
+     * @param string $extension (optional) The file extension of the cache file. Defaults to 'txt'.
+     * @return string The hashed key of the stored file.
+     */
+    public function del($key, $value, $file_path, $extension = 'txt') {    
+        $hashed_key = $this->getHashedKey($key, $file_path);
+        
+        $full_directory_path = $this->getFullDirectoryPath($file_path);
+        
+        if(is_writable($full_directory_path)) {
+            $full_file_path = "{$full_directory_path}/{$hashed_key}.{$extension}";
+            $file_lock_path = "{$full_file_path}.lock";
+            
+            if(!is_file($file_lock_path) && is_file($full_file_path)) {
+                unlink($full_file_path);
+            }
+        }
+        else {
+            throw new \Exception("Directory '{$full_directory_path}' is not writable.");
+        }
+        
+        return $hashed_key;
     }
     
     /**

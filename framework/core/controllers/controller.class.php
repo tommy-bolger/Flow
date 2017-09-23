@@ -49,6 +49,7 @@ abstract class Controller {
     /**
      * Initializes a new instance of Controller.
      *
+     * @param string $module_name The name of the module this controller is a part of.
      * @return void
      */
     public function __construct($module_name) {
@@ -62,11 +63,4 @@ abstract class Controller {
      * @return void
      */
     public function init() {}
-    
-    /**
-     * Executes the controller action.
-     *
-     * @return void
-     */
-    public function action() {}
 }

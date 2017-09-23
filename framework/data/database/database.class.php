@@ -101,10 +101,12 @@ class Database {
 
             if($database_connection == 'default') {
                 $framework = Framework::getInstance();
+                
+                $configuration = $framework->getConfiguration();
             
-                $dsn = $framework->configuration->database_dsn;
-                $username = $framework->configuration->database_user;
-                $encrypted_password = $framework->configuration->database_password;
+                $dsn = $configuration->database_dsn;
+                $username = $configuration->database_user;
+                $encrypted_password = $configuration->database_password;
                 
                 $unencrypted_password = Encryption::decrypt($encrypted_password);
 
@@ -288,9 +290,7 @@ class Database {
      * @param string $query_name (optional) The cache name of the query. This enables caching of the prepared statement.
      * @return object The PDO statement object.
      */
-    public function prepareExecuteQuery($sql_statement, $placeholder_values = array(), $query_name = '') {    
-        assert('is_array($placeholder_values)');
-    
+    public function prepareExecuteQuery($sql_statement, array $placeholder_values = array(), $query_name = '') {        
         $query_object = NULL;
         
         if(!empty($query_name)) {            
@@ -586,9 +586,7 @@ class Database {
      * @param boolean $return_new_id (optional) Indicates if the new primary key value from this insertion should be returned. Defaults to true.
      * @return integer The primary key of the new record.
      */
-    public function insert($table_name, $fields = array(), $query_name = '', $return_new_id = true) {
-        assert('is_array($fields)');
-    
+    public function insert($table_name, array $fields = array(), $query_name = '', $return_new_id = true) {    
         $this->generateQuery('insert', $table_name, $fields, NULL, NULL, $query_name);
         
         $new_id = NULL;

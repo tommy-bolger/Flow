@@ -161,9 +161,7 @@ class ResultSet {
      * @param integer $page_number
      * @return void
      */
-    public function setPageNumber($page_number) {
-        assert('!empty($page_number) && is_integer($page_number)');
-        
+    public function setPageNumber($page_number) {        
         $this->page_number = $page_number;
     }
     
@@ -173,9 +171,7 @@ class ResultSet {
      * @param integer $rows_per_page
      * @return void
      */
-    public function setRowsPerPage($rows_per_page) {
-        assert('!empty($rows_per_page) && is_integer($rows_per_page)');
-    
+    public function setRowsPerPage($rows_per_page) {    
         $this->rows_per_page = $rows_per_page;     
     }
     
@@ -185,9 +181,7 @@ class ResultSet {
      * @param integer $offset
      * @return void
      */
-    public function setOffset($offset) {
-        assert('!empty($offset) && is_integer($offset)');
-    
+    public function setOffset($offset) {    
         $this->offset = $offset;
     }
     
@@ -231,9 +225,7 @@ class ResultSet {
      * @param array $arguments Additional arguments to pass into the function. Defaults to an empty array for none.
      * @return void
      */
-    public function addProcessorFunction($processor_function, array $arguments = array()) {
-        assert('is_callable($processor_function)');
-        
+    public function addProcessorFunction($processor_function, array $arguments = array()) {        
         $this->processor_functions[] = array(
             'function' => $processor_function,
             'arguments' => $arguments

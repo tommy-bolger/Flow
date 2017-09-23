@@ -1,7 +1,7 @@
 <?php
 /**
 * Enables the rendering of an html element with a closing tag and its child elements dynamically.
-* Copyright (c) 2011, Tommy Bolger
+* Copyright (c) 2017, Tommy Bolger
 * All rights reserved.
 * 
 * Redistribution and use in source and binary forms, with or without 
@@ -34,8 +34,14 @@
 namespace Framework\Html;
 
 use \Framework\Display\Template;
+use \Framework\Html\Page;
 
 class Element {
+    /**
+    * @var \Framework\Html\Page The page that this element is a part of.
+    */
+    protected $page;
+
     /**
     * @var object The template for the element.
     */
@@ -45,26 +51,6 @@ class Element {
     * @var object The template for contents of the element.
     */
     protected $contents_template;
-    
-    /**
-    * @var array The list of css files to include with this element.
-    */
-    protected $css_files = array();
-    
-    /**
-    * @var array The list of javascript files to include with this element.
-    */
-    protected $javascript_files = array();
-    
-    /**
-    * @var array The list of inline javascript to include with this element.
-    */
-    protected $inline_javascript = array();
-    
-    /**
-    * @var boolean Indicates if javascript is enabled for this element and its children.
-    */
-    protected $javascript_enabled = true;
 
     /**
     * @var string The html tag name of the element.
@@ -112,30 +98,12 @@ class Element {
      * @param boolean $append A flag determining if the added child should be appended to a group with the same name.     
      * @return void
      */
-    public function addChild($child_object, $child_name = NULL, $append = false) {
-        assert('empty($child_object) || is_object($child_object) || is_scalar($child_object) || is_array($child_object)');
-        
-        if(empty($child_name) && is_object($child_object)) {
-            $child_name = $child_object->getId();
+    public function addChild($child_object, $child_name) {
+        if(isset($this->child_elements[$child_name])) {
+            throw new Exception("Child object '{$child_name}' already exists.");
         }
-        
-        if(!empty($child_name) && !$append) {
-            assert('!isset($this->child_elements[$child_name])');
-        }
-
-        if(empty($child_name)) {
-            $this->child_elements[] = $child_object;
-        }
-        else {
-            if(!$append) {
-                assert('!isset($this->child_elements[$child_name])');
-            
-                $this->child_elements[$child_name] = $child_object;
-            }
-            else {
-                $this->child_elements[$child_name][] = $child_object;
-            }
-        }
+    
+        $this->child_elements[$child_name] = $child_object;
     }
     
     /**
@@ -145,7 +113,9 @@ class Element {
      * @return object
      */
     public function getChild($child_name) {
-        assert('isset($this->child_elements[$child_name])');    
+        if(!isset($this->child_elements[$child_name])) {
+            throw new Exception("Child object of name '{$child_name}' does not exist and cannot be retrieved.");
+        }
         
         return $this->child_elements[$child_name];
     }
@@ -157,7 +127,9 @@ class Element {
      * @return void
      */
     public function removeChild($child_name) {
-        assert('isset($this->child_elements[$child_name])');
+        if(!isset($this->child_elements[$child_name])) {
+            throw new Exception("Child object of name '{$child_name}' does not exist and cannot be removed.");
+        }
         
         unset($this->child_elements[$child_name]);
     }
@@ -204,9 +176,7 @@ class Element {
      * @param array $attributes The attributes to add to the element. Format is attribute_name => attribute_value.
      * @return void
      */
-    public function setAttributes($attributes) {
-        assert('is_array($attributes)');
-
+    public function setAttributes(array $attributes) {
         if(!empty($attributes)) {
             foreach($attributes as $attribute_name => $attribute_value) {
                 $this->setAttribute($attribute_name, $attribute_value);
@@ -285,9 +255,7 @@ class Element {
      * @param array $element_classes The css classes to add to the element.     
      * @return void
      */
-    public function addClasses($element_classes) {
-        assert('is_array($element_classes)');
-    
+    public function addClasses(array $element_classes) {    
         if(!empty($element_classes)) {
             foreach($element_classes as $element_class) {
                 $this->addClass($element_class);
@@ -312,134 +280,6 @@ class Element {
      */
     public function getElementTag() {
         return $this->tag;
-    }
-    
-    /**
-     * Adds the element's javascript and css to the page.
-     *      
-     * @return void
-     */
-    protected function addElementFiles() {}
-    
-    /**
-     * Retrieves the element inline code and files to be included with this element.
-     *
-     * @return array
-     */
-    public function getElementFiles() {
-        $css_files = $this->css_files;
-        
-        $javascript_files = array();
-        
-        if($this->javascript_enabled) {
-            $javascript_files = $this->javascript_files;
-        }
-        
-        $inline_javascript = $this->inline_javascript;
-
-        if(!empty($this->child_elements)) {
-            $child_element_files = $this->getChildElementFiles($this->child_elements);
-            
-            $css_files += $child_element_files['css'];
-                
-            if($this->javascript_enabled) {
-                $javascript_files += $child_element_files['javascript'];
-            }
-            
-            $inline_javascript += $child_element_files['inline_javascript'];
-        }
-        
-        return array(
-            'css' => $css_files,
-            'javascript' => $javascript_files,
-            'inline_javascript' => $inline_javascript
-        );
-    }
-    
-    /**
-     * Retrieves all child element files.
-     *
-     * @param array $child_elements The list of child element objects to retrieve from.
-     * @return array
-     */
-    protected function getChildElementFiles($child_elements) {
-        assert('is_array($child_elements)');
-    
-        $css_files = array();
-        $javascript_files = array();
-        $inline_javascript = array();
-    
-        foreach($child_elements as $child_element) {
-            if(is_object($child_element)) {
-                $child_element_files = $child_element->getElementFiles();
-                
-                $css_files += $child_element_files['css'];
-                $javascript_files += $child_element_files['javascript'];
-                $inline_javascript += $child_element_files['inline_javascript'];
-            }
-            elseif(is_array($child_element) && !empty($child_element)) {
-                $sub_child_element_files = $this->getChildElementFiles($child_element);
-                
-                $css_files += $sub_child_element_files['css'];
-                $javascript_files += $sub_child_element_files['javascript'];
-                $inline_javascript += $sub_child_element_files['inline_javascript'];
-            }
-        }
-        
-        return array(
-            'css' => $css_files,
-            'javascript' => $javascript_files,
-            'inline_javascript' => $inline_javascript
-        );
-    }
-    
-    /**
-     * Adds a css file to be included with this element.
-     *
-     * @param string $css_file_path The file path to the css file.
-     * @param boolean (optional) $internal A flag indicating if the css file path is an internal relative path. Defaults to true.
-     * @return void
-     */
-    protected function addCssFile($css_file_path, $internal = true) {
-        $this->css_files[$css_file_path] = $internal;                
-    }
-    
-    /**
-     * Adds a javascript file to be included with this element.
-     *
-     * @param string $javascript_file_path The file path to the javascript file.
-     * @param boolean (optional) $internal A flag indicating if the javascript file path is an internal relative path. Defaults to true.
-     * @return void
-     */
-    protected function addJavascriptFile($javascript_file_path, $internal = true) {
-        $this->javascript_files[$javascript_file_path] = $internal;
-    }
-    
-    /**
-     * Adds inline javascript to be included with this element.
-     *
-     * @param string $inline_javascript The inline javascript.
-     * @param string (optional) $inline_name The name of the inline block for overriding purposes. Defaults to an empty string.
-     * @return void
-     */
-    protected function addInlineJavascript($inline_javascript, $inline_name = '') {
-        if(empty($inline_name)) {    
-            $this->inline_javascript[] = $inline_javascript;
-        }
-        else {
-            $this->inline_javascript[$inline_name] = $inline_javascript;        
-        }                        
-    }
-    
-    /**
-     * Disables javascript for this element.
-     *      
-     * @return void
-     */
-    public function disableJavascript() {
-        $this->javascript_enabled = false;
-        
-        $this->addClass('no_js');
     }
     
     /**

@@ -1,7 +1,7 @@
 <?php
 /**
 * The login page of the Admin module.
-* Copyright (c) 2011, Tommy Bolger
+* Copyright (c) 2017, Tommy Bolger
 * All rights reserved.
 * 
 * Redistribution and use in source and binary forms, with or without 
@@ -30,27 +30,40 @@
 * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE 
 * POSSIBILITY OF SUCH DAMAGE.
 */
-namespace Modules\Admin\Controllers;
+namespace Modules\Admin\Controllers\Page;
 
-use \Framework\Core\Controller;
 use \Framework\Utilities\Http;
 use \Framework\Utilities\Auth;
-use \Framework\Html\Form\LimitedAttemptsForm;
+use \Framework\Html\Form\Form;
 use \Framework\Modules\ModulePage;
 
 class Login
-extends Controller {
-    public function __construct() {
-        parent::__construct();
-    
-        if(request()->get->logout == 1) {
-            session()->end();
-            
-            Http::redirect(Http::getTopLevelPageUrl('login', array(), 'admin'));
-        }
-        
+extends Admin {           
+    public function init() {
         if(Auth::userLoggedIn()) {
-            Http::redirect(Http::getTopLevelPageUrl('', array(), 'admin'));
+            Http::redirect('/admin');
+        }
+    }
+    
+    public function authorize() {}
+    
+    public function validatePost() {
+        $this->request->post->validation()->field('user_name')->required();
+        $this->request->post->validation()->field('password')->required();
+        
+        $this->request->post->validation()->validate();
+    }
+    
+    public function actionPost() {        
+        if($this->request->post->validation()->valid()) {
+            $login_credentials = $this->request->post->validation()->getValidFieldValues();
+            
+            if(Auth::userLogin($login_credentials['user_name'], $login_credentials['password'], true)) {
+                Http::redirect('/admin');
+            }
+            else {
+                $this->request->post->validation()->addError('The specified username and password are invalid.');
+            }
         }
     }
     
@@ -60,49 +73,33 @@ extends Controller {
         $this->page->setTitle('Administration Control Panel - Login');
         
         $this->page->setTemplate('login.php');
-        
-        $this->page->addMetaTag('page_robots', 'name', 'robots', 'noindex');
 
+        //Setup the css style        
         $this->page->addCssFiles(array(
-            'reset.css',
-            'main.css'
+            '/bootstrap/dist/css/bootstrap.css'
         ));
         
-        $this->page->body->addChild($this->getAdminLoginForm());
+        //Setup the javascript        
+        $this->page->addJavascriptFiles(array(
+            "/jquery/dist/jquery.min.js",
+            '/popper.js/dist/umd/popper.min.js',
+            '/bootstrap/dist/js/bootstrap.min.js'
+        ));
     }
     
-    private function getAdminLoginForm() {
-        $login_form = new LimitedAttemptsForm('admin_login_form', NULL, 'post', false);                
-
-        $login_form->captchaAtAttemptNumber(3, "Verify that You're Human (Sorry)");
+    public function action() {
+        $login_form = new Form('admin_login_form', '/admin/login', 'post', false);
         
         $login_form->addTextbox('user_name', 'Username');
         
         $login_form->addPassword('password', 'Password');
         
         $login_form->addSubmit('submit', 'Login');
-        
-        $login_form->setRequiredFields(array('user_name', 'password'));
-        
-        if(!$login_form->isLocked()) {
-            if($login_form->wasSubmitted() && $login_form->isValid()) {
-                $login_credentials = $login_form->getData();
-                
-                if(Auth::userLogin($login_credentials['user_name'], $login_credentials['password'], true)) {
-                    Http::redirect(Http::getTopLevelPageUrl());
-                }
-                else {
-                    $login_form->addError('The specified username and password are invalid.');
-                }
-            }
-        }
-        
-        return $login_form;
+    
+        $this->page->body()->addChild($login_form, 'admin_login_form');
     }
-    
-    public function submit() {    
-        $login_form = $this->getAdminLoginForm();
-    
-        return $login_form->toJsonArray();
+
+    public function actionGet() {    
+        
     }
 }

@@ -33,6 +33,8 @@
 
 namespace Framework\Html\Form\FieldObjects;
 
+use \Exception;
+
 class Select
 extends Field {
     /**
@@ -195,8 +197,10 @@ extends Field {
                 $this->default_value = $this->option_values[$field_index];
             }
         }
-        else {
-            assert('is_array($field_index)');
+        else {        
+            if(!is_array($field_index)) {
+                throw new Exception("field_index must be an array.");
+            }
         
             if(!empty($field_index)) {
                 foreach($field_index as $index) {
@@ -239,9 +243,7 @@ extends Field {
      * @param string $option_group_name (optional) The name of the option group.     
      * @return void
      */
-    public function addOptions($options, $option_group_name = NULL) {
-        assert('is_array($options)');
-    
+    public function addOptions(array $options, $option_group_name = NULL) {    
         if(!empty($options)) {
             foreach($options as $option_value => $option_text) {
                 if(!is_array($option_text)) {

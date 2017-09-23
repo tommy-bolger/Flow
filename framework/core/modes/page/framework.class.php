@@ -91,11 +91,23 @@ extends Web {
         
         $current_page_class->init();
         
-        $current_page_class->setup();
+        $current_page_class->authorize();
+        
+        $current_page_class->access();
+        
+        $current_page_class->validate();
+        
+        $validate_name = $this->getValidateName();
+        
+        $current_page_class->$validate_name();
         
         $action_name = $this->getActionName();
         
         $current_page_class->$action_name();
+        
+        $current_page_class->setup();
+        
+        $current_page_class->action();
         
         $current_page_class->render();
     }
@@ -141,6 +153,12 @@ extends Web {
         $uri_segments = $this->getParsedUri();
     
         $this->page_http_name = array_pop($uri_segments);
+        
+        if($this->page_http_name == 'admin') {
+            $this->page_http_name = NULL;
+            
+            $uri_segments[] = 'admin';
+        }
         
         $page_class_name = $this->page_http_name;                
         
@@ -198,10 +216,10 @@ extends Web {
 
         //Check to see if the page class exists
         if(empty($class_exists)) {
-            $home_page_class_path = "{$page_class_path}\\Home";
+            $home_page_class_path = rtrim($page_class_path, "\\") . "\\Home";
             
             $home_page_class_exists = $this->classExists($home_page_class_path);
-        
+            
             //If the current page class doesn't exist get the not found page  
             if(empty($home_page_class_exists)) {
                 $this->qualified_page_path = $page_class_path;

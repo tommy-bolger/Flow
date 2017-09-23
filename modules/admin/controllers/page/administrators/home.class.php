@@ -31,9 +31,9 @@
 * POSSIBILITY OF SUCH DAMAGE.
 */
 
-namespace Modules\Admin\Controllers\Administrators;
+namespace Modules\Admin\Controllers\Page\Administrators;
 
-use \Modules\Admin\Controllers\Home as AdminHome;
+use \Modules\Admin\Controllers\Page\Admin as AdminHome;
 use \Framework\Utilities\Http;
 
 class Home

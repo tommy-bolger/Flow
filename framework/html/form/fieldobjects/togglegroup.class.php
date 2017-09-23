@@ -116,9 +116,7 @@ extends Field {
      * @param array $group_type The options to add
      * @return void
      */
-    public function addOptions($options) {
-        assert('is_array($options)');
-    
+    public function addOptions($options) {    
         if(!empty($options)) {
             foreach($options as $option_value => $option_label) {
                 $this->addOption($option_value, $option_label);
@@ -132,9 +130,7 @@ extends Field {
      * @param object $option The option object.
      * @return void
      */
-    protected function setOptionSelected($option) {
-        assert('is_object($option) && get_class($option) == "Framework\\Html\\Form\\FieldObjects\\Toggle"');
-    }
+    protected function setOptionSelected($option) {}
     
     /**
      * Renders and retrieves the toggle group html.

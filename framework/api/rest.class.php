@@ -1,6 +1,6 @@
 <?php
 /**
-* The base class for all Rest API clients in ths framework.
+* The base class for all Rest API clients in the framework.
 *
 * Copyright (c) 2017, Tommy Bolger
 * All rights reserved.
@@ -308,7 +308,7 @@ class Rest {
     /**
     * Submits the last request to a Rest service, checks for errors, and returns the parsed response.
     *     
-    * @return mixed The json response from the service API.
+    * @return void
     */
     public function submitRequest() {
         $this->parsed_response = NULL;

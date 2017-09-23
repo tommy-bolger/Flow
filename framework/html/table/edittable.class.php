@@ -275,9 +275,7 @@ extends DataTable {
      * @param array $filter_columns The page filter criteria.
      * @return void
      */
-    protected function setPageFilter($filter_columns) {
-        assert('is_array($filter_columns)');
-        
+    protected function setPageFilter(array $filter_columns) {        
         if(!empty($filter_columns)) {
             request()->setRequired($filter_columns);
             
@@ -301,9 +299,7 @@ extends DataTable {
      * @param array $filter_columns The record filter filter criteria.
      * @return void
      */
-    protected function setRecordFilter($filter_columns) {
-        assert('!empty($filter_columns) && is_array($filter_columns)');
-    
+    protected function setRecordFilter(array $filter_columns) {    
         $this->record_filter = array_merge($this->record_filter, $filter_columns);
 
         foreach($filter_columns as $column_name => $column_value) {
@@ -389,9 +385,7 @@ extends DataTable {
      * @param callable $callback_function The callback function to execute.
      * @return void
      */
-    public function addMoveCallbackFunction($callback_function) {
-        assert('is_callable($callback_function)');
-        
+    public function addMoveCallbackFunction($callback_function) {        
         $this->move_callback_functions[] = $callback_function;
     }
     
@@ -401,9 +395,7 @@ extends DataTable {
      * @param callable $callback_function The callback function to execute.
      * @return void
      */
-    public function addDeleteCallbackFunction($callback_function) {
-        assert('is_callable($callback_function)');
-        
+    public function addDeleteCallbackFunction($callback_function) {        
         $this->delete_callback_functions[] = $callback_function;
     }
     
@@ -629,9 +621,7 @@ extends DataTable {
      * @param array $query_string_parameters The query string in the following format: array('name' => 'value').    
      * @return string
      */
-    protected function generateUrl($query_string_parameters) {
-        assert('is_array($query_string_parameters)');
-    
+    protected function generateUrl(array $query_string_parameters) {    
         $query_string_parameters = array_merge($this->table_state_request, $query_string_parameters);
         
         $query_string_parameters['tk'] = $this->request_token;
@@ -658,9 +648,7 @@ extends DataTable {
         
         switch($action) {
             case 'edit':
-            case 'add':
-                assert('!empty($this->edit_page)');
-            
+            case 'add':            
                 $table_link_url = Http::getCurrentLevelPageUrl($this->edit_page, $query_string_parameters, self::$module_name);
                 break;
             default:
@@ -677,9 +665,7 @@ extends DataTable {
      * @param object $resultset An object of type ResultSet. Valid classes fall under \Framework\Data\ResultSet.
      * @return void
      */        
-    public function process($resultset, $processor_function = NULL) {
-        assert('is_object($resultset) && !empty($resultset)');
-        
+    public function process($resultset, $processor_function = NULL) {        
         $this->processToken();
         
         $this->processAction();
@@ -711,9 +697,7 @@ extends DataTable {
      * @param string $group_name (optional) The name of the table body this record belongs to.     
      * @return void
      */
-    public function addRow($row, $group_name = '') {
-        assert('is_array($row)');
-        
+    public function addRow(array $row, $group_name = '') {        
         if(empty($this->edit_page)) {
             throw new \Exception('The edit page has not been specified.');
         }

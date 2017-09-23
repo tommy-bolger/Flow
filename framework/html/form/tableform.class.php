@@ -108,9 +108,7 @@ extends Form {
      * @param array $fields_outside_table An array of field names.
      * @return void
      */
-    public function setFieldsOutsideTable($fields_outside_table) {
-        assert('is_array($fields_outside_table) && !empty($fields_outside_table)');
-        
+    public function setFieldsOutsideTable(array $fields_outside_table) {        
         $this->fields_outside_table = $fields_outside_table;
     }
     

@@ -14,9 +14,11 @@ class ProductAPI {
     
     public function __construct($region = '', $public_key = '', $private_key = '') {
         $framework = Framework::getInstance();
+        
+        $configuration = $framework->getConfiguration();
     
         if(empty($region)) {
-            $region = $framework->configuration->aws_region;
+            $region = $configuration->aws_region;
         }
     
         switch($region) {
@@ -34,13 +36,13 @@ class ProductAPI {
         }
         
         if(empty($public_key)) {
-            $public_key = $framework->configuration->aws_public_key;
+            $public_key =$configuration->aws_public_key;
         }
         
         $this->public_key = $public_key;
         
         if(empty($private_key)) {
-            $private_key = $framework->configuration->aws_private_key;
+            $private_key = $configuration->aws_private_key;
         }
         
         $this->private_key = $private_key;

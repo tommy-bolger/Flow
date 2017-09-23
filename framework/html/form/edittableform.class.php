@@ -118,9 +118,7 @@ extends EditTable {
      * @param array $constant_fields The fields to add.
      * @return void
      */
-    public function addConstantFields($constant_fields) {
-        assert('!empty($constant_fields) && is_array($constant_fields)');
-        
+    public function addConstantFields(array $constant_fields) {        
         $this->constant_fields = $constant_fields;
     }
     
@@ -143,9 +141,7 @@ extends EditTable {
      * @param callable $callback_function The callback function to execute.
      * @return void
      */
-    public function addAddCallbackFunction($callback_function) {
-        assert('is_callable($callback_function)');
-        
+    public function addAddCallbackFunction($callback_function) {        
         $this->add_callback_functions[] = $callback_function;
     }
     
@@ -155,9 +151,7 @@ extends EditTable {
      * @param callable $callback_function The callback function to execute.
      * @return void
      */
-    public function addEditCallbackFunction($callback_function) {
-        assert('is_callable($callback_function)');
-        
+    public function addEditCallbackFunction($callback_function) {        
         $this->edit_callback_functions[] = $callback_function;
     }
     
@@ -182,7 +176,7 @@ extends EditTable {
                 }
     
                 if(!empty($this->record_filter)) {
-                    $form_data = array_merge($form_data, $this->record_filter);
+                    $form_data = array_merge($this->record_filter, $form_data);
                 }
                 
                 if($this->action == 'edit') {

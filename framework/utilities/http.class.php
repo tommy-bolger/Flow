@@ -67,8 +67,10 @@ final class Http {
     * @param string $redirect_location The class name to redirect to.
     * @return void   
     */
-    public static function redirect($redirect_location) {            
-        switch(Framework::getInstance()->mode) {
+    public static function redirect($redirect_location) {
+        $mode = Framework::getInstance()->getMode();
+    
+        switch($mode) {
             case 'page':
                 header("Location: {$redirect_location}");
                 break;
@@ -121,7 +123,7 @@ final class Http {
             self::$base_url .= $_SERVER["SERVER_NAME"];
             
             $port = $_SERVER["SERVER_PORT"];
-            $port_numbers_in_urls = Framework::getInstance()->configuration->port_numbers_in_urls;
+            $port_numbers_in_urls = Framework::getInstance()->getConfiguration()->port_numbers_in_urls;
             
             if($port != 80 && $port != 443 && $port_numbers_in_urls) {
                 self::$base_url .= ":{$port}";
@@ -181,9 +183,7 @@ final class Http {
     * @param array|string $query_string_parameters The query string parameters to add to the base url. Array format is parameter_name => parameter_value.
     * @return string The full url.
     */
-    public static function generateUrl($base_url, $query_string_parameters, $cache_name = '') {
-        assert('!empty($query_string_parameters)');
-        
+    public static function generateUrl($base_url, $query_string_parameters, $cache_name = '') {        
         $generated_url = $base_url;
         
         if(!empty($query_string_parameters)) {        
@@ -230,9 +230,11 @@ final class Http {
     * @param array $query_string_parameters (optional) The query string parameters to add to url. Format is parameter_name => parameter_value.
     * @return string
     */
-    public static function getInternalUrl($module_name = '', array $subdirectory_path = array(), $page = '', array $query_string_parameters = array()) {            
+    public static function getInternalUrl($module_name = '', array $subdirectory_path = array(), $page = '', array $query_string_parameters = array()) {
+        $framework = Framework::getInstance();
+    
         if(!isset(self::$default_module)) {
-            self::$default_module = Framework::getInstance()->configuration->default_module;
+            self::$default_module = $framework->getConfiguration()->default_module;
         }
         
         if(!isset(self::$running_module)) {
@@ -274,7 +276,7 @@ final class Http {
         }
         
         if(!empty($page_path)) {
-            if(Framework::getInstance()->environment == 'development') {
+            if($framework->getEnvironment() == 'development') {
                 $url .= 'index.php/';
             }
             
@@ -353,9 +355,7 @@ final class Http {
     * @param string $module_name (optional) The name of the module to include as an override in the url.
     * @return string
     */
-    public static function getLowerLevelPageUrl($subdirectories, $page_name = '', $query_string_parameters = array(), $module_name = '') {
-        assert('is_array($subdirectories)');
-    
+    public static function getLowerLevelPageUrl($subdirectories, $page_name = '', array $query_string_parameters = array(), $module_name = '') {    
         $subdirectory_path = array_merge(Framework::getInstance()->getHttpSubPath(), $subdirectories);
 
         return self::getInternalUrl($module_name, $subdirectory_path, $page_name, $query_string_parameters);

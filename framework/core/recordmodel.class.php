@@ -91,9 +91,7 @@ class RecordModel {
         }
     }
     
-    public function setPropertiesFromObject($property_values, $error_on_invalid_property = false) {
-        assert('is_object($property_values)');
-        
+    public function setPropertiesFromObject($property_values, $error_on_invalid_property = false) {        
         $property_values_array = get_object_vars($property_values);
         
         $this->setPropertiesFromArray($property_values_array, $error_on_invalid_property);

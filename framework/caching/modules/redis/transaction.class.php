@@ -100,9 +100,7 @@ class Transaction {
      * @param mixed $callback The callback functionality to execute. Can either be a function, name of a function, or array to a class method.
      * @return void
      */
-    public function setCommitProcessCallback($callback, array $arguments = array()) {
-        assert('is_callable($callback)');
-        
+    public function setCommitProcessCallback($callback, array $arguments = array()) {        
         $this->commit_post_process_callback = $callback;
         
         if(!empty($arguments)) {

@@ -53,20 +53,7 @@ extends ToggleGroup {
     public function __construct($checkbox_group_name, $checkbox_group_label = NULL, array $options = array(), $css_classes = array()) {
         parent::__construct($checkbox_group_name, $checkbox_group_label, $options, $css_classes);
     }
-    
-    /**
-     * Adds the element's javascript and css to the page.
-     *      
-     * @return void
-     */
-    protected function addElementFiles() {
-        parent::addElementFiles();
-        
-        $this->addJavascriptFile('form/fields/Select.js');
-        $this->addJavascriptFile('form/fields/Listbox.js');
-        $this->addJavascriptFile('form/fields/CheckboxGroup.js');
-    }
-    
+
     /**
      * Sets the type of toggle fields that will appear in this group.
      *      

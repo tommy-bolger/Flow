@@ -1,7 +1,7 @@
 <?php
 /**
 * A parent class that handles common functionality for http requests.
-* Copyright (c) 2011, Tommy Bolger
+* Copyright (c) 2017, Tommy Bolger
 * All rights reserved.
 * 
 * Redistribution and use in source and binary forms, with or without 
@@ -34,12 +34,16 @@ namespace Framework\Core\Modes;
 
 use \Exception;
 use \Framework\Core\Framework;
+use \Framework\Request\Request;
 
 require_once(dirname(__DIR__) . '/framework.class.php');
 
 class Web
 extends Framework {
-    protected $request_method;
+    /**
+    * @var object An instance of the request.
+    */
+    protected $request;
 
     /**
      * Initializes an instance of the framework in web mode.
@@ -52,20 +56,14 @@ extends Framework {
         
         parent::__construct($mode);
         
-        $this->request_method = $_SERVER['REQUEST_METHOD'];
+        $this->request = Request::getInstance();
         
         if($this->configuration->environment == 'maintenance') {
             /*
                 Send a 503 error code to tell clients that the request cannot be completed due to maintenance.
                 The below header code was adapted from here: https://yoast.com/http-503-site-maintenance-seo/
-            */
-            $protocol = "HTTP/1.0";
-        
-            if("HTTP/1.1" == $_SERVER["SERVER_PROTOCOL"]) {
-                $protocol = "HTTP/1.1";
-            }
-            
-            header("{$protocol} 503 Service Unavailable", true, 503);
+            */            
+            http_response_code(503);
             header("Retry-After: 7200");
         
             $this->runMaintenance();
@@ -119,40 +117,61 @@ extends Framework {
     }
     
     /**
-     * Retrieves the action name based on the request method.
+     * Retrieves a method name with the request method appended to it.
      *
+     * @param string $prefix The prefix that the method name will append to.
      * @return string
      */
-    protected function getActionName() {
-        $action = 'action';
+    protected function appendMethodName($prefix) {
+        $full_method_name = $prefix;
     
-        switch($this->request_method) {
+        $request_method = $this->request->getMethod();
+    
+        switch($request_method) {
             case 'GET':
-                $action .= 'Get';
+                $full_method_name .= 'Get';
                 break;
             case 'POST':
-                $action .= 'Post';
+                $full_method_name .= 'Post';
                 break;
             case 'DELETE':
-                $action .= 'Delete';
+                $full_method_name .= 'Delete';
                 break;
             case 'PUT':
-                $action .= 'Put';
+                $full_method_name .= 'Put';
                 break;
             default:
                 throw new Exception("Request method '{$this->request_method}' is invalid. Valid values are GET, POST, DELETE, and PUT.");
                 break;
         }
         
-        return $action;
+        return $full_method_name;
     }
     
     /**
-     * Retrieves the request method.
+     * Retrieves the validate name based on the request method.
      *
      * @return string
      */
-    public function getRequestMethod() {
-        return $this->request_method;
+    protected function getValidateName() {
+        return $this->appendMethodName('validate');
+    }
+    
+    /**
+     * Retrieves the action name based on the request method.
+     *
+     * @return string
+     */
+    protected function getActionName() {
+        return $this->appendMethodName('action');
+    }
+    
+    /**
+     * Retrieves the framework request instance.
+     *
+     * @return string
+     */
+    public function getRequest() {
+        return $this->request;
     }
 }

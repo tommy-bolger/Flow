@@ -8,6 +8,7 @@
         }
     ],
     "require": {
-        "paragonie/halite": "^3.2"
+        "paragonie/halite": "^3.2",
+        "giggsey/libphonenumber-for-php": "^8.8"
     }
 }

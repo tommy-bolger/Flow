@@ -57,9 +57,7 @@ class File {
     * @param string $file_directory_path The path of the directory to save the uploaded file to.    
     * @return void
     */
-    public static function moveUpload($upload_file_data, $file_directory_path) {
-        assert('is_array($upload_file_data) && !empty($upload_file_data)');
-    
+    public static function moveUpload(array $upload_file_data, $file_directory_path) {    
         if(is_writable($file_directory_path)) {
             $file_name = $upload_file_data['name'];
             

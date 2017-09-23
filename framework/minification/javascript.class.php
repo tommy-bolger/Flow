@@ -42,7 +42,7 @@ extends Minifier {
     public function clean() {
         $this->loadUnminifiedData();
         
-        $javascript_minifier = $this->framework->configuration->javascript_minifier;
+        $javascript_minifier = $this->framework->getConfiguration()->javascript_minifier;
         
         if($javascript_minifier != 'simple') {
             $unminified_temp_file = tempnam('flow_scratch', 'js_unminified');
@@ -53,7 +53,7 @@ extends Minifier {
         
             switch($javascript_minifier) {
                 case 'closure':
-                    $compiler_path = escapeshellcmd($this->framework->configuration->closure_compiler_path);
+                    $compiler_path = escapeshellcmd($this->framework->getConfiguration()->closure_compiler_path);
 
                     if(!empty($compiler_path)) {
                         exec("java -jar {$compiler_path} --js {$unminified_temp_file} --js_output_file {$minified_temp_file}");

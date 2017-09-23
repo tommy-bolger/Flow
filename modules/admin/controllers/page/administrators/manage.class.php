@@ -31,7 +31,7 @@
 * POSSIBILITY OF SUCH DAMAGE.
 */
 
-namespace Modules\Admin\Controllers\Administrators;
+namespace Modules\Admin\Controllers\Page\Administrators;
 
 use \Framework\Html\Table\EditTable;
 use \Framework\Utilities\Http;

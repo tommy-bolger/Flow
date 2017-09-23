@@ -169,13 +169,13 @@ final class Configuration {
      * @return void
      */
     public function loadFrameworkBaseFile() {
-        $config_full_path = $this->framework->installation_path . "/protected/configuration.ini";
+        $config_full_path = $this->framework->getInstallationPath() . "/protected/configuration.ini";
         
         $config_is_readable = is_readable($config_full_path);
         
         $base_configuration = array();
         
-        if($this->framework->mode != 'safe') {
+        if($this->framework->getMode() != 'safe') {
             if(!$config_is_readable) {
                 throw new Exception("Configuration file '{$config_full_path}' is missing or not readable.");
             }
@@ -205,9 +205,7 @@ final class Configuration {
      * @param array $parameters The configuration parameters to cast. Each row must contain the parameter name, parameter value, and data type.
      * @return array The casted configuration parameters.
      */
-    protected function castConfigurationParameters($parameters) {
-        assert('is_array($parameters)');
-        
+    protected function castConfigurationParameters(array $parameters) {        
         $casted_parameters = array();
         
         if(!empty($parameters)) {            
@@ -254,7 +252,7 @@ final class Configuration {
     public function load() {    
         $full_configuration = array();
         
-        $cache = $this->framework->cache;
+        $cache = $this->framework->getCache();
 
         if($cache->initialized()) {
             $full_configuration = $cache->get($this->name, 'configurations');
@@ -344,9 +342,7 @@ final class Configuration {
      * @param array $parameter_names The names of the parameters to retrieve in this format: array('parameter_1', 'parameter_2', etc...).
      * @return array
      */
-    public function getParameters($parameter_names) {
-        assert('is_array($parameter_names) && !empty($parameter_names)');
-        
+    public function getParameters(array $parameter_names) {        
         $parameter_values = array();
         
         foreach($parameter_names as $parameter_name) {

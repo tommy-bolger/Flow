@@ -1,15 +1,26 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
+<!DOCTYPE html>
+<html lang="en-US">
     <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <meta http-equiv="cache-control" content="max-age=0" />
+        <meta http-equiv="cache-control" content="no-cache" />
+        <meta http-equiv="Cache-Control" content="no-store" />
+        <meta http-equiv="expires" content="0" />
+        <meta http-equiv="expires" content="Tue, 01 Jan 1980 1:00:00 GMT" />
+        <meta http-equiv="pragma" content="no-cache" />
+        <meta name="robots" content="noindex, nofollow" />
         <?php echo $this->title; ?>
-        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
-        <?php echo $this->meta_tags; ?>
-        <?php echo $this->css; ?>
-        <?php echo $this->javascript; ?>
-    </head>
+        <?php echo $this->css ?>
     <body>
-        <div id="admin_login">
-            <?php echo $this->admin_login_form; ?>
+        <div class="container-fluid h-100">
+            <div class="row h-100 justify-content-center align-items-center">
+                <div class="align-middle">
+                    <?php echo $this->admin_login_form; ?>
+                </div>
+            </div>
         </div>
+        <?php echo $this->javascript; ?>
     </body>
 </html>

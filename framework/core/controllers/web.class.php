@@ -33,7 +33,73 @@
 namespace Framework\Core\Controllers;
 
 class Web 
-extends Controller {    
+extends Controller {
+    /**
+    * @var object An instance of the request.
+    */
+    protected $request;
+    
+    /**
+     * Initializes a new instance of this controller.
+     *
+     * @param string $module_name The name of the module this controller is a part of.
+     * @return void
+     */
+    public function __construct($module_name) {
+        parent::__construct($module_name);
+    
+        $this->request = $this->framework->getRequest();
+    }
+
+    /**
+     * Executes any authorization logic.
+     *
+     * @return void
+     */
+    public function authorize() {}
+    
+    /**
+     * Executes any access logic.
+     *
+     * @return void
+     */
+    public function access() {}
+    
+    /**
+     * Executes any default validation logic.
+     *
+     * @return void
+     */
+    public function validate() {}
+    
+    /**
+     * Executes any validation for GET requests.
+     *
+     * @return void
+     */
+    public function validateGet() {}
+    
+    /**
+     * Executes any validation for POST requests.
+     *
+     * @return void
+     */
+    public function validatePost() {}
+    
+    /**
+     * Executes any validation for PUT requests.
+     *
+     * @return void
+     */
+    public function validatePut() {}
+    
+    /**
+     * Executes any validation for DELETE requests.
+     *
+     * @return void
+     */
+    public function validateDelete() {}
+
     /**
      * Executes a GET action.
      *

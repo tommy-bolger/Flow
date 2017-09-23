@@ -60,15 +60,11 @@ class ParallelProcessQueue {
         pcntl_signal(SIGCHLD, array($this, "childSignalHandler"));
     }
     
-    public function setMaxParallelProcesses($max_parallel_processes) {
-        assert('is_integer($max_parallel_processes) && $max_parallel_processes > 0');
-    
+    public function setMaxParallelProcesses($max_parallel_processes) {    
         $this->max_parallel_processes = $max_parallel_processes;
     }
     
-    public function addProcessToQueue($callback_function, array $callback_function_parameters = array()) {
-        assert('is_callable($callback_function)');
-        
+    public function addProcessToQueue($callback_function, array $callback_function_parameters = array()) {        
         $process_id = random_int(PHP_INT_MIN, PHP_INT_MAX);
         
         $this->process_queue[$process_id]['process_id'] = $process_id;

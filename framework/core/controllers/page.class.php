@@ -40,11 +40,29 @@ extends Web {
     protected $page;
     
     /**
+     * Initializes a new instance of Page.
+     *
+     * @return void
+     */
+    public function __construct($module_name) {
+        header('X-Frame-Options: DENY');
+    
+        parent::__construct($module_name);
+    }
+    
+    /**
      * Sets up the page request.
      *
      * @return void
      */
     public function setup() {}
+    
+    /**
+     * The default action for this controller.
+     *
+     * @return void
+     */
+    public function action() {}
     
     /**
      * Renders the current page and returns its output.

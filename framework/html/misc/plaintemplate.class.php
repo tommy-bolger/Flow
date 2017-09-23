@@ -60,17 +60,17 @@ class PlainTemplate {
         $template_html = '';
         
         $framework = Framework::getInstance();
+        
+        $framework_cache = $framework->getCache();
             
-        if($framework->cache->initialized()) {
-            $template_html = $framework->cache->get($this->template_path);
+        if($framework_cache->initialized()) {
+            $template_html = $framework_cache->get($this->template_path);
         }
-        else {
-            assert('is_readable($this->template_path)');
-            
+        else {            
             $template_html = file_get_contents($this->template_path);
             
-            if($framework->cache->initialized()) {
-                $framework->cache->set($this->template_path, $template_html);
+            if($framework_cache->initialized()) {
+                $framework_cache->set($this->template_path, $template_html);
             }
         }
         

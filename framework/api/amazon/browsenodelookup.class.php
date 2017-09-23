@@ -19,15 +19,11 @@ extends ProductAPI {
         }
     }
     
-    public function setResponseGroup($response_group) {
-        assert('!empty($response_group)');
-        
+    public function setResponseGroup($response_group) {        
         $this->response_groups[] = $response_group;
     }
     
-    public function setResponseGroups($response_groups) {
-        assert('is_array($response_groups) && !empty($response_group)');
-        
+    public function setResponseGroups(array $response_groups) {        
         $this->response_groups = $response_groups;
     }
     

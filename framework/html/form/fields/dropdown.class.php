@@ -53,15 +53,4 @@ extends Select {
     public function __construct($dropdown_name, $dropdown_label = "", $options = array(), $css_classes = array()) {
         parent::__construct($dropdown_name, $dropdown_label, $options, $css_classes);
     }
-    
-    /**
-     * Adds the element's javascript and css to the page.
-     *      
-     * @return void
-     */
-    protected function addElementFiles() {
-        parent::addElementFiles();
-
-        $this->addJavascriptFile('form/fields/Dropdown.js');
-    }
 }

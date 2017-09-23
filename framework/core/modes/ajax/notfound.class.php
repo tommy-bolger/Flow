@@ -44,7 +44,7 @@ extends Web {
         //Log that the requested page class could not be found.        
         $page_class_path = $this->framework->getQualifiedPagePath();
         
-        $this->framework->error_handler->logMessage("Page class '{$page_class_path}' could not be found.");
+        $this->framework->getErrorHander()->logMessage("Page class '{$page_class_path}' could not be found.");
     }
     
     public function action() {

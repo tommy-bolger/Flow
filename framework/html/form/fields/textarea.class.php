@@ -33,6 +33,7 @@
 
 namespace Framework\Html\Form\Fields;
 
+use \Exception;
 use \Framework\Html\Form\FieldObjects\Field;
 
 class Textarea
@@ -73,7 +74,7 @@ extends Field {
                 $this->setAttribute('wrap', $wrap);
                 break;
             default:
-                throw new \Exception("Specified textarea wrap can only be 'off', 'physical', or 'virtual'.");
+                throw new Exception("Specified textarea wrap can only be 'off', 'physical', or 'virtual'.");
                 break;
         }
     }

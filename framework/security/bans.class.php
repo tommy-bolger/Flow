@@ -41,9 +41,7 @@ class Bans {
      * @param string $expiration_time (optional) The date and time when the ban will expire. Defaults to NULL.           
      * @return void
      */
-    public static function add($ip_address, $expiration_time = NULL) {
-        assert('is_null($expiration_time) || (!is_null($expiration_time) && !empty($expiration_time))');
-    
+    public static function add($ip_address, $expiration_time = NULL) {    
         $active_ban_id = db()->getOne("
             SELECT banned_ip_address_id
             FROM cms_banned_ip_addresses

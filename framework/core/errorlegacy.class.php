@@ -131,9 +131,11 @@ class ErrorLegacy {
         $error_log_message .= "\nTrace: {$error_trace}";                
 
         //Log the error into the database if in a production environment and database logging is enabled 
-        if($this->framework->environment == 'production') {
+        if($this->framework->getEnvironment() == 'production') {
             //If the configuration has been loaded then attempt to log the error in the database.
-            if(!empty($this->framework->configuration) && $this->framework->configuration->isLoaded()) {
+            $framework_configuration = $this->framework->getConfiguration();
+            
+            if(!empty($framework_configuration) && $framework_configuration->isLoaded()) {
                 try {
                     db()->insert('cms_errors', array(
                         'incident_number' => $this->incident_number,
@@ -164,30 +166,6 @@ class ErrorLegacy {
      */
     public function initializeDevelopment() {
         error_reporting(-1);
-        
-        //Enable assertions
-        assert_options(ASSERT_ACTIVE, true);
-        assert_options(ASSERT_WARNING, false);
-        assert_options(ASSERT_CALLBACK, array($this, 'handleAssertFailure'));
-    }
-    
-    /**
-     * A callback function for failed assertions that throws an exception to produce a stack trace.
-     *
-     * @return void
-     */
-    public function handleAssertFailure($file, $line, $message) {
-        throw new \Exception("Assertion '{$message}' has failed.");
-    }
-    
-    /**
-     * Initializes any error handling specific to the framework's production mode.
-     *
-     * @return void
-     */
-    public function initializeProduction() {
-        //Disable assertions.
-        assert_options(ASSERT_ACTIVE, false);
     }
     
     /**
@@ -277,7 +255,7 @@ class ErrorLegacy {
     public function logMessage($error_log_message) {
         $error_log_message = "[---------- " . date('H:i:s') . " ----------]\n{$error_log_message}\n\n";
         
-        error_log($error_log_message, 3, "{$this->framework->installation_path}/logs/" . date('Y-m-d') . ".log");
+        error_log($error_log_message, 3, "{$this->framework->getInstallationPath()}/logs/" . date('Y-m-d') . ".log");
     }
     
     /**

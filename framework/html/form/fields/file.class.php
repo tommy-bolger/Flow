@@ -98,9 +98,7 @@ extends Field {
      * @param array $accepted_files The list of accepted file extensions without the preceding dot.
      * @return void
      */
-    public function addAcceptedFiles($accepted_files) {
-        assert('is_array($accepted_files)');
-    
+    public function addAcceptedFiles(array $accepted_files) {    
         if(!empty($accepted_files)) {
             foreach($accepted_files as $file_extension) {
                 $this->addAcceptedFile($file_extension);

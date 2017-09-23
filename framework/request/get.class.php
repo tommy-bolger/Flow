@@ -37,29 +37,11 @@ use \Framework\Utilities\Encryption;
 final class Get
 extends RequestData {
     /**
-     * Initializes a new instance of GetData.
+     * Initializes a new instance of this object.
      * 
      * @return void
      */
-    public function __construct() {
-        $request_values = $_GET;
-    
-        if(isset($request_values['e'])) {
-            $encoded_request_string = $request_values['e'];
-            
-            unset($request_values['e']);
-        
-            $encrypted_query_string = str_pad(strtr($encoded_request_string, '-_', '+/'), strlen($encoded_request_string) % 4, '=', STR_PAD_RIGHT);
-        
-            $request_string = Encryption::decrypt($encrypted_query_string);
-            
-            $request_parameters = array();
-            
-            parse_str($request_string, $request_parameters);
-            
-            $request_values = array_merge($request_values, $request_parameters);
-        }
-    
-        parent::__construct($request_values);
+    public function __construct() {    
+        parent::__construct($_GET);
     }
 }

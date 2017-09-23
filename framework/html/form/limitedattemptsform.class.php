@@ -102,9 +102,11 @@ extends Form {
         
         $this->disableJavascript();
         
+        $configuration = $this->framework->getConfiguration();
+        
         //Set default values
-        $this->max_attempts = $this->framework->configuration->attempts_form_max_attempts;
-        $this->timeout_duration = $this->framework->configuration->attempts_form_timeout_duration;
+        $this->max_attempts = $configuration->attempts_form_max_attempts;
+        $this->timeout_duration = $configuration->attempts_form_timeout_duration;
         
         //Initialize the form's session variable name to store submit attempts
         $attempts_session_name = "{$form_name}_attempts";
@@ -162,9 +164,7 @@ extends Form {
      * @param integer $max_attempts The maximum allowed number of attempts.     
      * @return void
      */
-    public function setMaxAttempts($max_attempts) {
-        assert('!empty($max_attempts) && is_integer($max_attempts)');
-        
+    public function setMaxAttempts($max_attempts) {        
         $this->max_attempts = $max_attempts;
     }
     
@@ -174,9 +174,7 @@ extends Form {
      * @param integer $timeout_duration The number of minutes the form will be locked for.     
      * @return void
      */
-    public function setTimeoutDuration($timeout_duration) {
-        assert('!empty($timeout_duration) && is_integer($timeout_duration)');
-        
+    public function setTimeoutDuration($timeout_duration) {        
         $timeout_duration_seconds = $timeout_duration * 60;
         
         $this->timeout_duration = $timeout_duration;
@@ -189,9 +187,7 @@ extends Form {
      * @param string $captcha_label The label for the captcha field.          
      * @return void
      */
-    public function captchaAtAttemptNumber($attempt_number, $captcha_label) {
-        assert('!empty($attempt_number) && is_integer($attempt_number)');
-        
+    public function captchaAtAttemptNumber($attempt_number, $captcha_label) {        
         $this->captcha_attempt_number = $attempt_number;
         $this->captcha_label = $captcha_label;
     }

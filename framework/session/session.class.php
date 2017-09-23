@@ -74,7 +74,7 @@ class Session {
         $framework = Framework::getInstance();
     
         //Determine which session storage engine should be loaded if specified
-        $storage_engine = $framework->configuration->session_storage_engine;
+        $storage_engine = $framework->getConfiguration()->session_storage_engine;
         
         //Set the session save handler based on the storage engine
         switch($storage_engine) {
@@ -94,8 +94,8 @@ class Session {
         
         session_cache_limiter('private');
         
-        if(isset($framework->configuration->session_name)) {
-            session_name($framework->configuration->session_name);
+        if(isset($framework->getConfiguration()->session_name)) {
+            session_name($framework->getConfiguration()->session_name);
         }
         
         session_start();
@@ -161,9 +161,7 @@ class Session {
      * @param array $variable_names The names of the variables that required.
      * @return void
      */
-    public function setRequired(array $variable_names) {
-        assert('!empty($variable_names)');
-        
+    public function setRequired(array $variable_names) {        
         $this->required_variables = array_combine($variable_names, $variable_names);
     }
     

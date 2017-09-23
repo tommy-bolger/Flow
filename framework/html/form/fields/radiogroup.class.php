@@ -56,19 +56,6 @@ extends ToggleGroup {
     }
     
     /**
-     * Adds the element's javascript and css to the page.
-     *      
-     * @return void
-     */
-    protected function addElementFiles() {
-        parent::addElementFiles();
-        
-        $this->addJavascriptFile('form/fields/Select.js');
-        $this->addJavascriptFile('form/fields/Dropdown.js');
-        $this->addJavascriptFile('form/fields/RadioGroup.js');
-    }
-    
-    /**
      * Sets the type of toggle fields that will appear in this group.
      *      
      * @return void

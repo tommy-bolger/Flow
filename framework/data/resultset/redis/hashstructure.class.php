@@ -74,10 +74,10 @@ extends Memory {
      * @param array $placeholder_values The values of corresponding placeholders in the criteria.     
      * @return void
      */
-    public function addFilterCriteria($criteria, array $placeholder_values = array()) {        
-        assert('!empty($criteria)');
-        assert('empty($this->filter_criteria)');
-        assert('empty($placeholder_values) || count($placeholder_values) == 1');
+    public function addFilterCriteria($criteria, array $placeholder_values = array()) {                
+        if(count($placeholder_values) > 1) {
+            throw new Exception("placeholder_values can only contain 1 criteria.");
+        }
         
         $this->filter_criteria[] = $criteria;
         

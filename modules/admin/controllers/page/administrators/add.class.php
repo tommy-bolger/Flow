@@ -1,7 +1,7 @@
 <?php
 /**
 * The add/edit page of the administrators section for the Admin module.
-* Copyright (c) 2011, Tommy Bolger
+* Copyright (c) 2017, Tommy Bolger
 * All rights reserved.
 * 
 * Redistribution and use in source and binary forms, with or without 
@@ -31,7 +31,7 @@
 * POSSIBILITY OF SUCH DAMAGE.
 */
 
-namespace Modules\Admin\Controllers\Administrators;
+namespace Modules\Admin\Controllers\Page\Administrators;
 
 use \Framework\Html\Form\EditTableForm;
 use \Framework\Utilities\Http;

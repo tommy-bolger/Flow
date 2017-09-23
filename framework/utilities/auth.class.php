@@ -64,7 +64,7 @@ final class Auth {
     * @return boolean The authentication status.
     */
     public static function userLogin($user_name, $password, $admin_login = false) {
-        $second_encryption_key = strlen($user_name) * strlen($password);
+        $second_encryption_key = strlen($user_name) + strlen($password);
         
         $admin_login_criteria = '';
         

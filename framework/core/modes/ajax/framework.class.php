@@ -87,19 +87,22 @@ extends BaseFramework {
         $page_class_name = $this->getPageClass();
 
         $current_page_class = new $page_class_name();
-
-        $current_page_class->init($current_page_class);
+        
+        $current_page_class->init();
+        
+        $current_page_class->authorize();
+        
+        $current_page_class->access();
+        
+        $current_page_class->validate();
+        
+        $validate_name = $this->getValidateName();
+        
+        $current_page_class->$validate_name();
         
         $action_name = $this->getActionName();
         
-        $output_data = array();
-        
-        if(is_callable(array($current_page_class, $action_name))) {
-            $output_data = $current_page_class->$action_name();
-        }
-        else {
-            $this->initializeNotFound();
-        }
+        $output_data = $current_page_class->$action_name();
         
         if(!empty($output_data)) {
             $output = json_encode($output_data, JSON_UNESCAPED_UNICODE);

@@ -31,13 +31,13 @@
 * POSSIBILITY OF SUCH DAMAGE.
 */
 
-namespace Modules\Admin\Controllers\Settings;
+namespace Modules\Admin\Controllers\Page\Settings;
 
-use \Modules\Admin\Controllers\Home as AdminHome;
+use \Modules\Admin\Controllers\Page\Admin;
 use \Framework\Utilities\Http;
 
 class Home
-extends AdminHome {
+extends Admin {
     protected $title = "Settings";
     
     protected $active_nav = 'settings';

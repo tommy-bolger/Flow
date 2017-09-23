@@ -1,7 +1,7 @@
 <?php
 /**
 * Allows the rendering of a <body> tag with child elements dynamically.
-* Copyright (c) 2011, Tommy Bolger
+* Copyright (c) 2017, Tommy Bolger
 * All rights reserved.
 * 
 * Redistribution and use in source and binary forms, with or without 

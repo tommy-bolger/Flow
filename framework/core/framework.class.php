@@ -183,26 +183,6 @@ class Framework {
     }
     
     /**
-     * Retrieves a specified property of the framework instance.
-     *
-     * @param string $property_name The name of the property to retrieve.     
-     * @return mixed
-     */
-    public function __get($property_name) {
-        return $this->$property_name;
-    }
-    
-    /**
-     * Indicates if a specified property is set.
-     *
-     * @param string $property_name The name of the property.     
-     * @return boolean
-     */
-    public function __isset($property_name) {
-        return isset($this->$property_name);
-    }
-    
-    /**
      * Indicates if a class exists at the fully qualified namespace.
      *
      * @param string $page_class_path The fully qualified namespace path to the class.     
@@ -261,5 +241,50 @@ class Framework {
      */
     public function getInstallationPath() {
         return $this->installation_path;
+    }
+    
+    /**
+     * Retrieves the framework configuration.
+     *
+     * @return object
+     */
+    public function getConfiguration() {
+        return $this->configuration;
+    }
+    
+    /**
+     * Retrieves the framework environment.
+     *
+     * @return string
+     */
+    public function getEnvironment() {
+        return $this->environment;
+    }
+    
+    /**
+     * Retrieves the framework mode.
+     *
+     * @return string
+     */
+    public function getMode() {
+        return $this->mode;
+    }
+    
+    /**
+     * Retrieves the framework cache object.
+     *
+     * @return object
+     */
+    public function getCache() {
+        return $this->cache;
+    }
+    
+    /**
+     * Retrieves the framework error handler object.
+     *
+     * @return object
+     */
+    public function getErrorHandler() {
+        return $this->error_handler;
     }
 }
